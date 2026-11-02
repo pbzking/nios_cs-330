@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d1511">
+<title>NIOS Computer Science 330 — Learning Path</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#0d1511;--panel:#141f19;--white:#e0e9e3;--muted:#91a49a;--mint:#5bd3a8;--mint-dark:#173d30;--line:#293a30}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--white);font-family:Inter,system-ui,sans-serif}button{font:inherit;cursor:pointer}
+.app{width:100%;max-width:560px;min-height:100vh;margin:auto;position:relative;background:radial-gradient(ellipse at 50% 85%,#245b4520,transparent 30%),#0d1511;overflow:hidden}
+.header{position:sticky;top:12px;z-index:10;margin:19px 14px 0;height:76px;border:1.7px solid #5bd3a8;border-radius:21px;background:#101a14ed;box-shadow:0 5px 0 #2548d7;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;backdrop-filter:blur(12px)}
+.kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#5bd3a8}.heading{font-size:15px;font-weight:600}.subhead{font-size:10px;color:#91a49a;margin-top:1px}
+.path{position:relative;padding:65px 0 300px;min-height:900px}
+.route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.route path{fill:none;stroke:#294637;stroke-width:7;stroke-linecap:round;stroke-dasharray:3 16;opacity:.85}
+.module-heading{position:relative;z-index:1;margin:35px 18px 6px;padding:0 4px;color:#75c9a8;font-size:10px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase}
+.module-heading:first-of-type{margin-top:5px}
+.node{position:relative;z-index:2;width:100%;height:130px;display:flex;align-items:center;cursor:pointer;user-select:none;transition:transform .15s}
+.node:active{transform:scale(.985)}
+.node[data-side="left"]{padding-left:calc(18% - 52px)}
+.node[data-side="center"]{padding-left:calc(43% - 52px)}
+.node[data-side="right"]{padding-left:calc(68% - 52px)}
+.platform-wrap{width:112px;height:86px;position:relative;flex:0 0 112px;display:grid;place-items:center}
+.disc{position:absolute;width:92px;height:55px;bottom:6px;border-radius:50%;background:#e5e5e5;border:7px solid #bcbcbc;box-shadow:inset 0 0 0 4px #d1d1d1,0 8px 0 #858585;transform:perspective(100px) rotateX(8deg)}
+.disc:after{content:"";position:absolute;inset:3px 9px;border-radius:50%;border:3px solid #f8f8f8a8}
+.node-label{width:min(180px,calc(100vw - 145px));padding-left:12px;color:#91a49a;font-size:13px;line-height:1.5;font-weight:500}
+.node-num{font-size:9px;letter-spacing:.8px;color:#72877b;font-weight:800;display:block;margin-bottom:3px}
+.node.active .node-label{color:#e0e9e3}.node.active .node-num{color:#5bd3a8}
+.node.locked .platform-wrap{opacity:.88}
+.node.done .disc{background:#d9f8e2;border-color:#7dd99a;box-shadow:inset 0 0 0 4px #b5edc4,0 8px 0 #4d9e65}
+.node.done .node-label{color:#bfc4c4}
+.active-platform{display:none;position:relative;width:120px;height:91px;flex:0 0 120px}
+.node.active .active-platform{display:block}.node.active .platform-wrap{display:none}
+.glow{position:absolute;width:118px;height:66px;bottom:0;border-radius:50%;background:radial-gradient(ellipse,#fff 0 30%,#d8f8eb 43%,#8ce2c1 63%,#36bd8b 74%,transparent 76%);filter:drop-shadow(0 0 13px #5bd3a8)}
+.ring{position:absolute;bottom:0;width:120px;height:68px;border:6px solid #5bd3a8;border-radius:50%;box-shadow:0 0 18px #42c99a70,inset 0 0 8px #42c99a70}
+.beam{position:absolute;bottom:42px;left:37px;width:47px;height:58px;background:linear-gradient(180deg,transparent,#fff9 48%,transparent);filter:blur(4px)}
+.pin{position:absolute;bottom:57px;left:38px;width:55px;height:55px;border-radius:17px 17px 22px 22px;background:linear-gradient(145deg,#8ce8c4,#39c99a);transform:rotate(45deg);box-shadow:0 8px 15px #0008;display:grid;place-items:center;z-index:2}
+.pin span{transform:rotate(-45deg);font-size:20px;color:white}
+.lock{position:absolute;top:0;right:8px;font-size:14px;z-index:3;filter:grayscale(1)}
+.check{position:absolute;top:1px;right:8px;width:20px;height:20px;border-radius:50%;background:#42c995;color:#fff;font-size:12px;display:grid;place-items:center;z-index:3}
+.bottom-sheet{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,560px);padding:24px 17px max(20px,env(safe-area-inset-bottom));background:#141f19f5;border:2px solid #293a30;border-bottom:0;border-radius:38px 38px 0 0;box-shadow:0 -16px 50px #0008;backdrop-filter:blur(14px)}
+.handle{width:42px;height:4px;background:#52665a;border-radius:5px;margin:-10px auto 17px}
+.sheet-title{text-align:center;font-size:19px;font-weight:800;margin:0 0 7px}
+.sheet-module{text-align:center;color:#75c9a8;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+.sheet-desc{display:none;text-align:center;color:#91a49a;font-size:12px;line-height:1.6;margin:0 8px 17px}
+.primary{width:100%;height:55px;border:0;border-radius:28px;color:#fff;font-size:14px;font-weight:800;background:linear-gradient(110deg,#5bd3a8,#4ac49a 62%,#2fa77e);box-shadow:0 5px 0 #1e7658;position:relative;overflow:hidden}
+.primary:before{content:"";position:absolute;width:28px;height:90px;top:-15px;left:66%;transform:rotate(30deg);background:#ffffff1c;box-shadow:27px 0 #ffffff15}
+.primary span{position:relative;z-index:1}
+.sheet-meta{text-align:center;color:#777;font-size:9px;letter-spacing:.6px;margin-top:13px}
+.modal-bg{position:fixed;inset:0;background:#000a;z-index:30;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}.modal{width:min(100%,370px);border:1px solid #293a30;border-radius:24px;background:#141f19;padding:24px;box-shadow:0 20px 70px #000a}
+.modal h2{font-size:20px;margin:0 0 9px}.modal p{font-size:13px;color:#91a49a;line-height:1.65;margin:0 0 20px}
+.modal-actions{display:flex;gap:9px}.modal-actions button{flex:1;padding:12px;border-radius:12px;border:1px solid #344b3d;background:#1b2a21;color:#e0e9e3;font-size:12px;font-weight:700}.modal-actions .go{background:#5bd3a8;border-color:#5bd3a8;color:#092219}
+@media(min-width:600px){.app{border-left:1px solid #292929;border-right:1px solid #292929}.bottom-sheet{bottom:16px;border-bottom:2px solid #4a4a4a;border-radius:35px;max-width:520px}}
+@media(max-width:390px){.node[data-side="left"]{padding-left:calc(14% - 52px)}.node[data-side="center"]{padding-left:calc(38% - 52px)}.node[data-side="right"]{padding-left:calc(62% - 52px)}.node-label{font-size:12px;width:calc(100vw - 150px)}}
+
+/* Mint theme refinements */
+.node.active .node-label{color:#e0e9e3}
+.node.active .node-num{color:#5bd3a8}
+.header{background:#101a14ed}
+.module-heading{color:#75c9a8}
+.sheet-title{color:#e0e9e3}
+.primary{color:#092219}
+.modal-actions .go{color:#092219}
+@media (prefers-reduced-motion:no-preference){
+ .ring{animation:mintPulse 2.8s ease-in-out infinite}
+ .glow{animation:glowPulse 2.8s ease-in-out infinite}
+}
+@keyframes mintPulse{0%,100%{box-shadow:0 0 12px #42c99a50,inset 0 0 7px #42c99a35}50%{box-shadow:0 0 22px #42c99a90,inset 0 0 12px #42c99a70}}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 9px #5bd3a8)}50%{filter:drop-shadow(0 0 18px #5bd3a8)}}
+
+/* Desktop layout: broad map canvas + persistent lesson information panel */
+@media (min-width: 900px){
+  body{background:#0a100d}
+  .app{
+    max-width:1280px;min-height:100vh;overflow:visible;
+    padding:0 28px 60px;
+    background:radial-gradient(ellipse at 34% 42%,#245b4520,transparent 35%),#0d1511;
+    border-left:1px solid #1d2b23;border-right:1px solid #1d2b23;
+  }
+  .header{position:relative;top:auto;width:calc(68% - 18px);height:82px;margin:24px 0 0 8px;border-radius:18px}
+  .kicker{font-size:11px}.heading{font-size:18px}.subhead{font-size:11px}
+  .path{width:68%;min-height:calc(100vh - 120px);padding:42px 0 110px;margin:0}
+  .module-heading{margin-top:24px;margin-bottom:0;font-size:11px}
+  .node{height:116px}
+  .node[data-side="left"]{padding-left:calc(18% - 52px)}
+  .node[data-side="center"]{padding-left:calc(43% - 52px)}
+  .node[data-side="right"]{padding-left:calc(68% - 52px)}
+  .node-label{font-size:14px;width:min(220px,calc(100vw - 200px))}
+  .bottom-sheet{
+    position:fixed;top:150px;bottom:auto;left:calc(50% + 260px);transform:none;
+    width:min(350px,calc((100vw - 900px)/2 + 330px));min-width:300px;
+    padding:26px 22px 22px;border:1px solid #293a30;border-radius:18px;
+    background:rgba(20,31,25,.96);box-shadow:0 18px 55px #0006;
+  }
+  .handle{display:none}
+  .sheet-title{font-size:22px;line-height:1.3;margin:0 0 10px}
+  .sheet-module{font-size:10px;margin-bottom:20px}
+  .sheet-desc{font-size:13px;line-height:1.75;margin:0 0 22px}
+  .primary{height:52px;border-radius:9px;font-size:14px}
+  .sheet-meta{font-size:10px;margin-top:15px}
+  .modal{max-width:420px}
+}
+@media (min-width:1200px){
+  .app{padding-left:42px;padding-right:42px}
+  .header{width:calc(68% - 22px);margin-left:10px}
+  .path{width:68%}
+  .bottom-sheet{left:calc(50% + 275px);width:350px}
+  .node{height:120px}
+}
+@media (min-width:900px) and (max-height:760px){
+  .bottom-sheet{top:110px}.node{height:104px}.path{padding-top:30px}
+}
+@media (hover:hover){
+  .node:hover .disc{border-color:#8bd9ba;filter:brightness(1.04)}
+  .node:hover .node-label{color:#d8e7de}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="header">
+  <div class="kicker">NIOS · COMPUTER SCIENCE (330)</div>
+  <div class="heading">Your Computer Science Journey</div>
+  <div class="subhead" id="headerProgress">LEVEL 1–29 · 0 / 29 COMPLETED</div>
+ </header>
+ <main class="path" id="path">
+  <svg class="route" id="route" viewBox="0 0 400 4000" preserveAspectRatio="none"><path id="routePath"></path></svg>
+  <div id="nodes"></div>
+ </main>
+ <section class="bottom-sheet">
+  <div class="handle"></div>
+  <h2 class="sheet-title" id="sheetTitle">Computer Fundamentals</h2>
+  <div class="sheet-module" id="sheetModule">MODULE 1 · BASIC COMPUTING</div>
+  <p class="sheet-desc" id="sheetDesc">Begin your Computer Science journey.</p>
+  <button class="primary" id="continue"><span>Continue</span></button>
+  <div class="sheet-meta" id="sheetMeta">CHAPTER 1 OF 29</div>
+ </section>
+</div>
+<div class="modal-bg" id="modal">
+ <div class="modal"><h2 id="modalTitle">Chapter locked</h2><p id="modalText">Complete the previous chapter to unlock this one.</p><div class="modal-actions"><button id="modalClose">Close</button><button class="go" id="modalGo">Got it</button></div></div>
+</div>
+<script>
+const chapters = [
+  ['Computer Fundamentals', 'Basic Computing'],
+  ['Binary Logic', 'Basic Computing'],
+  ['Computer Software', 'Basic Computing'],
+  ['Operating System', 'Basic Computing'],
+  ['Data Communication and Networking', 'Basic Computing'],
+  ['Communications on Internet', 'Basic Computing'],
+  ['Emailing', 'Basic Computing'],
+  ['Digital Documentation', 'Office Automation'],
+  ['Spreadsheets', 'Office Automation'],
+  ['Digital Presentation', 'Office Automation'],
+  ['Open Source Resources', 'Office Automation'],
+  ['Introduction to C++', 'Programming in C++'],
+  ['Basic Concepts of OOP', 'Programming in C++'],
+  ['Control Statements', 'Programming in C++'],
+  ['Functions', 'Programming in C++'],
+  ['Array', 'Programming in C++'],
+  ['Structure, Typedef & Enumerated Data Type', 'Programming in C++'],
+  ['Classes & Objects with Constructors/Destructors', 'Programming in C++'],
+  ['Inheritance – Extending Classes', 'Programming in C++'],
+  ['Pointer', 'Programming in C++'],
+  ['Files', 'Programming in C++'],
+  ['Fundamentals of Data Structure', 'Database Concepts & Web Designing'],
+  ['Database Management System', 'Database Concepts & Web Designing'],
+  ['Web Designing using HTML', 'Database Concepts & Web Designing'],
+  ['Inserting Images & Lists in a Web Page', 'Database Concepts & Web Designing'],
+  ['New Trends in Computing', 'Database Concepts & Web Designing'],
+  ['Project Management Skills', 'Professional Skills'],
+  ['Entrepreneurship Skills', 'Professional Skills'],
+  ['Professional Communication Skills', 'Professional Skills']
+];
+const moduleOrder=["Basic Computing","Office Automation","Programming in C++","Database Concepts & Web Designing","Professional Skills"];
+const moduleShort={"Basic Computing":"MODULE 1 · BASIC COMPUTING","Office Automation":"MODULE 2 · OFFICE AUTOMATION","Programming in C++":"MODULE 3 · PROGRAMMING IN C++","Database Concepts & Web Designing":"MODULE 4 · DATABASE & WEB DESIGNING","Professional Skills":"MODULE 5 · PROFESSIONAL SKILLS"};
+const sides=["left","right","center","right","left","center"];
+let active=0,completed=-1;
+const nodesRoot=document.getElementById("nodes");
+let yPositions=[];
+function build(){
+ let lastModule="";
+ chapters.forEach((ch,i)=>{
+  if(ch[1]!==lastModule){
+   const h=document.createElement("div");h.className="module-heading";h.textContent=moduleShort[ch[1]];nodesRoot.appendChild(h);lastModule=ch[1];
+  }
+  const n=document.createElement("div");n.className="node";n.dataset.index=i;n.dataset.side=sides[i%sides.length];
+  n.innerHTML=`<div class="active-platform"><div class="glow"></div><div class="ring"></div><div class="beam"></div><div class="pin"><span>▣</span></div></div><div class="platform-wrap"><div class="disc"></div><span class="lock">🔒</span></div><div class="node-label"><span class="node-num">CHAPTER ${i+1}</span>${ch[0]}<span class="check">✓</span></div>`;
+  n.addEventListener("click",()=>selectChapter(i));nodesRoot.appendChild(n);
+ });
+ // Build a subtle winding dotted route behind the checkpoints.
+ requestAnimationFrame(()=>{
+  const path=document.getElementById("path"), all=[...document.querySelectorAll(".node")], bounds=path.getBoundingClientRect();
+  const pts=all.map(el=>{const r=el.getBoundingClientRect();return {x:r.left-bounds.left+(el.dataset.side==="left"?52:el.dataset.side==="center"?52:52),y:r.top-bounds.top+42};});
+  let d="";pts.forEach((p,i)=>{if(!i)d=`M ${p.x} ${p.y}`;else{const prev=pts[i-1],mid=(prev.y+p.y)/2;d+=` C ${prev.x} ${mid}, ${p.x} ${mid}, ${p.x} ${p.y}`;}});
+  document.getElementById("route").setAttribute("viewBox",`0 0 ${bounds.width} ${path.scrollHeight}`);
+  document.getElementById("routePath").setAttribute("d",d);
+  document.getElementById("route").style.height=path.scrollHeight+"px";
+  refresh();
+ });
+}
+function refresh(){
+ const all=[...document.querySelectorAll(".node")];
+ all.forEach((el,i)=>{
+  el.classList.toggle("active",i===active);
+  el.classList.toggle("done",i<=completed);
+  el.classList.toggle("locked",i>completed+1);
+  const lock=el.querySelector(".lock"),check=el.querySelector(".check");
+  lock.style.display=i>completed+1?"block":"none";
+  check.style.display=i<=completed?"grid":"none";
+ });
+ document.getElementById("headerProgress").textContent=`LEVEL 1–29 · ${completed+1} / 29 COMPLETED`;
+ const c=chapters[active];
+ document.getElementById("sheetTitle").textContent=c[0];
+ document.getElementById("sheetModule").textContent=moduleShort[c[1]];
+ document.getElementById("sheetDesc").textContent=`Chapter ${active+1} of the NIOS Senior Secondary Computer Science (330) course. ${c[0]} is part of ${c[1]}.`;
+ document.getElementById("sheetDesc").style.display="block";
+ document.getElementById("sheetMeta").textContent=`CHAPTER ${active+1} OF 29 · ${c[1].toUpperCase()}`;
+ document.querySelector("#continue span").textContent=active<=completed?"Replay chapter":active===28?"Complete chapter":"Continue";
+}
+function selectChapter(i){
+ // Open the matching lesson file relative to this map HTML file.
+ // Chapter indices are zero-based; lesson filenames are one-based.
+ window.location.href = `Src/chp_${i+1}.html`;
+}
+document.getElementById("continue").addEventListener("click",()=>{
+ if(active===completed+1)completed=active;
+ if(completed===chapters.length-1){
+  document.getElementById("sheetTitle").textContent="Course journey complete!";
+  document.getElementById("sheetModule").textContent="NIOS COMPUTER SCIENCE (330)";
+  document.getElementById("sheetDesc").textContent="You have completed all 29 chapters. Excellent work!";
+  document.getElementById("sheetMeta").textContent="29 / 29 CHAPTERS COMPLETED";
+  document.querySelector("#continue span").textContent="Restart journey";
+  completed=-1;active=0;return;
+ }
+ if(active<chapters.length-1)active++;
+ refresh();
+});
+document.getElementById("modalClose").onclick=()=>document.getElementById("modal").classList.remove("open");
+document.getElementById("modalGo").onclick=()=>document.getElementById("modal").classList.remove("open");
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")});
+build();
+</script>
+</body></html>
