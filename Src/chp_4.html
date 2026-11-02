@@ -1,0 +1,1368 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Operating Systems Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 1 · Basic Computing · Lesson 4</div>
+    <h1>Operating Systems</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and process and memory lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"The core functions of an operating system (Table 1.1)",c:["Function","What it involves"],r:[
+["Process management","Creating processes, scheduling them for CPU time, tracking their state, terminating them on completion"],
+["Memory management","Tracking every byte of RAM, deciding which process gets how much, preventing one process from corrupting another's memory"],
+["File system management","Organising storage into a hierarchy of files and directories, managing read/write access, maintaining attributes and permissions"],
+["Device management","Controlling peripherals through device drivers, abstracting hardware diversity into a uniform interface"],
+["Security and protection","Enforcing access control, user authentication and resource permissions"],
+["User interface","Providing the means (CLI or GUI) through which humans issue commands"]]},
+/*1*/{s:0,t:"Kernel mode and user mode compared",c:["Basis","Kernel mode (supervisor mode)","User mode"],r:[
+["Access","Unrestricted access to all hardware and memory; can execute any instruction","Restricted: cannot access hardware directly, cannot execute sensitive instructions, touches only memory allocated to it"],
+["Who runs here","The kernel and trusted low-level components","Every ordinary application: word processor, browser, game"],
+["On a violation","Not applicable","The processor detects it and traps into the kernel, which can terminate the offending process without disturbing others"],
+["Purpose","Runs privileged operations","Acts as a safety boundary protecting the OS and other processes"]]},
+/*2*/{s:0,t:"System call categories",c:["Category","Examples"],r:[
+["Process control","Create, terminate (for example fork())"],
+["File management","Open, read, write, close (for example read())"],
+["Device management","Request, release (for example request_device())"],
+["Communication","Send, receive (for example send())"]]},
+/*3*/{s:1,t:"The evolution of operating systems",c:["Period","Development"],r:[
+["1940s","No operating system: programmers loaded machine code by hand for every run"],
+["1950s","Batch systems automated the tedious manual setup between jobs"],
+["Early 1960s","Multiprogramming addressed the idle CPU time batch systems still wasted while waiting on I/O"],
+["Mid-1960s onward","Time-sharing and multitasking made the machine feel interactive, giving each user or task the illusion of continuous attention"],
+["1970s onward","Multiuser and multiprocessing systems scaled this across people and across physical processors"],
+["Later","Real-time, distributed, network and mobile operating systems emerged as computing spread to safety-critical control, clusters, local networks and pocket-sized devices"]]},
+/*4*/{s:1,t:"The nine types of operating system",c:["Type","Defining feature","Examples"],r:[
+["Batch","Similar jobs collected into a batch and run one after another with no interaction during execution","Payroll, bank statement generation, billing runs"],
+["Multiprogramming","Several programs kept in memory; the CPU switches to another when one waits, maximising CPU utilisation","Batch-oriented mainframe settings"],
+["Multitasking","Several tasks active at once, switched rapidly (time slices) so the user sees a responsive, interactive system","Windows, macOS, Linux"],
+["Multiuser","Several users access the same system simultaneously, each independent and protected from the others","Linux and Unix servers, university labs, cloud platforms"],
+["Multiprocessing","Two or more physical CPUs run tasks at the same instant (true parallelism); SMP treats all processors as equal","Modern desktops and servers with multi-core processors"],
+["Real-time","Guarantees a response within strictly defined deadlines","Flight control, ABS brakes, pacemakers, streaming"],
+["Distributed","Independent networked computers presented as one unified system","Large cloud platforms"],
+["Network (NOS)","Software foundation for a LAN; computers share files and printers but keep independent identities","Windows Server, Novell NetWare, Linux with Samba"],
+["Mobile","Designed for smartphones and tablets: battery, touch, sensors, constant connectivity","Android, iOS"]]},
+/*5*/{s:1,t:"Hard versus soft real-time systems (Table 1.2)",c:["Type","Consequence of a missed deadline","Examples"],r:[
+["Hard real-time","Total system failure; the deadline is absolutely inviolable","Flight control, ABS brakes, pacemakers, missile guidance"],
+["Soft real-time","Degraded quality, tolerable occasionally","Video streaming, online gaming, telecommunications"]]},
+/*6*/{s:1,t:"Distributed and network operating systems compared",c:["Basis","Distributed OS","Network OS"],r:[
+["Presentation","The network appears as one unified system","Each computer keeps its own OS and identity"],
+["User awareness","Transparent: users need not know which machine does the work","Users log on explicitly and know they are reaching a separate machine"],
+["Structure","Each node has its own processor and memory; the OS coordinates tasks and data","Servers run the NOS and manage shared resources; clients access them"],
+["Purpose","Pooled power, fault tolerance, easy scaling","Resource sharing (files, printers, internet access) on a LAN"]]},
+/*7*/{s:1,t:"Multiprogramming and multitasking compared",c:["Basis","Multiprogramming","Multitasking"],r:[
+["Main aim","Maximise CPU utilisation","Provide a responsive, interactive experience"],
+["Setting","Primarily batch-oriented","Interactive: the user switches freely among applications"],
+["Switching trigger","When a program waits for I/O","Time slices (quanta) in round-robin rotation, even if the task has not finished"],
+["Example","Early mainframes","Windows, macOS, Linux"]]},
+/*8*/{s:1,t:"Classifying a scenario: the questions to ask in order",c:["Question","Operating system type"],r:[
+["Does it process without interaction?","Batch"],
+["Does it switch programs to avoid CPU idling?","Multiprogramming"],
+["Does it switch programs to feel interactive?","Multitasking"],
+["Does it serve several people at once?","Multiuser"],
+["Does it use several physical CPUs?","Multiprocessing"],
+["Does it guarantee timing (hard or soft)?","Real-time"],
+["Does it unify several networked machines?","Distributed"],
+["Does it let networked machines share resources while staying independent?","Network"],
+["Is it built for a phone?","Mobile"]]},
+/*9*/{s:2,t:"Process management responsibilities (Table 1.3)",c:["Responsibility","Detail"],r:[
+["Creation","Allocating memory and initialising the execution environment for a new process"],
+["Scheduling","Deciding, via a scheduling algorithm, which ready process gets CPU time next and for how long"],
+["State tracking","Maintaining each process as running, ready or waiting, and switching correctly between these"],
+["Synchronisation","Handling communication and coordination between cooperating processes"],
+["Termination","Ending processes and reclaiming their resources on completion"]]},
+/*10*/{s:2,t:"Process state transitions",c:["Transition","Cause"],r:[
+["New to Ready","Admitted: the process is created and awaits the CPU"],
+["Ready to Running","Dispatched: the scheduler selects it for the processor"],
+["Running to Ready","The time slice expires and the process returns to the ready queue"],
+["Running to Waiting","The process needs an I/O operation or event to complete"],
+["Waiting to Ready","The I/O or event completes; the process must wait to be dispatched again (never straight to Running)"],
+["Running to Terminated","The process exits"]]},
+/*11*/{s:2,t:"CPU scheduling algorithms compared",c:["Algorithm","Rule","Strength","Weakness"],r:[
+["First-Come, First-Served (FCFS)","Run processes strictly in arrival order","Simple and fair in a narrow sense","Convoy effect: one long process at the front makes all others wait"],
+["Shortest Job First (SJF)","Run the process with the smallest estimated execution time next","Provably minimises average waiting time","Needs execution times in advance; long processes may starve"],
+["Priority scheduling","Always run the highest-priority ready process","Important work runs first","Low-priority processes may starve (mitigated by aging, raising priority with waiting time)"],
+["Round-robin","Give each process a fixed time quantum in rotation","Fair and responsive for interactive use","Quantum too large degrades to FCFS; too small and context-switch overhead dominates"]]},
+/*12*/{s:2,t:"The four necessary conditions for deadlock",c:["Condition","Meaning"],r:[
+["Mutual exclusion","At least one resource is held in a non-shareable way"],
+["Hold and wait","A process holding one resource is waiting to acquire another"],
+["No preemption","A resource cannot be forcibly taken from its holder; it must be released voluntarily"],
+["Circular wait","A closed chain of processes exists, each waiting for a resource held by the next"]]},
+/*13*/{s:2,t:"Ways of dealing with deadlock",c:["Strategy","Approach"],r:[
+["Prevention","Structurally rule out one of the four conditions, for example by requiring all resources to be requested at once"],
+["Avoidance","Grant a request only if it cannot lead to deadlock (Banker's Algorithm)"],
+["Detection and recovery","Periodically check for circular waits and terminate or roll back a process to break the cycle"],
+["Ignoring","Accept that deadlocks are rare and an occasional manual restart costs less than prevention; the approach most desktop operating systems take"]]},
+/*14*/{s:3,t:"Paging, segmentation and paged segmentation compared",c:["Basis","Paging","Segmentation","Paged segmentation"],r:[
+["Unit","Fixed-size pages (logical) and frames (physical)","Variable-sized logical units: code, data, stack","Logical segments, each divided into fixed-size pages"],
+["Mapping","A page table maps each page to the frame holding it","Each segment placed in memory by size","Segment structure plus page tables"],
+["Fragmentation","No external fragmentation; some internal fragmentation in the last page","External fragmentation returns","Gains the efficiency of paging"],
+["Advantage","Simple allocation; pages need not be contiguous","Matches the programmer's view of the program","Logical clarity and allocation efficiency together"]]},
+/*15*/{s:3,t:"Memory management terms",c:["Term","Meaning"],r:[
+["Page","A fixed-size block of a process's logical address space"],
+["Frame","A fixed-size block of physical memory, the same size as a page"],
+["Page table","Maps each logical page to the frame that currently holds it"],
+["Internal fragmentation","Wasted space inside the last page when a process does not fill it"],
+["External fragmentation","Unusable gaps between allocated blocks"],
+["Page file or swap space","The part of the disk that extends RAM in virtual memory"],
+["Thrashing","Excessive swapping: the system spends more time moving pages than doing useful work; more RAM is the usual remedy"],
+["Memory protection","Ensures one process cannot access another's memory; enforced in hardware by the kernel and user mode boundary"]]},
+/*16*/{s:4,t:"File, device and disk management",c:["Topic","Detail"],r:[
+["File management","Creating, naming, copying, moving and deleting files; reading and writing; attributes (name, size, type, timestamps, permissions); access control; allocating space; directory structure; coordinating concurrent access"],
+["Device management","Controls peripherals through drivers and gives a uniform interface: every storage device looks like a file that can be opened, read and written; also queues and orders I/O requests"],
+["SCAN (elevator algorithm)","The head moves in one direction servicing every pending request on the way to the disk end, then reverses; bounds worst-case waiting and reduces head movement"],
+["C-SCAN","The head jumps back to the start rather than reversing and services requests in one direction only; slightly less efficient but more uniform waiting times"],
+["SSDs","Have no moving head and need no disk scheduling"]]},
+/*17*/{s:5,t:"CLI compared with GUI (Table 1.4)",c:["Feature","CLI","GUI"],r:[
+["Interaction","Text commands typed by the user","Visual elements clicked or touched"],
+["Ease of use","Requires command memorisation","Intuitive, visually discoverable"],
+["Speed for experts","Very fast","Slower for repetitive complex tasks"],
+["Automation","Excellent (scripting)","Limited (needs additional tools)"],
+["Resource usage","Very low","Higher (graphics processing needed)"],
+["Error proneness","Higher (command typos)","Lower (menus reduce command errors)"],
+["Best for","Servers, developers, administrators","General users, personal computers"],
+["Examples","Bash, cmd.exe, PowerShell","Windows Desktop, macOS Finder, GNOME"]]},
+/*18*/{s:5,t:"Types of user interface",c:["Interface","Description","Examples"],r:[
+["CLI","Text-based; the user types commands at a prompt","Bash, cmd.exe, PowerShell"],
+["GUI","Visual: windows, icons, menus, pointers (WIMP) operated with a mouse or touch","Windows desktop, macOS, GNOME, mobile touch interfaces"],
+["TUI (text-based user interface)","Runs in a terminal like a CLI but uses text-drawn boxes and menus navigated with arrow keys","System installers, low-level configuration tools"],
+["VUI (voice user interface)","Accepts spoken commands and responds by speech or action; hands-free; usually supplementary","Siri, Google Assistant, Alexa"]]},
+/*19*/{s:6,t:"Cold boot compared with warm boot (Table 1.5)",c:["Aspect","Cold boot","Warm boot"],r:[
+["Starting state","Fully powered off","Already running"],
+["POST","Full hardware check","Skipped (already verified)"],
+["Speed","Slower","Faster"],
+["Triggered by","Pressing the power button","Restart command, Ctrl+Alt+Del, reset button"],
+["Typical use","Starting the day's session","Applying updates, clearing instability"]]},
+/*20*/{s:6,t:"BIOS compared with UEFI",c:["Basis","BIOS","UEFI"],r:[
+["Mode","Restrictive 16-bit mode","32-bit or 64-bit mode"],
+["Disk layout","Reads the Master Boot Record (MBR): at most four primary partitions and about 2 TB","Boots from a GPT (GUID Partition Table): far more partitions, well beyond 2 TB"],
+["Setup screen","Rudimentary, keyboard-driven text screen","Graphical and mouse-navigable"],
+["Speed","Slower","Noticeably faster"],
+["Security","None built in","Secure Boot cryptographically verifies the bootloader and kernel"],
+["Age","Older standard","Modern successor; nearly all computers since the early to mid 2010s"]]},
+/*21*/{s:6,t:"The boot process, step by step",c:["Step","What happens"],r:[
+["1. Power","Pressing the power button sends electrical power to the motherboard and connected components"],
+["2. Firmware starts","The processor, by hardwired design, immediately executes instructions from the BIOS/UEFI ROM chip"],
+["3. POST","The firmware initialises core hardware to a known stable state and runs POST"],
+["4. Boot sector","On successful POST, the firmware reads the first sector of the boot device: the MBR on older systems or the EFI System Partition on UEFI systems, containing the bootloader"],
+["5. Bootloader","The bootloader (GRUB on Linux, Windows Boot Manager on Windows) loads the OS kernel into RAM"],
+["6. Kernel","The kernel initialises device drivers, mounts the file system, starts essential processes (login manager, network services, daemons) and presents the user interface"]]},
+/*22*/{s:7,t:"How file systems work: terms",c:["Term","Meaning"],r:[
+["File system","The method and data structure an OS uses to organise, store, manage and retrieve data on a storage device"],
+["Metadata","A file's name, size, location, type, timestamps and access permissions"],
+["Sector","The smallest physical storage unit, typically 512 or 4,096 bytes"],
+["Cluster (block)","The smallest logical allocation unit chosen by the file system, typically 4 KB to 64 KB"],
+["Allocation table","A single central index near the start of the volume listing which cluster follows which for every file"],
+["Inode","A per-file metadata record holding attributes and pointers to the file's data blocks, distributed across the volume"],
+["Journaling","Writing planned changes to a log before applying them, so a crash can be recovered from the journal"]]},
+/*23*/{s:7,t:"Allocation table compared with inode",c:["Basis","Allocation table (FAT32, NTFS)","Inode (ext4 and relatives)"],r:[
+["Lineage","Windows","Unix"],
+["Structure","One central index, essentially a big linked list of clusters","One small record per file, spread across the volume"],
+["Resilience","Corruption of the central table can endanger the whole volume","Inode damage tends to be contained to the files it describes"]]},
+/*24*/{s:7,t:"File systems compared at a glance (Table 1.6)",c:["File system","Native OS","Max file size","Journaling?","Best for"],r:[
+["FAT32","Universal","4 GB","No","Cross-platform removable media"],
+["NTFS","Windows","About 16 EB","Yes","Windows internal drives"],
+["ext4","Linux","16 TB","Yes","Linux internal drives"],
+["APFS","macOS and iOS","About 8 EB","Crash-protected","Apple SSD storage"],
+["exFAT","Universal (modern)","About 16 EB","No","Large cross-platform removable media"]]},
+/*25*/{s:7,t:"Choosing a file system for a scenario",c:["Scenario","Choice and reasoning"],r:[
+["USB drive for Windows and macOS with files over 4 GB","exFAT: FAT32 is excluded by its 4 GB file limit; NTFS is excluded by poor native macOS write support"],
+["Windows system drive","NTFS"],
+["Linux system drive","ext4"],
+["Apple SSD storage","APFS"],
+["Small USB drive that must work on virtually everything","FAT32 (universal), provided no file exceeds 4 GB"]]},
+/*26*/{s:8,t:"The five major operating systems at a glance (Table 1.7)",c:["OS","Developer","Licence","Dominant domain"],r:[
+["Windows","Microsoft","Proprietary","Desktop and laptop PCs"],
+["Linux","Community and various","Open source (GPL)","Servers, cloud, supercomputers"],
+["macOS","Apple","Proprietary","Apple desktops and laptops, creative work"],
+["Android","Google","Open source (AOSP core)","Smartphones and tablets worldwide"],
+["iOS","Apple","Proprietary","iPhone; security-focused mobile"]]},
+/*27*/{s:8,t:"Linux distributions and desktop environments",c:["Name","Character"],r:[
+["Ubuntu","Beginner-friendly distribution"],
+["Fedora","Cutting-edge distribution sponsored by Red Hat"],
+["Debian","Stability-focused distribution; Ubuntu's ancestor"],
+["Kali Linux","Security and penetration testing"],
+["Red Hat Enterprise Linux","Commercial, enterprise distribution"],
+["GNOME, KDE Plasma, XFCE","Desktop environments, each with a distinct visual style and feature set"]]},
+/*28*/{s:8,t:"Type 1 and Type 2 hypervisors",c:["Basis","Type 1 (bare-metal)","Type 2 (hosted)"],r:[
+["Runs","Directly on the hardware, with no host OS beneath","As an application on an existing host OS"],
+["Examples","VMware ESXi, Microsoft Hyper-V","VirtualBox, VMware Workstation"],
+["Typical use","Data centres and cloud platforms hosting dozens of VMs per server","A developer running a Linux VM inside Windows for testing"]]}
+];
+
+const NOTES=[
+["1.1 Operating system basics","The {{operating system}} is system software that manages hardware resources and provides an environment in which applications run; it acts as an {{intermediary}} between user and hardware. It presents an {{abstract}} view of the hardware, so open(\"notes.txt\") works the same on an SSD or a USB drive. The {{kernel}} is the permanently resident core; the {{shell}} is the user interface layer. Code in {{kernel mode}} has unrestricted hardware access; applications run in {{user mode}}. A program reaches the kernel only through a {{system call}}, a controlled gateway. System call categories are process control, {{file}} management, device management and {{communication}}."],
+["1.2 Types of operating system","A {{batch}} system runs jobs one after another with no interaction. {{Multiprogramming}} keeps several programs in memory to avoid an idle CPU. {{Multitasking}} switches by time slices (quanta) for an interactive feel, in {{round-robin}} fashion. A {{multiuser}} system serves several people at once; every multiuser OS is multitasking but not the reverse. {{Multiprocessing}} uses two or more physical CPUs; {{SMP}} treats them as equal. A {{hard}} real-time system treats a missed deadline as failure; a {{soft}} one tolerates it. A {{distributed}} OS presents networked machines as one system, whereas a {{network}} OS lets each computer keep its own identity. A {{mobile}} OS is optimised for battery, touch and sensors."],
+["1.3 Process management","A {{process}} is a program in execution. The OS keeps a {{PCB}} (Process Control Block) for each. The states are new, {{ready}}, {{running}}, {{waiting}} and terminated; a waiting process returns to {{ready}}, never directly to running. {{FCFS}} runs in arrival order and suffers the {{convoy}} effect; {{SJF}} minimises average waiting time but can {{starve}} long jobs; priority scheduling is mitigated by {{aging}}; {{round-robin}} gives each process a fixed {{quantum}}. A {{deadlock}} needs all four conditions: mutual exclusion, hold and wait, {{no preemption}} and {{circular wait}}. The {{Banker's}} Algorithm is a method of deadlock avoidance."],
+["1.4 Memory management","{{Memory protection}} stops one process reading another's memory. {{Paging}} divides physical memory into {{frames}} and a process into {{pages}} of the same size; a {{page table}} maps pages to frames. Paging eliminates {{external}} fragmentation but leaves some {{internal}} fragmentation. {{Segmentation}} divides a process into variable-sized logical units such as code, data and stack. Most systems use {{paged segmentation}}. {{Virtual memory}} extends RAM using a page file or {{swap space}} on disk; excessive swapping is called {{thrashing}}."],
+["1.5 File and device management","File management provides a {{hierarchy}} of files and directories and enforces {{permissions}}. Device management gives a {{uniform}} interface through drivers. The {{SCAN}} (elevator) algorithm moves the disk head in one direction servicing requests until the end, then {{reverses}}. {{C-SCAN}} jumps back to the start instead. An {{SSD}} needs no disk scheduling because it has no moving head."],
+["1.6 User interface","A {{CLI}} accepts typed commands; it is fast, {{scriptable}} and light on resources, but needs memorised commands. A {{GUI}} uses windows, icons, menus and pointers (the {{WIMP}} paradigm); it was pioneered at {{Xerox PARC}} and popularised by Apple's {{Macintosh}} in 1984. A {{TUI}} draws text-based boxes and menus; a {{VUI}} accepts spoken commands (Siri, Alexa). CLI wins for servers and automation; GUI wins for general users."],
+["1.7 Booting","{{Booting}} loads the operating system into memory. A {{cold}} boot starts from a powered-off state with a full {{POST}}; a {{warm}} boot restarts a running system and skips POST. {{BIOS}} uses the {{MBR}}, is 16-bit and limited to about 2 TB; {{UEFI}} uses {{GPT}}, is graphical and supports {{Secure Boot}}. The order is firmware, POST, boot sector, {{bootloader}}, {{kernel}}, shell. GRUB is the bootloader on Linux; the Windows Boot Manager is its Windows counterpart."],
+["1.8 File systems","A {{file system}} organises raw storage into files and directories using {{metadata}}. A {{sector}} is the smallest physical unit; a {{cluster}} is the smallest logical allocation unit. FAT32 and NTFS use an {{allocation table}}; ext4 uses an {{inode}} per file. {{Journaling}} logs changes before applying them. {{FAT32}} is limited to 4 GB files; {{NTFS}} is the Windows default; {{ext4}} is the Linux default; {{APFS}} serves Apple SSDs; {{exFAT}} suits large cross-platform removable media."],
+["1.9 Popular operating systems","Windows (Microsoft, 1985, proprietary) dominates desktops. {{Linux}}, created by Linus {{Torvalds}} in 1991 under the {{GPL}}, dominates servers and underlies {{Android}}. A Linux {{distribution}} such as Ubuntu or Fedora packages the kernel with tools. {{macOS}} is built on {{Darwin}} (BSD Unix and the Mach microkernel); iOS shares the {{XNU}} kernel. A {{hypervisor}} creates virtual machines: a {{Type 1}} runs on bare metal (ESXi, Hyper-V) and a {{Type 2}} runs on a host OS (VirtualBox)."]
+];
+const DUMPS=[
+{t:"Operating system basics",p:["Definition: system software managing hardware and giving an environment for applications; intermediary between user and hardware","Why needed: removes burden of hardware control, shares resources safely, provides security","Six functions: process, memory, file system, device, security and protection, user interface","Abstraction: open() looks the same on SSD, HDD or USB","Components: kernel, shell, file system, device drivers","Kernel mode versus user mode; traps on violations","System calls: controlled gateway; categories process, file, device, communication","Exam: name the privilege boundary when explaining the kernel"]},
+{t:"Types of operating system",p:["Evolution: none (1940s), batch (1950s), multiprogramming (early 1960s), time-sharing and multitasking (mid-1960s), multiuser and multiprocessing (1970s), then real-time, distributed, network, mobile","Batch: no interaction; payroll, billing; efficient CPU use but errors found late","Multiprogramming versus multitasking: CPU utilisation versus responsiveness; time slices and round-robin","Multiuser is not the same as multitasking","Multiprocessing: several physical CPUs; SMP; cache coherency","Real-time: hard (failure) and soft (degraded)","Distributed: one unified system; fault tolerance and scaling","Network OS: servers and clients, independent identities","Mobile: battery, touch, sensors","Scenario method: nine questions in order"]},
+{t:"Process management",p:["Process: program in execution; created by double-clicking an icon","Responsibilities: creation, scheduling, state tracking, synchronisation, termination","PCB: process ID, state, saved registers, memory allocation, scheduling information","States: new, ready, running, waiting, terminated; transitions admitted, dispatched, time slice expires, I/O wait, I/O complete, exit","Pitfall: waiting never goes directly to running","Scheduling: FCFS (convoy effect), SJF (starvation), priority (aging), round-robin (quantum, context switching)","Deadlock: definition and printer and scanner example","Four conditions: mutual exclusion, hold and wait, no preemption, circular wait","Handling: prevention, avoidance (Banker's), detection and recovery, ignoring"]},
+{t:"Memory management",p:["Memory management: allocate, track and reclaim RAM","Memory protection enforced by the kernel and user mode boundary","Paging: frames and pages, page table, no external fragmentation, internal fragmentation in last page","Segmentation: variable-sized logical units; external fragmentation returns","Paged segmentation combines both","Virtual memory: page file or swap space; least recently used pages move to disk","Thrashing: more time swapping than working; remedy is more RAM"]},
+{t:"File and device management",p:["File management: create, name, copy, move, delete, read, write, attributes, permissions, space allocation, directories, concurrent access","Device management: drivers, uniform interface, every device looks like a file","I/O scheduling: queue and order requests","SCAN or elevator: one direction, service everything on the way, reverse at the end","C-SCAN: jump back to the start, one direction only, uniform waiting","SSDs need no disk scheduling"]},
+{t:"User interface",p:["User interface: CLI and GUI are the two fundamental types","CLI: typed commands; Bash, cmd.exe, PowerShell; scripting and automation; low resource use","GUI: windows, icons, menus, buttons; Xerox PARC in the 1970s, Macintosh in 1984, then Windows","Desktop environment and WIMP paradigm","CLI versus GUI table: interaction, ease, expert speed, automation, resources, errors, best use","TUI and VUI","Do not call either simply better: name the deciding factor"]},
+{t:"Booting",p:["Booting: bootstrapping from off to a loaded OS","Cold boot: powered off, RAM empty, full POST","Warm boot: running system restarts, POST skipped, faster; Ctrl+Alt+Del, Restart, reset button","BIOS: 16-bit, MBR, four primary partitions, 2 TB, text setup","UEFI: 32 or 64-bit, GPT, graphical, faster, Secure Boot","Six steps: power, firmware, POST, boot sector (MBR or EFI System Partition), bootloader (GRUB, Windows Boot Manager), kernel","Bootloader and kernel are distinct steps","POST runs only on a cold boot"]},
+{t:"File systems",p:["File system: organises raw storage into files and directories","Metadata: name, size, location, type, timestamps, permissions; free space tracked by tables or bitmaps","Sectors (512 or 4096 bytes) and clusters (4 KB to 64 KB)","Allocation table (FAT32, NTFS) versus inode (ext4); resilience difference","FAT32: universal, 4 GB file, 2 TB volume, no journaling","NTFS: Windows, 16 EB, permissions, encryption, compression, journaling","ext4: Linux, journaling, extents, delayed allocation","APFS: 2017, SSDs, encryption, snapshots, space sharing","exFAT: removable flash, above 4 GB, cross-platform","Scenario method: work from the constraint and say why alternatives fail"]},
+{t:"Popular operating systems",p:["Windows: Microsoft, 1985, over 70 percent of PCs; Start Menu, Taskbar, File Explorer","Linux: Torvalds 1991, GPL; servers, cloud, supercomputers; distributions Ubuntu, Fedora, Debian, Kali, RHEL; GNOME, KDE, XFCE","macOS: Apple, Darwin (BSD and Mach), Finder, Dock, Menu Bar, Apple Silicon since 2020","Android: Google, Linux kernel, 2008, AOSP, Play Store","iOS: Apple, Darwin and XNU, App Store review, Face ID, App Tracking Transparency","Hypervisor and virtual machines; Type 1 (bare-metal) versus Type 2 (hosted)","Compare two OS on developer, licence, domain, distinguishing feature"]}
+];
+
+const SECS=["Operating system basics","Types of operating system","Process management","Memory management","File and device management","User interface","Booting","File systems","Popular operating systems"];
+const CORE=[
+[0,"Define an operating system.","The most fundamental piece of system software: a program or collection of programs that acts as an intermediary between the user and the computer's hardware, managing the processor, memory, storage and input/output devices and providing a consistent, organised environment for application programs and users."],
+[0,"When does the OS load and how long does it stay active?","It is the first software loaded at power-on and remains active and in control for the entire session until shutdown."],
+[0,"Why is an operating system necessary?","Before operating systems every program controlled the hardware by hand (memory, I/O, processor), which was slow, error-prone and specialist work. The OS provides a reusable layer that handles hardware management, lets many programs share resources without interfering, and provides security and access control."],
+[0,"What does the OS abstract view of hardware mean?","It presents applications with a clean, simplified model of resources such as memory and files, hiding messy hardware details: open(\"notes.txt\") works identically whether the file is on an SSD, HDD or USB drive."],
+[0,"Name the four components of an operating system.","Kernel, shell, file system and device drivers."],
+[0,"Define the kernel.","The core of the OS, loaded at startup and kept resident permanently; it directly manages hardware and provides the most fundamental services (process scheduling, memory management, device control, system call handling), running in a privileged mode."],
+[0,"Define the shell.","The component providing the user interface: a text-based command interpreter on command-line systems, or the desktop environment on graphical systems."],
+[0,"What is kernel mode?","Also called supervisor mode: code has unrestricted access to all hardware and memory and can execute any instruction; only the kernel and trusted low-level components run here."],
+[0,"What is user mode?","A restricted mode in which code cannot access hardware directly, cannot execute certain sensitive instructions and can touch only the memory the OS allocated to it; every ordinary application runs here."],
+[0,"Why separate kernel mode and user mode?","As a safety boundary: if a user-mode program reads another process's memory or issues a kernel-only instruction, the processor traps into the kernel, which can terminate that process without disturbing others; otherwise any crash could bring down the system."],
+[0,"What is a system call?","A controlled gateway through which a user-mode program requests a service only the kernel can provide (open a file, allocate memory, send data, create a process); it switches deliberately into kernel mode, the kernel validates and performs the operation, then returns to user mode with the result."],
+[0,"Name the system call categories with examples.","Process control (create, terminate: fork()); file management (open, read, write, close); device management (request, release); communication (send, receive)."],
+[0,"How should the role of the kernel be answered for full marks?","Name the privilege boundary: the kernel runs in a privileged mode inaccessible to ordinary applications, and user programs reach hardware only through system calls, which lets the OS protect itself and other processes from a misbehaving program."],
+[1,"Why did successive types of OS appear?","Each responded to a limitation of the previous: no OS (1940s), batch to automate manual setup (1950s), multiprogramming to avoid idle CPU during I/O (early 1960s), time-sharing and multitasking for interactivity (mid-1960s), multiuser and multiprocessing to scale (1970s), then real-time, distributed, network and mobile."],
+[1,"Can one OS belong to several types?","Yes: the categories describe capabilities; Windows and Linux are simultaneously multitasking, multiuser and multiprocessing."],
+[1,"Define a batch operating system.","One in which similar jobs are collected into a batch and processed automatically one after another with no interactive input during execution; used for payroll, bank statements and billing runs."],
+[1,"State the advantage and disadvantage of batch systems.","Advantage: efficient CPU use, as jobs run continuously with no manual setup delay. Disadvantage: no interactivity; an error is discovered only after the whole run, wasting time."],
+[1,"Define a multiprogramming operating system.","One that keeps several programs in memory and switches the CPU to another ready program when the current one waits for I/O, keeping the CPU busy and maximising utilisation."],
+[1,"Does multiprogramming mean simultaneous execution?","No: a single processor executes one instruction at a time; the illusion of simultaneity comes from rapid switching."],
+[1,"Define a multitasking operating system.","One that allows several tasks to be active at once, switching rapidly enough to appear simultaneous, designed for a responsive, interactive experience; time slices (quanta) of a few milliseconds are allocated in round-robin rotation."],
+[1,"Distinguish multiprogramming and multitasking.","Multiprogramming maximises CPU utilisation, primarily in batch-oriented settings, switching when a program waits for I/O. Multitasking provides a responsive interactive experience, switching by time slices whether or not a task has finished."],
+[1,"Define a multiuser operating system.","One that lets several users access the same system simultaneously, each working independently, with fair resource shares and protection of one user's data from another (authentication and permissions); Linux and Unix."],
+[1,"Why is multiuser not the same as multitasking?","A multiuser OS must also be multitasking, but a single-user multitasking OS (early Windows) is not multiuser; one implication does not run the other way."],
+[1,"Define a multiprocessing operating system.","One designed for computers with two or more physical CPUs, distributing processes or parts of a process across them for genuine simultaneous execution, unlike multitasking where one processor switches rapidly."],
+[1,"What is symmetric multiprocessing (SMP)?","The most common form: all processors are treated as equal and the OS can schedule any process on any available one; it must handle cache coherency and inter-processor communication."],
+[1,"Define a real-time operating system.","One that guarantees responses to events within strictly defined deadlines; missing a deadline can be a system failure."],
+[1,"Distinguish hard and soft real-time with examples.","Hard: a missed deadline is total system failure and is inviolable (flight control, ABS brakes, pacemakers, missile guidance). Soft: a miss causes degraded quality, tolerable occasionally (video streaming, online gaming, telecommunications)."],
+[1,"Define a distributed operating system.","One that manages a collection of independent networked computers and presents them as a single unified system; each node has its own processor and memory, and users need not know which machine does the work."],
+[1,"State the advantages and difficulty of distributed systems.","Advantages: pooled computing power, fault tolerance, easy scaling by adding nodes, resources closer to users. Difficulty: much more complex design (network communication, data consistency, distributed scheduling, failure recovery)."],
+[1,"Define a network operating system (NOS).","The software foundation for a local area network, letting connected computers share files, printers and internet access while each keeps its own independent OS and identity; servers run the NOS, clients access resources (Windows Server, Novell NetWare, Linux with Samba)."],
+[1,"Distinguish distributed OS and network OS.","A distributed OS presents the network as one unified system with transparency; a network OS lets machines stay independent, users log on explicitly and know they reach a separate machine."],
+[1,"What are the special features of a mobile OS?","Aggressive power management, touch and gesture interfaces, tight control of background activity, constant cellular and Wi-Fi connectivity, and frameworks for sensors (GPS, accelerometer, camera, fingerprint), push notifications and secure payment; Android and iOS."],
+[2,"Define a process.","An instance of a program in execution: the code loaded in memory, the current register values and program counter, the allocated memory space and associated resources; double-clicking an icon creates one."],
+[2,"What is a Process Control Block (PCB)?","A data structure kept by the OS for each process storing what it needs to manage and resume it: process ID, state, saved CPU registers, memory allocation details and scheduling information."],
+[2,"Name the five responsibilities of process management.","Creation, scheduling, state tracking, synchronisation and termination."],
+[2,"Name the five process states.","New, ready, running, waiting and terminated."],
+[2,"Describe each process state transition.","New to ready: admitted. Ready to running: dispatched by the scheduler. Running to ready: time slice expires. Running to waiting: I/O or event wait. Waiting to ready: I/O complete. Running to terminated: exits."],
+[2,"Why can a waiting process not move directly to running?","It must return to the ready queue and be dispatched again, because several processes may be ready and the scheduler, not the completion of I/O, decides who runs next."],
+[2,"What does the CPU scheduler do?","Decides which ready process runs next, using an algorithm that trades off simplicity, fairness and responsiveness; interactive applications get prompt attention while background work does not starve them."],
+[2,"Explain FCFS scheduling.","First-Come, First-Served runs processes strictly in arrival order; simple, but one long process at the front makes all others wait (the convoy effect)."],
+[2,"Explain SJF scheduling.","Shortest Job First runs the process with the smallest estimated execution time next, provably minimising average waiting time; but it needs the times in advance and long processes can starve."],
+[2,"Explain priority scheduling.","Always runs the highest-priority ready process; low-priority processes may starve, usually mitigated by aging, gradually raising the priority of a process the longer it waits."],
+[2,"Explain round-robin scheduling.","Gives each process a fixed time quantum in rotation; fair and responsive for interactive use; a quantum too large degrades toward FCFS, too small makes context-switch overhead dominate."],
+[2,"What is a context switch?","Saving one process's state and loading another's so that the CPU can switch between them."],
+[2,"Which scheduling algorithms must be named in the exam, with what detail?","FCFS, SJF, priority and round-robin, each with one strength and one weakness."],
+[2,"Define deadlock.","A situation in which two or more processes are each waiting for a resource held by another process in the same group, so none can ever proceed; without intervention it persists indefinitely."],
+[2,"State the four necessary conditions for deadlock.","Mutual exclusion, hold and wait, no preemption, circular wait; all four must hold simultaneously, and preventing any one prevents deadlock."],
+[2,"Give the classic deadlock illustration.","Process A holds a printer and waits for a scanner; process B holds the scanner and waits for the printer; neither can proceed and neither releases what it holds."],
+[2,"How do operating systems deal with deadlock?","Prevention (rule out one condition, for example request all resources at once); avoidance (grant a request only if safe, the Banker's Algorithm); detection and recovery (find circular waits, terminate or roll back a process); or ignore it when rare, as most desktop systems do."],
+[3,"What is memory management?","Controlling and coordinating RAM: allocating portions to processes as needed and reclaiming them when processes finish, using a map of which memory is in use and by whom."],
+[3,"What is memory protection?","The mechanism ensuring one process cannot access another's memory, so a buggy or malicious program cannot corrupt other programs or the OS; enforced in hardware by the kernel and user mode boundary."],
+[3,"Explain paging.","Both physical memory and a process's logical address space are divided into fixed-size blocks: frames and pages. Pages need not be contiguous; a page table maps each page to the frame holding it and hardware translates addresses on the fly."],
+[3,"What fragmentation does paging eliminate and what remains?","It eliminates external fragmentation (unusable gaps between blocks); internal fragmentation remains when a process's last page is only partly used."],
+[3,"Explain segmentation.","Dividing a process into logical, variable-sized units (code, data, stack segments), matching how the programmer thinks; it reintroduces external fragmentation because variable-sized segments pack poorly."],
+[3,"What is paged segmentation?","The combination used by most modern systems: a process is divided into logical segments and each segment is divided into fixed-size pages, giving the clarity of segmentation and the allocation efficiency of paging."],
+[3,"What is virtual memory?","The illusion that each process has more memory than physical RAM, created by using part of the disk (page file or swap space) to extend RAM."],
+[3,"How does virtual memory operate?","When RAM fills, the OS moves the least recently used pages to disk; when needed again they are loaded back, displacing others; the swapping is transparent to processes."],
+[3,"What is thrashing?","Excessive swapping, in which the system spends more time moving pages in and out than doing useful work; reading a page from disk is thousands of times slower than from RAM; adding RAM is usually the correct remedy."],
+[4,"What does file management do?","Organises, stores, retrieves and manages data through a hierarchical file system: creating, naming, copying, moving and deleting files, reading and writing, attributes, access control, space allocation, directory structure and concurrent access."],
+[4,"What does device management do?","Controls peripherals through device drivers, giving applications a uniform interface (every storage device looks like a file) and queueing and ordering I/O requests when several processes want the same device."],
+[4,"Explain the SCAN (elevator) algorithm.","The disk head moves steadily in one direction servicing every pending request on the way to the end of the disk, then reverses and does the same; it bounds the worst-case wait and greatly reduces head movement compared with serving requests in arrival order."],
+[4,"What is C-SCAN?","A variant of SCAN in which the head jumps back to the start instead of reversing and services requests in one direction only, trading a little efficiency for more uniform waiting."],
+[4,"Why does an SSD need no disk scheduling?","It has no moving head."],
+[5,"Define the user interface.","The means through which a human interacts with the OS: the layer that receives commands and presents results; the two fundamental types are the CLI and the GUI."],
+[5,"What is a CLI?","A text-based interface in which the user types commands at a prompt in a terminal and the OS prints results as text; examples Bash, Windows Command Prompt, PowerShell."],
+[5,"Give examples of equivalent CLI commands.","Linux: ls -la /home/user/documents lists all files, including hidden, in detail; Windows: dir /a C:\\Users\\User\\Documents."],
+[5,"What are the strengths of a CLI?","Scripting and automation (chaining commands in shell scripts), very fast for experts, and very low resource use, ideal for servers; weaknesses: memorising commands and typos."],
+[5,"What is a GUI?","A visual interface of windows, icons, menus and buttons operated with a pointing device or touch; strength: intuitive discoverability; weakness: heavier and slower for repetitive tasks."],
+[5,"Who pioneered the GUI?","Xerox PARC in the 1970s; popularised by Apple's Macintosh in 1984; then adopted by Microsoft Windows."],
+[5,"What is the WIMP paradigm?","Windows, Icons, Menus and Pointers: the characteristics of most desktop GUIs."],
+[5,"What is a desktop environment?","The graphical workspace after login: wallpaper, icons, a taskbar showing running applications and system status, and a start menu or launcher."],
+[5,"What are a TUI and a VUI?","TUI: text-based user interface, in a terminal with text-drawn boxes and menus navigated by arrow keys (installers). VUI: voice user interface accepting spoken commands (Siri, Google Assistant, Alexa); hands-free and supplementary."],
+[5,"How should CLI versus GUI be compared?","Without calling one better: a CLI wins for automation, expert speed and minimal resources (servers, scripting, embedded); a GUI wins for accessibility to non-experts, visual work and discoverability."],
+[6,"What is booting?","Starting a computer from a powered-off or non-operational state and loading the operating system into memory; from bootstrapping, the paradox of needing a program to load the program that controls everything."],
+[6,"What is a cold boot?","Starting from a completely powered-off state with RAM empty; the processor starts at a hardwired address in ROM, the firmware runs POST, finds the bootable device, loads the bootloader, which loads the kernel."],
+[6,"What is a warm boot?","Restarting an already-running computer without removing power; the OS reloads but the full POST is skipped since the hardware was verified in the preceding cold boot, so it is faster."],
+[6,"What triggers a warm boot?","The OS restart function, Ctrl+Alt+Delete, or a reset button; used to apply updates and recover from instability."],
+[6,"Describe the BIOS.","The older firmware standard: 16-bit mode, reads the Master Boot Record (limited to four primary partitions and about 2 TB), keyboard-driven text setup screen."],
+[6,"Describe UEFI.","The modern successor: 32 or 64-bit, boots from a GPT disk (many more partitions, beyond 2 TB), graphical mouse-navigable setup, faster, and Secure Boot, which verifies the bootloader and kernel have not been tampered with."],
+[6,"Give the boot process step by step.","Power to motherboard; processor runs BIOS/UEFI ROM; firmware initialises hardware and runs POST; reads the boot sector (MBR or EFI System Partition) containing the bootloader; bootloader (GRUB, Windows Boot Manager) loads the kernel into RAM; kernel initialises drivers, mounts the file system, starts essential processes and presents the interface."],
+[6,"What must a boot process answer state explicitly?","The bootloader and kernel are distinct steps, and POST runs only on a cold boot."],
+[7,"Define a file system.","The method and data structure an OS uses to organise, store, manage and retrieve data on a storage device, imposing named files and a hierarchy of directories on raw storage."],
+[7,"What is file metadata?","Each file's name, size, location (sectors occupied), type, creation and modification timestamps and access permissions; the file system also tracks free areas with allocation tables or bitmaps."],
+[7,"Distinguish sector and cluster.","A sector is the smallest physical storage unit (512 or 4,096 bytes); a cluster or block is the smallest logical allocation unit chosen by the file system (4 KB to 64 KB)."],
+[7,"Distinguish allocation table and inode.","Windows-lineage systems (FAT32, NTFS) use a central allocation table, a big linked list of clusters; Unix-lineage systems (ext4) use an inode per file with attributes and pointers to data blocks. Damage to a central table endangers the whole volume; inode damage is more contained."],
+[7,"Describe FAT32.","File Allocation Table, 32-bit: old, simple, from Microsoft for DOS; universally compatible (USB drives, SD cards); files limited to 4 GB, volumes to 2 TB, no security or journaling."],
+[7,"Describe NTFS.","New Technology File System: Windows default; practically unlimited size (up to 16 exabytes), access control, file encryption and compression, journaling, hard and symbolic links, alternate data streams."],
+[7,"What is journaling?","Writing planned changes to a log before applying them, so after a crash mid-operation the file system can be recovered from the journal rather than left inconsistent."],
+[7,"Describe ext4.","Fourth Extended File System: the default for most Linux distributions; mature, high-performance, journaling, large files and volumes, delayed allocation and extents for less fragmentation."],
+[7,"Describe APFS.","Apple File System, introduced in 2017 to replace HFS+, designed for SSDs and flash: strong encryption, space sharing between volumes, instant snapshots, fast directory sizing, crash protection; used across macOS, iOS, iPadOS, watchOS, tvOS."],
+[7,"Describe exFAT.","Extended FAT: Microsoft's successor to FAT32 for flash storage, supporting files over 4 GB and very large volumes with broad cross-platform support; standard for large SD cards and USB drives."],
+[7,"Which file system suits a USB drive shared between Windows and macOS with files over 4 GB?","exFAT: FAT32 is ruled out by its 4 GB file limit and NTFS by poor native macOS write support; naming why alternatives fail earns credit."],
+[7,"Which file system for a Windows system drive and for a Linux system drive?","NTFS for Windows; ext4 for Linux."],
+[8,"Describe Microsoft Windows.","The most widely used desktop OS (over 70 percent of PCs); introduced in 1985 as a graphical shell on MS-DOS; Start Menu, Taskbar, File Explorer, Settings; proprietary; current versions Windows 10 and 11."],
+[8,"Describe Linux.","A free, open-source kernel created by Linus Torvalds in 1991 under the GPL; with the GNU tools it forms GNU/Linux; dominates servers, cloud and supercomputers and underpins Android; comes as distributions."],
+[8,"Name Linux distributions and desktop environments.","Ubuntu (beginner-friendly), Fedora (cutting-edge, Red Hat), Debian (stability), Kali (security testing), Red Hat Enterprise Linux (commercial); desktop environments GNOME, KDE Plasma, XFCE."],
+[8,"Describe macOS.","Apple's proprietary Unix-based OS built on Darwin (BSD Unix and the Mach microkernel); Finder, Dock and Menu Bar; Apple Silicon (M1 to M4) since 2020; tight integration with Apple products; favoured by creative professionals."],
+[8,"Describe Android.","Google's mobile OS, based on the Linux kernel; first released in 2008; the most widely used mobile OS; open source (AOSP) and customised by manufacturers; Google Play Store."],
+[8,"Describe iOS.","Apple's proprietary mobile OS for the iPhone, based on Darwin and the XNU kernel; curated App Store with review of every app; Face ID, default encryption, App Tracking Transparency; long update support."],
+[8,"What is a hypervisor?","Software (virtual machine monitor) that creates and manages virtual machines: software emulations of whole computers with their own virtual CPU, memory and storage, running their own OS in isolation."],
+[8,"Distinguish Type 1 and Type 2 hypervisors.","Type 1 (bare-metal) runs directly on hardware with no host OS (VMware ESXi, Hyper-V; data centres and cloud). Type 2 (hosted) runs as an application on a host OS (VirtualBox, VMware Workstation)."],
+[8,"What is the best way to compare two operating systems?","Along the same four axes for both: developer and licensing model, target hardware or domain, user interface philosophy, and one or two distinguishing features."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Numerical and classification problems",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["The operating system is best described as:",["An application that edits documents","An intermediary between the user and the hardware","A utility that repairs disks","A hardware component"],1,"It manages resources and provides the environment applications run in."],
+["Which is NOT a component of the operating system listed in the chapter?",["Kernel","Shell","Compiler","Device drivers"],2,"The components are kernel, shell, file system and device drivers."],
+["The kernel differs from the shell in that the kernel:",["Provides the graphical desktop","Is the privileged, permanently resident core","Runs in user mode","Is optional"],1,"The shell is the user-interface layer."],
+["Code in kernel mode:",["Can access only its own memory","Has unrestricted access to hardware and memory","Cannot execute any instruction","Is every ordinary application"],1,"Only the kernel and trusted components run here."],
+["Ordinary applications such as a browser run in:",["Kernel mode","User mode","Supervisor mode","Boot mode"],1,"They have restricted privileges."],
+["A program asks the kernel to perform a privileged operation through a:",["Page table","System call","Shell script","Time slice"],1,"A controlled gateway into kernel mode."],
+["fork() belongs to which system call category?",["File management","Device management","Process control","Communication"],2,"It creates a process."],
+["read() belongs to which system call category?",["File management","Process control","Communication","Device management"],0,"File management: open, read, write, close."],
+["Which type of OS runs jobs in groups with no interaction?",["Multitasking","Batch","Mobile","Distributed"],1,"Payroll and billing runs."],
+["Multiprogramming primarily aims to:",["Provide a graphical interface","Maximise CPU utilisation","Guarantee deadlines","Share files on a LAN"],1,"The CPU switches when a program waits for I/O."],
+["Multitasking is designed for:",["Batch processing","A responsive, interactive experience","Guaranteed deadlines","Pocket devices only"],1,"Time slices rotate in round-robin fashion."],
+["Which statement is correct?",["Every multitasking OS is multiuser","Every multiuser OS is multitasking","They are the same","Neither implies the other"],1,"A multiuser OS must run many users' processes concurrently."],
+["A multiprocessing OS uses:",["Several physical CPUs for real parallelism","One CPU switching rapidly","Only the GPU","Remote servers"],0,"Unlike multitasking on one processor."],
+["In symmetric multiprocessing:",["One CPU controls the others","All processors are treated as equal","Only one runs the kernel","Processors never share memory"],1,"Any process can be scheduled on any processor."],
+["A pacemaker's controller is:",["Soft real-time","Hard real-time","Batch","Network OS"],1,"A missed deadline is failure."],
+["Video streaming is generally:",["Hard real-time","Soft real-time","Batch","Distributed only"],1,"A late frame degrades quality."],
+["An OS that presents many networked machines as one system is:",["Network OS","Distributed OS","Batch OS","Embedded OS"],1,"Users need not know which machine works."],
+["A Network OS differs because each computer:",["Loses its identity","Keeps its own OS and identity","Has no server","Runs no applications"],1,"It adds shared services on top."],
+["Windows Server and Novell NetWare are examples of:",["Distributed OS","Network OS","Batch OS","Real-time OS"],1,"They support LAN resource sharing."],
+["A process is:",["A program file on disk","A program in execution","A kind of utility","A file system"],1,"It includes code in memory, registers and resources."],
+["The PCB stores:",["Only the program text","Process ID, state, saved registers, memory details and scheduling information","User passwords","Disk blocks"],1,"What the OS needs to resume the process."],
+["Which transition is NOT allowed?",["Ready to running","Running to waiting","Waiting to running","Running to ready"],2,"A waiting process must return to ready first."],
+["A process moves from running to ready when:",["It finishes","Its time slice expires","It requests I/O","It is created"],1,"It returns to the ready queue."],
+["A process moves from running to waiting when:",["Its time slice expires","It needs an I/O operation or event","It is admitted","It is dispatched"],1,"It waits for I/O."],
+["The convoy effect is associated with:",["Round-robin","FCFS","Priority scheduling","SJF only"],1,"One long process holds up all the others."],
+["Which algorithm provably minimises average waiting time?",["FCFS","SJF","Round-robin","Priority"],1,"But it needs burst times in advance."],
+["Aging is used to prevent:",["Deadlock in memory","Starvation of low-priority processes","Thrashing","Fragmentation"],1,"Priority rises with waiting time."],
+["In round-robin, a quantum that is too large behaves like:",["SJF","FCFS","Priority scheduling","Multiprocessing"],1,"Each process finishes in its first turn."],
+["Which is NOT a necessary condition for deadlock?",["Mutual exclusion","Hold and wait","Preemption","Circular wait"],2,"The condition is no preemption."],
+["The Banker's Algorithm is a method of:",["Deadlock avoidance","Memory paging","Disk scheduling","Booting"],0,"It grants requests only if safe."],
+["Removing which number of the four deadlock conditions prevents deadlock?",["All four","Any one","At least three","Two"],1,"All four must hold together."],
+["Paging divides physical memory into fixed-size blocks called:",["Segments","Frames","Clusters","Sectors"],1,"The process is divided into pages of the same size."],
+["A page table maps:",["Files to directories","Logical pages to physical frames","Users to passwords","Sectors to clusters"],1,"The hardware translates addresses on the fly."],
+["Paging eliminates:",["Internal fragmentation","External fragmentation","All fragmentation","Context switches"],1,"Some internal fragmentation remains."],
+["Segmentation divides a process into:",["Fixed-size pages","Logical, variable-sized units","Sectors","Clusters"],1,"Code, data and stack segments."],
+["Virtual memory uses which area of the disk?",["Boot sector","Page file or swap space","Journal","FAT"],1,"It extends RAM."],
+["Thrashing is:",["A boot error","Excessive swapping that dominates useful work","A type of deadlock","A file system fault"],1,"The remedy is usually more RAM."],
+["The elevator algorithm is also called:",["FCFS","SCAN","SJF","Round-robin"],1,"The head sweeps in one direction then reverses."],
+["C-SCAN differs from SCAN in that the head:",["Reverses at the end","Jumps back to the start and services in one direction only","Never moves","Serves requests randomly"],1,"It gives more uniform waiting times."],
+["Which storage type needs no disk scheduling?",["HDD","SSD","Floppy","Tape"],1,"No moving head."],
+["Which interface is best for automating a nightly task on a server?",["GUI","CLI","VUI","Touchscreen"],1,"Shell scripts automate repetitive work."],
+["WIMP stands for:",["Windows, Icons, Menus, Pointers","Web, Internet, Mail, Photos","Windows, Input, Memory, Processes","Wireless, Internet, Mobile, Phones"],0,"The paradigm of most desktop GUIs."],
+["The GUI was popularised commercially by:",["Linux in 1991","Apple's Macintosh in 1984","Android in 2008","MS-DOS"],1,"It was pioneered at Xerox PARC in the 1970s."],
+["A text-based interface using boxes and menus drawn with characters is a:",["TUI","VUI","GUI","NOS"],0,"Common in installers."],
+["Siri, Google Assistant and Alexa are examples of:",["CLI","TUI","VUI","NOS"],2,"Voice user interfaces."],
+["A cold boot:",["Skips POST","Starts from a fully powered-off state with full POST","Needs no firmware","Is triggered by Ctrl+Alt+Del"],1,"RAM is empty at the start."],
+["POST is skipped during a:",["Cold boot","Warm boot","Both","Neither"],1,"The hardware was already verified."],
+["Which firmware supports Secure Boot?",["BIOS","UEFI","MBR","FAT"],1,"UEFI verifies the bootloader and kernel."],
+["The Master Boot Record belongs to:",["UEFI with GPT","BIOS","Android","APFS"],1,"MBR allows four primary partitions and about 2 TB."],
+["Which loads the kernel into RAM?",["POST","The bootloader","The shell","The page table"],1,"GRUB or the Windows Boot Manager."],
+["FAT32 files cannot exceed:",["2 GB","4 GB","16 GB","16 TB"],1,"A real limit for HD video."],
+["The default file system of Windows is:",["FAT32","NTFS","ext4","APFS"],1,"Journaling, permissions, encryption."],
+["The default file system of most Linux distributions is:",["NTFS","ext4","APFS","exFAT"],1,"Mature, journaling."],
+["Journaling helps a file system to:",["Be faster to format","Recover consistently after a crash","Compress files","Hide files"],1,"Planned changes are logged first."],
+["Which file system suits a USB drive used on Windows and macOS with 20 GB files?",["FAT32","NTFS","ext4","exFAT"],3,"FAT32 limits files to 4 GB; NTFS has poor native macOS write support."],
+["An inode is used by:",["FAT32","ext4","exFAT","BIOS"],1,"One per file, holding attributes and pointers."],
+["Linux was created by Linus Torvalds in:",["1985","1991","2001","2008"],1,"Released under the GPL."],
+["macOS and iOS share which kernel lineage?",["Linux","Darwin and XNU","NT","DOS"],1,"A Unix foundation."],
+["Android is based on the:",["Darwin kernel","Linux kernel","NT kernel","MS-DOS"],1,"With the Android Open Source Project core."],
+["A Type 1 hypervisor:",["Runs on a host OS","Runs directly on the hardware","Is VirtualBox","Is a file system"],1,"For example ESXi or Hyper-V."]
+];
+const FILL=[
+["The permanently resident core of the OS is the ___.",["kernel"],"It runs in a privileged mode."],
+["The user-interface layer of the OS is the ___.",["shell"],"Command-line or graphical."],
+["Code with unrestricted hardware access runs in ___ mode.",["kernel","supervisor"],"Also called supervisor mode."],
+["Applications request privileged services through a ___ call.",["system"],"A controlled gateway."],
+["A ___ operating system runs jobs in groups with no interaction.",["batch"],"Payroll and billing."],
+["In ___ real-time systems a missed deadline means total failure.",["hard"],"Flight control, pacemakers."],
+["The data structure holding a process's management information is the Process Control ___.",["block","pcb"],"PCB."],
+["A waiting process returns to the ___ state when its I/O completes.",["ready"],"Never directly to running."],
+["Shortest Job First can ___ long processes.",["starve","starvation"],"If short ones keep arriving."],
+["Raising the priority of a waiting process over time is called ___.",["aging"],"It mitigates starvation."],
+["A ___ occurs when processes wait forever for resources held by each other.",["deadlock"],"Four conditions are needed."],
+["The ___ algorithm is an avoidance method that grants a request only if it is safe.",["banker's","bankers","banker"],"Banker's Algorithm."],
+["Paging divides a process into fixed-size ___.",["pages"],"Memory into frames."],
+["A ___ table maps logical pages to physical frames.",["page"],"Hardware translates addresses on the fly."],
+["Excessive swapping is called ___.",["thrashing"],"More RAM is the usual remedy."],
+["The ___ algorithm is nicknamed the elevator algorithm.",["scan"],"The head sweeps one way then reverses."],
+["The three letters WIMP include windows, icons, menus and ___.",["pointers","pointer"],"Pointing devices."],
+["A ___ boot skips POST.",["warm","soft"],"Restart of a running system."],
+["UEFI boots from a ___ partitioned disk.",["gpt","guid"],"GUID Partition Table."],
+["The bootloader on Linux is commonly ___.",["grub"],"Windows uses the Windows Boot Manager."],
+["FAT32 cannot store files larger than ___ GB.",["4","four"],"exFAT removes this limit."],
+["___ is Apple's file system designed for SSDs, introduced in 2017.",["apfs"],"Apple File System."],
+["A ___ creates and manages virtual machines.",["hypervisor"],"Type 1 or Type 2."],
+["The ___ kernel underlies Android.",["linux"],"Created by Torvalds."]
+];
+const TF=[
+["The shell runs in kernel mode with full hardware access.",false,"The kernel does; the shell is the user-facing layer."],
+["A multiuser OS is automatically a multitasking OS.",true,"It must run many users' processes concurrently."],
+["A soft real-time system treats every missed deadline as total failure.",false,"That describes hard real-time."],
+["Round-robin can starve a process indefinitely if quantum size is chosen well.",false,"Round-robin is designed to avoid starvation."],
+["A process in the waiting state can move directly to running.",false,"It must return to ready first."],
+["Removing any one of the four deadlock conditions prevents deadlock.",true,"All four must hold simultaneously."],
+["UEFI uses the Master Boot Record to locate the bootloader.",false,"UEFI uses the EFI System Partition and GPT."],
+["A warm boot always performs a full POST.",false,"POST is skipped on a warm boot."],
+["ext4 is the default file system for macOS.",false,"That is APFS."],
+["A Type 1 hypervisor requires a host operating system beneath it.",false,"Type 1 runs directly on hardware."],
+["Every ordinary application runs in kernel mode.",false,"They run in user mode."],
+["A system call causes a controlled switch into kernel mode.",true,"The kernel validates and performs the request."],
+["Early computers of the 1940s had no operating system.",true,"Programmers loaded machine code by hand."],
+["Multiprogramming means a single CPU executes several instructions at the same instant.",false,"It only creates the illusion by rapid switching."],
+["Multiprocessing runs tasks truly simultaneously on different processors.",true,"Unlike multitasking on one processor."],
+["A distributed OS lets each computer remain visibly independent.",false,"That is a network OS; a distributed OS presents one system."],
+["The PCB stores the saved CPU registers of a process.",true,"So the process can be resumed."],
+["SJF requires knowing execution times in advance.",true,"It needs estimates of burst times."],
+["Priority scheduling can starve low-priority processes.",true,"Aging mitigates this."],
+["Paging eliminates internal fragmentation completely.",false,"The last page may be partly used."],
+["Segmentation reintroduces external fragmentation.",true,"Variable-sized segments pack poorly."],
+["Thrashing is cured by using a smaller page file.",false,"More RAM is usually the remedy."],
+["An SSD benefits from the elevator algorithm.",false,"It has no moving head."],
+["A CLI is better than a GUI in every situation.",false,"The deciding factor is the use case."],
+["A CLI requires more graphics resources than a GUI.",false,"A CLI needs very little."],
+["Secure Boot is a feature of UEFI.",true,"It verifies the bootloader and kernel."],
+["BIOS can address disks far beyond 2 TB using MBR.",false,"MBR limits disks to about 2 TB."],
+["FAT32 provides journaling.",false,"It has no journaling or built-in security."],
+["NTFS supports file-level encryption and journaling.",true,"It also supports permissions and compression."],
+["exFAT can store files larger than 4 GB.",true,"It addresses FAT32's limit."],
+["Android is open source at its AOSP core.",true,"Manufacturers customise it."],
+["iOS can be installed on any manufacturer's phone.",false,"It is designed exclusively for the iPhone."],
+["A Type 2 hypervisor runs as an application on a host OS.",true,"VirtualBox is an example."]
+];
+const VSA=[
+["Define an operating system in one sentence.",["intermediary","manages","hardware"],"System software that manages hardware resources and acts as an intermediary between the user and the hardware, providing an environment for applications.",1],
+["Name the four core components of an OS.",["kernel","shell","file system","driver"],"Kernel, shell, file system and device drivers.",1],
+["What does PCB stand for?",["process control block"],"Process Control Block."],
+["Name the five states a process can pass through.",["new","ready","running","waiting","terminated"],"New, ready, running, waiting, terminated.",1],
+["Which type of boot skips the full POST?",["warm","soft"],"A warm (soft) boot."],
+["Name the disk scheduling algorithm nicknamed the elevator algorithm.",["scan"],"SCAN."],
+["State the maximum file size supported by FAT32.",["4 gb","4gb","4 gigabyte"],"4 GB."],
+["Which file system is the default on most Linux distributions?",["ext4"],"ext4."],
+["Name the four necessary conditions for deadlock.",["mutual exclusion","hold and wait","no preemption","circular wait"],"Mutual exclusion, hold and wait, no preemption, circular wait.",1],
+["What does WIMP stand for?",["windows","icons","menus","pointers"],"Windows, Icons, Menus, Pointers.",1],
+["Which firmware standard supports Secure Boot?",["uefi"],"UEFI."],
+["Name the kernel on which both macOS and iOS are based.",["xnu","darwin"],"Darwin (XNU)."],
+["What is the privileged execution mode of the kernel called?",["kernel mode","supervisor mode"],"Kernel (supervisor) mode."],
+["What gateway lets user programs request kernel services?",["system call"],"The system call."],
+["Which scheduling algorithm gives each process a fixed time quantum in rotation?",["round robin"],"Round-robin."],
+["Name the technique that extends RAM using disk space.",["virtual memory"],"Virtual memory."],
+["What do the pages of a process map to in physical memory?",["frame"],"Frames."],
+["Which firmware uses the Master Boot Record?",["bios"],"BIOS."],
+["Which interface accepts spoken commands?",["vui","voice"],"The Voice User Interface."],
+["Name the Windows file system that supports journaling and permissions.",["ntfs"],"NTFS."],
+["Name the Apple file system introduced in 2017.",["apfs"],"APFS."],
+["Which file system suits large cross-platform removable media?",["exfat"],"exFAT."],
+["Who created the Linux kernel?",["torvalds","linus"],"Linus Torvalds, in 1991."],
+["Give an example of a Type 2 hypervisor.",["virtualbox","vmware workstation"],"VirtualBox or VMware Workstation."]
+];
+const CALC=[
+{q:"Four processes P1, P2, P3, P4 arrive together with burst times 6, 2, 8, 3 ms in that order. Give the order of execution under FCFS.",alts:[["p1 p2 p3 p4"],["1 2 3 4"]],ex:true,model:"P1, P2, P3, P4",e:"FCFS runs in arrival order."},
+{q:"Same processes (bursts 6, 2, 8, 3 ms). Give the order of execution under SJF.",alts:[["p2 p4 p1 p3"],["2 4 1 3"]],ex:true,model:"P2, P4, P1, P3",e:"Shortest burst first: 2, 3, 6, 8."},
+{q:"Same processes. What is the average waiting time under FCFS, in ms?",alts:[["7 5"]],ex:true,model:"7.5 ms",e:"Waiting times 0, 6, 8, 16: total 30; 30 / 4 = 7.5."},
+{q:"Same processes. What is the average waiting time under SJF, in ms?",alts:[["4 5"]],ex:true,model:"4.5 ms",e:"Order P2, P4, P1, P3: waiting 0, 2, 5, 11 for P2, P4, P1, P3: total 18; 18 / 4 = 4.5."},
+{q:"Same processes. Which gives the shorter average waiting time, FCFS or SJF?",alts:[["sjf"]],ex:true,model:"SJF",e:"4.5 ms against 7.5 ms."},
+{q:"Same processes. What is the average turnaround time under FCFS, in ms?",alts:[["12 25"]],ex:true,model:"12.25 ms",e:"Completion times 6, 8, 16, 19: total 49; 49 / 4 = 12.25."},
+{q:"Same processes under round-robin with a quantum of 3 ms. What is P2's completion time in ms?",alts:[["5"]],ex:true,model:"5 ms",e:"P1 runs 0 to 3, then P2 runs 3 to 5 and finishes."},
+{q:"Same processes under round-robin, quantum 3 ms. What is the average waiting time, in ms?",alts:[["7 5"]],ex:true,model:"7.5 ms",e:"Completion: P2 5, P4 11, P1 14, P3 19. Waiting = completion - burst: 8, 3, 11, 8 = 30; 30 / 4 = 7.5."},
+{q:"Five processes arrive at time 0: P1 burst 10 priority 3; P2 burst 1 priority 1; P3 burst 2 priority 4; P4 burst 1 priority 5; P5 burst 5 priority 2 (1 is the highest priority). Give the order of execution under priority scheduling.",alts:[["p2 p5 p1 p3 p4"],["2 5 1 3 4"]],ex:true,model:"P2, P5, P1, P3, P4",e:"Highest priority (smallest number) first."},
+{q:"Same five processes. What is the average waiting time under priority scheduling, in ms?",alts:[["8 2"]],ex:true,model:"8.2 ms",e:"Waiting: P2 0, P5 1, P1 6, P3 16, P4 18: total 41; 41 / 5 = 8.2."},
+{q:"A disk has cylinders 0 to 199. The head is at 53 and the queue is 98, 183, 37, 122, 14, 124, 65, 67. What is the total head movement under FCFS?",alts:[["640"]],ex:true,model:"640 cylinders",e:"45 + 85 + 146 + 85 + 108 + 110 + 59 + 2 = 640."},
+{q:"Same disk and queue. The head is at 53 moving towards higher numbers. What is the total head movement under SCAN (it goes to the end, 199, before reversing)?",alts:[["331"]],ex:true,model:"331 cylinders",e:"53 to 199 is 146; then 199 to 14 is 185; 146 + 185 = 331."},
+{q:"Same disk and queue. Which request is serviced first under SCAN moving towards higher numbers?",alts:[["65"]],ex:true,model:"65",e:"The nearest request above 53 is 65; then 67, 98, 122, 124, 183."},
+{q:"Page size is 1 KB (1024 bytes). A logical address is 3500. What are the page number and offset?",alts:[["3","428"]],model:"Page 3, offset 428",e:"3500 / 1024 = 3 remainder 428 (3 x 1024 = 3072; 3500 - 3072 = 428)."},
+{q:"Page size is 1024 bytes. Page 3 is in frame 7. What is the physical address for logical address 3500?",alts:[["7596"]],ex:true,model:"7596",e:"Frame 7 starts at 7 x 1024 = 7168; adding the offset 428 gives 7596."},
+{q:"Page size is 512 bytes. What are the page number and offset of logical address 1300?",alts:[["2","276"]],model:"Page 2, offset 276",e:"1300 / 512 = 2 remainder 276."},
+{q:"A process of 5000 bytes is loaded with a page size of 1024 bytes. How many pages does it need?",alts:[["5"],["5 pages"]],ex:true,model:"5",e:"5000 / 1024 = 4.88, rounded up to 5 pages."},
+{q:"For the same process (5000 bytes, 1024-byte pages), how many bytes of internal fragmentation arise?",alts:[["120"],["120 bytes"]],ex:true,model:"120 bytes",e:"5 x 1024 = 5120; 5120 - 5000 = 120."},
+{q:"Physical memory of 64 KB is divided into 4 KB frames. How many frames are there?",alts:[["16"],["16 frames"]],ex:true,model:"16",e:"64 / 4 = 16."},
+{q:"A pacemaker controller is which type of operating system? (batch / multitasking / hard real-time / soft real-time / distributed)",alts:[["hard real time"],["real time hard"]],ex:true,model:"Hard real-time",e:"A missed deadline would be a failure."},
+{q:"A university's monthly payroll run submitted without interaction is which type of operating system?",alts:[["batch"]],ex:true,model:"Batch",e:"Similar jobs run without interactive input."},
+{q:"A laptop running a browser and a music player at once is using which type of OS capability? (batch / multitasking / distributed / mobile)",alts:[["multitasking"]],ex:true,model:"Multitasking",e:"Rapid switching gives an interactive feel."},
+{q:"A cloud platform spanning thousands of servers presented as one service is which type of OS?",alts:[["distributed"]],ex:true,model:"Distributed",e:"Networked machines appear as one unified system."},
+{q:"Classify the system call fork(): process control, file management, device management or communication?",alts:[["process control"]],ex:true,model:"Process control",e:"It creates a process."},
+{q:"Classify the system call read(): process control, file management, device management or communication?",alts:[["file management"]],ex:true,model:"File management",e:"Open, read, write, close."},
+{q:"Classify the system call send(): process control, file management, device management or communication?",alts:[["communication"]],ex:true,model:"Communication",e:"Send and receive."},
+{q:"Classify the system call request_device(): process control, file management, device management or communication?",alts:[["device management"]],ex:true,model:"Device management",e:"Request and release."},
+{q:"Is pressing the power button after the laptop was fully shut down overnight a cold boot or a warm boot?",alts:[["cold"],["cold boot"]],ex:true,model:"Cold boot",e:"Starting from fully powered off."},
+{q:"Is clicking Restart after a Windows update a cold boot or a warm boot?",alts:[["warm"],["warm boot"]],ex:true,model:"Warm boot",e:"The running system restarts without a full POST."},
+{q:"Is pressing Ctrl+Alt+Delete and choosing restart a cold boot or a warm boot?",alts:[["warm"],["warm boot"]],ex:true,model:"Warm boot",e:"The system is already running."},
+{q:"Is plugging in the power cable for the first time a cold boot or a warm boot?",alts:[["cold"],["cold boot"]],ex:true,model:"Cold boot",e:"Starting from a powered-off state."},
+{q:"A USB drive must carry one 20 GB video and be used on both a Windows laptop and a MacBook. Which file system do you recommend?",alts:[["exfat"]],ex:true,model:"exFAT",e:"FAT32 cannot hold files over 4 GB; NTFS has poor native macOS write support."},
+{q:"Which file system suits a Windows system drive?",alts:[["ntfs"]],ex:true,model:"NTFS",e:"The Windows default."},
+{q:"A student's laptop becomes very slow with many tabs open and the disk light flashes constantly. What is the likely cause (one or two words)?",alts:[["thrashing"],["excessive swapping"],["insufficient ram"],["low ram"],["swapping"]],ex:true,model:"Thrashing (too little RAM, so heavy swapping)",e:"The OS is swapping pages to disk; the remedy is more RAM."},
+{q:"Which of the four deadlock conditions is removed if a process must request all resources at once?",alts:[["hold and wait"]],ex:true,model:"Hold and wait",e:"A process cannot hold some resources while waiting for others."},
+{q:"After an I/O operation completes, a waiting process moves to which state?",alts:[["ready"]],ex:true,model:"Ready",e:"Never directly to running."},
+{q:"A system must alert staff within a guaranteed 500 ms. Which class of OS is needed?",alts:[["real time"],["real time operating system"],["rtos"]],ex:true,model:"Real-time",e:"Timing guarantees are required."},
+{q:"Classify an Ubuntu server shared by many students: multiuser, mobile or embedded?",alts:[["multiuser"],["multi user"]],ex:true,model:"Multiuser",e:"Several users access it simultaneously."}
+];
+const SHORT=[
+["Distinguish between the kernel and the shell.","The kernel is the core of the OS: loaded at startup and permanently resident, it runs in a privileged mode and directly manages the processor, memory and devices, handling process scheduling and system calls. The shell is the component providing the user interface, a text command interpreter on command-line systems or the desktop environment on graphical ones, through which the user issues commands to the kernel. The same kernel can have different shells.",["Kernel is the privileged resident core","Kernel manages hardware and system calls","Shell is the user interface layer","Command-line or graphical shell"]],
+["Explain the difference between kernel mode and user mode.","In kernel mode (supervisor mode) code has unrestricted access to all hardware and memory and can execute any instruction; only the kernel and trusted components run here. In user mode code has restricted privileges: it cannot access hardware directly or execute sensitive instructions and can touch only the memory allocated to it; ordinary applications run here. The separation is a safety boundary: a violation traps into the kernel, which can terminate the offending process, and user programs reach hardware only through system calls.",["Kernel mode: unrestricted","User mode: restricted","Applications in user mode","Violations trap to the kernel","System calls as the gateway"]],
+["Distinguish between multiprogramming and multitasking.","Multiprogramming keeps several programs in memory and switches the CPU when the current one waits for I/O, so as to maximise CPU utilisation, mainly in batch-oriented settings. Multitasking extends this by switching among tasks in time slices (quanta) in round-robin fashion, whether or not a task has finished, to give a responsive, interactive experience in which the user works with several applications. Neither is truly simultaneous on a single processor.",["Multiprogramming maximises CPU utilisation","Switches on I/O wait","Multitasking is interactive","Time slices in round-robin"]],
+["Why is a multiuser OS not necessarily the same as a multitasking OS?","Multiuser means that several people use the system at once, each with protected data. It requires multitasking, because the OS must run many users' processes concurrently, so every multiuser OS is multitasking. The reverse does not hold: a single-user multitasking OS, such as early versions of Windows, runs several programs for one user and is not multiuser. The implication runs in one direction only.",["Multiuser serves several users","Multiuser requires multitasking","Single-user multitasking exists (early Windows)","One-way implication"]],
+["Distinguish between a distributed operating system and a network operating system.","A distributed OS manages independent networked computers and presents them as a single unified system with transparency, so that users do not know which machine does the work; it offers pooled power, fault tolerance and scaling. A network OS provides a layer of services on a LAN for sharing files, printers and internet access while each computer keeps its own OS and identity; users log on explicitly and know they are reaching a separate machine; there are servers and clients (Windows Server, Novell NetWare).",["Distributed: one unified system","Transparent to users","Network OS: independent identities","Resource sharing with servers and clients","Examples"]],
+["Explain the difference between hard and soft real-time systems with one example each.","A hard real-time system treats a missed deadline as total system failure, so the deadline is absolutely inviolable (flight control, ABS brakes, pacemakers, missile guidance). A soft real-time system tolerates an occasional missed deadline, which only degrades quality (video streaming, online gaming, telecommunications). The discriminator is the consequence of a miss, not just speed.",["Hard: miss means failure","Example of hard","Soft: degraded quality, tolerable","Example of soft"]],
+["Why can a process not move directly from the waiting state to the running state?","When its I/O or event completes, a waiting process becomes eligible to run but must first return to the ready queue. Several processes may be ready at the same time, and the scheduler, not the completion of the I/O, decides which is dispatched to the CPU. Hence the only route from waiting is to ready, then ready to running by dispatch.",["Waiting returns to ready first","Several processes may be ready","Scheduler decides who runs","Dispatch moves ready to running"]],
+["Distinguish between paging and segmentation.","Paging divides physical memory into fixed-size frames and the process into pages of the same size; a page table maps pages to frames, pages need not be contiguous, external fragmentation is eliminated but some internal fragmentation remains in the last page. Segmentation divides a process into logical, variable-sized units (code, data, stack), matching the programmer's view, but variable sizes reintroduce external fragmentation. Most systems use paged segmentation.",["Paging: fixed-size pages and frames","Page table mapping","Fragmentation in paging","Segmentation: variable logical units","External fragmentation returns"]],
+["What is virtual memory, and why is it needed?","Virtual memory creates the illusion that each process has more memory than the physical RAM, by using part of the disk (page file or swap space) as an extension of RAM. When RAM fills, least recently used pages are moved to disk and loaded back when needed, transparently to processes. It is needed because RAM is finite and many programs run at once; its cost is speed, since disk is thousands of times slower, and excessive swapping causes thrashing.",["Illusion of more memory","Page file or swap space on disk","LRU pages swapped","Needed as RAM is finite","Slower; thrashing"]],
+["Distinguish between a cold boot and a warm boot.","A cold boot starts the computer from a fully powered-off state with RAM empty and runs the full POST hardware check; it is slower and is triggered by the power button. A warm boot restarts an already-running computer without removing power: the processor resets and the OS reloads, but POST is skipped because the hardware was already verified, so it is faster; it is triggered by the restart command, Ctrl+Alt+Delete or the reset button and used to apply updates.",["Cold: powered off, full POST","Warm: running, POST skipped","Speed difference","Triggers or uses"]],
+["Why should the CLI be preferred over the GUI on a server with limited resources?","A CLI needs almost no graphics processing and very little memory, so all RAM and CPU go to the actual workload rather than drawing a desktop. It is also scriptable, so repetitive administration can be automated, and it is very fast for skilled administrators, who can work remotely over a text connection. A GUI would consume resources for no benefit on a server.",["Very low resource use","RAM and CPU for the workload","Scripting and automation","Fast for administrators"]],
+["Distinguish between BIOS and UEFI on any three points.","BIOS is the older standard running in 16-bit mode, reading the Master Boot Record (four primary partitions, about 2 TB) with a keyboard-driven text setup screen. UEFI is the modern successor running in 32 or 64-bit mode, booting from a GPT disk (many more partitions, well beyond 2 TB), with a graphical mouse-navigable setup, faster boot and Secure Boot, which verifies the bootloader and kernel are untampered.",["Processor mode 16-bit versus 32/64-bit","MBR versus GPT and disk limits","Setup screen","Secure Boot","Speed"]],
+["What is journaling in a file system, and why does it matter?","Journaling means that the file system writes planned changes to a log (the journal) before applying them. If a crash or power failure occurs mid-operation, the system can recover by consulting the journal instead of being left in an inconsistent state, such as half-written metadata. NTFS and ext4 are journaling file systems; FAT32 and exFAT are not.",["Changes logged before applying","Crash recovery from the journal","Avoids inconsistent state","NTFS and ext4"]],
+["Distinguish between a Type 1 and a Type 2 hypervisor.","A Type 1 (bare-metal) hypervisor runs directly on the hardware with no host operating system beneath it (VMware ESXi, Microsoft Hyper-V); it is standard in data centres and cloud platforms, where one server hosts dozens of VMs. A Type 2 (hosted) hypervisor runs as an application on an existing host OS (VirtualBox, VMware Workstation), letting a developer run, for instance, a Linux VM inside Windows.",["Type 1 on bare hardware","Type 1 examples and use","Type 2 on a host OS","Type 2 examples and use"]]
+];
+const LONG=[
+["Explain the functions of an operating system, describing each with an example.","The OS performs six core functions. Process management: creating processes, scheduling them for CPU time, tracking state and terminating them (switching between a browser and a music player). Memory management: tracking RAM, deciding how much each process gets and protecting one process's memory from another (virtual memory). File system management: organising storage into files and directories, with access and permissions (saving a document in a folder). Device management: controlling peripherals through drivers and giving a uniform interface (a print job passed to the printer driver). Security and protection: access control, authentication and permissions (user passwords). User interface: the CLI or GUI through which commands are issued. The OS also provides an abstract view of the hardware.",["Process management with example","Memory management","File system management","Device management","Security and protection","User interface"]],
+["Draw and explain the process state diagram, describing the transition that causes each change of state.","A process has five states: new, ready, running, waiting and terminated. New to ready: the process is admitted and awaits the CPU. Ready to running: the scheduler dispatches it to the processor. Running to ready: its time slice expires and it returns to the ready queue. Running to waiting: it needs an I/O operation or event and waits. Waiting to ready: the I/O or event completes; the process returns to the ready queue, never straight to running, because the scheduler decides who runs among the ready processes. Running to terminated: the process exits and its resources are reclaimed. The diagram has arrows new, ready, running, terminated in a line, with running back to ready, running to waiting and waiting to ready.",["All five states named","New to ready: admitted","Ready to running: dispatched","Running to ready: time slice expires","Running to waiting: I/O wait","Waiting to ready (not running): I/O complete","Running to terminated"]],
+["Explain any four CPU scheduling algorithms, stating one advantage and one disadvantage of each.","FCFS runs processes in arrival order; advantage: simple; disadvantage: the convoy effect, as a long process at the front delays all others. SJF runs the process with the smallest estimated execution time next; advantage: it provably minimises average waiting time; disadvantage: it needs times in advance and can starve long processes. Priority scheduling always runs the highest-priority ready process; advantage: important work first; disadvantage: low-priority processes may starve, mitigated by aging. Round-robin gives each process a fixed time quantum in rotation; advantage: fair and responsive for interactive use; disadvantage: a quantum too large degrades toward FCFS, too small causes context-switch overhead.",["FCFS with advantage and disadvantage","SJF with advantage and disadvantage","Priority with advantage and disadvantage","Round-robin with advantage and disadvantage","Terms convoy effect, starvation, aging, quantum"]],
+["Explain the four necessary conditions for deadlock and describe two strategies an OS can use to deal with it.","A deadlock is a situation in which processes each wait for a resource held by another in the group, so none can proceed. It requires all four conditions at once: mutual exclusion (a resource is non-shareable), hold and wait (a process holding one resource waits for another), no preemption (a resource cannot be forcibly taken) and circular wait (a closed chain of processes each waiting for the next's resource). Strategies: prevention rules out one condition structurally, for example by requiring all resources to be requested at once (removing hold and wait); avoidance grants a request only if it cannot lead to deadlock (the Banker's Algorithm). Others: detection and recovery (find circular waits and terminate or roll back a process) or ignoring rare deadlocks, as most desktop systems do.",["Deadlock defined","Mutual exclusion","Hold and wait","No preemption","Circular wait","Two strategies explained"]],
+["Explain paging and segmentation, and describe how modern operating systems combine them.","Paging divides physical memory into fixed-size frames and a process's logical address space into pages of the same size. A page table maps each page to the frame holding it, so pages need not be contiguous; allocation is simple and external fragmentation is eliminated, though internal fragmentation remains in the last page. Segmentation divides a process into logically meaningful, variable-sized segments (code, data, stack), matching the programmer's view, but it reintroduces external fragmentation. Most modern operating systems use paged segmentation: a process is divided into logical segments and each segment into fixed-size pages, giving the logical clarity of segmentation and the allocation efficiency of paging.",["Paging with frames, pages and page table","Fragmentation in paging","Segmentation with variable units","External fragmentation in segmentation","Paged segmentation combination"]],
+["Trace the complete boot process of a computer from power-on to a usable desktop.","Pressing the power button sends power to the motherboard and components. The processor, by hardwired design, executes instructions from the BIOS or UEFI firmware ROM chip. The firmware initialises core hardware and runs POST, checking the processor, RAM, keyboard and storage; a fault is shown by beep codes or an error and halts the boot. On success it reads the first sector of the boot device (the MBR on older systems or the EFI System Partition on UEFI systems), which contains the bootloader. The bootloader (GRUB on Linux, Windows Boot Manager on Windows) loads the OS kernel into RAM. The kernel initialises device drivers, mounts the file system, starts essential processes (login manager, network services, daemons) and presents the interface. POST runs only on a cold boot.",["Power and firmware executes","POST","Boot sector read","Bootloader loads kernel","Kernel initialises drivers, file system, processes","Interface presented"]],
+["Compare the CLI and the GUI across at least five dimensions, and state one scenario where each is clearly preferable.","Interaction: the CLI uses typed text commands, the GUI clicks or touches visual elements. Ease of use: the CLI needs memorised commands; the GUI is intuitive and discoverable. Speed for experts: the CLI is very fast; the GUI is slower for repetitive complex tasks. Automation: the CLI excels through scripting; the GUI is limited. Resource usage: the CLI is very low; the GUI is higher because of graphics. Error proneness: the CLI is higher (typos); the GUI is lower (menus). A CLI is clearly preferable for administering a remote server or automating nightly tasks; a GUI for general users doing everyday work or visual design.",["Five dimensions compared","CLI strengths","GUI strengths","Scenario for CLI","Scenario for GUI"]],
+["Compare FAT32, NTFS, ext4, APFS, and exFAT on compatibility, maximum file size, and key features.","FAT32: universally compatible; files limited to 4 GB, volumes 2 TB; no journaling or security; for cross-platform removable media. NTFS: native to Windows; about 16 EB files; permissions, encryption, compression, journaling, links; Windows internal drives. ext4: native to Linux; files up to 16 TB; journaling, extents and delayed allocation; Linux internal drives. APFS: macOS, iOS and other Apple systems; about 8 EB; encryption, snapshots, space sharing, crash protection; Apple SSD storage. exFAT: modern cross-platform; about 16 EB; no journaling; removes the 4 GB limit; large SD cards and USB drives.",["FAT32 details","NTFS details","ext4 details","APFS details","exFAT details","Compatibility and size compared"]],
+["Classify operating systems by type, giving one real-world example of each of the nine types described in this chapter.","Batch: payroll or bank statement generation. Multiprogramming: a mainframe keeping several jobs in memory to avoid idle CPU. Multitasking: Windows, macOS or Linux running several applications with time slices. Multiuser: a Linux or Unix server used by many people. Multiprocessing: a multi-core server using SMP. Real-time: flight control or a pacemaker (hard), video streaming (soft). Distributed: a large cloud platform presented as one system. Network OS: Windows Server or Novell NetWare on a LAN. Mobile: Android or iOS. One OS may hold several types at once.",["Batch example","Multiprogramming and multitasking examples","Multiuser and multiprocessing examples","Real-time with hard and soft","Distributed and network examples","Mobile example"]],
+["Compare any three of the five major operating systems (Windows, Linux, macOS, Android, iOS) on developer, licensing, target domain, and one distinguishing feature.","Windows: developed by Microsoft; proprietary; desktops and laptops (over 70 percent share); distinguished by its vast hardware and software ecosystem and the Start Menu and Taskbar interface. Linux: developed by the community (kernel by Linus Torvalds, 1991); open source under the GPL; servers, cloud and supercomputers; distinguished by free source code and many distributions (Ubuntu, Fedora, Debian). macOS: developed by Apple; proprietary; Apple desktops and laptops, creative work; distinguished by Darwin-based Unix power, polished design and integration with Apple devices. Android: Google; open source (AOSP core); smartphones and tablets worldwide; Linux kernel and manufacturer customisation. iOS: Apple; proprietary; iPhone; curated App Store, strong privacy and long update support.",["Three systems chosen","Developer for each","Licence for each","Target domain for each","One distinguishing feature for each","Same axes used side by side"]]
+];
+const APP=[
+["A hospital's patient monitoring system must alert staff within a guaranteed 500 milliseconds of a critical reading. Explain what class of operating system this requires and why an ordinary desktop OS would be unsuitable.","It requires a real-time operating system, specifically hard real-time, since a late alert could harm a patient and the deadline is inviolable. A real-time OS guarantees responses within strictly defined deadlines. An ordinary desktop OS is built for throughput and fairness: its scheduler, swapping, background tasks and updates can delay a response unpredictably, so it cannot guarantee the 500 ms limit.",["Real-time OS","Hard real-time as deadline is inviolable","Guaranteed response within deadline","Desktop OS has unpredictable delays"]],
+["A new system administrator wants to automate a task that runs every night: back up a folder, compress it, and email a report. Recommend CLI or GUI, and justify the choice.","The CLI is the better choice. Commands can be chained into a shell script that performs the backup, compression and email without manual intervention, and the script can be scheduled to run every night. The CLI is scriptable, reliable and uses very few resources. A GUI relies on clicking and would need extra tools to automate, and is slower for repetitive tasks.",["Recommends CLI","Scripting and automation","Can be scheduled to run unattended","GUI limited for automation"]],
+["Explain why an operating system enforces the kernel mode/user mode boundary even though it makes every system call slightly slower than letting applications access hardware directly.","The boundary is a safety mechanism. If applications could touch hardware and memory directly, one buggy or malicious program could corrupt other programs' memory, crash the whole machine or bypass security. With the boundary, a violation is detected by the processor and trapped into the kernel, which terminates only the offending process. System calls give the kernel a point at which to validate every request. The small cost in speed is worth the stability, protection and security of the whole system.",["Without it one program can corrupt others or crash the system","Violations trapped by the processor","Kernel validates requests","Stability and security outweigh small cost"]],
+["A company wants to run both a Windows-only accounting package and a Linux-only development toolchain on the same physical server. Recommend an approach and justify it.","Use virtualisation. A hypervisor creates virtual machines, each with its own virtual CPU, memory and storage and running its own OS in isolation, so one VM can run Windows for the accounting package and another Linux for the toolchain on shared hardware. A Type 1 (bare-metal) hypervisor such as ESXi or Hyper-V is suited to a server; a Type 2 such as VirtualBox is easier for testing. It avoids buying separate machines and keeps the two environments isolated.",["Virtualisation with a hypervisor","Separate VMs run separate OS","Isolation","Type 1 for a server"]],
+["A user complains their computer takes much longer to shut down and restart than it used to, though it starts fine from fully powered off. Suggest what might be happening and how to investigate it.","The cold boot is fine, so the hardware passes POST and the firmware and bootloader work. The slowness is during shutdown and warm restart, so the cause is probably in the operating system: services, drivers or applications that are slow to close, a pending update, or a failing driver. Investigate with the system monitor (Task Manager) to see which processes use CPU, memory and disk, check the event logs for shutdown errors, review start-up programs and recent updates or driver changes, and use system restore if a recent change caused it.",["Cold boot works so hardware and firmware fine","Problem in OS, services, drivers or applications","Check the system monitor and logs","Remedy such as updates, drivers or restore"]],
+["Two processes each hold one resource the other needs, and neither will release what it holds. Identify which of the four deadlock conditions are illustrated, and propose one practical way the system could have prevented this situation.","All four conditions are illustrated: mutual exclusion (the resources cannot be shared), hold and wait (each holds one while waiting for the other), no preemption (neither can be forced to release) and circular wait (each waits for a resource held by the other). One prevention strategy is to require each process to request all the resources it needs at once, which removes hold and wait; alternatively impose a fixed order in which resources must be requested, which removes circular wait.",["Mutual exclusion","Hold and wait","No preemption","Circular wait","A valid prevention method"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson4-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","OS lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Operating system basics",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Definition",d:"An operating system (OS) is system software that manages the hardware resources of a computer and provides an environment in which application programs can run.",p:["The OS acts as an intermediary between the user (or application) and the hardware. Without it, every program would have to contain its own code to control the processor, memory, disk and display, and programs could not safely share the machine."]},
+ {h:"Functions of an operating system",p:["The OS performs six principal functions: process management, memory management, file system management, device management, security and protection, and provision of a user interface."],t:T[0]},
+ {h:"Abstraction",p:["The OS presents an abstract view of the hardware. A call such as open(\"notes.txt\") works identically whether the file is stored on an SSD, a hard disk or a USB drive, because the OS and its device drivers hide the differences."]},
+ {h:"Components",l:["Kernel: the permanently resident core that controls hardware, memory and processes.","Shell: the user interface layer through which the user communicates with the kernel.","File system: the structure used to organise stored data.","Device drivers: software modules that control specific hardware devices."]},
+ {h:"Kernel mode and user mode",p:["The processor operates in two privilege levels. Code in kernel mode has unrestricted access to hardware and all memory; applications run in user mode with restricted access. An illegal operation in user mode causes a trap to the kernel."],t:T[1]},
+ {h:"System calls",p:["A system call is the controlled gateway through which a user program requests a service from the kernel. System calls fall into four categories."],t:T[2]},
+ {h:"Examination notes",l:["Always name the privilege boundary (kernel mode versus user mode) when explaining the kernel.","Define the OS as an intermediary, not merely as a program that runs other programs."]}
+]},
+{t:"Types of operating system",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Evolution",p:["Operating systems developed in stages in response to the need to use expensive hardware efficiently."],t:T[3]},
+ {h:"The nine types",p:["Operating systems are classified by the way they schedule work and the number of users, processors and machines they serve."],t:T[4]},
+ {h:"Multiprogramming and multitasking",p:["Multiprogramming keeps several programs in memory so that the CPU is never idle while one waits for I/O; its aim is CPU utilisation. Multitasking switches among programs in short time slices (quanta) in round-robin fashion, giving an interactive feel; its aim is responsiveness."],t:T[7]},
+ {h:"Real-time systems",p:["A real-time OS must respond within a guaranteed time."],t:T[5]},
+ {h:"Distributed and network systems",t:T[6]},
+ {h:"Scenario classification",p:["To classify a scenario, ask the nine questions in order and choose the first type whose defining feature is present."],t:T[8]},
+ {h:"Examination notes",l:["Every multiuser OS is multitasking, but not every multitasking OS is multiuser.","Multiprocessing refers to several physical CPUs; symmetric multiprocessing (SMP) treats them as equals."]}
+]},
+{t:"Process management",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Process",d:"A process is a program in execution. A program is a passive file on disk; a process is an active entity with a program counter, registers, memory and resources.",p:["For each process the OS maintains a Process Control Block (PCB) holding the process ID, state, saved registers, memory allocation and scheduling information."]},
+ {h:"Responsibilities",t:T[9]},
+ {h:"Process states",p:["A process passes through five states: new, ready, running, waiting and terminated. A waiting process returns to the ready state when its I/O completes; it never moves directly to running."],t:T[10]},
+ {h:"CPU scheduling",p:["The scheduler chooses which ready process receives the CPU. Waiting time is the time spent in the ready queue; turnaround time is completion time minus arrival time. Use the Scheduling lab to compute these."],t:T[11]},
+ {h:"Deadlock",d:"A deadlock is a situation in which two or more processes wait indefinitely for resources held by one another.",p:["Example: process A holds the printer and requests the scanner while process B holds the scanner and requests the printer."],t:T[12]},
+ {h:"Handling deadlock",t:T[13]},
+ {h:"Examination notes",l:["Deadlock requires all four conditions simultaneously; removing any one prevents it.","The Banker's Algorithm is deadlock avoidance, not prevention.","Convoy effect belongs to FCFS; starvation to SJF and priority; aging is the remedy."]}
+]},
+{t:"Memory management",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Memory management and protection",p:["The OS allocates, tracks and reclaims main memory. Memory protection prevents one process from reading or writing another process's memory; it is enforced by the kernel using the user-mode boundary."]},
+ {h:"Paging, segmentation and paged segmentation",p:["In paging, physical memory is divided into fixed-size frames and a process into pages of the same size; a page table maps each page to a frame. Logical address = page number and offset; physical address = frame number × page size + offset."],t:T[14]},
+ {h:"Fragmentation and virtual memory",t:T[15]},
+ {h:"Worked example",p:["With 1024-byte pages, logical address 3500 gives page 3 (3500 ÷ 1024) and offset 428. If page 3 is in frame 7, the physical address is 7 × 1024 + 428 = 7596. A 5000-byte process needs 5 pages and wastes 120 bytes in the last page (internal fragmentation). Verify these in the Paging lab."]},
+ {h:"Examination notes",l:["Paging removes external fragmentation but not internal fragmentation.","Thrashing is excessive swapping; the remedy is more RAM or fewer running processes."]}
+]},
+{t:"File and device management",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Management of files, devices and disks",t:T[16]},
+ {h:"Disk scheduling",p:["Disk scheduling orders pending requests to reduce head movement. FCFS serves requests in arrival order. SCAN (the elevator algorithm) moves in one direction servicing requests until the end, then reverses. C-SCAN jumps back to the start and services in one direction only, giving more uniform waiting. SSDs need no disk scheduling because they have no moving head. Use the Disk lab to compute total movement."]},
+ {h:"Examination notes",l:["Every device looks like a file to the program: the uniform interface is provided by drivers."]}
+]},
+{t:"User interface",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Command line and graphical interfaces",p:["A command line interface (CLI) accepts typed commands (Bash, cmd.exe, PowerShell). A graphical user interface (GUI) uses windows, icons, menus and pointers (WIMP). The GUI was pioneered at Xerox PARC in the 1970s and popularised by Apple's Macintosh in 1984."],t:T[17]},
+ {h:"Other interface types",t:T[18]},
+ {h:"Examination notes",l:["Do not call either interface simply better: name the deciding factor (automation, resources, ease of use)."]}
+]},
+{t:"Booting",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Booting",d:"Booting (bootstrapping) is the process of loading the operating system into memory when the computer is started.",t:T[19]},
+ {h:"BIOS and UEFI",t:T[20]},
+ {h:"The boot sequence",p:["Six steps: power on, firmware starts, POST, boot sector located (MBR or EFI System Partition), bootloader runs (GRUB or Windows Boot Manager), kernel loaded. Step through it in the Boot lab."],t:T[21]},
+ {h:"Examination notes",l:["The bootloader and the kernel are distinct steps.","POST runs only on a cold boot."]}
+]},
+{t:"File systems",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Terms",t:T[22]},
+ {h:"Allocation table and inode",t:T[23]},
+ {h:"File systems compared",t:T[24]},
+ {h:"Choosing a file system",p:["Work from the constraint in the scenario and state why the alternatives fail. Try the File system chooser in the lab."],t:T[25]}
+]},
+{t:"Popular operating systems",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"The five major systems",t:T[26]},
+ {h:"Linux distributions",t:T[27]},
+ {h:"Hypervisors and virtual machines",p:["A hypervisor creates and manages virtual machines. A Type 1 hypervisor runs on bare metal; a Type 2 hypervisor runs on a host operating system."],t:T[28]}
+]}
+];
+
+/* ============ LAB (Lesson 4): scheduler, process states, deadlock, paging, disk, boot, file system, sorting ============ */
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+const L={tool:"sched",sd:{dim:0,item:null,fb:"",right:null,s:0,t:0},
+  alg:"fcfs",sa:"0,0,0,0",sb:"6,2,8,3",sp:"2,1,4,3",sq:"3",
+  ps:"1024",la:"3500",pf:"7",psz:"5000",
+  dh:"53",dq:"98,183,37,122,14,124,65,67",dm:"199",dalg:"fcfs",
+  ds:"new",dmsg:"",bs:0,bw:"cold",
+  c1:"y",c2:"y",c3:"y",c4:"y",wf:"P1>R1, R1>P2, P2>R2, R2>P1",
+  f1:"win",f2:"int",f3:"n"};
+const LABTOOLS=[["sched","Scheduling"],["state","Process states"],["dead","Deadlock"],["page","Paging"],["disk","Disk scheduling"],["boot","Boot sequence"],["fs","File system chooser"],["sort","Sorting drill"]];
+const note=t=>'<div class="rs note">'+t+"</div>";
+const okb=t=>'<div class="rs ok">'+t+"</div>";
+const badb=t=>'<div class="rs bad">'+t+"</div>";
+const inp=(id,lab,w,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><input type="text" id="'+id+'" data-lin="'+t+'" class="mono" value="'+esc(L[id])+'" autocomplete="off" spellcheck="false" style="max-width:'+(w||10)+'rem"></div>';
+const sel=(id,lab,opts,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><select id="'+id+'" data-lin="'+t+'" style="width:auto">'+opts.map(o=>'<option value="'+esc(o[0])+'"'+(String(L[id])===String(o[0])?" selected":"")+">"+esc(o[1])+"</option>").join("")+"</select></div>";
+const nums=s=>String(s).split(",").map(x=>x.trim()).filter(x=>x!=="").map(Number);
+const r2=x=>Math.round(x*100)/100;
+function labView(){
+  let h='<p class="hint">Work the numerical parts of the chapter with these tools: schedule processes, move a process through its states, test for deadlock, translate addresses, order disk requests, step through booting and choose a file system.</p>';
+  h+='<div class="subnav" role="group" aria-label="Lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  return '<div class="labwrap">'+h+TOOLS[L.tool].v()+"</div>";
+}
+/* ---------- scheduling ---------- */
+function simulate(alg,A,B,P,q){
+  const n=B.length,rem=B.slice(),done=Array(n).fill(false),ct=Array(n).fill(0),g=[];let t=0,fin=0;
+  const push=(i,s,e)=>{if(g.length&&g[g.length-1].i===i&&g[g.length-1].e===s)g[g.length-1].e=e;else g.push({i,s,e});};
+  if(alg==="rr"){
+    const queue=[],seen=Array(n).fill(false);
+    const adm=()=>{for(let i=0;i<n;i++)if(!seen[i]&&A[i]<=t){seen[i]=true;queue.push(i);}};
+    adm();
+    while(fin<n){
+      if(!queue.length){t=Math.min(...A.filter((a,i)=>!seen[i]));adm();continue;}
+      const i=queue.shift(),run=Math.min(q,rem[i]);push(i,t,t+run);t+=run;rem[i]-=run;adm();
+      if(rem[i]>0)queue.push(i);else{done[i]=true;ct[i]=t;fin++;}
+    }
+  }else{
+    while(fin<n){
+      let c=[];for(let i=0;i<n;i++)if(!done[i]&&A[i]<=t)c.push(i);
+      if(!c.length){t=Math.min(...A.filter((a,i)=>!done[i]));continue;}
+      let i;
+      if(alg==="fcfs")i=c.reduce((a,b)=>A[b]<A[a]?b:a);
+      else if(alg==="sjf")i=c.reduce((a,b)=>B[b]<B[a]?b:a);
+      else i=c.reduce((a,b)=>P[b]<P[a]?b:a);
+      push(i,t,t+B[i]);t+=B[i];done[i]=true;ct[i]=t;fin++;
+    }
+  }
+  return {g,ct,wt:ct.map((c,i)=>c-A[i]-B[i]),tt:ct.map((c,i)=>c-A[i])};
+}
+function schedRes(){
+  const A=nums(L.sa),B=nums(L.sb),P=nums(L.sp),q=parseInt(L.sq,10),n=B.length;
+  if(n<1||n>8||A.length!==n||A.some(x=>!isFinite(x)||x<0)||B.some(x=>!isFinite(x)||x<=1e-9)||(L.alg==="prio"&&(P.length!==n||P.some(x=>!isFinite(x))))||(L.alg==="rr"&&!(q>=1)))
+    return {srres:note("Enter 1 to 8 processes: arrival times and burst times (same count, bursts above 0), priorities if needed (lower number = higher priority) and a whole-number quantum for round-robin.")};
+  const R=simulate(L.alg,A,B,P,q),end=R.g[R.g.length-1].e;
+  let h='<div class="tbl"><table style="text-align:center"><thead><tr>'+R.g.map(s=>"<th>P"+(s.i+1)+"</th>").join("")+"</tr></thead><tbody><tr>"+R.g.map(s=>'<td class="mono">'+s.s+" – "+s.e+"</td>").join("")+"</tr></tbody></table></div>";
+  h+='<div class="tbl"><table style="text-align:center"><thead><tr><th>Process</th><th>Arrival</th><th>Burst</th><th>Completion</th><th>Turnaround</th><th>Waiting</th></tr></thead><tbody>';
+  for(let i=0;i<n;i++)h+="<tr><th>P"+(i+1)+'</th><td class="mono">'+A[i]+'</td><td class="mono">'+B[i]+'</td><td class="mono">'+R.ct[i]+'</td><td class="mono">'+R.tt[i]+'</td><td class="mono">'+R.wt[i]+"</td></tr>";
+  h+="</tbody></table></div>";
+  const aw=R.wt.reduce((a,b)=>a+b,0)/n,at=R.tt.reduce((a,b)=>a+b,0)/n;
+  h+=okb("Average waiting time = <b>"+r2(aw)+"</b>; average turnaround time = <b>"+r2(at)+"</b>; schedule ends at "+end+".");
+  h+='<p class="hint">Waiting time = turnaround − burst; turnaround = completion − arrival. SJF here is non-preemptive. Context-switch time is ignored.</p>';
+  return {srres:h};
+}
+function viewSched(){
+  return '<div class="panel"><h3>CPU scheduling calculator</h3><div class="row">'+sel("alg","Algorithm",[["fcfs","FCFS"],["sjf","SJF"],["prio","Priority"],["rr","Round-robin"]],"sched")+inp("sa","Arrival times",12,"sched")+inp("sb","Burst times",12,"sched")+inp("sp","Priorities",12,"sched")+inp("sq","Quantum",5,"sched")+'</div><div id="srres">'+schedRes().srres+"</div></div>";
+}
+/* ---------- process states ---------- */
+const STATES=["new","ready","running","waiting","terminated"];
+const TRANS={"new>ready":"admitted","ready>running":"dispatched by the scheduler","running>ready":"time slice expires (pre-emption)","running>waiting":"waits for I/O or an event","waiting>ready":"I/O or event completes","running>terminated":"exit"};
+function viewState(){
+  let h='<div class="panel"><h3>Process state explorer</h3><p class="hint">Current state: <b>'+L.ds+'</b>. Choose the state to move to.</p><div class="row">'+STATES.map(s=>'<button class="btn" data-act="pgo" data-v="'+s+'">'+s+"</button>").join("")+'</div><div id="stres">'+(L.dmsg||note("Start in new. A legal path is new → ready → running → waiting → ready → running → terminated."))+'</div><div class="row"><button class="btn" data-act="preset">Reset to new</button></div>';
+  h+='<div class="tbl"><table><thead><tr><th>From → To</th><th>Event</th></tr></thead><tbody>'+Object.keys(TRANS).map(k=>"<tr><th>"+k.replace(">"," → ")+"</th><td>"+TRANS[k]+"</td></tr>").join("")+"</tbody></table></div></div>";
+  return h;
+}
+function stateGo(v){
+  const k=L.ds+">"+v;
+  if(TRANS[k]){L.dmsg=okb("<b>"+L.ds+" → "+v+"</b>: "+TRANS[k]+".");L.ds=v;}
+  else if(k==="waiting>running")L.dmsg=badb("Not allowed. A process whose I/O completes becomes <b>ready</b> and must wait for the scheduler to dispatch it; it never goes directly from waiting to running.");
+  else if(L.ds==="terminated")L.dmsg=badb("A terminated process has finished; no further transition is possible.");
+  else L.dmsg=badb("<b>"+L.ds+" → "+v+"</b> is not a valid transition.");
+}
+/* ---------- deadlock ---------- */
+function deadRes(){
+  const c=[L.c1,L.c2,L.c3,L.c4],n=c.filter(x=>x==="y").length;
+  let h=n===4?badb("All four conditions hold: deadlock is <b>possible</b> (and with single-instance resources a circular wait is a deadlock)."):okb("Only "+n+" of 4 conditions hold: deadlock <b>cannot</b> occur. Removing any one condition is a method of prevention.");
+  const edges=String(L.wf).split(",").map(x=>x.trim()).filter(Boolean).map(x=>x.split(">").map(y=>y.trim()));
+  let w="";
+  if(!edges.length||edges.some(e=>e.length!==2||!e[0]||!e[1]))w=note("Enter edges as A>B separated by commas. P1>R1 means process P1 requests R1; R1>P2 means R1 is held by P2.");
+  else{
+    const adj={};edges.forEach(e=>{(adj[e[0]]=adj[e[0]]||[]).push(e[1]);adj[e[1]]=adj[e[1]]||[];});
+    const col={};let cyc=null;
+    const dfs=(u,path)=>{col[u]=1;path.push(u);for(const v of adj[u]){if(col[v]===1){cyc=path.slice(path.indexOf(v)).concat(v);return true;}if(!col[v]&&dfs(v,path))return true;}path.pop();col[u]=2;return false;};
+    for(const u of Object.keys(adj)){if(!col[u]&&dfs(u,[]))break;}
+    w=cyc?badb("Cycle found: <b>"+cyc.join(" → ")+"</b>. With one instance of each resource this is a deadlock (circular wait).")  :okb("No cycle: no circular wait, so no deadlock.");
+  }
+  return {dlres:h,wfres:w};
+}
+function viewDead(){
+  const yn=[["y","Holds"],["n","Does not hold"]];
+  return '<div class="panel"><h3>Four conditions</h3><div class="row">'+sel("c1","Mutual exclusion",yn,"dead")+sel("c2","Hold and wait",yn,"dead")+sel("c3","No preemption",yn,"dead")+sel("c4","Circular wait",yn,"dead")+'</div><div id="dlres">'+deadRes().dlres+'</div></div><div class="panel"><h3>Wait-for graph</h3><div class="row">'+inp("wf","Edges",34,"dead")+'</div><div id="wfres">'+deadRes().wfres+"</div></div>";
+}
+/* ---------- paging ---------- */
+function pageRes(){
+  const ps=parseInt(L.ps,10),la=parseInt(L.la,10),pf=parseInt(L.pf,10),sz=parseInt(L.psz,10);
+  if(!(ps>0)||!(la>=0)||!(pf>=0)||!(sz>0))return {pgres:note("Enter positive whole numbers: page size, logical address, frame number and process size (bytes).")};
+  const pn=Math.floor(la/ps),off=la%ps,ph=pf*ps+off,pages=Math.ceil(sz/ps),frag=pages*ps-sz;
+  let h=okb("Logical address "+la+" = page <b>"+pn+"</b>, offset <b>"+off+"</b> ("+la+" ÷ "+ps+").");
+  h+=okb("If page "+pn+" is in frame "+pf+": physical address = "+pf+" × "+ps+" + "+off+" = <b>"+ph+"</b>.");
+  h+=okb("A process of "+sz+" bytes needs <b>"+pages+"</b> pages and has <b>"+frag+"</b> bytes of internal fragmentation in its last page.");
+  h+='<p class="hint">Paging has no external fragmentation; the unused part of the last page is internal fragmentation (at most one page − 1 byte per process).</p>';
+  return {pgres:h};
+}
+function viewPage(){
+  return '<div class="panel"><h3>Paging calculator</h3><div class="row">'+inp("ps","Page size (bytes)",8,"page")+inp("la","Logical address",8,"page")+inp("pf","Frame of that page",8,"page")+inp("psz","Process size (bytes)",8,"page")+'</div><div id="pgres">'+pageRes().pgres+"</div></div>";
+}
+/* ---------- disk scheduling ---------- */
+function diskRes(){
+  const h0=parseInt(L.dh,10),q=nums(L.dq),mx=parseInt(L.dm,10);
+  if(!(h0>=0)||!q.length||q.length>20||q.some(x=>!(x>=0)||x>mx)||!(mx>0)||h0>mx)return {dkres:note("Enter a head position, up to 20 request cylinders and the highest cylinder; all values must be between 0 and the highest cylinder.")};
+  const up=q.filter(x=>x>=h0).sort((a,b)=>a-b),dn=q.filter(x=>x<h0).sort((a,b)=>b-a);
+  let order,total,tip="";
+  if(L.dalg==="fcfs"){order=q.slice();let p=h0;total=0;order.forEach(x=>{total+=Math.abs(x-p);p=x;});}
+  else if(L.dalg==="scan"){order=up.concat(dn);total=(mx-h0)+(dn.length?mx-dn[dn.length-1]:0);tip="The head runs to cylinder "+mx+" before reversing.";}
+  else{const lo=dn.slice().reverse();order=up.concat(lo);total=(mx-h0)+(lo.length?mx+lo[lo.length-1]:0);tip="The head runs to "+mx+", jumps back to 0 (counted as "+mx+") and continues upward.";}
+  let h=okb("Service order: <b>"+order.join(", ")+"</b>");
+  h+=okb("Total head movement = <b>"+total+"</b> cylinders.");
+  if(tip)h+='<p class="hint">'+tip+'</p>';
+  h+='<p class="hint">SCAN (elevator) serves one direction then reverses; C-SCAN always serves in one direction only, giving more uniform waiting. This tool starts SCAN and C-SCAN moving upward.</p>';
+  return {dkres:h};
+}
+function viewDisk(){
+  return '<div class="panel"><h3>Disk scheduling</h3><div class="row">'+sel("dalg","Algorithm",[["fcfs","FCFS"],["scan","SCAN (upward first)"],["cscan","C-SCAN (upward)"]],"disk")+inp("dh","Head at",6,"disk")+inp("dm","Highest cylinder",6,"disk")+inp("dq","Request queue",30,"disk")+'</div><div id="dkres">'+diskRes().dkres+"</div></div>";
+}
+/* ---------- boot ---------- */
+const BOOT=[["Power on","Power reaches the motherboard and the CPU starts at a fixed firmware address."],["Firmware (BIOS or UEFI)","The firmware starts and initialises basic hardware."],["POST","The Power-On Self-Test checks CPU, RAM and devices. Skipped in a warm boot."],["Boot sector","Firmware finds the boot device and reads the MBR (BIOS) or the EFI System Partition (UEFI)."],["Bootloader","GRUB (Linux) or the Windows Boot Manager is loaded and selects the operating system."],["Kernel","The kernel is loaded into memory, initialises drivers and starts the shell or login screen."]];
+function bootSteps(){return L.bw==="warm"?BOOT.filter((b,i)=>i!==2):BOOT;}
+function viewBoot(){
+  const S=bootSteps(),i=Math.min(L.bs,S.length-1);
+  let h='<div class="panel"><h3>Boot sequence</h3><div class="row"><button class="chip" data-act="bmode" data-v="cold" aria-pressed="'+(L.bw==="cold")+'">Cold boot</button><button class="chip" data-act="bmode" data-v="warm" aria-pressed="'+(L.bw==="warm")+'">Warm boot</button></div>';
+  h+='<ol>'+S.map((b,k)=>"<li"+(k===i?' style="font-weight:600"':"")+">"+esc(b[0])+"</li>").join("")+"</ol>";
+  h+=note("<b>Step "+(i+1)+" of "+S.length+": "+esc(S[i][0])+".</b> "+esc(S[i][1]));
+  h+='<div class="row"><button class="btn" data-act="bback">Back</button><button class="btn primary" data-act="bnext">Next</button><button class="btn" data-act="breset">Restart</button></div></div>';
+  return h;
+}
+/* ---------- file system chooser ---------- */
+function fsRes(){
+  const os=L.f1,med=L.f2,big=L.f3;let n,why;
+  if(os==="any"){if(big==="y"){n="exFAT";why="Cross-platform removable media with files above 4 GB: FAT32 cannot hold them and NTFS or ext4 are not universally writable.";}else{n="FAT32";why="Maximum compatibility with every device; acceptable because no file exceeds 4 GB.";}}
+  else if(os==="win"){n="NTFS";why="The Windows default: permissions, encryption, compression, journaling and files far beyond 4 GB."+(med==="rem"&&big==="y"?" (exFAT is the alternative if the drive must also be used on a Mac.)":"");}
+  else if(os==="lin"){n="ext4";why="The Linux default: journaling, extents, delayed allocation and inode-based metadata.";}
+  else{n="APFS";why="Apple's file system for SSDs: encryption, snapshots and space sharing."+(med==="rem"?" For a drive shared with Windows, use exFAT instead.":"");}
+  return {fsres:okb("Recommended: <b>"+n+"</b>. "+why)};
+}
+function viewFs(){
+  return '<div class="panel"><h3>Which file system?</h3><div class="row">'+sel("f1","Used by",[["win","Windows only"],["lin","Linux only"],["mac","macOS only"],["any","Several systems"]],"fs")+sel("f2","Drive",[["int","Internal"],["rem","Removable"]],"fs")+sel("f3","Files above 4 GB?",[["y","Yes"],["n","No"]],"fs")+'</div><div id="fsres">'+fsRes().fsres+"</div></div>";
+}
+/* ---------- sorting drill ---------- */
+const DIMS=[
+{n:"Operating system type",o:["Batch","Multitasking","Real-time","Distributed","Network","Mobile"],it:[["Monthly payroll jobs run overnight with no user interaction",0],["A desktop with a browser, music player and editor open at once",1],["An aircraft flight controller that must react within a guaranteed time",2],["Many machines presented to the user as one single system",3],["Clients logging in to a file server, each computer keeping its own identity",4],["A phone optimised for battery, touch and sensors",5],["Bank statements printed in bulk without waiting for a user",0],["An anti-lock braking controller",2]]},
+{n:"Scheduling algorithm",o:["FCFS","SJF","Priority","Round-robin"],it:[["Convoy effect",0],["Smallest average waiting time but long jobs may starve",1],["Aging is used as the remedy for starvation",2],["Each process receives a fixed quantum",3],["Runs in order of arrival",0],["Chooses the shortest burst next",1],["Lower number means higher priority",2],["Suited to time-sharing; context switching overhead",3]]},
+{n:"Fragmentation",o:["Internal","External"],it:[["The unused part of the last page of a process",0],["Free memory split into small scattered holes between variable-sized blocks",1],["Occurs in paging",0],["Returns with pure segmentation",1]]},
+{n:"System call category",o:["Process control","File management","Device management","Communication"],it:[["fork or exit",0],["open, read or write a file",1],["request or release a device",2],["send a message between processes (pipe)",3],["create or terminate a process",0],["delete a file",1]]},
+{n:"Cold or warm boot",o:["Cold","Warm"],it:[["Start from a powered-off state with a full POST",0],["Ctrl+Alt+Del or Restart on a running system",1],["POST is skipped",1],["RAM is empty at the start",0],["Reset button on a running computer",1]]},
+{n:"Interface",o:["CLI","GUI"],it:[["Typed commands such as Bash or PowerShell",0],["Windows, icons, menus and pointers",1],["Best for scripting and servers",0],["Pioneered at Xerox PARC; popularised by Macintosh in 1984",1]]}
+];
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function viewSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="sdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="sdans" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="sdnext">Next item</button></div>';
+  return h+"</div>";
+}
+/* ---------- registry and events ---------- */
+const TOOLS={sched:{v:viewSched,r:schedRes},state:{v:viewState,r:()=>({})},dead:{v:viewDead,r:deadRes},page:{v:viewPage,r:pageRes},disk:{v:viewDisk,r:diskRes},boot:{v:viewBoot,r:()=>({})},fs:{v:viewFs,r:fsRes},sort:{v:viewSort,r:()=>({})}};
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "pgo":stateGo(v);render();return true;
+    case "preset":L.ds="new";L.dmsg="";render();return true;
+    case "bmode":L.bw=v;L.bs=0;render();return true;
+    case "bnext":if(L.bs<bootSteps().length-1)L.bs++;render();return true;
+    case "bback":if(L.bs>0)L.bs--;render();return true;
+    case "breset":L.bs=0;render();return true;
+    case "sdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "sdnext":sdNew();render();return true;
+    case "sdans":{const s=L.sd,d=DIMS[s.dim],it=d.it[s.item],ok=(+v===it[1]);s.t++;if(ok)s.s++;s.right=ok;s.fb=(ok?"Correct. ":"Not quite. ")+"“"+it[0]+"” is "+d.o[it[1]]+".";render();return true;}
+  }
+  return false;
+}
+function labInput(el){
+  if(el.id in L&&typeof L[el.id]==="string")L[el.id]=el.value;
+  const R=TOOLS[L.tool].r();
+  Object.keys(R).forEach(k=>{const e=document.getElementById(k);if(e)e.innerHTML=R[k];});
+  return true;
+}
+function labSelect(el){
+  if(el.id in L&&typeof L[el.id]==="string"){L[el.id]=el.value;render();return true;}
+  return false;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes, then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

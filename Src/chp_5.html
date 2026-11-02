@@ -1,0 +1,1446 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Data Communication Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 1 · Basic Computing · Lesson 5</div>
+    <h1>Data Communication and Networking</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and network lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"The five components of data communication (Table 1.1)",c:["Component","Role"],r:[
+["Sender","The device or entity originating and sending data; prepares data for transmission and initiates communication"],
+["Receiver","The intended recipient; receives the transmitted signal, interprets it correctly and extracts the original data"],
+["Message","The actual data communicated (text, image, audio, video, code); its nature shapes bandwidth, error-rate and latency requirements"],
+["Transmission medium","The physical or wireless pathway the message travels through; affects speed, reliability, range and cost"],
+["Protocol","The complete set of rules governing formatting, transmission, reception, acknowledgement and interpretation of data"]]},
+/*1*/{s:0,t:"The four criteria of effective data communication",c:["Criterion","Meaning"],r:[
+["Delivery","The data reaches the correct destination"],
+["Accuracy","The data arrives without corruption"],
+["Timeliness","The data arrives within an acceptable delay, particularly for real-time applications such as video calls"],
+["Security","The data is protected from interception, unauthorised access or tampering in transit"]]},
+/*2*/{s:0,t:"Analog and digital signals compared",c:["Basis","Analog signal","Digital signal"],r:[
+["Values","Varies continuously, taking any value within a range","Takes only a fixed, discrete set of values, almost always two (high = 1, low = 0)"],
+["Appearance","A smooth rising and falling wave","A sequence of abrupt steps"],
+["Examples","Traditional telephone handset signal; vinyl record groove","Computer network signals"],
+["Noise tolerance","Poor: an exact continuous value must be reconstructed","Good: the receiver only decides whether a pulse is high or low"],
+["Conversion","A modem converts between digital and analog where an analog medium must be used","(see the modem)"]]},
+/*3*/{s:1,t:"Simplex, half duplex and full duplex compared (Table 1.2)",c:["Feature","Simplex","Half duplex","Full duplex"],r:[
+["Direction of flow","One way only","Both ways, one at a time","Both ways simultaneously"],
+["Channel usage","Single direction","Shared, alternating","Two channels or split channel"],
+["Example","TV broadcast, radio","Walkie-talkie, CB radio","Telephone, mobile networks"],
+["Interaction type","One-way","Turn-based","Simultaneous"]]},
+/*4*/{s:1,t:"CSMA/CD and CSMA/CA compared",c:["Basis","CSMA/CD","CSMA/CA"],r:[
+["Expansion","Carrier Sense Multiple Access with Collision Detection","Carrier Sense Multiple Access with Collision Avoidance"],
+["Used on","Wired shared media (early Ethernet)","Wireless shared media (Wi-Fi)"],
+["Approach","Detects a collision while transmitting, stops and retries after a random wait","Avoids collisions by listening first and waiting a random time before sending"],
+["Why it differs","A wired station can listen while it transmits, so it can detect a collision","A wireless station cannot detect collisions while transmitting"]]},
+/*5*/{s:2,t:"Guided and unguided media compared",c:["Basis","Guided media","Unguided media"],r:[
+["Pathway","A physical conductor; the signal follows it","Air or space; electromagnetic waves with no conductor"],
+["Examples","Twisted pair, coaxial cable, optical fibre","Radio waves, microwaves, infrared"],
+["Strengths","Higher reliability, higher speed (fibre), more secure","Mobility; connects devices where cabling is impractical"],
+["Weaknesses","Cabling cost and installation","Interference, security exposure, generally lower data rates than fibre"]]},
+/*6*/{s:2,t:"Twisted pair categories (Table 1.3)",c:["Category","Supported rate","Distance"],r:[
+["Cat 5e","1 Gbps","100 m"],
+["Cat 6","10 Gbps (short run) / 1 Gbps","55 m / 100 m"],
+["Cat 6a, Cat 7","10 Gbps","100 m"]]},
+/*7*/{s:2,t:"UTP and STP compared",c:["Basis","Unshielded twisted pair (UTP)","Shielded twisted pair (STP)"],r:[
+["Construction","Twisting only; no additional shielding","Adds a metallic foil or braid shield"],
+["EMI resistance","Lower","Higher"],
+["Cost and flexibility","Cheaper and more flexible","Higher cost, lower flexibility"],
+["Typical use","Standard home and office Ethernet","Near industrial equipment or heavy electrical infrastructure"]]},
+/*8*/{s:2,t:"Twisted pair, coaxial cable and optical fibre compared",c:["Basis","Twisted pair","Coaxial cable","Optical fibre"],r:[
+["Signal carried as","Electrical","Electrical","Pulses of light"],
+["Construction","Insulated copper pairs twisted helically","Central conductor, dielectric, braided shield, outer jacket on one axis","Strands of glass or plastic thinner than a hair"],
+["Speed and bandwidth","Lowest of the three","Higher than UTP","Highest: terabits per second per strand"],
+["Distance","About 100 m","Longer than twisted pair","Tens of kilometres or more"],
+["EMI immunity","Reduced by twisting (STP better)","Good shielding","Completely immune to EMI and crosstalk"],
+["Cost","Inexpensive, easy to install","Moderate","Highest; skilled installation and splicing"],
+["Typical use","Indoor wiring in homes, offices, schools","Cable television (CATV), broadband; early Ethernet 10BASE5 and 10BASE2","Backbones, undersea and long-distance links"]]},
+/*9*/{s:2,t:"Multimode and single-mode fibre compared",c:["Basis","Multimode fibre","Single-mode fibre"],r:[
+["Core","Larger core; light travels many paths (modes) at once","Very small core; one mode only"],
+["Light source","LEDs; cheaper","Laser"],
+["Distance","Limited to a few kilometres by modal dispersion","Tens or hundreds of kilometres"],
+["Use","Shorter links within sites","Long-distance telecommunications, undersea cables, backbones"]]},
+/*10*/{s:2,t:"Wireless transmission media (Table 1.4)",c:["Type","Characteristics","Common uses"],r:[
+["Radio waves","Low-to-medium frequency; long range; penetrates walls","AM/FM radio, 3G/4G/5G cellular, 2.4 GHz Wi-Fi"],
+["Microwaves","Higher frequency; needs clear line of sight; point-to-point or satellite","Terrestrial links, satellite communication, 5 GHz Wi-Fi"],
+["Infrared","Very short range; strict line-of-sight requirement","TV remotes, legacy IrDA device transfer"]]},
+/*11*/{s:2,t:"The generations of Wi-Fi (IEEE 802.11)",c:["Generation","IEEE standard","Max theoretical rate","Notable feature"],r:[
+["Wi-Fi 4","802.11n","600 Mbps","MIMO (multiple antennas) introduced"],
+["Wi-Fi 5","802.11ac","About 3.5 Gbps","5 GHz only; wider channels"],
+["Wi-Fi 6","802.11ax","Over 9 Gbps","Improved efficiency in crowded networks (OFDMA)"],
+["Wi-Fi 6E","802.11ax","Over 9 Gbps","Extends into the less-crowded 6 GHz band"]]},
+/*12*/{s:3,t:"Network devices mapped to the OSI layer (Table 1.5)",c:["Device","OSI layer","Forwarding basis","Role"],r:[
+["NIC","1 to 2","Physical / MAC","Connects a single device to the medium"],
+["Hub","1","None (floods all ports)","Obsolete broadcast connector"],
+["Repeater","1","None","Regenerates a weakened signal"],
+["Bridge","2","MAC address","Filters traffic between two segments"],
+["Switch","2","MAC address","Forwards only to the correct port"],
+["Access point","1 to 2","MAC address (wireless)","Bridges the wired network to Wi-Fi devices"],
+["Router","3","IP address","Connects and routes between different networks"],
+["Gateway","Any or all","Protocol translation","Connects dissimilar networks"]]},
+/*13*/{s:3,t:"Hub and switch compared",c:["Basis","Hub","Switch"],r:[
+["Intelligence","None: rebroadcasts every signal out of every other port","Learns which device is on which port from source MAC addresses (MAC or CAM table)"],
+["Forwarding","Floods all ports (broadcast)","Unicast: only to the port of the destination MAC address"],
+["Collision domain","All ports share one collision domain","Each port is its own collision domain"],
+["Efficiency","Wasteful: every device receives every packet","Efficient: each communicating pair has effectively dedicated bandwidth"],
+["OSI layer","Layer 1","Layer 2"],
+["Status","Obsolete","Standard for LANs"]]},
+/*14*/{s:3,t:"Router, gateway, bridge and repeater distinguished",c:["Device","What it does","Key point"],r:[
+["Router","Connects two or more different networks and forwards packets using IP addresses and a routing table; performs NAT","Layer 3; connects networks sharing the same fundamental protocol (typically IP)"],
+["Gateway","Entry and exit point between networks using different protocols, data formats or architectures; translates between them","Examples: email gateway, VoIP gateway; the router as default gateway is a configuration term"],
+["Bridge","Connects two LAN segments and filters traffic by MAC address","Layer 2; now built into every switch (a multiport bridge)"],
+["Repeater","Regenerates and amplifies a signal weakened by attenuation","Layer 1; amplifies noise as well; extends beyond the 100 m limit"],
+["Wireless access point","Lets Wi-Fi devices join a wired network; forwards between the wireless and wired sides","Shared airtime: throughput per device falls as devices join; roaming between APs"],
+["NIC","Physically connects a computer to the medium; has a 48-bit MAC address","First three pairs identify the manufacturer"]]},
+/*15*/{s:3,t:"Modem types",c:["Type","Medium and speed"],r:[
+["Dial-up modem","Analog telephone line (PSTN); up to 56 Kbps; the line is occupied while in use"],
+["DSL modem","Same copper telephone wiring; more sophisticated modulation; megabit-per-second speeds"],
+["Cable modem","Coaxial cable TV infrastructure; typically much higher speeds"],
+["Modern ISP box","Often called a modem even on fibre, where no true analog modulation takes place"]]},
+/*16*/{s:4,t:"Networks classified by geographic coverage (Table 1.6)",c:["Feature","PAN","LAN","MAN","WAN"],r:[
+["Coverage","About 10 m","Up to about 1 km (room, building, campus)","5 to 50 km (a city)","Country to global"],
+["Speed","Low to medium","High (100 Mbps to 10 Gbps)","High","Variable; lower speed and higher latency than a LAN"],
+["Ownership","Personal","Private (the organisation)","Organisation or ISP","Telecom providers; leased"],
+["Technology","Bluetooth, Zigbee, infrared, USB","Ethernet (IEEE 802.3), Wi-Fi (IEEE 802.11)","Optical fibre, cable TV, WiMAX","Leased lines, satellite, microwave, undersea fibre"],
+["Example","Phone with wireless earbuds","Office or school network","City cable network; bank branches across a city","The Internet"]]},
+/*17*/{s:4,t:"SAN and VPN",c:["Term","Meaning","Key point"],r:[
+["SAN (Storage Area Network)","Specialised, dedicated high-speed network connecting servers to shared storage devices","Keeps storage traffic separate from ordinary LAN traffic; data centres"],
+["VPN (Virtual Private Network)","An encrypted logical tunnel across a public network, usually the internet","A security technique, not a scale category or topology; lets a remote employee reach the company LAN securely"]]},
+/*18*/{s:5,t:"Network topologies compared (Table 1.7)",c:["Topology","Fault tolerance","Cost","Scalability","Common use"],r:[
+["Bus","Very poor","Very low","Poor","Legacy Ethernet"],
+["Star","Good (except the central node)","Moderate","Good","Modern LANs"],
+["Ring","Poor (unless dual-ring)","Moderate","Moderate","Fibre backbones"],
+["Mesh","Excellent","Very high","Poor (full mesh)","Backbones, critical links"],
+["Tree","Moderate (branch-dependent)","Moderate to high","Excellent","Large corporate networks"]]},
+/*19*/{s:5,t:"Advantages and disadvantages of each topology",c:["Topology","Description","Advantages","Disadvantages"],r:[
+["Bus","All devices on a single backbone cable with a terminator at each end","Simple, low cost, easy to extend","Whole network fails if the backbone breaks; performance falls as devices are added; hard to diagnose"],
+["Star","Every device connects individually to a central switch or hub","A failure affects only that connection; easy to add, remove and diagnose","Central device is a single point of failure; more cabling than bus"],
+["Ring","Each device connects to exactly two neighbours in a closed loop; token passing","No central bottleneck; no collisions; fair and efficient under heavy predictable load","One broken link or failed device can disrupt the ring unless dual-ring is used (double cabling)"],
+["Mesh","Devices have multiple connections; full mesh joins every pair","No single point of failure; traffic reroutes around faults","Very high cost and complexity: n(n-1)/2 links for full mesh"],
+["Tree","Star networks joined by a central backbone in a hierarchy","Scalable; each branch is easy to manage and isolate","Failure of a node high up disconnects everything beneath it"]]},
+/*20*/{s:6,t:"The seven OSI layers (Table 1.8)",c:["Layer","Name","Function","Examples"],r:[
+["7","Application","Provides network services directly to user applications","HTTP, FTP, SMTP, DNS"],
+["6","Presentation","Translates, encrypts and compresses data between application and network formats","SSL/TLS, JPEG, ASCII/Unicode encoding"],
+["5","Session","Establishes, manages and terminates sessions (dialogues) between applications","Session tokens, login sessions"],
+["4","Transport","End-to-end delivery, segmentation, flow control, error recovery between hosts; data unit: segment","TCP (reliable), UDP (fast, unreliable); port numbers"],
+["3","Network","Logical addressing and routing of packets across multiple networks; data unit: packet","IP, routers"],
+["2","Data Link","Physical (MAC) addressing and reliable transfer across one direct link; organises bits into frames","Ethernet, switches, Wi-Fi (MAC sublayer)"],
+["1","Physical","Transmission of raw bits as electrical, optical or radio signals over the medium","Cables, connectors, hubs, repeaters"]]},
+/*21*/{s:6,t:"The four TCP/IP layers mapped to OSI (Table 1.9)",c:["TCP/IP layer","OSI equivalent","Key protocols"],r:[
+["Application","Layers 5 to 7","HTTP, HTTPS, FTP, SMTP, DNS, Telnet"],
+["Transport","Layer 4","TCP, UDP"],
+["Internet","Layer 3","IP, ICMP, ARP"],
+["Network Access","Layers 1 to 2","Ethernet, Wi-Fi, PPP"]]},
+/*22*/{s:6,t:"OSI model and TCP/IP model compared",c:["Basis","OSI model","TCP/IP model"],r:[
+["Layers","Seven","Four"],
+["Origin","International Organization for Standardization, 1984","US Department of Defense ARPANET project; predates OSI"],
+["Nature","Vendor-neutral reference model and common vocabulary","The model the real internet actually implements"],
+["Top layers","Application, Presentation and Session separate","Merged into a single Application layer"],
+["Bottom layers","Data Link and Physical separate","Merged into a single Network Access (Link) layer"],
+["Importance","Richer teaching and vocabulary tool","Greater practical importance"]]},
+/*23*/{s:6,t:"Encapsulation: the name of the data at each layer",c:["Layer","Data unit","Header information added"],r:[
+["Application (and 5 to 7)","Data","Application data"],
+["Transport (4)","Segment","TCP or UDP header, including port numbers"],
+["Network (3)","Packet","IP header, including source and destination IP addresses"],
+["Data Link (2)","Frame","MAC header and trailer, including source and destination MAC addresses (the trailer carries the CRC)"],
+["Physical (1)","Bits","None: a stream of bits transmitted as signals"]]},
+/*24*/{s:6,t:"MAC address and IP address compared",c:["Basis","MAC address","IP address"],r:[
+["Type","Physical (hardware) address","Logical (software) address"],
+["Assigned","Burned into the NIC at manufacture; globally unique","Assigned by software or a DHCP server to a device on a network"],
+["Size","48 bits: six pairs of hexadecimal digits, e.g. 00:1A:2B:3C:4D:5E","32 bits (IPv4) or 128 bits (IPv6)"],
+["OSI layer","Layer 2 (Data Link)","Layer 3 (Network)"],
+["Scope","Next hop across one direct link","Routing across multiple networks to the final destination"],
+["Across the internet","Changes at every hop","Never changes"],
+["Used by","Switches","Routers"]]},
+/*25*/{s:6,t:"Client-server and peer-to-peer compared (Table 1.10)",c:["Feature","Client-server","Peer-to-peer"],r:[
+["Central authority","Yes (the server)","No"],
+["Single point of failure","Yes, the server","No single essential node"],
+["Management","Centralised, easier to secure","Decentralised, harder to secure"],
+["Cost","Dedicated server hardware required","Lower; peers share the load"],
+["Performance","Server may become a bottleneck under heavy load","Unpredictable: depends on which peers are online"],
+["Typical use","Websites, email, banking","File sharing (BitTorrent), some messaging, blockchain"]]},
+/*26*/{s:7,t:"TCP and UDP compared",c:["Basis","TCP","UDP"],r:[
+["Full name","Transmission Control Protocol","User Datagram Protocol"],
+["Connection","Connection-oriented: three-way handshake (SYN, SYN-ACK, ACK)","Connectionless: no handshake"],
+["Reliability","Numbers segments, acknowledges, retransmits lost data, reorders","No acknowledgement, no retransmission, no guaranteed order"],
+["Flow control","Yes","No"],
+["Overhead and latency","Higher","Lower"],
+["Suited to","File transfer, web pages, email: every byte must arrive","Live video calls, online gaming, DNS lookups: speed matters more than completeness"]]},
+/*27*/{s:7,t:"IPv4 and IPv6 compared",c:["Basis","IPv4","IPv6"],r:[
+["Address size","32 bits","128 bits"],
+["Notation","Four decimal octets, e.g. 192.168.1.1","Hexadecimal groups, e.g. 2001:0db8:85a3::8a2e:0370:7334"],
+["Address space","About 4.3 billion; exhausted","Astronomically larger; resolves exhaustion"],
+["Status","Still in widespread use","Adopted progressively alongside IPv4"]]},
+/*28*/{s:7,t:"SMTP, POP3 and IMAP compared",c:["Protocol","Job","Behaviour"],r:[
+["SMTP","Sending email","Push protocol: client to outgoing server and server to recipient's server; never retrieves"],
+["POP3","Retrieving email","Downloads messages to one device and by default removes them from the server; poor for several devices"],
+["IMAP","Retrieving email","Synchronises the client with the mailbox on the server; messages, folders and read status mirrored on every device; mail stays on the server"]]},
+/*29*/{s:7,t:"Application-layer protocols",c:["Protocol","Purpose","Key points"],r:[
+["HTTP","Web browsers and servers communicate; request and response of pages, images, scripts","Stateless; state added by cookies or session tokens"],
+["HTTPS","HTTP layered over TLS/SSL encryption","Protects confidentiality and integrity; padlock icon; essential for passwords and payments"],
+["FTP","Transfer files between client and server","Two connections: control (commands) and data (the file); plain FTP sends credentials in the clear"],
+["SFTP / FTPS","Encrypted file transfer","SFTP is SSH File Transfer Protocol; FTPS adds TLS"],
+["SMTP, POP3, IMAP","Email sending and retrieval","See the email protocols"],
+["DNS","Translates domain names into IP addresses","Distributed directory; the internet's phone book; uses UDP by preference"],
+["DHCP","Automatically assigns IP addresses (and related settings) to devices joining a network","Listed in the learning outcomes; avoids manual configuration"]]},
+/*30*/{s:7,t:"The DNS lookup process, step by step",c:["Step","Action"],r:[
+["1","The browser checks its own cache and the operating system's cache for a recent answer"],
+["2","If none, it queries a recursive resolver (commonly run by the user's ISP)"],
+["3","The resolver queries a root server to find which server is responsible for .com"],
+["4","It queries that Top-Level Domain (TLD) server to find the authoritative server for example.com"],
+["5","It queries the authoritative server for the IP address of www.example.com"],
+["6","The resolver returns the answer to the browser, which opens the connection to that IP address"]]},
+/*31*/{s:7,t:"Default transport protocol for common applications",c:["Application","Default transport","Reason"],r:[
+["HTTP / HTTPS","TCP","Every byte of a page must arrive intact"],
+["FTP file download","TCP","Reliable, ordered delivery needed"],
+["Email (SMTP, POP3, IMAP)","TCP","Complete, correct messages"],
+["DNS lookup","UDP","A small query; speed matters; a rare lost query is simply retried"],
+["Live video call","UDP","Low latency matters more; a late frame is useless"],
+["Online gaming","UDP","A dropped position update is better skipped than retransmitted late"]]},
+/*32*/{s:8,t:"Bandwidth, data transfer rate and latency distinguished",c:["Term","Meaning","Key point"],r:[
+["Bandwidth","The theoretical maximum capacity of a channel, in bps, Kbps, Mbps or Gbps","A property of the channel; an upper ceiling, not a promise"],
+["Data transfer rate (throughput)","The actual amount of data successfully transmitted in a given time","Can never exceed bandwidth; commonly below it"],
+["Latency","The delay before data begins to arrive; measured as round-trip time (RTT) in milliseconds","Independent of bandwidth; measured with ping; jitter is variation in latency"],
+["Causes of low throughput","Congestion, protocol overhead, distance and latency, hardware limitations, signal interference","Wireless is especially affected"]]},
+/*33*/{s:8,t:"Error-detection techniques compared (Table 1.11)",c:["Method","Detects","Typical use"],r:[
+["Parity bit","A single flipped bit in a small group; cannot locate it; fails if two bits flip","Simple serial links (Lesson 2)"],
+["Checksum","Most errors in a data block, cheaply computed; can miss errors that cancel out","TCP/IP headers (IP and TCP)"],
+["CRC","Most errors, including burst errors, very reliably; remainder of division by a generator polynomial","Ethernet frame trailer; Wi-Fi; storage"]]},
+/*34*/{s:8,t:"Diagnosing a symptom: which concept does it point to?",c:["Symptom","Concept","Reasoning"],r:[
+["Download slower than the advertised plan","Gap between bandwidth and data transfer rate","Congestion, overhead or hardware limits reduce throughput below the ceiling"],
+["Video call stutters or lags although speed test shows full bandwidth","Latency (and jitter)","Video calls are latency-sensitive; throughput and latency are largely independent"],
+["Large file downloads fine but gaming feels laggy","Latency","Gaming needs instant response"],
+["Data arrives but is corrupted","Error detection (checksum, CRC)","Neither bandwidth nor latency governs correctness"],
+["Satellite link has high bandwidth yet feels sluggish","High latency","Geostationary distance adds several hundred milliseconds"]]}
+];
+
+const NOTES=[
+["1.1 Data communication","{{Data communication}} is the transfer of data, in digital or analog form, from one device to another over a communication channel. Effective communication requires {{delivery}}, {{accuracy}}, {{timeliness}} and {{security}}. It has five components: {{sender}}, {{receiver}}, {{message}}, transmission {{medium}} and {{protocol}}. An {{analog}} signal varies continuously; a {{digital}} signal takes discrete values, almost always two, and tolerates noise better. A {{modem}} converts between them. A {{checksum}} sums the data and sends the sum; a {{CRC}} sends the remainder of a division by a generator polynomial and catches burst errors. Detection is not {{correction}}: the usual response is retransmission."],
+["1.2 Communication modes","In {{simplex}} mode data flows in one fixed direction only (television broadcast). In {{half duplex}} mode data flows both ways but one direction at a time (walkie-talkie). In {{full duplex}} mode data flows both ways simultaneously (telephone). {{CSMA/CD}} detects collisions on wired shared media; {{CSMA/CA}} avoids them on wireless media, where a station cannot detect a collision while {{transmitting}}."],
+["1.3 Transmission media","{{Guided}} media follow a physical conductor; {{unguided}} media use air or space. Twisted pair is twisted to cancel {{EMI}} and {{crosstalk}}; {{UTP}} is the standard for office Ethernet and {{STP}} adds a shield. {{Coaxial}} cable is used for cable television. {{Optical fibre}} carries pulses of light by {{total internal reflection}}, is immune to EMI, and is limited chiefly by cost. {{Single-mode}} fibre has a small core and carries signals for tens of kilometres; {{multimode}} fibre is limited by {{modal dispersion}}. The 2.4 GHz Wi-Fi band has better range; the {{5 GHz}} band has higher rates. Wi-Fi 4 introduced {{MIMO}}; Wi-Fi 6 uses {{OFDMA}}."],
+["1.4 Network devices","A {{NIC}} connects a computer to the network and has a 48-bit {{MAC}} address. A {{hub}} floods every port and shares one collision domain. A {{switch}} learns MAC addresses into a {{MAC address table}} and forwards frames only to the right port. A {{router}} works at Layer {{3}}, uses IP addresses and a {{routing table}}, and performs {{NAT}}. A {{gateway}} translates between different protocols. A {{bridge}} filters traffic between two segments by MAC address. A {{repeater}} regenerates an attenuated signal. A {{modem}} modulates and demodulates; an {{access point}} connects Wi-Fi devices to the wired network."],
+["1.5 Computer networks","A {{PAN}} covers about 10 metres (Bluetooth). A {{LAN}} covers a room to a campus, up to about 1 km, and is privately owned; {{Ethernet}} (IEEE 802.3) is its dominant wired technology. A {{MAN}} covers a city, 5 to 50 km. A {{WAN}} spans countries and continents; the {{Internet}} is the largest. A {{SAN}} connects servers to shared storage. A {{VPN}} is an encrypted tunnel across a public network; it is a security technique, not a topology."],
+["1.6 Network topologies","A {{topology}} is the arrangement of nodes and links. In a {{bus}}, all devices share one backbone with a {{terminator}} at each end. In a {{star}}, every device connects to a central switch; if the centre fails the whole network fails. A {{ring}} is a closed loop using {{token passing}}. A {{mesh}} has redundant paths; a full mesh of n devices needs {{n(n-1)/2}} links. A {{tree}} joins star networks in a hierarchy. {{Physical}} topology is the real layout; {{logical}} topology is how data flows."],
+["1.7 Network models","The {{OSI}} model has {{seven}} layers: Physical, Data Link, Network, Transport, Session, Presentation, Application. The {{TCP/IP}} model has {{four}} layers and is what the internet actually runs. Going down, each layer adds a header: this is {{encapsulation}}; the data units are data, {{segment}}, {{packet}}, {{frame}} and bits. A {{MAC}} address is Layer 2; an {{IP}} address is Layer 3. In the {{client-server}} model dedicated servers provide services and the server is a single point of failure; in {{peer-to-peer}} every device is both client and server."],
+["1.8 Network protocols","A {{protocol}} is a formal set of rules governing communication. {{IP}} gives logical addressing and best-effort routing; {{IPv4}} uses 32-bit addresses and {{IPv6}} uses 128-bit addresses. {{TCP}} is connection-oriented with a three-way handshake of {{SYN}}, SYN-ACK and {{ACK}}; {{UDP}} is connectionless and faster. {{HTTP}} is stateless; {{HTTPS}} adds TLS. {{FTP}} uses a control and a data connection. {{SMTP}} sends mail, {{POP3}} downloads and removes it, and {{IMAP}} synchronises it. {{DNS}} translates domain names into IP addresses."],
+["1.9 Network performance","{{Bandwidth}} is the theoretical maximum capacity of a channel. {{Data transfer rate}} (throughput) is the actual rate achieved and can never exceed bandwidth. {{Latency}} is the delay before data arrives, measured as round-trip time in {{milliseconds}} with ping. A video call is {{latency}}-sensitive; a large download is {{bandwidth}}-sensitive. A {{checksum}} is used in TCP/IP headers and a {{CRC}} is in the Ethernet frame trailer."]
+];
+const DUMPS=[
+{t:"Data communication",p:["Definition: transfer of data over a channel; goal is accurate, efficient and secure","Four criteria: delivery, accuracy, timeliness, security","Five components: sender, receiver, message, medium, protocol (the one students omit)","Analog continuous; digital discrete (two values); digital tolerates noise; modem converts","Error detection: parity (single bit), checksum (sum), CRC (division remainder, burst errors)","Detection is not correction: retransmit; forward error correction needs more redundancy"]},
+{t:"Communication modes",p:["Simplex: one way only; TV, radio, keyboard to computer","Half duplex: both ways, one at a time; walkie-talkie","Full duplex: both ways at once; telephone; two channels or split channel","Table: direction, channel usage, example, interaction","CSMA/CD on wired media detects collisions; CSMA/CA on wireless avoids them","Wireless stations cannot detect collisions while transmitting"]},
+{t:"Transmission media",p:["Guided versus unguided","Twisted pair: twisting cancels EMI and crosstalk; UTP and STP; Cat 5e, 6, 6a, 7","Coaxial: four layers on one axis; cable TV; early Ethernet 10BASE5 and 10BASE2","Fibre: light, total internal reflection, terabits, tens of km, immune to EMI, costly","Multimode versus single-mode: modal dispersion","Wireless: radio, microwave, infrared; 2.4 GHz versus 5 GHz","Wi-Fi 4, 5, 6, 6E","Exam: state the trade-off, never fibre simply best"]},
+{t:"Network devices",p:["NIC and 48-bit MAC address; first three pairs identify the manufacturer","Hub: Layer 1, floods, one collision domain, obsolete","Switch: Layer 2, MAC table, unicast, collision domain per port","Router: Layer 3, IP, routing table, NAT","Access point: Wi-Fi to wired; shared airtime; roaming","Bridge: Layer 2; repeater: Layer 1, amplifies noise too","Gateway: protocol translation; modem: modulation and demodulation","Table 1.5: device, layer, forwarding basis, role"]},
+{t:"Computer networks",p:["Network definition: two or more devices linked and governed by protocols","PAN about 10 m, Bluetooth, Zigbee, infrared","LAN up to about 1 km, Ethernet and Wi-Fi, private","MAN 5 to 50 km, one city, fibre and cable TV, WiMAX","WAN country or global, leased lines, satellite, undersea fibre; the Internet","SAN: dedicated storage network; VPN: encrypted tunnel, not a scale","Exam: PAN stops at 10 m; WAN crosses cities or countries; MAN is one metropolitan area"]},
+{t:"Network topologies",p:["Physical versus logical topology","Bus: backbone and terminators, fails on break","Star: central switch, dominant today, central point of failure","Ring: loop, token passing, dual ring for resilience","Mesh: full n(n-1)/2, partial mesh, no single point of failure","Tree: stars in a hierarchy, scalable","Worked example: 6 devices need 15 links, a star needs 6","Answer axes: fault tolerance, cost, scalability"]},
+{t:"Network models",p:["Layered model and its benefits: independent layers, stable interfaces","OSI 1984 ISO seven layers; memory aids","Layer functions and examples; data units","TCP/IP four layers, ARPANET, mapped to OSI","Encapsulation: segment, packet, frame, bits; decapsulation","MAC (Layer 2, changes each hop) versus IP (Layer 3, never changes)","Client-server versus peer-to-peer table"]},
+{t:"Network protocols",p:["Protocol definition","IP: best-effort, connectionless; IPv4 32-bit, IPv6 128-bit","TCP: handshake SYN, SYN-ACK, ACK; numbering, acknowledgement, retransmission, reordering, flow control","UDP: no handshake, for video calls, gaming, DNS","HTTP stateless; HTTPS with TLS","FTP: control and data connections; SFTP and FTPS","SMTP sends; POP3 downloads and removes; IMAP synchronises","DNS: cache, recursive resolver, root, TLD, authoritative; uses UDP","DHCP assigns IP addresses automatically"]},
+{t:"Network performance",p:["Bandwidth: theoretical maximum, bps, Kbps, Mbps, Gbps","Data transfer rate: actual; never above bandwidth","Five causes of low throughput","Latency: delay; RTT in ms; ping; jitter","Satellite example: high bandwidth, high latency","Latency-sensitive: calls, gaming; bandwidth-sensitive: large downloads","Error detection table: parity, checksum, CRC","Scenario: 50 Mbps plan, 30 Mbps download, laggy call"]}
+];
+
+const SECS=["Data communication","Communication modes","Transmission media","Network devices","Computer networks","Network topologies","Network models","Network protocols","Network performance"];
+const CORE=[
+[0,"Define data communication.","The process of transferring data, in digital or analog form, from one device to another over a communication channel or medium; the goal is to transmit it accurately, efficiently and securely."],
+[0,"What are the four criteria of effective data communication?","Delivery to the correct destination; accuracy (arrival without corruption); timeliness (arrival within an acceptable delay); security (protection from interception, unauthorised access or tampering)."],
+[0,"Name the five components of data communication.","Sender, receiver, message, transmission medium and protocol."],
+[0,"Why is the protocol emphasised among the five components?","Without a shared protocol two devices cannot communicate meaningfully even when physically connected. Protocols define packet format, addressing, connection set-up and termination, error detection and correction, flow control and retry procedures. It is the component students most often omit."],
+[0,"Define an analog signal.","A signal that varies continuously, taking any value within a range, like a smooth wave; for example the signal from a traditional telephone handset."],
+[0,"Define a digital signal.","A signal that takes only a fixed, discrete set of values, almost always two (high voltage = 1, low voltage = 0), appearing as abrupt steps."],
+[0,"Why are modern networks overwhelmingly digital?","A receiver only has to decide whether a pulse is high or low, which is far more forgiving than reconstructing an exact continuous value, so digital signals tolerate noise, degradation and amplification better."],
+[0,"What is the function of a parity bit?","The simplest error-detection scheme: it detects a single flipped bit in a small group but cannot locate it and fails if two bits flip together."],
+[0,"Define a checksum.","A method that treats a block of data as numbers, adds them with a defined overflow rule and transmits the sum with the data; the receiver repeats the calculation and a mismatch signals an error. Simple, but can miss multiple errors that cancel out."],
+[0,"Define CRC.","Cyclic Redundancy Check: the data is treated as a long binary number and divided by an agreed generator polynomial; the remainder is transmitted with the data and the receiver checks it. Far more effective than a checksum, especially for burst errors; used in Ethernet, Wi-Fi and storage."],
+[0,"What is a burst error?","An error in which several consecutive bits are corrupted together, as from a brief burst of electrical interference; CRC detects most of them."],
+[0,"Distinguish error detection from error correction.","Parity, checksum and CRC only detect that an error occurred; none can say which bit is wrong or repair it, so the data is usually discarded and retransmission requested (typically by TCP). Forward error correction reconstructs data without retransmission but needs much more redundancy, used for deep-space or live broadcast."],
+[1,"What is a communication mode?","The direction in which data can flow between a sender and a receiver over a channel. There are three: simplex, half duplex and full duplex."],
+[1,"Define simplex mode and give examples.","Data flows in one fixed direction only, from sender to receiver; the receiver cannot reply on the same channel. Examples: television broadcast, AM/FM radio, public address systems, weather sensors, keyboard to computer."],
+[1,"What are the advantage and limitation of simplex?","Advantage: simplicity and efficiency, as the whole capacity serves one direction. Limitation: no feedback at all."],
+[1,"Define half duplex mode and give examples.","Data flows in both directions but only one at a time; the other party must wait and listen. Examples: walkie-talkie, CB radio, early wireless LANs."],
+[1,"Define full duplex mode and give examples.","Data flows in both directions simultaneously, with no turn-taking. Examples: telephone call, mobile phones, video conferencing, most modern networks."],
+[1,"How is full duplex achieved?","Either with two separate physical channels, or with a single channel carrying both directions at once through frequency division (separate frequency bands) or echo cancellation."],
+[1,"What is CSMA/CD?","Carrier Sense Multiple Access with Collision Detection: used on wired shared media; stations listen before sending and detect collisions while transmitting, then stop and retry after a random wait."],
+[1,"What is CSMA/CA?","Carrier Sense Multiple Access with Collision Avoidance: used on wireless media; stations avoid collisions by listening first and waiting before sending, because a wireless station cannot detect a collision while transmitting."],
+[1,"Why can CSMA/CD not be used on a wireless network?","A wireless station cannot detect collisions while it is transmitting, so detection is impossible; wireless networks avoid collisions with CSMA/CA instead."],
+[2,"What are transmission media?","The physical pathways through which data travels between nodes. The choice sets maximum speed, distance before degradation, susceptibility to EMI, security, ease of installation and cost."],
+[2,"Distinguish guided and unguided media.","Guided (wired) media: the signal follows a physical conductor (twisted pair, coaxial, optical fibre). Unguided (wireless) media: signals propagate through air or space as electromagnetic waves."],
+[2,"What is twisted pair cable?","The oldest and most widely used guided medium: pairs of insulated copper wires twisted helically along the cable."],
+[2,"Why are the wires of twisted pair twisted?","Parallel wires' magnetic fields cause electromagnetic interference (EMI) and crosstalk (signal leakage between pairs); twisting makes the fields cancel over each twist cycle."],
+[2,"Distinguish UTP and STP.","UTP (unshielded twisted pair) has only the twisting and is standard for home and office Ethernet. STP (shielded) adds a metallic foil or braid shield for greater EMI reduction at higher cost and lower flexibility, used near industrial equipment."],
+[2,"What is coaxial cable?","A cable with a central copper conductor, an insulating dielectric, a tubular metallic braid or foil shield and an outer plastic jacket, all on the same axis; excellent shielding for high-frequency signals over longer distances."],
+[2,"Where is coaxial cable used?","Early Ethernet (10BASE5 Thick, 10BASE2 Thin); today mainly cable television (CATV) and broadband internet to homes."],
+[2,"What is optical fibre and how does it work?","Strands of glass or plastic thinner than a hair carrying data as pulses of light by total internal reflection: light entering at a shallow enough angle is trapped, reflecting off the inner surface."],
+[2,"State the advantages of optical fibre.","Essentially limitless bandwidth (terabits per second per strand); signals travel tens of kilometres without much attenuation; immune to EMI and crosstalk; more secure because it does not radiate and tapping causes detectable loss."],
+[2,"State the disadvantages of optical fibre.","Higher cost and greater skill and specialised equipment for installation and splicing."],
+[2,"Distinguish multimode and single-mode fibre.","Multimode: larger core, light takes many paths, LED sources, cheaper, a few kilometres, limited by modal dispersion. Single-mode: very small core, one mode, no modal dispersion, tens or hundreds of kilometres; used for long-distance, undersea and backbone links."],
+[2,"What is modal dispersion?","Different modes in multimode fibre arriving at slightly different times, spreading the signal and limiting distance."],
+[2,"What are wireless media?","Media carrying data as electromagnetic waves through air or space; they offer mobility but suffer interference, security exposure and generally lower data rates than fibre."],
+[2,"Compare the 2.4 GHz and 5 GHz Wi-Fi bands.","2.4 GHz: good range and wall penetration, but interference from microwave ovens, Bluetooth and cordless phones. 5 GHz: higher rates and less interference at reduced range and weaker wall penetration."],
+[2,"What do terrestrial microwave systems need?","Directional dish antennas on towers with an unobstructed line of sight, since microwaves cannot penetrate solid obstacles."],
+[2,"Why were Wi-Fi standards given generation numbers?","To make the earlier names (802.11b/g/n/ac/ax) easier for consumers: Wi-Fi 4 (802.11n), 5 (802.11ac), 6 (802.11ax), 6E (802.11ax in 6 GHz). Rate increases come from wider channels, MIMO and smarter airtime sharing."],
+[2,"How should twisted pair, coaxial and fibre be compared in an answer?","On cost, speed, distance and EMI immunity together, stating the trade-off: fibre wins on speed, distance and EMI immunity but loses on cost and installation difficulty."],
+[3,"What are network devices?","Physical components connecting computers and other devices into a network, managing the flow of data."],
+[3,"What is a NIC?","Network Interface Card (network adapter): hardware, built in or an expansion card or USB adapter, that physically connects a computer to a wired or wireless medium and converts between the internal bus format and the signals of the medium."],
+[3,"What is a MAC address?","Media Access Control address: a globally unique 48-bit hardware identifier burned into a NIC at manufacture, written as six pairs of hexadecimal digits (00:1A:2B:3C:4D:5E); the first three pairs identify the manufacturer. A laptop with wired and wireless NICs has two."],
+[3,"What is a hub and why is it obsolete?","The simplest connectivity device: it rebroadcasts any signal out of every other port, with no intelligence. Every device receives every packet, wasting bandwidth, and all share one collision domain. Switches replaced hubs."],
+[3,"What is a switch and how does it forward?","The standard LAN device: it learns which device is on which port from the source MAC addresses of arriving frames (MAC or CAM table) and forwards a frame only to the port of the destination MAC address (unicast forwarding)."],
+[3,"Why does a switch outperform a hub?","It cuts unnecessary traffic, gives each communicating pair effectively dedicated bandwidth, and each port is its own collision domain, eliminating collisions in full duplex."],
+[3,"What is a router?","A Layer 3 device connecting two or more different networks and routing packets between them using destination IP addresses and a routing table."],
+[3,"What is NAT?","Network Address Translation, performed by routers: it lets many devices on a private network share one public IP address."],
+[3,"What is a wireless access point?","A device letting Wi-Fi devices connect to a wired network by transmitting data from the wired network wirelessly and forwarding wireless transmissions onto the wired network. Its radio spectrum is shared, so per-device throughput falls as devices join."],
+[3,"What is roaming?","Moving between access points in a large installation without interrupting the connection."],
+[3,"What is a bridge?","A Layer 2 device connecting two or more network segments and filtering traffic by MAC address: a frame for the same segment is filtered out; one for another segment is forwarded. Now built into every switch, which is a multiport bridge."],
+[3,"What is a repeater?","A device that regenerates and amplifies signals weakened by attenuation, extending beyond the 100 m limit of twisted pair. It works at the physical level and amplifies noise as well."],
+[3,"What is a gateway?","An entry and exit point between networks using different protocols, data formats or architectures, translating between them. Examples: email gateway, VoIP gateway converting PSTN calls to IP packets."],
+[3,"Distinguish a router and a gateway.","A router connects networks sharing the same fundamental protocol (typically IP) and forwards by IP address; a gateway connects fundamentally different networks and translates between formats. The home router as default gateway is a configuration term."],
+[3,"What is a modem?","Modulator-demodulator: converts digital data to a form suitable for an analog medium (modulation) and incoming analog signals back to digital (demodulation)."],
+[3,"Give the modem types and speeds.","Dial-up: up to 56 Kbps and ties up the phone line. DSL: more sophisticated modulation over telephone copper, megabit speeds. Cable: over coaxial TV infrastructure, higher speeds. The ISP box on fibre is loosely called a modem."],
+[3,"Which two questions about devices are reliably asked?","At which OSI layer does the device operate, and how does it decide where to forward data; both are answered by the Table 1.5 columns."],
+[4,"Define a computer network.","A collection of two or more computers and other devices connected by wired or wireless links and governed by protocols, to share data, resources and services."],
+[4,"Why are networks classified by geographic coverage?","Scale shapes technologies, achievable speeds, cost and administrative complexity."],
+[4,"Define a PAN.","Personal Area Network: the smallest network, around an individual, within about 10 metres, almost always wireless (Bluetooth, Zigbee, infrared). Example: phone with wireless earbuds. Wired PANs exist (USB)."],
+[4,"Define a LAN.","Local Area Network: a room, floor, building or campus, a few metres to about 1 km; high speed (100 Mbps to 10 Gbps), low latency, privately owned. Ethernet (IEEE 802.3) and Wi-Fi (IEEE 802.11) are its technologies."],
+[4,"Define a MAN.","Metropolitan Area Network: larger than a LAN but within one city, 5 to 50 km, interconnecting LANs; often optical fibre; examples: city bank branches, cable TV broadband; WiMAX for wireless MANs."],
+[4,"Define a WAN.","Wide Area Network: regions, countries, continents or the globe, using telecom leased lines, satellite, microwave and fibre; not owned by one organisation; lower speed and higher latency than a LAN, and costlier. The Internet is the largest WAN."],
+[4,"What is WiMAX?","Worldwide Interoperability for Microwave Access: a wireless technology used to build wireless MANs at city scale."],
+[4,"What is a SAN?","Storage Area Network: a dedicated high-speed network connecting servers to shared storage devices, keeping storage traffic apart from ordinary LAN traffic; standard in data centres."],
+[4,"What is a VPN and is it a network type?","Virtual Private Network: an encrypted logical tunnel across a public network, so traffic is protected as if on a private cable. It is a security technique, not a scale category and not a topology; it lets a remote employee reach the company LAN securely."],
+[4,"How is a distance classified as PAN, LAN, MAN or WAN?","PAN stops at about 10 m; anything crossing between cities or countries is a WAN; a MAN stays within one metropolitan area (a big area alone is not enough)."],
+[5,"Define network topology.","The arrangement or layout describing how devices (nodes) and connections (links) are organised in a network."],
+[5,"Distinguish physical and logical topology.","Physical: the actual layout of cables and devices. Logical: how data actually flows, which can differ; a physical star can behave logically like a bus."],
+[5,"Describe bus topology.","All devices connect to a single backbone cable that carries all traffic; each device receives every signal but accepts only its own; terminators at both ends absorb the signal to prevent reflection."],
+[5,"Give the advantages and disadvantages of bus topology.","Advantages: simple, low cost, easy to extend. Disadvantages: the whole network fails if the backbone breaks; performance falls as devices are added; faults are hard to diagnose. Largely superseded."],
+[5,"Describe star topology.","Every device connects individually to a central switch or hub, which forwards data to its destination; the dominant LAN topology."],
+[5,"Give the advantages and disadvantages of star topology.","Advantages: one failed cable or device affects only itself; easy to add or remove devices; easy monitoring and diagnosis. Disadvantages: if the central device fails the whole network goes down; more cabling than bus."],
+[5,"Describe ring topology.","Each device connects to exactly two neighbours in a closed loop; data travels around, usually in one direction. Token passing: only the device holding the circulating token may transmit, avoiding collisions."],
+[5,"Give the advantages and disadvantages of ring topology.","Advantages: no central bottleneck; no collisions; fair and efficient under heavy predictable load. Disadvantage: one broken link or failed device can disrupt the ring unless dual-ring redundancy (double cabling) is built in."],
+[5,"Describe mesh topology.","Devices connect to multiple others for redundant paths. Full mesh: every device to every other. Partial mesh: some devices to several others."],
+[5,"Give the advantages, disadvantages and uses of mesh.","Advantage: excellent fault tolerance, no single point of failure. Disadvantage: very high cost and complexity. Uses: core internet backbone, military and emergency networks, consumer mesh Wi-Fi (partial mesh)."],
+[5,"State the formula for the links in a full mesh.","n(n-1)/2 for n devices. Example: 6 devices need 6 x 5 / 2 = 15 links, against only 6 for a star."],
+[5,"Describe tree topology.","Also hierarchical topology: several star networks joined through a central backbone, like an organisation chart: a root node connects to secondary nodes which connect to further nodes."],
+[5,"Give the advantages and disadvantages of tree topology.","Advantage: scalable; each branch is easy to manage and isolate. Disadvantage: failure of a node partway up disconnects everything beneath it. Used in corporate networks and cable TV distribution."],
+[5,"On which three axes should topologies be compared?","Fault tolerance, cost and scalability. The star's central point of failure and the mesh's n(n-1)/2 cabling cost are tested most often."],
+[6,"Why use a layered network model?","It splits an unmanageable problem into smaller independent ones, each handled by one layer with a defined interface to its neighbours; a layer need only know the layers directly above and below, so a layer can change (Ethernet for Wi-Fi, IPv4 for IPv6) without redesigning the internet."],
+[6,"What is the OSI model?","Open Systems Interconnection: published by the International Organization for Standardization in 1984, dividing communication into seven layers; a vendor-neutral reference and common vocabulary rather than a directly implemented protocol suite."],
+[6,"List the seven OSI layers from top to bottom.","7 Application, 6 Presentation, 5 Session, 4 Transport, 3 Network, 2 Data Link, 1 Physical."],
+[6,"What are the memory aids for the OSI layers?","Layer 7 to 1: All People Seem To Need Data Processing. Layer 1 to 7: Please Do Not Throw Sausage Pizza Away."],
+[6,"State the function of the Application layer.","Provides network services directly to user applications. Examples: HTTP, FTP, SMTP, DNS."],
+[6,"State the function of the Presentation layer.","Translates, encrypts and compresses data between application and network formats. Examples: SSL/TLS, JPEG, ASCII/Unicode."],
+[6,"State the function of the Session layer.","Establishes, manages and terminates sessions (dialogues) between applications. Examples: session tokens, login sessions."],
+[6,"State the function of the Transport layer.","End-to-end delivery between hosts: segmentation, flow control, error recovery. Data unit: segment. Examples: TCP, UDP; port numbers."],
+[6,"State the function of the Network layer.","Logical addressing and routing of packets across multiple networks. Data unit: packet. Examples: IP, routers."],
+[6,"State the function of the Data Link layer.","Physical (MAC) addressing and reliable transfer across one direct link; organises bits into frames. Examples: Ethernet, switches, Wi-Fi MAC sublayer."],
+[6,"State the function of the Physical layer.","Transmission of raw bits as electrical, optical or radio signals. Examples: cables, connectors, hubs, repeaters."],
+[6,"What is the common MAC/IP layer pitfall?","Placing IP at Layer 2 and MAC at Layer 3: the reverse of the truth. MAC is physical, burned into a NIC, used for the next hop (Layer 2). IP is logical, software-assigned, used for routing to the final destination (Layer 3)."],
+[6,"What happens to the IP and MAC addresses as a packet crosses the internet?","The IP address never changes; the MAC address in the frame header changes at every hop."],
+[6,"What is the TCP/IP model?","The four-layer model the real internet implements, developed by the US Department of Defense's ARPANET project and predating OSI: Application, Transport, Internet and Network Access."],
+[6,"How does TCP/IP map to OSI?","TCP/IP Application = OSI 5 to 7 (HTTP, HTTPS, FTP, SMTP, DNS, Telnet); Transport = 4 (TCP, UDP); Internet = 3 (IP, ICMP, ARP); Network Access = 1 and 2 (Ethernet, Wi-Fi, PPP)."],
+[6,"Define encapsulation.","At each layer going down the stack, the layer adds its own header (sometimes a trailer) with the control information it needs, wrapping data in nested envelopes."],
+[6,"Give the data unit name at each layer during encapsulation.","Application data; the Transport layer's TCP or UDP header (with ports) makes a segment; the Network layer's IP header makes a packet; the Data Link layer's MAC header and trailer make a frame; the Physical layer sends bits."],
+[6,"What is decapsulation?","At the receiver, each header is stripped one layer at a time going up the stack until the original application data is recovered."],
+[6,"Describe the client-server model.","Clients (browsers, email apps) initiate requests; dedicated servers listen and respond, running continuously and serving many clients. Used by almost all internet services."],
+[6,"Give the advantages and disadvantages of client-server.","Advantages: centralised management of data, security and backups; scalable server capacity. Disadvantages: the server is a single point of failure and can become a bottleneck."],
+[6,"Describe the peer-to-peer model.","No dedicated servers: every device (peer) acts as both client and server, with no central authority. Used by BitTorrent, some cryptocurrencies and messaging systems."],
+[6,"Give the advantages and disadvantages of peer-to-peer.","Advantages: no single point of failure; lower cost with no dedicated server hardware. Disadvantages: weaker central security and access control; unpredictable performance depending on peers online."],
+[7,"Define a protocol.","A formal set of rules governing how devices communicate; different protocols operate at different OSI layers, each solving a distinct piece of the communication problem."],
+[7,"What is TCP/IP?","The foundational protocol suite of the internet, combining IP (Network layer) and TCP (Transport layer)."],
+[7,"What does IP do?","Responsible for logical addressing and routing: assigns each device an IP address and determines the path of packets. Connectionless and best-effort: no guarantee packets arrive, arrive once or arrive in order."],
+[7,"Compare IPv4 and IPv6.","IPv4: 32-bit addresses in four decimal octets (192.168.1.1), about 4.3 billion, exhausted. IPv6: 128-bit addresses in hexadecimal groups (2001:0db8:85a3::8a2e:0370:7334), astronomically larger, adopted progressively alongside IPv4."],
+[7,"What does TCP do?","Reliable, ordered delivery on top of IP: connection-oriented with a three-way handshake; numbers every segment, acknowledges receipt, retransmits losses, reassembles out-of-order segments and applies flow control."],
+[7,"State the three steps of the TCP three-way handshake.","SYN, then SYN-ACK, then ACK, establishing the session."],
+[7,"What is UDP and when is it preferred?","User Datagram Protocol: connectionless, no handshake, acknowledgement, retransmission or ordering. Preferred where speed matters more than completeness: live video calls, online gaming, DNS lookups."],
+[7,"When is TCP the right choice and when is UDP?","TCP wherever every byte must arrive intact (file transfer, web pages, email); UDP wherever speed matters more than completeness."],
+[7,"What is HTTP?","HyperText Transfer Protocol: Application-layer protocol for web browsers and servers; defines how a browser requests a resource and how the server responds. Stateless: each request is independent unless cookies or session tokens add state."],
+[7,"What is HTTPS?","HTTP layered over TLS/SSL encryption (Presentation layer), protecting confidentiality and integrity in transit; shown by the padlock icon; essential for passwords and payments."],
+[7,"What is FTP and why does it use two connections?","File Transfer Protocol transfers files between client and server. A control connection carries commands (login, navigation, listing) and a separate data connection carries the file, so a long transfer does not block further commands."],
+[7,"Why were SFTP and FTPS developed?","Plain FTP transmits credentials and data in the clear; SFTP (SSH File Transfer Protocol) and FTPS add encryption."],
+[7,"What does SMTP do?","Simple Mail Transfer Protocol sends email: client to outgoing server and server to recipient's server. A push protocol that never retrieves."],
+[7,"What does POP3 do?","Post Office Protocol version 3 retrieves email by downloading it to one device and by default removing it from the server; poorly suited to several devices."],
+[7,"What does IMAP do?","Internet Message Access Protocol retrieves email by synchronising the client with the server mailbox; messages, folders and read status stay on the server and are mirrored on every device; the modern default."],
+[7,"Distinguish SMTP, POP3 and IMAP in one clause each.","SMTP sends; POP3 downloads and removes from the server; IMAP synchronises across devices, leaving mail on the server."],
+[7,"What is DNS and why is it needed?","Domain Name System: the internet's distributed directory, translating human-readable domain names into IP addresses. Humans remember names; routing at Layer 3 needs numeric IP addresses."],
+[7,"Describe the DNS resolution process.","Browser and OS caches are checked; then a recursive resolver (often the ISP's) queries a root server (who handles .com), then the TLD server (who is authoritative for example.com), then the authoritative server for the IP address, and returns it to the browser."],
+[7,"Does DNS use TCP or UDP?","UDP by preference: a lookup is small, speed matters, and a lost query is rarely costly to retry."],
+[7,"What is DHCP?","Dynamic Host Configuration Protocol: automatically assigns IP addresses and related settings to devices joining a network, so no manual configuration is needed."],
+[8,"Define bandwidth.","The theoretical maximum capacity of a channel to carry data, measured in bits per second (bps, Kbps, Mbps, Gbps); a property of the channel, an upper ceiling not a promise."],
+[8,"Define data transfer rate.","Also throughput: the actual amount of data successfully transmitted over a connection in a given time; commonly below the bandwidth and never above it."],
+[8,"List the causes of throughput below bandwidth.","Network congestion; protocol overhead (headers, acknowledgements); distance and latency; hardware limitations; signal interference and quality (especially wireless)."],
+[8,"Define latency.","The delay before data begins to arrive, typically measured as round-trip time (RTT) in milliseconds; measured with the ping utility."],
+[8,"Why can a high-bandwidth connection feel slow?","Because latency is independent of bandwidth: a satellite link may have generous bandwidth but several hundred milliseconds of latency, which hurts interactive uses such as calls, gaming and remote desktop."],
+[8,"Which applications are bandwidth-sensitive and which latency-sensitive?","Bandwidth-sensitive: large downloads and video streaming after buffering. Latency-sensitive: video calls, competitive gaming, remote desktop control."],
+[8,"What is jitter?","The variation in latency from packet to packet; inconsistent latency degrades call quality even when average throughput is good."],
+[8,"Compare parity, checksum and CRC.","Parity: detects a single flipped bit. Checksum: sum of the data, cheap, used in TCP/IP headers, can miss cancelling errors. CRC: remainder of polynomial division, catches most errors including bursts, in the trailer of every Ethernet frame."],
+[8,"Why is CRC preferred over a checksum for Ethernet?","It catches a substantially higher proportion of realistic error patterns, particularly burst errors from brief electrical interference."],
+[8,"Interpret: 50 Mbps plan, 30 Mbps download, laggy video calls.","50 Mbps is bandwidth (the maximum); 30 Mbps is the data transfer rate, lowered by congestion, overhead or hardware; the laggy call points to latency, which is largely independent of throughput."],
+[8,"How should a performance symptom be diagnosed?","Identify which of bandwidth, throughput and latency it points to: a stuttering call is latency; a slow download against the plan is the bandwidth/throughput gap; corrupted data is the job of checksums and CRC, not bandwidth or latency."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Numerical and mapping problems",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["Which is NOT one of the five components of data communication?",["Sender","Protocol","Router","Message"],2,"The components are sender, receiver, message, transmission medium and protocol."],
+["A signal that takes only two discrete values is:",["Analog","Digital","Continuous","Modulated"],1,"A digital signal has a discrete set of values, almost always two."],
+["Which error-detection method sends the remainder of a polynomial division?",["Parity bit","Checksum","CRC","Echo"],2,"CRC appends the remainder of dividing by a generator polynomial."],
+["Parity, checksum and CRC can:",["Correct any error","Detect errors but not repair them","Locate the wrong bit","Prevent noise"],1,"They detect; retransmission is the usual response."],
+["A television broadcast is an example of:",["Simplex","Half duplex","Full duplex","Duplex mesh"],0,"Data flows only from the station to the receiver."],
+["A walkie-talkie uses:",["Simplex","Half duplex","Full duplex","None of these"],1,"Both directions, but one at a time."],
+["A telephone call is:",["Simplex","Half duplex","Full duplex","Broadcast"],2,"Both parties transmit and receive simultaneously."],
+["CSMA/CA is used on:",["Wired shared media","Wireless shared media","Optical fibre only","Coaxial only"],1,"Wireless stations cannot detect collisions while transmitting."],
+["CSMA/CD stands for:",["Carrier Sense Multiple Access with Collision Detection","Carrier Sense Multiple Access with Collision Avoidance","Central Signal Multiple Access with Collision Delay","Carrier Sync Multiple Access with Collision Detection"],0,"Collision Detection, used on wired media; Avoidance is CSMA/CA."],
+["Twisting the wires of a twisted pair mainly reduces:",["Cost","EMI and crosstalk","Length","Weight"],1,"The magnetic fields cancel over each twist."],
+["The standard cable for home and office Ethernet is:",["STP","UTP","Coaxial","Single-mode fibre"],1,"UTP is the standard indoor medium."],
+["Which medium is completely immune to EMI?",["Twisted pair","Coaxial cable","Optical fibre","UTP"],2,"Fibre carries light, not electricity."],
+["Fibre keeps light inside the strand by:",["Total internal reflection","Amplification","Twisting","Shielding"],0,"Light at a shallow angle is trapped by total internal reflection."],
+["Modal dispersion limits:",["Single-mode fibre","Multimode fibre","Coaxial cable","STP"],1,"Different modes arrive at different times."],
+["Cable television distribution mainly uses:",["Coaxial cable","UTP","Infrared","Single-mode fibre only"],0,"Coax carries many channels over one cable."],
+["Which wireless medium needs strict line of sight and very short range?",["Radio waves","Microwaves","Infrared","Cellular"],2,"Infrared is used for TV remotes."],
+["Wi-Fi 4 introduced:",["MIMO","OFDMA","6 GHz band","WiMAX"],0,"Wi-Fi 4 (802.11n) introduced multiple antennas."],
+["Which Wi-Fi generation extends into the 6 GHz band?",["Wi-Fi 4","Wi-Fi 5","Wi-Fi 6","Wi-Fi 6E"],3,"Wi-Fi 6E extends into 6 GHz."],
+["A MAC address is:",["16 bits","32 bits","48 bits","128 bits"],2,"Six pairs of hexadecimal digits."],
+["A hub operates at OSI layer:",["1","2","3","4"],0,"A hub is a physical-layer device."],
+["A switch forwards frames using:",["IP addresses","MAC addresses","Port numbers","Domain names"],1,"A switch is a Layer 2 device."],
+["A router forwards packets using:",["MAC addresses","IP addresses","Frame trailers","Hub tables"],1,"A router is a Layer 3 device."],
+["Which device lets many private devices share one public IP address?",["Router with NAT","Hub","Repeater","Modem"],0,"NAT is performed by routers."],
+["Which device translates between different protocols?",["Switch","Bridge","Gateway","Repeater"],2,"A gateway connects dissimilar networks."],
+["A repeater:",["Regenerates and amplifies the signal","Filters by MAC address","Routes by IP address","Assigns addresses"],0,"It also amplifies noise."],
+["A modem:",["Modulates and demodulates","Routes packets","Forwards frames","Encrypts web traffic"],0,"Modulator-demodulator."],
+["Which device is treated as a multiport bridge?",["Hub","Switch","Router","Gateway"],1,"Switch functionality includes the bridge."],
+["A network covering about 10 metres is a:",["PAN","LAN","MAN","WAN"],0,"PAN: around one person."],
+["A network covering a city is a:",["PAN","LAN","MAN","WAN"],2,"MAN stays within one metropolitan area."],
+["The Internet is the largest:",["LAN","MAN","WAN","SAN"],2,"A global network of networks."],
+["A VPN is best described as:",["A topology","A scale category","An encrypted tunnel across a public network","A storage network"],2,"It is a security technique."],
+["In which topology does a single backbone cable failure bring down the network?",["Star","Bus","Mesh","Tree"],1,"All devices share the backbone."],
+["Token passing is associated with:",["Bus","Star","Ring","Mesh"],2,"Only the token holder may transmit."],
+["How many links does a full mesh of 5 devices need?",["5","10","15","20"],1,"5 x 4 / 2 = 10."],
+["The dominant topology in modern LANs is:",["Bus","Star","Ring","Mesh"],1,"Built around a central switch."],
+["Which topology has the best fault tolerance but the highest cost?",["Bus","Star","Mesh","Tree"],2,"Full mesh has redundant paths and n(n-1)/2 links."],
+["How many layers does the OSI model have?",["4","5","6","7"],3,"Seven layers."],
+["Which OSI layer handles routing?",["Data Link","Network","Transport","Session"],1,"Layer 3."],
+["Which OSI layer organises bits into frames?",["Physical","Data Link","Network","Transport"],1,"Layer 2."],
+["Port numbers belong to the:",["Network layer","Transport layer","Session layer","Physical layer"],1,"TCP and UDP use ports at Layer 4."],
+["The data unit at the Network layer is a:",["Segment","Packet","Frame","Bit"],1,"Segment, packet, frame, bits."],
+["The data unit at the Data Link layer is a:",["Segment","Packet","Frame","Datagram"],2,"A frame, with MAC header and trailer."],
+["TCP/IP has how many layers?",["3","4","5","7"],1,"Application, Transport, Internet, Network Access."],
+["Which TCP/IP layer corresponds to OSI layers 5 to 7?",["Application","Transport","Internet","Network Access"],0,"They are merged into one Application layer."],
+["Which statement about MAC and IP addresses is true?",["The MAC address changes at every hop","The IP address changes at every hop","Both never change","IP is Layer 2"],0,"The IP address stays; the frame's MAC address changes per hop."],
+["A single point of failure is a weakness of:",["Peer-to-peer","Client-server","Bittorrent","Mesh"],1,"If the server goes down, clients lose the service."],
+["TCP establishes a connection using:",["A two-way ping","A three-way handshake","A token","A DNS lookup"],1,"SYN, SYN-ACK, ACK."],
+["Which protocol is best for a live video call?",["TCP","UDP","FTP","POP3"],1,"Low latency matters more than perfect reliability."],
+["IPv6 addresses are:",["32 bits","64 bits","128 bits","256 bits"],2,"128-bit hexadecimal."],
+["HTTP is described as:",["Stateful","Stateless","Encrypted by default","Connection-less at Layer 2"],1,"Each request is independent."],
+["Which email protocol removes mail from the server by default after download?",["SMTP","POP3","IMAP","HTTP"],1,"POP3."],
+["Which email protocol synchronises mail across devices?",["SMTP","POP3","IMAP","FTP"],2,"IMAP keeps mail on the server."],
+["Which protocol sends email?",["SMTP","POP3","IMAP","DNS"],0,"SMTP is a push protocol."],
+["FTP uses:",["One connection","Two connections: control and data","Three connections","None"],1,"Control and data connections."],
+["DNS translates:",["IP addresses to MAC addresses","Domain names to IP addresses","Frames to packets","Bits to signals"],1,"The internet's phone book."],
+["The first stage of a DNS lookup is:",["Root server","Browser and OS cache","Authoritative server","TLD server"],1,"Caches are checked first."],
+["The theoretical maximum capacity of a channel is its:",["Latency","Bandwidth","Throughput","Jitter"],1,"Bandwidth is the ceiling."],
+["Throughput can:",["Exceed bandwidth","Never exceed bandwidth","Equal latency","Be negative"],1,"It is at or below bandwidth."],
+["Latency is typically measured as:",["Mbps","Round-trip time in milliseconds","Packets per second","Frames"],1,"RTT, measured with ping."],
+["Which is the most latency-sensitive?",["Large file download","Video call","Software update","Photo backup"],1,"Calls need instant response."],
+["Which error-detection method is in the trailer of every Ethernet frame?",["Parity","Checksum","CRC","Echo"],2,"CRC at the Data Link layer."]
+];
+const FILL=[
+["The five components of data communication are sender, receiver, message, medium and ___.",["protocol"],"The protocol is the set of rules."],
+["A digital signal usually takes ___ values.",["two","2"],"High and low."],
+["A ___ converts between digital and analog signals.",["modem"],"Modulator-demodulator."],
+["In ___ mode data flows both ways but only one direction at a time.",["half duplex","half-duplex"],"As in a walkie-talkie."],
+["Wired shared media use CSMA/___.",["cd"],"Collision detection."],
+["Wireless shared media use CSMA/___.",["ca"],"Collision avoidance."],
+["Twisted pair is twisted to cancel EMI and ___.",["crosstalk"],"Signal leakage between pairs."],
+["Optical fibre carries data as pulses of ___.",["light"],"By total internal reflection."],
+["___-mode fibre has a very small core.",["single","single-mode","single mode"],"One mode only."],
+["A MAC address has ___ bits.",["48"],"Six hexadecimal pairs."],
+["A ___ forwards frames by learning MAC addresses into a table.",["switch"],"A Layer 2 device."],
+["A ___ connects different networks using IP addresses.",["router"],"Layer 3."],
+["A ___ rebroadcasts every incoming signal out of all other ports and is now obsolete.",["hub"],"Floods all ports."],
+["A ___ area network covers about 10 metres.",["personal","pan"],"PAN."],
+["The Internet is the largest ___ area network.",["wide","wan"],"WAN."],
+["A full mesh of n devices needs ___ links.",["n(n-1)/2","n(n-1)/2 "],"Where n is the number of devices."],
+["In a ___ topology every device connects to a central switch.",["star"],"Dominant in modern LANs."],
+["The OSI model has ___ layers.",["seven","7"],"Physical to Application."],
+["Data at the Transport layer is called a ___.",["segment"],"Segment, packet, frame, bits."],
+["Going down the stack, each layer adds a header: this is ___.",["encapsulation"],"Reverse is decapsulation."],
+["The TCP handshake is SYN, ___, ACK.",["syn-ack","syn ack","synack"],"Three steps."],
+["___ is the connectionless transport protocol.",["udp"],"User Datagram Protocol."],
+["___ synchronises email across devices and leaves it on the server.",["imap"],"Unlike POP3."],
+["DNS stands for Domain Name ___.",["system"],"Translates names to IP addresses."]
+];
+const TF=[
+["In simplex mode, both devices can transmit and receive at the same time.",false,"False: one direction only."],
+["A switch forwards frames based on IP addresses.",false,"False: MAC addresses at Layer 2."],
+["TCP guarantees ordered, reliable delivery of data.",true,"True."],
+["IMAP removes email from the server once downloaded.",false,"False: that is POP3."],
+["A full mesh of 5 devices requires 10 links.",true,"5 x 4 / 2 = 10."],
+["Bandwidth and data transfer rate always have identical values.",false,"False: throughput is usually at or below bandwidth."],
+["CSMA/CA is used because wireless devices cannot detect collisions while transmitting.",true,"True."],
+["The OSI Application layer corresponds to only the Application layer of the TCP/IP model.",false,"False: it also covers Presentation and Session."],
+["A router operates at the OSI Network layer.",true,"True."],
+["A VPN is a type of network topology.",false,"False: it is a security technique."],
+["Digital signals tolerate noise better than analog signals.",true,"The receiver only decides high or low."],
+["Parity, checksum and CRC can repair a corrupted bit by themselves.",false,"They detect only."],
+["A walkie-talkie is an example of half duplex.",true,"Turn-based."],
+["Optical fibre is affected by electromagnetic interference.",false,"It is completely immune."],
+["STP adds a metallic shield to twisted pair.",true,"At higher cost."],
+["Coaxial cable is used for cable television distribution.",true,"CATV."],
+["A hub forwards frames only to the destination port.",false,"It floods every other port."],
+["Each switch port is its own collision domain.",true,"True."],
+["A repeater amplifies noise along with the signal.",true,"It works purely at signal level."],
+["A gateway always connects networks that use the same protocol.",false,"A gateway translates between different protocols."],
+["A laptop with Wi-Fi and Ethernet has two MAC addresses.",true,"One per NIC."],
+["A PAN usually extends to about 10 kilometres.",false,"About 10 metres."],
+["A MAN is built mainly within one city.",true,"5 to 50 km."],
+["A bus topology has good fault tolerance.",false,"Very poor: the backbone is a single point of failure."],
+["In a star topology the failure of the central switch brings down the whole network.",true,"True."],
+["The IP address of a packet changes at every hop; the MAC address does not.",false,"The reverse."],
+["The TCP/IP model has four layers.",true,"True."],
+["Encapsulation turns a segment into a packet at the Network layer.",true,"The IP header is added."],
+["Peer-to-peer networks have a single point of failure.",false,"No single essential node."],
+["UDP performs a three-way handshake.",false,"It is connectionless."],
+["HTTPS is HTTP layered over TLS/SSL.",true,"True."],
+["DNS translates IP addresses into domain names only.",false,"Domain names to IP addresses."],
+["High bandwidth guarantees low latency.",false,"They are largely independent."],
+["CRC is used in the trailer of Ethernet frames.",true,"True."]
+];
+const VSA=[
+["Name the five components of data communication.",["sender","receiver","message","medium","protocol"],"Sender, receiver, message, transmission medium and protocol.",1],
+["Give one real-world example of simplex communication.",["television","radio","keyboard","broadcast","sensor"],"A television broadcast (or radio, keyboard to computer).",0],
+["Name the seven layers of the OSI model in order.",["physical","data link","network","transport","session","presentation","application"],"Physical, Data Link, Network, Transport, Session, Presentation, Application (bottom to top).",1],
+["Which layer of the OSI model does a switch operate at?",["data link","layer 2","2"],"Layer 2, the Data Link layer.",0],
+["Expand LAN, MAN, WAN and PAN.",["local","metropolitan","wide","personal"],"Local, Metropolitan, Wide and Personal Area Network.",1],
+["Name the protocol that translates domain names into IP addresses.",["dns","domain name system"],"DNS.",0],
+["Which email protocol removes mail from the server after downloading?",["pop3","pop"],"POP3.",0],
+["State the formula for the links in a full mesh of n devices.",["n(n-1)/2","n n 1 2"],"n(n-1)/2.",0],
+["Name the device that converts digital signals to analog and back.",["modem"],"A modem.",0],
+["Which requires a wired connection, CSMA/CD or CSMA/CA?",["csma cd","cd","collision detection"],"CSMA/CD: it detects collisions while transmitting, which only works on wired media.",0],
+["Define bandwidth in one sentence.",["theoretical","maximum","capacity"],"The theoretical maximum data-carrying capacity of a channel, in bits per second.",1],
+["Name the three steps of the TCP three-way handshake.",["syn","syn ack","ack"],"SYN, SYN-ACK, ACK.",1],
+["Name the four criteria of effective data communication.",["delivery","accuracy","timeliness","security"],"Delivery, accuracy, timeliness and security.",1],
+["What does MAC stand for?",["media access control"],"Media Access Control.",0],
+["How many bits is an IPv4 address?",["32"],"32 bits.",0],
+["Name the two connections used by FTP.",["control","data"],"A control connection and a data connection.",1],
+["State the four TCP/IP layers.",["application","transport","internet","network access"],"Application, Transport, Internet and Network Access.",1],
+["What data unit is produced at the Data Link layer?",["frame"],"A frame.",0],
+["Which transport protocol does DNS prefer?",["udp"],"UDP.",0],
+["What does a VPN create across a public network?",["encrypted","tunnel"],"An encrypted logical tunnel.",1],
+["Name two guided media.",["twisted pair","coaxial","fibre","fiber"],"Any two of twisted pair, coaxial cable, optical fibre.",0],
+["What measures latency directly?",["ping"],"The ping utility, giving round-trip time.",0],
+["Which method sits in every Ethernet frame trailer?",["crc","cyclic redundancy check"],"CRC.",0],
+["What is the term for removing headers at the receiving end?",["decapsulation"],"Decapsulation.",0]
+];
+const CALC=[
+{q:"How many links does a full mesh network of 8 devices require?",alts:[["28"]],ex:true,model:"28 links",e:"8 x 7 / 2 = 28."},
+{q:"How many links does a full mesh of 6 devices require?",alts:[["15"]],ex:true,model:"15 links",e:"6 x 5 / 2 = 15."},
+{q:"How many links does a full mesh of 10 devices require?",alts:[["45"]],ex:true,model:"45 links",e:"10 x 9 / 2 = 45."},
+{q:"How many links does a star network of 8 devices need (one central switch)?",alts:[["8"]],ex:true,model:"8 links",e:"One link per device to the switch."},
+{q:"How many more links does a full mesh of 8 devices need than a star of 8?",alts:[["20"]],ex:true,model:"20 links",e:"28 - 8 = 20."},
+{q:"A full mesh needs 66 links. How many devices does it have?",alts:[["12"]],ex:true,model:"12 devices",e:"12 x 11 / 2 = 66."},
+{q:"A file of 50 MB is transferred in 20 seconds. Calculate the average data transfer rate in Mbps.",alts:[["20"]],ex:true,model:"20 Mbps",e:"50 MB x 8 = 400 Mb; 400 / 20 = 20 Mbps."},
+{q:"A 100 MB file takes 40 seconds. What is the data transfer rate in Mbps?",alts:[["20"]],ex:true,model:"20 Mbps",e:"800 Mb / 40 s = 20 Mbps."},
+{q:"A 200 MB file is downloaded at 50 Mbps. How many seconds does it take?",alts:[["32"]],ex:true,model:"32 seconds",e:"200 x 8 = 1600 Mb; 1600 / 50 = 32 s."},
+{q:"A plan advertises 50 Mbps and a download shows 30 Mbps. What percentage of the bandwidth is achieved?",alts:[["60"]],ex:true,model:"60 percent",e:"30 / 50 = 0.6."},
+{q:"A plan advertises 100 Mbps. Can the data transfer rate be 120 Mbps? Answer yes or no.",alts:[["no"]],ex:true,model:"No",e:"Throughput can never exceed bandwidth."},
+{q:"State the OSI layer number for a MAC address.",alts:[["2"],["layer 2"],["data link"]],ex:true,model:"Layer 2 (Data Link)",e:"MAC addresses are physical addresses at Layer 2."},
+{q:"State the OSI layer number for an IP address.",alts:[["3"],["layer 3"],["network"]],ex:true,model:"Layer 3 (Network)",e:"IP addresses are logical addresses at Layer 3."},
+{q:"State the OSI layer for HTTP.",alts:[["7"],["layer 7"],["application"]],ex:true,model:"Layer 7 (Application)",e:"HTTP is an Application-layer protocol."},
+{q:"State the OSI layer for a TCP port number.",alts:[["4"],["layer 4"],["transport"]],ex:true,model:"Layer 4 (Transport)",e:"Ports belong to TCP and UDP."},
+{q:"State the OSI layer for a network cable's electrical signal.",alts:[["1"],["layer 1"],["physical"]],ex:true,model:"Layer 1 (Physical)",e:"Raw bits as signals."},
+{q:"State the OSI layer at which a router operates.",alts:[["3"],["layer 3"],["network"]],ex:true,model:"Layer 3 (Network)",e:"Routes by IP address."},
+{q:"State the OSI layer at which a hub operates.",alts:[["1"],["layer 1"],["physical"]],ex:true,model:"Layer 1 (Physical)",e:"A hub floods signals."},
+{q:"State the OSI layer at which TLS/SSL encryption functions.",alts:[["6"],["layer 6"],["presentation"]],ex:true,model:"Layer 6 (Presentation)",e:"Encryption belongs to the Presentation layer."},
+{q:"Does HTTP use TCP or UDP by default?",alts:[["tcp"]],ex:true,model:"TCP",e:"A web page must arrive intact."},
+{q:"Does a DNS lookup use TCP or UDP by default?",alts:[["udp"]],ex:true,model:"UDP",e:"Small query; speed matters."},
+{q:"Does a live video call use TCP or UDP by default?",alts:[["udp"]],ex:true,model:"UDP",e:"Low latency matters more than reliability."},
+{q:"Does a file download via FTP use TCP or UDP?",alts:[["tcp"]],ex:true,model:"TCP",e:"Reliable, ordered delivery is needed."},
+{q:"Classify by scale: a Bluetooth connection between a phone and earbuds.",alts:[["pan"],["personal area network"]],ex:true,model:"PAN",e:"About 10 m around one person."},
+{q:"Classify by scale: a city-wide public Wi-Fi network.",alts:[["man"],["metropolitan area network"]],ex:true,model:"MAN",e:"One metropolitan area."},
+{q:"Classify by scale: a college's internal network across three buildings.",alts:[["lan"],["local area network"]],ex:true,model:"LAN",e:"A campus network, privately owned."},
+{q:"Classify by scale: the connection between two international bank branches.",alts:[["wan"],["wide area network"]],ex:true,model:"WAN",e:"Crosses countries."},
+{q:"Identify the topology: every device connects to a central switch; a single break in this device disconnects everyone.",alts:[["star"]],ex:true,model:"Star",e:"The central device is a single point of failure."},
+{q:"Identify the topology: all devices on one backbone cable with terminators at both ends.",alts:[["bus"]],ex:true,model:"Bus",e:"Shared backbone."},
+{q:"Identify the topology: a closed loop with a circulating token.",alts:[["ring"]],ex:true,model:"Ring",e:"Token passing."},
+{q:"Identify the topology: star networks joined by a central backbone in a hierarchy.",alts:[["tree"]],ex:true,model:"Tree",e:"Hierarchical."},
+{q:"Which device is meant: forwards only to the correct port using a MAC table.",alts:[["switch"]],ex:true,model:"Switch",e:"Layer 2 unicast forwarding."},
+{q:"Which device is meant: connects two different networks using IP addresses and performs NAT.",alts:[["router"]],ex:true,model:"Router",e:"Layer 3."},
+{q:"Which protocol: downloads email and removes it from the server.",alts:[["pop3"],["pop"]],ex:true,model:"POP3",e:"IMAP synchronises instead."},
+{q:"Name the data unit after the Network layer adds the IP header.",alts:[["packet"]],ex:true,model:"Packet",e:"Segment, packet, frame, bits."},
+{q:"A user's video call stutters but a speed test shows full bandwidth. Which concept does this point to: bandwidth, throughput or latency?",alts:[["latency"]],ex:true,model:"Latency",e:"Calls are latency-sensitive; throughput and latency are largely independent."},
+{q:"How many bits are in an IPv6 address?",alts:[["128"]],ex:true,model:"128",e:"IPv4 has 32."},
+{q:"Approximately how many unique addresses does IPv4 provide (2 to the power 32), in billions?",alts:[["4 3"],["4 29"]],ex:false,model:"4.3 billion",e:"2^32 = 4,294,967,296."}
+];
+const SHORT=[
+["Distinguish between half duplex and full duplex communication with an example of each.","Half duplex: data flows in both directions but only one at a time; the parties alternate and simultaneous transmission causes interference; walkie-talkie. Full duplex: data flows in both directions simultaneously, using two channels or a split channel; telephone call. Full duplex gives higher effective throughput.",["Half duplex: both ways, one at a time","Full duplex: both ways at once","Example of half duplex (walkie-talkie)","Example of full duplex (telephone)"]],
+["Why can CSMA/CD not be used on a wireless network?","CSMA/CD relies on a station detecting a collision while it is transmitting. A wireless station cannot detect collisions while transmitting, so collision detection is impossible. Wireless networks instead use CSMA/CA, which avoids collisions by listening first and waiting before sending.",["CSMA/CD needs detection during transmission","Wireless stations cannot detect collisions while transmitting","CSMA/CA is used instead to avoid collisions"]],
+["Differentiate between guided and unguided transmission media.","Guided (wired) media carry the signal along a physical conductor: twisted pair, coaxial cable and optical fibre. Unguided (wireless) media propagate electromagnetic waves through air or space: radio waves, microwaves and infrared. Guided media are more reliable and secure; unguided offer mobility but suffer interference and lower rates.",["Guided: physical conductor","Unguided: air or space","Examples of each","A contrast in reliability or mobility"]],
+["Distinguish between a hub and a switch.","A hub is a Layer 1 device that rebroadcasts any signal to every other port, so all devices share one collision domain and bandwidth is wasted. A switch is a Layer 2 device that learns MAC addresses into a table and forwards a frame only to the destination port; each port is its own collision domain. Hubs are obsolete; switches are standard.",["Hub floods all ports","Hub shares one collision domain","Switch uses a MAC address table","Switch forwards only to the destination port; each port its own collision domain"]],
+["Differentiate between a router and a gateway.","A router connects networks that share the same fundamental protocol (usually IP) and forwards packets by IP address using a routing table, at Layer 3. A gateway connects networks that use different protocols, data formats or architectures and translates between them, for example a VoIP or email gateway. The home router as default gateway is only a configuration term.",["Router: same protocol, IP, Layer 3","Gateway: different protocols, translation","Example of a gateway"]],
+["Distinguish between a LAN and a MAN with an example of each.","A LAN covers a limited area (room, building or campus, up to about 1 km), is privately owned and has high speed and low latency; example: an office network. A MAN covers a whole city (5 to 50 km), often on optical fibre, interconnecting LANs; example: a city cable broadband network or a bank's city branches.",["LAN up to about 1 km, private","MAN 5 to 50 km, one city","Example of a LAN","Example of a MAN"]],
+["State two advantages and two disadvantages of star topology.","Advantages: a failed cable or device affects only its own connection, so the rest of the network continues; devices are easy to add or remove and faults easy to diagnose. Disadvantages: if the central switch or hub fails, the whole network goes down; it needs more cabling than a bus.",["Advantage: fault isolation","Advantage: easy to add or diagnose","Disadvantage: central point of failure","Disadvantage: more cabling"]],
+["Distinguish between the OSI model and the TCP/IP model.","OSI has seven layers, was published by ISO in 1984 as a vendor-neutral reference and vocabulary, and is not directly implemented end to end. TCP/IP has four layers (Application, Transport, Internet, Network Access), came from the ARPANET project before OSI, and is what the real internet runs on; it merges OSI's top three layers into one and the bottom two into one.",["OSI seven layers; TCP/IP four","OSI reference model; TCP/IP implemented","Mapping or merging of layers"]],
+["Explain the difference between a MAC address and an IP address.","A MAC address is a 48-bit physical address burned into a NIC, used at Layer 2 for the next hop across one link; it changes at every hop. An IP address is a logical, software-assigned address (32-bit IPv4 or 128-bit IPv6) used at Layer 3 for routing to the final destination; it never changes along the way.",["MAC physical, 48 bits, Layer 2","IP logical, Layer 3","MAC changes per hop; IP does not"]],
+["Distinguish between TCP and UDP, giving one application suited to each.","TCP is connection-oriented (three-way handshake) and provides numbered, acknowledged, retransmitted, ordered delivery with flow control; suited to file transfer, web pages or email. UDP is connectionless with no handshake, acknowledgement or ordering, so it has lower overhead and latency; suited to live video calls, gaming or DNS.",["TCP connection-oriented and reliable","UDP connectionless and fast","Application for TCP","Application for UDP"]],
+["Explain the difference between SMTP, POP3 and IMAP.","SMTP sends email from a client to its server and onward to the recipient's server. POP3 retrieves email by downloading it to one device and by default removing it from the server. IMAP retrieves email by synchronising with the mailbox on the server, so messages, folders and read status are consistent across devices and mail stays on the server.",["SMTP sends","POP3 downloads and removes","IMAP synchronises and leaves mail on the server"]],
+["Distinguish between bandwidth and data transfer rate.","Bandwidth is the theoretical maximum capacity of a channel in bits per second, a ceiling set by the channel. Data transfer rate (throughput) is the actual rate of data successfully transmitted, usually lower because of congestion, protocol overhead, distance, hardware limits and interference; it can never exceed bandwidth.",["Bandwidth theoretical maximum","Throughput actual","Throughput never exceeds bandwidth","A cause of the gap"]],
+["What is latency, and why can a high-bandwidth connection still feel slow?","Latency is the delay before data begins to arrive, measured as round-trip time in milliseconds (ping). It is independent of bandwidth. A satellite link can have high bandwidth but several hundred milliseconds of latency, so interactive uses such as calls and gaming feel sluggish while large downloads are fine.",["Definition of latency (delay, RTT)","Independent of bandwidth","Example such as satellite or video call"]],
+["Distinguish between the client-server and peer-to-peer models.","In client-server, dedicated servers provide services to requesting clients, giving centralised management and security but a single point of failure and possible bottleneck. In peer-to-peer every device is both client and server with no central authority, giving no single point of failure and lower cost but weaker security and unpredictable performance.",["Client-server: dedicated servers","Peer-to-peer: every peer both","Advantage or disadvantage of each"]]
+];
+const LONG=[
+["Explain the OSI seven-layer model, stating the function of each layer with one example protocol or device.","The OSI model, published by ISO in 1984, divides communication into seven layers, each solved independently with a stable interface to its neighbours. Layer 7 Application provides services to user applications (HTTP, FTP, SMTP, DNS). Layer 6 Presentation translates, encrypts and compresses data (SSL/TLS, JPEG, Unicode). Layer 5 Session establishes, manages and terminates dialogues (login sessions, session tokens). Layer 4 Transport gives end-to-end delivery, segmentation, flow control and error recovery (TCP, UDP, ports). Layer 3 Network does logical addressing and routing of packets (IP, routers). Layer 2 Data Link does MAC addressing and reliable transfer across one link, forming frames (Ethernet, switches). Layer 1 Physical transmits raw bits as signals (cables, hubs, repeaters).",["Layered model published by ISO, seven layers","Application and Presentation functions with examples","Session and Transport functions with examples","Network and Data Link functions with examples","Physical function with example","Correct order of layers"]],
+["Describe encapsulation, explaining the name given to data at each layer as it moves from the application down to the physical medium.","Encapsulation is the process by which each layer, going down the stack, adds its own header (and sometimes a trailer) with the control information it needs, nesting the data in successive envelopes. Application data becomes a segment when the Transport layer adds a TCP or UDP header with port numbers. The segment becomes a packet when the Network layer adds an IP header with source and destination IP addresses. The packet becomes a frame when the Data Link layer adds a MAC header and a trailer (with the CRC) carrying MAC addresses. The Physical layer sends the frame as a stream of bits. At the receiver decapsulation strips each header going up until the original data is recovered.",["Definition: header added at each layer","Segment at Transport with ports","Packet at Network with IP addresses","Frame at Data Link with MAC header and trailer","Bits at Physical","Decapsulation at the receiver"]],
+["Compare bus, star, ring, mesh and tree topologies on fault tolerance, cost and scalability.","Bus: all devices on one backbone; very poor fault tolerance (a backbone break fails everything), very low cost, poor scalability. Star: devices connect to a central switch; good fault isolation except for the central node, moderate cost, good scalability; dominant in modern LANs. Ring: a closed loop with token passing; poor fault tolerance unless dual-ring, moderate cost, moderate scalability. Mesh: redundant paths; excellent fault tolerance, very high cost (n(n-1)/2 links for full mesh), poor scalability for full mesh. Tree: stars joined in a hierarchy; moderate, branch-dependent fault tolerance, moderate to high cost, excellent scalability.",["Bus compared on all three","Star compared","Ring compared","Mesh with the formula","Tree compared","Uses a consistent structure or table"]],
+["Explain the working of CSMA/CD and CSMA/CA, and explain why they differ.","Both are carrier-sense multiple-access methods: a station listens to the shared medium and transmits only when it is idle. CSMA/CD (collision detection) is used on wired shared media such as early Ethernet; the station keeps listening while it transmits, detects a collision, stops, and retries after a random wait. CSMA/CA (collision avoidance) is used on wireless media; a station cannot detect a collision while transmitting, so it avoids them by listening first and waiting a random time before sending. They differ because a wired station can listen while sending but a wireless station cannot.",["Carrier sense and shared medium","CSMA/CD detects collisions on wired media","Stop and retry after random wait","CSMA/CA avoids collisions on wireless media","Reason: wireless cannot detect while transmitting"]],
+["Describe the guided transmission media (twisted pair, coaxial, optical fibre), comparing them on cost, speed and typical use.","Twisted pair: insulated copper pairs twisted to cancel EMI and crosstalk; UTP is standard for home and office Ethernet, STP is shielded for industrial areas; inexpensive and easy to install; Cat 5e gives 1 Gbps to 100 m, Cat 6a and 7 give 10 Gbps; indoor wiring. Coaxial: central conductor, dielectric, braided shield and jacket on one axis; excellent shielding, higher bandwidth than UTP, over longer distances; early Ethernet and today cable television and broadband. Optical fibre: pulses of light by total internal reflection; terabits per second, tens of kilometres, immune to EMI, secure; highest cost and demanding installation; multimode for short links, single-mode for backbones and undersea cables.",["Twisted pair construction, cost, use","UTP and STP, categories","Coaxial construction and use","Fibre principle (total internal reflection)","Fibre advantages and disadvantages","Explicit comparison on cost, speed and use"]],
+["Explain the DNS resolution process step by step, from a browser request to receiving an IP address.","DNS translates domain names into IP addresses because routing at the Network layer needs numeric addresses. For www.example.com: (1) the browser checks its own cache and the operating system's cache. (2) If not found, it queries a recursive resolver, commonly run by the ISP. (3) The resolver queries a root server to find which server handles .com. (4) It queries that TLD server to find the authoritative server for example.com. (5) It queries the authoritative server for the IP address of www.example.com. (6) The resolver returns the answer to the browser, which opens the connection to that IP. DNS prefers UDP because a lookup is small and speed matters.",["Purpose of DNS (name to IP)","Cache check","Recursive resolver","Root server","TLD server","Authoritative server and answer returned"]],
+["Compare checksum and CRC as error-detection methods, and explain why CRC is preferred for Ethernet frames.","A checksum treats the data as numbers, adds them with a rule for overflow (such as one's complement) and sends the sum; the receiver repeats the sum and a mismatch signals an error. It is simple and cheap and used in TCP/IP headers, but may miss multiple errors that cancel out. A CRC treats the data as a long binary number, divides it by an agreed generator polynomial and sends the remainder; the receiver divides and checks. CRC catches a much higher proportion of realistic error patterns, especially burst errors from brief electrical interference, so it is placed in the trailer of every Ethernet frame. Both only detect; retransmission is the usual response.",["Checksum method","Checksum limitation and use","CRC method","CRC strength, burst errors","Why CRC is used in Ethernet","Detection not correction"]],
+["Explain the client-server and peer-to-peer models, with advantages and disadvantages of each.","In the client-server model clients (browsers, email apps) request services and dedicated servers, running continuously, respond. Advantages: centralised management of data, security and backups; server capacity can be upgraded independently. Disadvantages: the server is a single point of failure and can become a bottleneck; dedicated hardware is needed. In the peer-to-peer model there are no dedicated servers; every peer is both client and server and there is no central authority. Advantages: no single point of failure and lower cost. Disadvantages: weaker central security and access control and unpredictable performance. Client-server suits websites, email and banking; peer-to-peer suits BitTorrent and blockchain.",["Client-server description","Client-server advantages","Client-server disadvantages","Peer-to-peer description","Peer-to-peer advantages and disadvantages","Examples of use"]],
+["Describe the network devices covered in this chapter, stating the OSI layer each operates at.","NIC (Layers 1 to 2): connects a computer to the medium and carries the MAC address. Hub (Layer 1): floods every port, one collision domain, obsolete. Repeater (Layer 1): regenerates an attenuated signal. Bridge (Layer 2): filters between two segments by MAC address. Switch (Layer 2): forwards by MAC table to the correct port. Access point (Layers 1 to 2): joins Wi-Fi devices to the wired network. Router (Layer 3): connects different networks by IP address and routing table, performs NAT. Gateway (any layer): translates between different protocols. Modem: converts between digital and analog signals.",["NIC with MAC address","Hub and repeater at Layer 1","Bridge and switch at Layer 2","Access point","Router at Layer 3 with NAT","Gateway and modem"]],
+["Distinguish PAN, LAN, MAN and WAN with coverage range and one example network of each.","PAN: about 10 m around an individual, wireless via Bluetooth, Zigbee or infrared; example, a phone with wireless earbuds. LAN: a room, building or campus up to about 1 km, privately owned, high speed on Ethernet or Wi-Fi; example, an office or school network. MAN: a whole city, 5 to 50 km, often on optical fibre, interconnecting LANs; example, a city cable broadband network or bank branches. WAN: regions, countries or the globe using leased lines, satellite and undersea fibre, lower speed and higher latency; example, the Internet.",["PAN range and example","LAN range, ownership and example","MAN range and example","WAN range and example","Technology or speed differences"]]
+];
+const APP=[
+["A small office wants a network that is cheap to install and where all computers will rarely need to be added or removed. Later they change their mind and expect frequent additions. Recommend a topology for each scenario and justify.","For the first scenario a bus topology is the cheapest, since it needs the least cabling, though its fault tolerance is poor and a star is nowadays about as easy to justify. For frequent additions a star topology is better: each device connects to a central switch, so adding or removing a device only changes one connection, faults are isolated and easy to diagnose. The trade-off is that the central switch is a single point of failure and more cabling is needed.",["Bus (or low-cost) for the first scenario with cost reason","Star for frequent additions","Easy add or remove and fault isolation","Mentions the central point of failure"]],
+["A user reports that their video calls freeze constantly even though a speed test shows their advertised 100 Mbps bandwidth is being delivered in full. Diagnose the likely cause and explain why high bandwidth alone did not prevent the problem.","The likely cause is high or inconsistent latency (and jitter). Bandwidth and throughput describe how much data moves per second; latency is the delay before data arrives. Video calls are latency-sensitive: packets that arrive late are useless, so the call freezes even though the connection can sustain high throughput. Latency is largely independent of bandwidth, as with a satellite link. Check with ping, congestion on Wi-Fi or the route.",["Identifies latency (jitter)","Bandwidth and latency are independent","Video calls are latency-sensitive","Mentions ping or a possible cause"]],
+["An organisation wants to let employees access the internal company network securely while working from home over the public internet. Recommend a technology and explain how it achieves this.","A VPN (Virtual Private Network). It creates an encrypted logical tunnel across the public internet between the employee's device and the company network, so traffic is protected from interception as if the two points were joined by a private cable, even though the data crosses shared public infrastructure. The employee can then reach the internal LAN securely.",["Recommends a VPN","Encrypted tunnel across a public network","Protected from interception, as if a private link","Employee reaches the internal LAN"]],
+["Explain why the internet, in practice, uses the four-layer TCP/IP model rather than implementing all seven OSI layers as separate distinct protocols end to end.","TCP/IP came from the ARPANET project and predates OSI; it was designed pragmatically for a working, scalable internet. It merges OSI's Application, Presentation and Session layers into one Application layer and the Data Link and Physical layers into one Network Access layer, since functions like encryption or sessions are handled inside applications. OSI was developed as a vendor-neutral reference and vocabulary, not as a protocol suite, so it remains the teaching and description tool while TCP/IP is what is implemented.",["TCP/IP came first from ARPANET","Pragmatic design for a working internet","Layers merged (top three, bottom two)","OSI is a reference and vocabulary"]],
+["A company is deciding between a client-server and a peer-to-peer architecture for a new internal file-sharing tool used by 20 employees. Recommend an architecture and justify it considering reliability, cost and central control.","Client-server is recommended. A central server gives centralised management, access control, security policy and backups, which matter for company files, and performance is predictable. Its drawbacks are the single point of failure (mitigated with backups or redundancy) and the cost of server hardware, which is modest for 20 users. Peer-to-peer would be cheaper and have no single point of failure, but it offers weak central control and security and unpredictable availability depending on which peers are online.",["Recommends client-server","Central control and security","Reliability trade-off (single point of failure, backups)","Cost trade-off","Why peer-to-peer is weaker here"]],
+["A network administrator observes that a file downloaded via FTP is corrupted despite a successful transfer. Explain what error-detection mechanism should have caught this and why it might have failed.","Error detection should have been provided at several layers: the CRC in the Ethernet frame trailer at the Data Link layer, and the checksums in the IP and TCP headers, with TCP retransmitting damaged segments. These only detect that an error occurred, and a checksum can miss multiple errors that cancel out, so a corruption can slip through; the corruption may also have happened at the source or the storage device after delivery, outside the transfer. Verifying a file hash after download would confirm integrity.",["Names CRC and checksum (TCP)","Detection leads to retransmission","Checksum can miss cancelling errors","Corruption may occur outside the transfer"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson5-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Network lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Data communication",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Definition",d:"Data communication is the process of transferring data, in digital or analog form, from one device to another over a communication channel or medium.",p:["It is the foundation on which all computer networking is built. The goal is not merely to transmit data but to transmit it accurately, efficiently and securely."]},
+ {h:"Criteria for effective communication",t:T[1]},
+ {h:"The five components",p:["The protocol deserves particular emphasis: without a shared protocol two devices cannot communicate meaningfully even when physically connected. Protocols define packet format, addressing, connection establishment and termination, error detection and correction, flow control and retry procedures."],t:T[0]},
+ {h:"Analog and digital signals",p:["Data communication moves information by varying a physical quantity (voltage, light intensity or radio amplitude) over time. Modern networks are overwhelmingly digital because a receiver only has to decide whether a pulse is high or low, so digital signals tolerate noise, degradation and amplification better. A modem converts between the two where an analog medium must be used."],t:T[2]},
+ {h:"Error detection",p:["No medium is perfectly reliable; noise, interference and attenuation can flip a bit. A parity bit detects a single-bit error. A checksum sums the data and sends the sum; a mismatch signals an error, but errors that cancel out in the sum may be missed. A CRC (Cyclic Redundancy Check) divides the data by an agreed generator polynomial and sends the remainder; it catches most errors, including burst errors, and is used in Ethernet, Wi-Fi and storage."]},
+ {h:"Examination notes",l:["Error detection and error correction are not the same: parity, checksum and CRC detect an error but cannot say which bit was wrong; the usual response is retransmission (by TCP). Forward error correction needs far more redundancy and is used where retransmission is impractical.","'List the components of data communication' is a guaranteed question: name all five, with a line each; omitting the protocol is the commonest way marks are lost."]}
+]},
+{t:"Communication modes",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Communication mode",d:"Communication mode is the direction in which data can flow between a sender and a receiver over a channel. There are three modes: simplex, half duplex and full duplex.",p:["Simplex: data flows in one fixed direction only, from sender to receiver; the receiver cannot reply on the same channel. Examples: television and radio broadcast, public address systems, weather sensors and keyboard-to-computer. The advantage is simplicity and efficiency; the limitation is the complete absence of feedback.","Half duplex: data flows in both directions but only one at a time; the other party must wait. Examples: walkie-talkie, CB radio. Simultaneous transmission causes interference. It is two-way over one channel but with reduced effective throughput.","Full duplex: data flows in both directions simultaneously, using two separate channels or a single channel that carries both directions through frequency division or echo cancellation. Examples: telephone call, mobile phones, video conferencing and most modern networks."],t:T[3]},
+ {h:"Controlling access to a shared medium",p:["Where devices share one medium, collisions can occur. CSMA/CD (Carrier Sense Multiple Access with Collision Detection) is used on wired shared media: a station senses the medium, transmits, detects a collision while transmitting, stops and retries after a random delay. CSMA/CA (Collision Avoidance) is used on wireless media, where a station cannot detect a collision while it is transmitting, so collisions are avoided by listening first and waiting before sending."],t:T[4]},
+ {h:"Examination notes",l:["Answer comparison questions with the table: direction, channel usage, example, interaction type. 'Channel usage' is usually worth a mark of its own.","The exact CSMA procedure is summarised in the chapter's revision points; the answer to 'why not CSMA/CD on wireless' is that wireless stations cannot detect collisions while transmitting."]}
+]},
+{t:"Transmission media",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Overview",d:"Transmission media are the physical pathways through which data travels between nodes in a network.",p:["The medium determines maximum speed, maximum distance before signal degradation, susceptibility to electromagnetic interference, security, ease of installation and cost."],t:T[5]},
+ {h:"Twisted pair",p:["Twisted pair is the oldest and most widely used guided medium: pairs of insulated copper wires twisted helically. The twisting makes the magnetic fields of the wires cancel, greatly reducing electromagnetic interference (EMI) and crosstalk. It is inexpensive, easy to install and flexible."],t:T[7]},
+ {h:"Twisted pair categories",t:T[6]},
+ {h:"Coaxial cable",p:["Coaxial cable has a central copper conductor, an insulating dielectric, a tubular metallic braid or foil shield and an outer plastic jacket, all on the same axis. The shielding allows high-frequency signals to travel longer distances with less loss. It was dominant in early Ethernet (10BASE5 Thick and 10BASE2 Thin) and is now widely used for cable television (CATV) and broadband."]},
+ {h:"Optical fibre",p:["Optical fibre transmits data as pulses of light through strands of glass or plastic thinner than a human hair, using total internal reflection: light entering at a shallow enough angle is trapped inside. Advantages: very high bandwidth (terabits per second), long distance (tens of kilometres), immunity to EMI and crosstalk, and security. Disadvantages: higher cost and skilled installation and splicing."],t:T[9]},
+ {h:"The media compared",t:T[8]},
+ {h:"Wireless media",p:["Wireless media carry data as electromagnetic waves through air or space. They offer mobility but are subject to interference, security exposure and generally lower data rates than fibre. The 2.4 GHz Wi-Fi band gives better range and wall penetration but suffers interference from microwave ovens, Bluetooth devices and cordless phones; the 5 GHz band gives higher rates and less interference at shorter range."],t:T[10]},
+ {h:"Wi-Fi generations",t:T[11]},
+ {h:"Examination notes",l:["State the trade-off: fibre wins on speed, distance and EMI immunity but loses on cost and installation difficulty; do not declare it simply the best."]}
+]},
+{t:"Network devices",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Overview and the NIC",d:"Network devices are the physical components that connect computers and other devices into a network and manage the flow of data.",p:["A Network Interface Card (NIC, network adapter) connects a computer to a wired or wireless medium and converts between the format of the internal bus and the signals of the medium. Every NIC has a globally unique 48-bit MAC (Media Access Control) address, written as six pairs of hexadecimal digits (for example 00:1A:2B:3C:4D:5E); the first three pairs identify the manufacturer. A laptop with wired and wireless NICs has two MAC addresses."]},
+ {h:"Hub and switch",p:["A hub rebroadcasts a signal received on any port out of every other port, with no intelligence; all devices share one collision domain and bandwidth is wasted. A switch builds a MAC address table (CAM table) from the source addresses of arriving frames and forwards a frame only to the port of the destination address (unicast forwarding). Each port is its own collision domain. Use the Switch learning lab to watch this."],t:T[13]},
+ {h:"Router, gateway, bridge, repeater and access point",p:["A router works at Layer 3, forwarding packets between different networks by IP address using a routing table, and performs Network Address Translation (NAT). A gateway translates between networks using different protocols. A bridge filters traffic between two segments by MAC address; a switch is a multiport bridge. A repeater regenerates and amplifies an attenuated signal, including its noise. A wireless access point joins Wi-Fi devices to a wired network; its airtime is shared, so per-device throughput falls as devices join, and large sites use many access points with roaming."],t:T[14]},
+ {h:"Modem",p:["A modem (modulator-demodulator) converts digital data into a form suitable for an analog medium (modulation) and converts incoming analog signals back to digital (demodulation)."],t:T[15]},
+ {h:"Devices mapped to OSI layers",t:T[12]},
+ {h:"Examination notes",l:["'At which layer does device X operate' and 'how does it decide where to forward' are answered by the same two columns of the device table; memorise it as a unit."]}
+]},
+{t:"Computer networks",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Definition and classification",d:"A computer network is a collection of two or more computers and other devices connected by communication links, wired or wireless, and governed by communication protocols, enabling them to share data, resources and services.",p:["Networks are classified by geographic coverage because scale shapes technology, speed, cost and administrative complexity. A PAN covers about 10 metres around an individual (Bluetooth, Zigbee, infrared). A LAN covers a room, building or campus up to about 1 km; Ethernet (IEEE 802.3) is its dominant wired technology and Wi-Fi (IEEE 802.11) its wireless one. A MAN spans a city, 5 to 50 km, usually on optical fibre; WiMAX builds wireless MANs. A WAN spans regions, countries and continents, using leased lines, satellite, microwave and fibre; the Internet is the largest WAN."],t:T[16]},
+ {h:"SAN and VPN",t:T[17]},
+ {h:"Examination notes",l:["PAN stops at about 10 m; anything between cities or countries is a WAN; a MAN is defined by staying within one metropolitan area."]}
+]},
+{t:"Network topologies",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Topology",d:"A network topology is the arrangement or layout describing how devices (nodes) and connections (links) are organised in a network.",p:["Physical topology is the actual layout of cables and devices; logical topology is how data actually flows, which can differ (a physical star often behaves logically like a bus). The choice affects cost, reliability, ease of troubleshooting and tolerance of failure."]},
+ {h:"The five topologies",t:T[19]},
+ {h:"Worked example: counting links",p:["How many links does a full mesh of 6 devices need? Using n(n-1)/2 with n = 6: 6 × 5 / 2 = 15 links. A star for the same six devices needs only 6. Use the Topology links lab."]},
+ {h:"Comparison",t:T[18]},
+ {h:"Examination notes",l:["Structure comparisons on three axes: fault tolerance, cost and scalability.","The star's central point of failure and the mesh's n(n-1)/2 cabling cost are the two facts examiners test most."]}
+]},
+{t:"Network models",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Why a layered model?",p:["A layered model splits network communication into a stack of smaller, independent problems, each handled by one layer with a defined interface to the layers above and below. A layer can change internally (Ethernet to Wi-Fi, IPv4 to IPv6) without redesigning the internet."]},
+ {h:"The OSI reference model",d:"The OSI (Open Systems Interconnection) model, published by the International Organization for Standardization in 1984, divides network communication into seven layers.",p:["It is a vendor-neutral reference and common vocabulary rather than a protocol suite implemented end to end. Memory aid, Layer 7 down to 1: All People Seem To Need Data Processing; Layer 1 up to 7: Please Do Not Throw Sausage Pizza Away."],t:T[20]},
+ {h:"The TCP/IP model",p:["The TCP/IP model is the model actually implemented by the real internet, developed by the US Department of Defense's ARPANET project and predating OSI. It condenses seven layers into four: OSI's top three become the Application layer and the bottom two become the Network Access layer."],t:T[21]},
+ {h:"OSI and TCP/IP compared",t:T[22]},
+ {h:"Encapsulation",p:["Going down the stack each layer adds its own header (and sometimes a trailer): encapsulation. At the receiver each header is stripped going up: decapsulation. The naming is examined: segment, packet, frame, bits. Step through it in the Encapsulation lab."],t:T[23]},
+ {h:"MAC and IP addresses",p:["A common error places IP at Layer 2 and MAC at Layer 3, the reverse of the truth. A packet's IP address never changes as it crosses the internet; the MAC address in its frame header changes at every hop."],t:T[24]},
+ {h:"Client-server and peer-to-peer",p:["In the client-server model clients request services and dedicated servers provide them; in the peer-to-peer (P2P) model every device is both client and server with no central authority."],t:T[25]},
+ {h:"Examination notes",l:["Work from the OSI table: a switch and MAC addressing are Layer 2; a router and IP addressing are Layer 3; TCP/UDP and ports are Layer 4; HTTP, FTP and DNS are Layer 7."]}
+]},
+{t:"Network protocols",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Protocol",d:"A protocol is a formal set of rules governing how devices communicate. Different protocols operate at different OSI layers, each solving a distinct piece of the communication problem."},
+ {h:"IP and TCP/IP",p:["TCP/IP is the foundational protocol suite of the internet. IP (Network layer) provides logical addressing and routing; it is connectionless and best-effort, giving no guarantee that packets arrive, arrive once or arrive in order. TCP (Transport layer) adds reliable, ordered delivery: it is connection-oriented, using a three-way handshake (SYN, SYN-ACK, ACK), numbers every segment, acknowledges receipt, retransmits losses, reassembles out-of-order segments and applies flow control. See the TCP and UDP lab."],t:T[27]},
+ {h:"TCP and UDP",t:T[26]},
+ {h:"Which transport do applications use?",t:T[31]},
+ {h:"HTTP, HTTPS, FTP and DNS",p:["HTTP is stateless: each request is independent unless cookies or session tokens add state. HTTPS is HTTP layered over TLS/SSL encryption, protecting confidentiality and integrity in transit. FTP uses a control connection for commands and a separate data connection for the file; SFTP and FTPS add encryption because plain FTP sends credentials in the clear."],t:T[29]},
+ {h:"Email protocols",t:T[28]},
+ {h:"DNS resolution",p:["The Domain Name System is the internet's distributed directory, translating human-readable domain names into the numeric IP addresses needed for routing at Layer 3. Try it in the DNS lookup lab."],t:T[30]},
+ {h:"Examination notes",l:["SMTP sends; POP3 downloads and removes from the server; IMAP synchronises across devices, leaving mail on the server. Stating that POP3 removes mail and IMAP does not is the fact checked most directly.","DNS: give the functional definition, then add why: humans use names but the Network layer routes by IP address."]}
+]},
+{t:"Network performance",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Bandwidth, data transfer rate and latency",d:"Bandwidth is the theoretical maximum capacity of a communication channel to carry data, measured in bits per second (bps) and its multiples Kbps, Mbps and Gbps.",p:["Data transfer rate (throughput) is the actual amount of data successfully transmitted in a given time; it is often lower than bandwidth and can never exceed it. Latency is the delay before data begins to arrive, usually measured as round-trip time (RTT) in milliseconds with the ping utility. Use the Transfer rate lab to calculate throughput."],t:T[32]},
+ {h:"Why throughput falls below bandwidth",l:["Network congestion: many devices competing for shared infrastructure.","Protocol overhead: headers, acknowledgements and control information consume capacity.","Distance and latency: propagation time, significant for satellite links.","Hardware limitations: old equipment or a slow storage device.","Signal interference and quality, especially for wireless."]},
+ {h:"Latency",p:["A satellite connection can offer generous bandwidth yet feel sluggish because the distance to a geostationary satellite and back adds several hundred milliseconds. Large downloads are chiefly bandwidth-sensitive; video calls, competitive gaming and remote desktop are chiefly latency-sensitive."]},
+ {h:"Error detection compared",t:T[33]},
+ {h:"Worked scenario",p:["A plan advertises 50 Mbps; a download shows 30 Mbps; video calls on the same connection lag. The 50 Mbps is bandwidth; the 30 Mbps is the data transfer rate, reduced by congestion, overhead or hardware; the laggy calls point to latency, which is largely independent of throughput."],t:T[34]},
+ {h:"Examination notes",l:["Identify which of the three concepts a symptom points to before answering; all three are separate from whether the data that arrives is error-free, which is the job of checksums and CRC."]}
+]}
+];
+
+/* ============ LAB (Lesson 5): topology links, transfer rate, switch learning, encapsulation, DNS, TCP/UDP, IPv4, error detection, sorting ============ */
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+const L={tool:"topo",sd:{dim:0,item:null,fb:"",right:null,s:0,t:0},
+  nn:"6",fsz:"50",fsec:"20",fbw:"100",
+  ms:"A",md:"B",mt:{},mlog:[],
+  em:"Hi",es:0,ed:"down",
+  dn:"www.example.com",dsx:0,
+  ts:0,tm:"tcp",
+  ipa:"192.168.1.10",
+  ebits:"11010011",egen:"1011",erx:""};
+const LABTOOLS=[["topo","Topology links"],["rate","Transfer rate"],["mac","Switch learning"],["encap","Encapsulation"],["dns","DNS lookup"],["tcp","TCP and UDP"],["ip","IPv4 address"],["err","Error detection"],["sort","Sorting drill"]];
+const note=t=>'<div class="rs note">'+t+"</div>";
+const okb=t=>'<div class="rs ok">'+t+"</div>";
+const badb=t=>'<div class="rs bad">'+t+"</div>";
+const inp=(id,lab,w,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><input type="text" id="'+id+'" data-lin="'+t+'" class="mono" value="'+esc(L[id])+'" autocomplete="off" spellcheck="false" style="max-width:'+(w||10)+'rem"></div>';
+const sel=(id,lab,opts,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><select id="'+id+'" data-lin="'+t+'" style="width:auto">'+opts.map(o=>'<option value="'+esc(o[0])+'"'+(String(L[id])===String(o[0])?" selected":"")+">"+esc(o[1])+"</option>").join("")+"</select></div>";
+const r2=x=>Math.round(x*100)/100;
+function labView(){
+  let h='<p class="hint">Try the numerical and procedural parts of the chapter: count topology links, work out transfer rates, watch a switch learn MAC addresses, step through encapsulation, DNS and TCP, inspect an IPv4 address and test error detection.</p>';
+  h+='<div class="subnav" role="group" aria-label="Lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  return '<div class="labwrap">'+h+TOOLS[L.tool].v()+"</div>";
+}
+/* ---------- topology links ---------- */
+function topoRes(){
+  const n=parseInt(L.nn,10);
+  if(!(n>=2)||n>200)return {tpres:note("Enter a whole number of devices from 2 to 200.")};
+  const mesh=n*(n-1)/2;
+  let h=okb("Full mesh of "+n+" devices: "+n+" × "+(n-1)+" ÷ 2 = <b>"+mesh+"</b> links.");
+  h+='<div class="tbl"><table style="text-align:center"><thead><tr><th>Topology</th><th>Links for '+n+' devices</th><th>Note</th></tr></thead><tbody>';
+  h+="<tr><th>Star</th><td class=\"mono\">"+n+"</td><td>One link per device to the central switch</td></tr>";
+  h+="<tr><th>Ring</th><td class=\"mono\">"+n+"</td><td>Each device to two neighbours in a loop</td></tr>";
+  h+="<tr><th>Bus</th><td class=\"mono\">"+n+" drops + 1 backbone</td><td>All share one cable</td></tr>";
+  h+="<tr><th>Full mesh</th><td class=\"mono\">"+mesh+"</td><td>"+(mesh>n?"<b>"+(mesh-n)+" more</b> than a star":"Same as a star")+"</td></tr></tbody></table></div>";
+  h+='<p class="hint">The cost of a full mesh grows with the square of n: doubling the devices roughly quadruples the links.</p>';
+  return {tpres:h};
+}
+function viewTopo(){return '<div class="panel"><h3>Links needed</h3><div class="row">'+inp("nn","Number of devices (n)",8,"topo")+'</div><div id="tpres">'+topoRes().tpres+"</div></div>";}
+/* ---------- transfer rate ---------- */
+function rateRes(){
+  const mb=parseFloat(L.fsz),s=parseFloat(L.fsec),bw=parseFloat(L.fbw);
+  if(!(mb>0)||!(s>0)||!(bw>0))return {rtres:note("Enter positive numbers: file size in megabytes (MB), time in seconds and advertised bandwidth in Mbps.")};
+  const bits=mb*8,tp=bits/s,ideal=bits/bw;
+  let h=okb(mb+" MB = "+mb+" × 8 = <b>"+r2(bits)+" Mb</b>. Data transfer rate = "+r2(bits)+" ÷ "+s+" = <b>"+r2(tp)+" Mbps</b>.");
+  h+=tp>bw+1e-9?badb("The rate exceeds the bandwidth of "+bw+" Mbps, which cannot happen: throughput can never exceed bandwidth. Check the figures."):note("This is "+r2(tp/bw*100)+" percent of the "+bw+" Mbps bandwidth. At full bandwidth the transfer would take "+r2(ideal)+" s.");
+  h+='<p class="hint">1 byte = 8 bits, so file sizes in bytes are multiplied by 8 before dividing by seconds to give megabits per second.</p>';
+  return {rtres:h};
+}
+function viewRate(){return '<div class="panel"><h3>Data transfer rate</h3><div class="row">'+inp("fsz","File size (MB)",8,"rate")+inp("fsec","Time (s)",8,"rate")+inp("fbw","Bandwidth (Mbps)",8,"rate")+'</div><div id="rtres">'+rateRes().rtres+"</div></div>";}
+/* ---------- switch learning ---------- */
+const HOSTS={A:1,B:2,C:3,D:4};
+function viewMac(){
+  const hs=Object.keys(HOSTS).map(k=>[k,"Host "+k+" (port "+HOSTS[k]+")"]);
+  let h='<div class="panel"><h3>A switch learns MAC addresses</h3><p class="hint">Four hosts A to D are on ports 1 to 4. Send a frame and watch the MAC address table fill. A hub would flood every frame to all other ports.</p><div class="row">'+sel("ms","Source",hs,"mac")+sel("md","Destination",hs,"mac")+'<button class="btn primary" data-act="msend">Send frame</button><button class="btn" data-act="mreset">Reset</button></div>';
+  const keys=Object.keys(L.mt);
+  h+='<div class="tbl"><table><thead><tr><th>MAC address table</th><th>Port</th></tr></thead><tbody>'+(keys.length?keys.map(k=>"<tr><th>Host "+k+'</th><td class="mono">'+L.mt[k]+"</td></tr>").join(""):'<tr><td colspan="2">Empty</td></tr>')+"</tbody></table></div>";
+  h+=L.mlog.length?L.mlog.slice(-4).reverse().join(""):note("No frames sent yet.");
+  return h+"</div>";
+}
+function macSend(){
+  const s=L.ms,d=L.md;
+  if(s===d){L.mlog.push(badb("Source and destination are the same host; choose different hosts."));return;}
+  const learned=!(s in L.mt);L.mt[s]=HOSTS[s];
+  let m="<b>"+s+" → "+d+"</b>. "+(learned?"The switch learns that "+s+" is on port "+HOSTS[s]+". ":"Already knows "+s+". ");
+  if(d in L.mt)L.mlog.push(okb(m+"Destination "+d+" is in the table, so the frame is forwarded <b>only to port "+L.mt[d]+"</b> (unicast)."));
+  else L.mlog.push(note(m+"Destination "+d+" is unknown, so the frame is <b>flooded to all other ports</b> ("+Object.values(HOSTS).filter(p=>p!==HOSTS[s]).join(", ")+") until "+d+" replies and is learned."));
+}
+/* ---------- encapsulation ---------- */
+function encSteps(){
+  const m=String(L.em||"").slice(0,12)||"Hi";
+  const bits=m.slice(0,2).split("").map(c=>c.charCodeAt(0).toString(2).padStart(8,"0")).join(" ");
+  return [
+   {l:"Application (5 to 7)",u:"Data",v:"["+m+"]",d:"The application produces the data."},
+   {l:"Transport (4)",u:"Segment",v:"[TCP hdr: ports 49152 → 80 | "+m+"]",d:"A TCP or UDP header with port numbers is added."},
+   {l:"Network (3)",u:"Packet",v:"[IP hdr: 192.168.1.10 → 93.184.216.34 | TCP hdr | "+m+"]",d:"An IP header with source and destination IP addresses is added."},
+   {l:"Data Link (2)",u:"Frame",v:"[MAC hdr | IP hdr | TCP hdr | "+m+" | CRC trailer]",d:"A MAC header and a trailer (with the CRC) are added."},
+   {l:"Physical (1)",u:"Bits",v:bits+" ...",d:"The frame is sent as a stream of bits."}];
+}
+function viewEncap(){
+  const S=encSteps(),up=L.ed==="up",i=Math.min(L.es,S.length-1),k=up?S.length-1-i:i;
+  let h='<div class="panel"><h3>Encapsulation and decapsulation</h3><div class="row">'+inp("em","Message",14,"encap")+'<button class="chip" data-act="edir" data-v="down" aria-pressed="'+!up+'">Sender: down the stack</button><button class="chip" data-act="edir" data-v="up" aria-pressed="'+up+'">Receiver: up the stack</button></div>';
+  h+='<ol>'+S.map((s,j)=>{const cur=j===k;return "<li"+(cur?' style="font-weight:600"':"")+">"+esc(s.l)+" — "+esc(s.u)+"</li>";}).join("")+"</ol>";
+  h+='<div id="enres">'+encRes().enres+"</div>";
+  h+='<div class="row"><button class="btn" data-act="eback">Back</button><button class="btn primary" data-act="enext">Next</button><button class="btn" data-act="ereset">Restart</button></div></div>';
+  return h;
+}
+function encRes(){
+  const S=encSteps(),up=L.ed==="up",i=Math.min(L.es,S.length-1),k=up?S.length-1-i:i,st=S[k];
+  return {enres:note("<b>"+esc(st.l)+"</b>: data unit: <b>"+esc(st.u)+"</b>. "+(up?"The "+esc(st.l.replace(/ \(.*\)/,""))+" layer strips its header and passes the contents up.":esc(st.d))+'<br><span class="mono">'+esc(st.v)+"</span>")};
+}
+/* ---------- DNS ---------- */
+function dnsSteps(){
+  const d=String(L.dn||"").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/\/.*$/,"")||"www.example.com",p=d.split("."),tld="."+p[p.length-1],zone=p.length>1?p.slice(-2).join("."):d;
+  return [["Browser and OS cache","The browser checks its own cache, then the operating system's cache, for a recent answer for "+d+". Not found."],["Recursive resolver","The browser asks a recursive resolver, commonly run by the ISP."],["Root server","The resolver asks a root server which server is responsible for "+tld+"."],["TLD server","The resolver asks the "+tld+" Top-Level Domain server which server is authoritative for "+zone+"."],["Authoritative server","The resolver asks the authoritative server for the IP address of "+d+"."],["Answer returned","The resolver returns the IP address to the browser, which opens the connection to it (DNS prefers UDP because a lookup is small)."]];
+}
+function viewDns(){
+  const S=dnsSteps(),i=Math.min(L.dsx,S.length-1);
+  let h='<div class="panel"><h3>DNS lookup</h3><div class="row">'+inp("dn","Domain name",20,"dns")+"</div><ol>"+S.map((s,j)=>"<li"+(j===i?' style="font-weight:600"':"")+">"+esc(s[0])+"</li>").join("")+"</ol>";
+  h+='<div id="dnres">'+note("<b>Step "+(i+1)+" of "+S.length+": "+esc(S[i][0])+".</b> "+esc(S[i][1]))+'</div><div class="row"><button class="btn" data-act="dback">Back</button><button class="btn primary" data-act="dnext">Next</button><button class="btn" data-act="dnsreset">Restart</button></div></div>';
+  return h;
+}
+function dnsRes(){const S=dnsSteps(),i=Math.min(L.dsx,S.length-1);return {dnres:note("<b>Step "+(i+1)+" of "+S.length+": "+esc(S[i][0])+".</b> "+esc(S[i][1]))};}
+/* ---------- TCP and UDP ---------- */
+const TCPS=[["Client → Server: SYN","The client asks to open a connection (handshake step 1)."],["Server → Client: SYN-ACK","The server agrees and acknowledges (step 2)."],["Client → Server: ACK","The client acknowledges; the connection is established (step 3)."],["Client → Server: segments 1, 2, 3","Every segment is numbered."],["Server → Client: ACK 1, ACK 2 (segment 3 lost)","Receipt is acknowledged; segment 3 is missing."],["Client → Server: segment 3 again","Lost data is retransmitted, then reassembled in order."],["Connection closed","Reliable, ordered delivery is complete, at the cost of extra overhead and latency."]];
+const UDPS=[["Client → Server: datagram 1","No handshake; it is simply sent."],["Client → Server: datagram 2","Sent immediately, with no acknowledgement expected."],["Client → Server: datagram 3 (lost)","The datagram is lost on the way."],["Client → Server: datagram 4","Sending continues; the loss is not noticed or repaired."],["Finished","Low latency and low overhead, but delivery is not guaranteed. Suited to calls, gaming and DNS."]];
+function viewTcp(){
+  const S=L.tm==="tcp"?TCPS:UDPS,i=Math.min(L.ts,S.length-1);
+  let h='<div class="panel"><h3>TCP and UDP compared</h3><div class="row"><button class="chip" data-act="tcpmode" data-v="tcp" aria-pressed="'+(L.tm==="tcp")+'">TCP</button><button class="chip" data-act="tcpmode" data-v="udp" aria-pressed="'+(L.tm==="udp")+'">UDP</button></div><ol>'+S.map((s,j)=>"<li"+(j===i?' style="font-weight:600"':"")+">"+esc(s[0])+"</li>").join("")+"</ol>";
+  h+=note("<b>"+esc(S[i][0])+".</b> "+esc(S[i][1]))+'<div class="row"><button class="btn" data-act="tcpback">Back</button><button class="btn primary" data-act="tcpnext">Next</button><button class="btn" data-act="tcpreset">Restart</button></div></div>';
+  return h;
+}
+/* ---------- IPv4 ---------- */
+function ipRes(){
+  const p=String(L.ipa).trim().split(".");
+  if(p.length!==4||p.some(x=>!/^\d{1,3}$/.test(x)||+x>255))return {iprs:badb("An IPv4 address has four decimal octets, each from 0 to 255 (for example 192.168.1.1).")};
+  const o=p.map(Number),bin=o.map(x=>x.toString(2).padStart(8,"0"));
+  let kind="a public address";
+  if(o[0]===10||(o[0]===172&&o[1]>=16&&o[1]<=31)||(o[0]===192&&o[1]===168))kind="a private address (used inside a LAN behind a router that performs NAT)";
+  else if(o[0]===127)kind="a loopback address (this computer itself)";
+  else if(o[0]===169&&o[1]===254)kind="a link-local address (no DHCP answer was received)";
+  let h=okb("<b>"+o.join(".")+"</b> in binary: <span class=\"mono\">"+bin.join(".")+"</span>");
+  h+=note("This is "+kind+".");
+  h+='<p class="hint">Four octets × 8 bits = 32 bits, giving 2<sup>32</sup> = 4,294,967,296 (about 4.3 billion) addresses, which is why IPv6 uses 128 bits.</p>';
+  return {iprs:h};
+}
+function viewIp(){return '<div class="panel"><h3>IPv4 address inspector</h3><div class="row">'+inp("ipa","IPv4 address",16,"ip")+'</div><div id="iprs">'+ipRes().iprs+"</div></div>";}
+/* ---------- error detection ---------- */
+function crcRem(bits,gen){
+  const g=gen.length,a=(bits+"0".repeat(g-1)).split("").map(Number),gn=gen.split("").map(Number);
+  for(let i=0;i<=a.length-g;i++)if(a[i])for(let j=0;j<g;j++)a[i+j]^=gn[j];
+  return a.slice(a.length-(g-1)).join("");
+}
+function crcCheck(bits,gen){
+  const a=bits.split("").map(Number),gn=gen.split("").map(Number),g=gn.length;
+  for(let i=0;i<=a.length-g;i++)if(a[i])for(let j=0;j<g;j++)a[i+j]^=gn[j];
+  return a.slice(a.length-(g-1)).join("");
+}
+function chk4(bits){
+  const pad=bits.padStart(Math.ceil(bits.length/4)*4,"0");let s=0;
+  for(let i=0;i<pad.length;i+=4)s+=parseInt(pad.slice(i,i+4),2);
+  while(s>15)s=(s&15)+(s>>4);
+  return (15-s).toString(2).padStart(4,"0");
+}
+function errRes(){
+  const d=String(L.ebits).trim(),g=String(L.egen).trim();
+  if(!/^[01]{4,24}$/.test(d)||!/^1[01]{1,7}$/.test(g)||g.length>=d.length)return {erres:note("Enter 4 to 24 data bits (0 and 1) and a generator of 2 to 8 bits starting with 1 (shorter than the data), such as 1011.")};
+  const par=(d.split("1").length-1)%2,rem=crcRem(d,g),cw=d+rem,cs=chk4(d);
+  let rx=String(L.erx).trim();if(rx==="")rx=cw;
+  let h='<div class="tbl"><table><thead><tr><th>Method</th><th>Sender computes</th></tr></thead><tbody><tr><th>Even parity bit</th><td class="mono">'+par+'</td></tr><tr><th>Checksum (4-bit groups added, carry wrapped, complemented)</th><td class="mono">'+cs+'</td></tr><tr><th>CRC remainder (divide by '+g+')</th><td class="mono">'+rem+'</td></tr><tr><th>Codeword sent (data + CRC)</th><td class="mono">'+cw+"</td></tr></tbody></table></div>";
+  if(!/^[01]+$/.test(rx)||rx.length!==cw.length)h+=note("Enter the received bits below with exactly "+cw.length+" bits to test detection (change one or more bits of the codeword).");
+  else{
+    const rd=rx.slice(0,d.length),pr=(rd.split("1").length-1)%2,cr=chk4(rd),cc=crcCheck(rx,g);
+    const v=(ok,n)=>'<tr><th>'+n+'</th><td>'+(ok?"No error detected":"<b>Error detected</b>")+"</td></tr>";
+    h+='<div class="tbl"><table><thead><tr><th>Receiver check</th><th>Result</th></tr></thead><tbody>'+v(pr===par,"Parity")+v(cr===cs,"Checksum")+v(/^0+$/.test(cc),"CRC (remainder "+cc+")")+"</tbody></table></div>";
+    h+=rx===cw?okb("Received bits are identical to those sent."):note("The received bits differ from the sent codeword. Try changing two bits: parity often misses it, while CRC usually catches it.");
+  }
+  return {erres:h};
+}
+function viewErr(){return '<div class="panel"><h3>Parity, checksum and CRC</h3><div class="row">'+inp("ebits","Data bits",14,"err")+inp("egen","CRC generator",10,"err")+inp("erx","Received bits (blank = unchanged)",22,"err")+'</div><div id="erres">'+errRes().erres+"</div></div>";}
+/* ---------- sorting drill ---------- */
+const DIMS=[
+{n:"Device layer",o:["Layer 1","Layer 2","Layer 3"],it:[["Hub",0],["Repeater",0],["Switch",1],["Bridge",1],["Router",2],["Device that forwards by IP address",2],["Device that forwards by MAC address",1],["Device that floods every port",0]]},
+{n:"OSI layer",o:["Application","Presentation","Session","Transport","Network","Data Link","Physical"],it:[["HTTP",0],["DNS",0],["Encryption and compression (TLS, JPEG)",1],["Login session management",2],["TCP and UDP port numbers",3],["IP addressing and routing",4],["MAC addressing and frames",5],["Electrical or optical signals on the cable",6],["SMTP",0],["Switch",5]]},
+{n:"Network scale",o:["PAN","LAN","MAN","WAN"],it:[["Bluetooth earbuds paired to a phone",0],["A school's network in one building",1],["A cable broadband network across a city",2],["The Internet",3],["A bank's network linking its city branches",2],["A corporate network across two countries",3],["An office network of printers and PCs",1],["A smartwatch and phone",0]]},
+{n:"Topology",o:["Bus","Star","Ring","Mesh","Tree"],it:[["Single backbone with terminators",0],["Central switch; failure of the switch stops all",1],["Closed loop with token passing",2],["n(n-1)/2 links; no single point of failure",3],["Stars joined by a hierarchy",4],["Dominant in modern LANs",1],["Core internet backbone routing",3],["Whole network fails if one cable breaks",0]]},
+{n:"TCP or UDP",o:["TCP","UDP"],it:[["Web page download",0],["Live video call",1],["DNS lookup",1],["File transfer",0],["Online gaming position updates",1],["Email delivery",0],["Three-way handshake",0],["No acknowledgement or retransmission",1]]},
+{n:"Email protocol",o:["SMTP","POP3","IMAP"],it:[["Sends mail to the outgoing server",0],["Downloads mail and removes it from the server",1],["Synchronises mail across several devices",2],["Push protocol; never retrieves",0],["Mail stays on the server",2],["Poorly suited to checking mail on a phone and laptop",1]]},
+{n:"Transmission medium",o:["Twisted pair","Coaxial cable","Optical fibre","Wireless"],it:[["Standard cable for office Ethernet",0],["Cable television distribution",1],["Pulses of light; immune to EMI",2],["Radio waves, microwaves or infrared",3],["Undersea and backbone links",2],["Central conductor with a braided shield",1],["Pairs twisted to cancel crosstalk",0]]},
+{n:"Communication mode",o:["Simplex","Half duplex","Full duplex"],it:[["Television broadcast",0],["Walkie-talkie",1],["Telephone call",2],["Keyboard to computer",0],["Both directions, one at a time",1],["Both directions at once",2]]}
+];
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function viewSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="sdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="sdans" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="sdnext">Next item</button></div>';
+  return h+"</div>";
+}
+/* ---------- registry and events ---------- */
+const TOOLS={topo:{v:viewTopo,r:topoRes},rate:{v:viewRate,r:rateRes},mac:{v:viewMac,r:()=>({})},encap:{v:viewEncap,r:encRes},dns:{v:viewDns,r:dnsRes},tcp:{v:viewTcp,r:()=>({})},ip:{v:viewIp,r:ipRes},err:{v:viewErr,r:errRes},sort:{v:viewSort,r:()=>({})}};
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "msend":macSend();render();return true;
+    case "mreset":L.mt={};L.mlog=[];render();return true;
+    case "edir":L.ed=v;L.es=0;render();return true;
+    case "enext":if(L.es<4)L.es++;render();return true;
+    case "eback":if(L.es>0)L.es--;render();return true;
+    case "ereset":L.es=0;render();return true;
+    case "dnext":if(L.dsx<5)L.dsx++;render();return true;
+    case "dback":if(L.dsx>0)L.dsx--;render();return true;
+    case "dnsreset":L.dsx=0;render();return true;
+    case "tcpmode":L.tm=v;L.ts=0;render();return true;
+    case "tcpnext":if(L.ts<(L.tm==="tcp"?TCPS:UDPS).length-1)L.ts++;render();return true;
+    case "tcpback":if(L.ts>0)L.ts--;render();return true;
+    case "tcpreset":L.ts=0;render();return true;
+    case "sdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "sdnext":sdNew();render();return true;
+    case "sdans":{const s=L.sd,d=DIMS[s.dim],it=d.it[s.item],ok=(+v===it[1]);s.t++;if(ok)s.s++;s.right=ok;s.fb=(ok?"Correct. ":"Not quite. ")+"“"+it[0]+"” is "+d.o[it[1]]+".";render();return true;}
+  }
+  return false;
+}
+function labInput(el){
+  if(el.id in L&&typeof L[el.id]==="string")L[el.id]=el.value;
+  const R=TOOLS[L.tool].r();
+  Object.keys(R).forEach(k=>{const e=document.getElementById(k);if(e)e.innerHTML=R[k];});
+  return true;
+}
+function labSelect(el){return false;}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes, then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

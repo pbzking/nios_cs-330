@@ -1,0 +1,1509 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Binary Logic Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 1 · Basic Computing · Lesson 2</div>
+    <h1>Binary Logic</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and calculation and logic lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Positional versus non-positional systems",c:["Basis","Non-positional","Positional"],r:[
+["Value of a symbol","Same wherever it appears (V is always five)","Depends on the digit and its position"],
+["Zero","No symbol for zero (no empty position to mark)","Zero acts as a placeholder"],
+["Arithmetic","Does not support systematic arithmetic; scales badly","Supports column arithmetic, carrying and borrowing"],
+["Examples","Roman numerals","Decimal, binary, octal, hexadecimal"]]},
+/*1*/{s:0,t:"Groupings of bits (Table 1.1)",c:["Unit","Meaning"],r:[
+["Bit","A single binary digit, 0 or 1"],
+["Nibble","4 bits; exactly one hexadecimal digit; 16 possible values"],
+["Byte","8 bits; 256 possible values; the standard addressable unit"],
+["Word","The number of bits a processor handles at once (32 or 64 typically)"],
+["MSB","Most Significant Bit: the leftmost bit, carrying the greatest place value"],
+["LSB","Least Significant Bit: the rightmost bit, place value 2^0"]]},
+/*2*/{s:0,t:"The four number systems compared (Table 1.2)",c:["Feature","Decimal","Binary","Octal","Hexadecimal"],r:[
+["Base (radix)","10","2","8","16"],
+["Digits used","0 to 9","0, 1","0 to 7","0 to 9, A to F"],
+["Bits per digit","none","1","3","4"],
+["Used in","Everyday life","Computer hardware","Unix permissions","Addresses, colours"],
+["Example (forty-seven)","(47)10","(101111)2","(57)8","(2F)16"]]},
+/*3*/{s:1,nocard:1,t:"Master conversion reference, 0 to 16 (Table 1.3)",c:["Decimal","Binary","Octal","Hexadecimal"],r:[
+["0","0000","0","0"],["1","0001","1","1"],["2","0010","2","2"],["3","0011","3","3"],["4","0100","4","4"],["5","0101","5","5"],["6","0110","6","6"],["7","0111","7","7"],["8","1000","10","8"],["9","1001","11","9"],["10","1010","12","A"],["11","1011","13","B"],["12","1100","14","C"],["13","1101","15","D"],["14","1110","16","E"],["15","1111","17","F"],["16","10000","20","10"]]},
+/*4*/{s:1,t:"Methods of conversion",c:["Conversion","Method"],r:[
+["Decimal to any base","Repeated division by the target base, recording remainders; read the remainders upward (last to first)"],
+["Any base to decimal","Positional expansion: multiply each digit by its place value (radix)^n and sum"],
+["Binary to octal","Group bits in threes from the right, padding the left with zeros; convert each group"],
+["Binary to hexadecimal","Group bits in fours from the right, padding the left with zeros; convert each group"],
+["Octal to hexadecimal (and back)","Convert through binary, never through decimal (no direct grouping relationship)"],
+["Decimal fraction to another base","Repeated multiplication of the fraction by the base; the integer parts are the digits, read downward; stop at zero or required precision"],
+["Mixed number such as 13.375","Convert the whole part (division) and the fractional part (multiplication) separately and join them at the point"]]},
+/*5*/{s:2,t:"Rules of binary arithmetic",c:["Operation","Rules"],r:[
+["Addition","0+0=0; 0+1=1; 1+0=1; 1+1=10 (write 0, carry 1); with a carry in, 1+1+1=11 (write 1, carry 1)"],
+["Subtraction","0-0=0; 1-1=0; 1-0=1; 0-1=1 with a borrow (a borrow brings a value of 2, so 10 - 1 = 1)"],
+["Multiplication","0x0=0; 0x1=0; 1x0=0; 1x1=1; each partial product is a copy of the multiplicand or zeros, shifted one place left each step, then added"],
+["Division","Long division: if the divisor fits, write 1 in the quotient and subtract; otherwise write 0 and bring down the next bit"],
+["Shift left","Appending a zero multiplies by 2"],
+["Shift right","Divides by 2 (integer division); the bit that falls off is lost"],
+["Octal and hexadecimal","The same column method; a carry occurs at 8 in octal and at 16 in hexadecimal"]]},
+/*6*/{s:3,t:"Ranges of signed representations (Table 1.4)",c:["Representation","Zeros","Range (n bits)","Range (8 bits)"],r:[
+["Unsigned","One","0 to 2^n - 1","0 to 255"],
+["Sign-magnitude","Two","-(2^(n-1) - 1) to +(2^(n-1) - 1)","-127 to +127"],
+["1's complement","Two","-(2^(n-1) - 1) to +(2^(n-1) - 1)","-127 to +127"],
+["2's complement","One","-2^(n-1) to +(2^(n-1) - 1)","-128 to +127"]]},
+/*7*/{s:3,t:"Signed representations compared",c:["Scheme","How it is formed","Defects or advantages"],r:[
+["Sign-magnitude","MSB is a sign flag (0 positive, 1 negative); remaining bits hold the magnitude","Two zeros (00000000 and 10000000); arithmetic does not work directly (+5 plus -5 gives -10); needs sign inspection circuitry"],
+["1's complement","Invert every bit (bitwise NOT)","Two zeros (0000 and 1111); end-around carry required in subtraction"],
+["2's complement","1's complement plus 1 (or copy up to and including the first 1 from the right, invert the rest)","One zero; no end-around carry (carry discarded); one adder serves addition and subtraction; used by virtually every computer"]]},
+/*8*/{s:4,t:"IEEE 754 floating-point formats (Table 1.5)",c:["Format","Total bits","Sign","Exponent","Mantissa"],r:[
+["Single precision (float)","32","1 bit","8 bits","23 bits"],
+["Double precision (double)","64","1 bit","11 bits","52 bits"]]},
+/*9*/{s:4,t:"Fixed point versus floating point",c:["Basis","Fixed point","Floating point"],r:[
+["Binary point","At a position agreed in advance","Floats to wherever the magnitude requires"],
+["Form","Integer arithmetic with a scale factor","(-1)^S x M x 2^E: sign, mantissa, exponent"],
+["Range","Limited (16 bits split 8:8 gives about 0.004 to 255)","Very wide (single precision about 10^-38 to 10^38)"],
+["Precision","Exact within its range","Rounded: about 7 significant digits (single), 15 (double)"],
+["Used in","Embedded systems, DSP, financial software","Scientific computing; almost all hardware (IEEE 754)"]]},
+/*10*/{s:5,nocard:1,t:"BCD and Excess-3 codes for the digits 0 to 9",c:["Decimal","BCD","Excess-3"],r:[
+["0","0000","0011"],["1","0001","0100"],["2","0010","0101"],["3","0011","0110"],["4","0100","0111"],["5","0101","1000"],["6","0110","1001"],["7","0111","1010"],["8","1000","1011"],["9","1001","1100"]]},
+/*11*/{s:5,t:"Coding systems",c:["Code","Description"],r:[
+["BCD","Binary Coded Decimal: each decimal digit separately in 4 bits (29 = 0010 1001); wastes six of sixteen patterns; suits digit-by-digit display (clocks, calculators); exact for decimal fractions, so banks use BCD-derived formats"],
+["Excess-3 (XS-3)","BCD value plus three (0 = 0011, 9 = 1100); self-complementing (1's complement of a digit's code is the code of its 9's complement); unweighted; no digit is 0000, so all zeros signals a fault"],
+["ASCII","American Standard Code for Information Interchange (1963): 7-bit, 128 characters (26 upper, 26 lower, 10 digits, punctuation, 33 control characters); A = 65, a = 97, 0 = 48; case differs by 32 = 2^5"],
+["Extended ASCII","Uses the eighth bit to reach 256 characters: accented letters, currency symbols, box-drawing"],
+["EBCDIC","Extended Binary Coded Decimal Interchange Code: IBM 8-bit mainframe code derived from punched cards; letters not contiguous (gaps between I and J, R and S)"],
+["ISCII","Indian Script Code for Information Interchange: 8-bit, BIS 1991; one code table for all Brahmi-derived Indian scripts; lower 128 codes ASCII-compatible; superseded by Unicode"],
+["Unicode","Unique code point for every character in every writing system: over 140,000 characters, about 150 scripts, plus symbols and emoji"],
+["Gray code","Reflected binary code: consecutive values differ in exactly one bit; used in rotary and shaft encoders and to label Karnaugh maps"],
+["Parity bit","One extra bit making the count of 1s even (even parity) or odd (odd parity); detects any odd number of bit errors"]]},
+/*12*/{s:5,t:"Unicode encoding forms (Table 1.7)",c:["Encoding","Width","Characteristics"],r:[
+["UTF-8","1 to 4 bytes, variable","ASCII-compatible; 1 byte for ASCII, 2 for most alphabets, 3 for CJK and Indian scripts, 4 for rarer characters and emoji; dominant on the web"],
+["UTF-16","2 or 4 bytes","Used internally by Windows and Java; not ASCII-compatible"],
+["UTF-32","4 bytes, fixed","Simple indexing since every character is the same width, but wasteful of space"]]},
+/*13*/{s:5,t:"Landmark ASCII codes (Table 1.6)",c:["Character","Decimal","Binary","Note"],r:[
+["Space","32","0100000","First printable character"],
+["0","48","0110000","Digits run 48 to 57"],
+["A","65","1000001","Uppercase runs 65 to 90"],
+["a","97","1100001","Lowercase runs 97 to 122"]]},
+/*14*/{s:5,nocard:1,t:"Binary and Gray code for 0 to 7",c:["Decimal","Binary","Gray"],r:[
+["0","000","000"],["1","001","001"],["2","010","011"],["3","011","010"],["4","100","110"],["5","101","111"],["6","110","101"],["7","111","100"]]},
+/*15*/{s:6,t:"The seven logic gates (Table 1.8)",c:["Gate","Expression","Outputs 1 when","Output for AB = 00, 01, 10, 11"],r:[
+["AND","A.B","all inputs are 1","0001"],
+["OR","A+B","at least one input is 1","0111"],
+["NOT","A'","the input is 0","10 (for input 0, 1)"],
+["NAND","(A.B)'","not all inputs are 1","1110"],
+["NOR","(A+B)'","all inputs are 0","1000"],
+["XOR","A (+) B","the inputs differ","0110"],
+["XNOR","(A (+) B)'","the inputs are the same","1001"]]},
+/*16*/{s:6,t:"Universal gate constructions from NAND",c:["Function","Built from NAND"],r:[
+["NOT","Tie both inputs together: (A.A)' = A'"],
+["AND","A NAND followed by a NOT (itself a NAND): ((A.B)')' = A.B"],
+["OR","Invert both inputs, then NAND them: (A'.B')' = A + B (De Morgan)"]]},
+/*17*/{s:7,t:"The laws of Boolean algebra (Table 1.9)",c:["Law","Statement","Meaning"],r:[
+["Identity","A+0=A; A.1=A","OR-ing with 0 or AND-ing with 1 changes nothing"],
+["Null (dominance)","A+1=1; A.0=0","OR-ing with 1 always gives 1; AND-ing with 0 always gives 0"],
+["Idempotent","A+A=A; A.A=A","Repeating a variable changes nothing"],
+["Complement","A+A'=1; A.A'=0","Something is either true or false, not both"],
+["Involution","(A')'=A","Two inversions cancel"],
+["Commutative","A+B=B+A; A.B=B.A","Order of operands is irrelevant"],
+["Associative","(A+B)+C=A+(B+C); (A.B).C=A.(B.C)","Grouping is irrelevant"],
+["Distributive","A(B+C)=AB+AC; A+BC=(A+B)(A+C)","The second form has no counterpart in ordinary algebra"],
+["Absorption","A+AB=A; A(A+B)=A","The redundant term vanishes"],
+["De Morgan","(A+B)'=A'.B'; (A.B)'=A'+B'","Break the bar, change the operator"]]},
+/*18*/{s:7,t:"Useful simplification identities",c:["Identity","Note"],r:[
+["A + A'B = A + B","Worth memorising; it recurs constantly"],
+["AB + AB' = A","Factor A(B + B') and apply the complement law"],
+["A + AB = A","Absorption"],
+["(A + B)(A + B') = A","Dual of AB + AB' = A"]]},
+/*19*/{s:8,t:"Sum of products versus product of sums",c:["Basis","SOP","POS"],r:[
+["Rows used","Rows where the output is 1","Rows where the output is 0"],
+["Term","Minterm: AND of all variables; plain if 1 in the row, complemented if 0","Maxterm: OR of all variables; plain if 0 in the row, complemented if 1 (reverse of SOP)"],
+["Combined by","OR of the minterms","AND of the maxterms"],
+["More economical when","The output has few 1s","The output has few 0s"],
+["Example (XOR)","A'B + AB'","(A + B)(A' + B')"]]},
+/*20*/{s:8,t:"Rules for grouping on a Karnaugh map",c:["Rule","Statement"],r:[
+["1","Groups contain only 1s and must be rectangular"],
+["2","Group sizes are powers of two: 1, 2, 4, 8 or 16 cells"],
+["3","Groups should be as large as possible (a larger group eliminates more variables)"],
+["4","Groups may overlap; a 1 may belong to several groups"],
+["5","The map wraps around: left edge adjacent to right, top to bottom, so corners can group"],
+["6","Use as few groups as possible while covering every 1 at least once"]]},
+/*21*/{s:9,t:"Combinational circuit building blocks",c:["Circuit","Description"],r:[
+["Combinational circuit","Output depends only on present inputs; no memory (gates, adders, multiplexers, decoders)"],
+["Sequential circuit","Output depends on present inputs and stored history (flip-flops, registers, counters)"],
+["Half adder","Adds two bits: Sum = A (+) B, Carry = A.B; cannot accept a carry-in, so cannot be used for multi-bit addition"],
+["Full adder","Adds A, B and carry-in: Sum = A (+) B (+) Cin, Cout = AB + Cin(A (+) B); built from two half adders and an OR gate"],
+["Ripple-carry adder","n full adders in a row, each carry-out feeding the next carry-in; delay grows with the number of bits"],
+["Carry-lookahead adder","Computes all carries in parallel from the inputs; more gates, far less delay"],
+["Multiplexer (MUX)","Data selector: 2^n data inputs, n select lines, one output"],
+["Demultiplexer","Routes one input to one of several outputs according to the select lines"],
+["Decoder","Converts an n-bit code into one active line out of 2^n (3-to-8 given 101 raises line 5); memory addressing, opcode decoding, BCD to seven-segment"],
+["Comparator","Tests equality with one XNOR per bit pair feeding a single AND; magnitude comparison examines bits from the most significant downward"]]},
+/*22*/{s:9,nocard:1,t:"Truth table of the full adder",c:["A","B","Cin","Sum","Cout"],r:[
+["0","0","0","0","0"],["0","0","1","1","0"],["0","1","0","1","0"],["0","1","1","0","1"],["1","0","0","1","0"],["1","0","1","0","1"],["1","1","0","0","1"],["1","1","1","1","1"]]},
+/*23*/{s:10,t:"Applications of binary logic",c:["Application","How binary logic is used"],r:[
+["Digital circuits and hardware","Every component (ALU, CU, registers, memory, interfaces) is built from logic gates; the ALU uses AND, OR, XOR, NOT and chains of full adders"],
+["Memory and storage","Two cross-coupled NAND or NOR gates form a bistable flip-flop holding one bit; billions form RAM, addressed through decoders; all data is encoded in binary"],
+["Data communication and error detection","Parity (XOR) detects single-bit errors; checksums and CRCs extend this to blocks; Hamming codes locate and correct a single-bit error"],
+["Cryptography and security","XOR is reversible (A (+) B = C then C (+) B = A), so the same key encrypts and decrypts; stream ciphers; part of AES rounds; De Morgan and minimisation give compact hardware"],
+["Decision making in programming","&&, || and ! (or and, or, not) obey the same laws; !(a && b) = !a || !b; short-circuit evaluation because 0.X = 0"],
+["Digital display systems","BCD drives seven-segment displays via a decoder (clocks, calculators, pumps); Gray code in rotary and shaft encoders"],
+["Processor design","The opcode enters a decoder of AND, OR, NOT gates; fetch-decode-execute is Boolean logic in hardware; ALU is full adders and gates, CU is a decoder, register is an array of flip-flops"]]},
+/*24*/{s:3,t:"Overflow and carry",c:["Term","Meaning"],r:[
+["Overflow","Result too large or too negative for the available bits; in 2's complement it occurs when two operands of the same sign give a result of the opposite sign; opposite-sign operands cannot overflow"],
+["Carry out of the MSB","Meaningful for unsigned arithmetic; routinely discarded in signed arithmetic; not the same as overflow (100 + (-50) has a carry but no overflow)"]]}
+];
+
+const NOTES=[
+["1.1 Number systems","The {{radix}} (base) is the count of unique digits in a number system. In a {{positional}} system a digit's value depends on its position; {{Roman numerals}} are non-positional. The place value of position n is (radix)^{{n}}, counting from position {{0}} at the right. The base was fixed in a positional decimal system with a symbol for zero, formalised by {{Brahmagupta}} in 628 CE. Binary uses digits {{0 and 1}}, octal has base {{8}} and each digit equals {{3}} bits, hexadecimal has base {{16}} and each digit equals {{4}} bits. n bits give {{2^n}} combinations and the largest unsigned value is {{2^n - 1}}."],
+["1.2 Number conversion","From decimal to another base use repeated {{division}} and read the remainders {{upward}}. To decimal use {{positional expansion}}. Between binary and octal or hexadecimal use {{grouping}}: always group from the {{right}} and pad on the {{left}}. Octal to hexadecimal goes via {{binary}}, never via decimal. Decimal fractions are converted by repeated {{multiplication}} and the integer parts are read {{downward}}. The fraction 0.1 does not {{terminate}} in binary, which is why 0.1 + 0.2 does not equal 0.3 exactly."],
+["1.3 Binary arithmetic","In binary addition 1 + 1 = {{10}} (write 0, carry 1) and 1 + 1 + 1 = {{11}}. In subtraction a borrow brings a value of {{2}}. Multiplication partial products are copies of the multiplicand or zeros shifted {{left}}. Division follows {{long division}}. Shifting left multiplies by {{2}}; shifting right performs {{integer}} division by 2. A carry occurs at 8 in octal and at {{16}} in hexadecimal."],
+["1.4 Signed numbers and complements","{{Sign-magnitude}} uses the MSB as a sign flag and has two zeros. The {{1's complement}} inverts every bit and needs an {{end-around carry}}. The {{2's complement}} is the 1's complement plus {{1}}; the carry out of the MSB is {{discarded}}; it has a single zero. The shortcut is to copy up to and including the first {{1}} from the right and invert the rest. The 8-bit 2's complement range is {{-128}} to {{+127}}. {{Overflow}} occurs when two operands of the same sign produce a result of the opposite sign; it is different from a {{carry}}."],
+["1.5 Real numbers","{{Fixed-point}} representation places the binary point at an agreed position. {{Floating-point}} stores (-1)^S x M x 2^E where S is the {{sign}}, M the {{mantissa}} and E the {{exponent}}. Writing a number with one non-zero digit before the point is {{normalisation}}. The {{IEEE 754}} single-precision format has {{32}} bits: 1 sign, {{8}} exponent and {{23}} mantissa bits; the exponent bias is {{127}}. The leading 1 is not stored (the {{implicit}} bit). Floating-point values must never be tested for exact {{equality}}."],
+["1.6 Coding systems","{{BCD}} encodes each decimal digit separately in {{4}} bits. {{Excess-3}} is BCD plus {{3}} and is self-{{complementing}}. {{ASCII}} is a 7-bit code for {{128}} characters; A is {{65}}, a is {{97}}. {{EBCDIC}} is IBM's 8-bit code with non-contiguous letters. {{ISCII}} is a single table for Indian scripts. {{Unicode}} covers every script and {{UTF-8}} is its dominant encoding. {{Gray}} code changes exactly one bit between consecutive values. A {{parity}} bit detects any odd number of bit errors but cannot locate or correct them."],
+["1.7 Logic gates","Boolean logic restricts values to true (1) or false (0). {{George Boole}} published his algebra in 1854 and {{Claude Shannon}} applied it to switching circuits in 1937. An {{AND}} gate outputs 1 only when all inputs are 1; an {{OR}} gate when at least one is 1; {{NOT}} inverts. {{NAND}} and {{NOR}} are the {{universal}} gates. {{XOR}} outputs 1 when the inputs differ; {{XNOR}} when they are the same. A {{bubble}} at an output always denotes inversion."],
+["1.8 Boolean algebra","{{De Morgan's}} first law is (A + B)' = {{A'.B'}} and the second is (A.B)' = {{A' + B'}}: break the bar, change the operator. The principle of {{duality}} states that an identity remains valid when AND with OR and 0 with 1 are interchanged. A + 1 = {{1}}, not 2. The second distributive law is A + BC = {{(A + B)(A + C)}}. The identity A + A'B = {{A + B}} recurs constantly."],
+["1.9 Canonical forms and K-maps","The {{SOP}} form ORs one {{minterm}} for every row where the output is {{1}}. The {{POS}} form ANDs one {{maxterm}} for every row where the output is {{0}}. A {{Karnaugh}} map labels its axes in {{Gray}} code order (00, 01, 11, 10). Groups must be rectangular, contain only 1s, have a size that is a power of {{two}}, may {{overlap}} and may wrap around the edges."],
+["1.10 Combinational circuits","A {{combinational}} circuit's output depends only on its present inputs; a {{sequential}} circuit also depends on stored history. The half adder gives Sum = {{A XOR B}} and Carry = {{A.B}}. The full adder has a {{carry-in}}. A chain of full adders is a {{ripple-carry}} adder; a {{carry-lookahead}} adder is faster. A 2^n-to-1 {{multiplexer}} needs n select lines. A {{decoder}} activates one of 2^n lines. A {{comparator}} tests equality using {{XNOR}} gates feeding an AND gate."],
+["1.11 Applications","Logic gates build the {{ALU}}, control unit, registers and memory. Two cross-coupled NAND gates form a {{flip-flop}} that stores one bit. Parity uses {{XOR}} to detect errors and {{Hamming}} codes can correct a single-bit error. XOR is reversible, so the same {{key}} encrypts and decrypts. Programming conditions use && || and !, and {{short-circuit}} evaluation relies on 0.X = 0. BCD drives {{seven-segment}} displays; Gray code serves {{rotary}} encoders."]
+];
+const DUMPS=[
+{t:"Number systems",p:["Number system: structured method of representing quantities with a set of digits; radix is the count of unique digits","Positional (value depends on position) versus non-positional (Roman numerals, no zero)","India's gift: positional decimal with zero, Brahmagupta 628 CE, Fibonacci 1202","Value = d_n x r^n + ... + d_0 x r^0; rightmost place value r^0 = 1","Decimal base 10; binary base 2 (noise margin); octal base 8 (3 bits, Unix permissions); hexadecimal base 16 (4 bits, addresses, colours)","Bit, nibble, byte, word, MSB, LSB","n bits give 2^n combinations; largest unsigned value 2^n - 1","Hex letters A to F are digits with values 10 to 15"]},
+{t:"Number conversion",p:["Decimal to base: repeated division, remainders read upward","To decimal: positional expansion","Binary to octal/hex: group in 3s or 4s from the right, pad left","Octal to hex via binary, not decimal","Decimal to binary shortcut: subtract place values from the left","Fractions: repeated multiplication, integer parts read downward","13.375 = 1101.011: whole and fractional parts separately","0.1 does not terminate in binary; 0.1 + 0.2 is not exactly 0.3; currency in integer paise"]},
+{t:"Binary arithmetic",p:["Addition rules and 1 + 1 + 1 = 11","Subtraction rules and borrow worth 2","Multiplication by shifted partial products","Long division in binary","Shift left multiplies by 2; shift right divides by 2 (integer)","Octal and hexadecimal arithmetic: carry at 8 and 16","Verify by converting to decimal"]},
+{t:"Signed numbers and complements",p:["No minus symbol, so the sign is encoded in the bits","Sign-magnitude: MSB sign flag; two zeros; arithmetic fails","1's complement: invert bits; end-around carry; two zeros","2's complement: invert and add 1; copy-and-flip shortcut; carry discarded; one zero; one adder for add and subtract","Value of a negative 2's complement number: take the 2's complement again","8-bit range -128 to +127 (asymmetric)","Overflow: same-sign operands, opposite-sign result; not the same as carry","Ariane 5 (1996): 64-bit float to 16-bit signed integer overflow"]},
+{t:"Real numbers",p:["Fixed point: point at an agreed position; simple; limited range","Floating point: (-1)^S x M x 2^E","Normalisation: 1.xxx x 2^E","IEEE 754 single: 32 bits (1, 8, 23); double: 64 bits (1, 11, 52)","Exponent bias 127; implicit leading 1","-6.75 = 1 10000001 1011 followed by zeros","Single about 7 digits; double about 15; never test equality, use a tolerance"]},
+{t:"Coding systems",p:["BCD: 4 bits per digit; 29 = 0010 1001; six patterns wasted; banks use BCD-derived decimal","Excess-3: BCD + 3; self-complementing; unweighted","ASCII: 7 bits, 128 characters, 1963; A 65, a 97, 0 is 48; case differs by 32","EBCDIC: IBM 8-bit; non-contiguous letters","ISCII: BIS 1991; one table for Brahmi-derived scripts","Unicode: over 140,000 characters; UTF-8 (1 to 4 bytes), UTF-16, UTF-32","Malayalam U+0D00 to U+0D7F: three bytes in UTF-8","Gray code: one bit changes; binary to Gray by copying MSB then XOR of adjacent bits","Parity: even and odd; detects odd numbers of errors; cannot locate or correct; Hamming codes can correct"]},
+{t:"Logic gates",p:["Boolean logic: true 1, false 0; Boole 1854; Shannon 1937","AND, OR, NOT definitions and truth tables","NAND, NOR as inverses; bubble means inversion","Universal gates: NOT, AND, OR built from NAND","XOR: binary addition, self-inverse, parity","XNOR: equivalence gate; equality comparators","Outputs for 00, 01, 10, 11: AND 0001, OR 0111, NAND 1110, NOR 1000, XOR 0110, XNOR 1001"]},
+{t:"Boolean algebra",p:["Boolean expression corresponds to a circuit; shorter is cheaper","Laws: identity, null, idempotent, complement, involution, commutative, associative, distributive (two forms), absorption, De Morgan","Duality principle","De Morgan: break the bar, change the operator; truth table proof","Applications of De Morgan: universal gates, circuit simplification, !(a && b) = !a || !b","Simplification examples and the order: factor, complement, null, De Morgan","State the law used at every step"]},
+{t:"Canonical forms and K-maps",p:["SOP: minterms from rows with output 1","POS: maxterms from rows with output 0 (reverse convention)","XOR as SOP A'B + AB' and POS (A + B)(A' + B')","K-map by Karnaugh, Bell Labs, 1953; Gray code labels","Six grouping rules","Two-variable and three-variable examples; F = A + B and F = C","Common error: labelling in binary order","Five exam steps for K-maps"]},
+{t:"Combinational circuits",p:["Combinational versus sequential circuits","Half adder: Sum = A XOR B, Carry = A.B; no carry-in","Full adder: Sum = A XOR B XOR Cin; Cout = AB + Cin(A XOR B); two half adders and an OR","Ripple-carry adder and carry-lookahead adder","Subtraction uses the same adder with a 2's complement","Multiplexer: 2^n inputs, n select lines; demultiplexer","Decoder: n bits to 1 of 2^n lines; BCD to seven-segment","Comparator: XNOR per bit pair and an AND"]},
+{t:"Applications",p:["Digital circuits and hardware: ALU, CU, registers","Memory: cross-coupled NAND or NOR flip-flop; decoders address RAM","Communication: parity, checksum, CRC, Hamming","Cryptography: XOR reversible; stream ciphers; AES","Programming: && || !; short-circuit evaluation","Displays: BCD seven-segment; Gray code encoders","Processor design: decoder, ALU of full adders, register of flip-flops"]}
+];
+
+const SECS=["Number systems","Number conversion","Binary arithmetic","Signed numbers and complements","Real numbers","Coding systems","Logic gates","Boolean algebra","Canonical forms and K-maps","Combinational circuits","Applications of binary logic"];
+const CORE=[
+[0,"What is a number system?","A structured method of representing quantities using a defined set of symbols called digits, built upon a base value called the radix."],
+[0,"Define radix.","The radix (base) of a number system is the total count of unique digits available in it; it determines the place value of each position: position n has place value (radix)^n, counting from 0 at the right."],
+[0,"What is the general value of a positional number?","Value = d_n x r^n + ... + d_1 x r^1 + d_0 x r^0 for radix r and digits d_n ... d_0."],
+[0,"Why is the rightmost place value always 1?","r^0 = 1 for any non-zero r, whatever the base."],
+[0,"Why does base 10 dominate human counting?","Anatomical, not mathematical: we have ten fingers. Traces of other bases remain (French quatre-vingts for base 20; 60 minutes and 360 degrees from Babylonian base 60)."],
+[0,"Define a non-positional number system with an example.","A system in which the value of a symbol is the same wherever it appears: Roman numerals (V is always five). It scales badly, has no zero and does not support systematic arithmetic."],
+[0,"Define a positional number system.","A system in which the value of each digit depends on the digit and its position; each position is a successive power of the radix. Decimal, binary, octal and hexadecimal are positional."],
+[0,"Who formalised zero as a number and when?","Brahmagupta, in 628 CE, in India. It reached Europe via the Arab world and Fibonacci's Liber Abaci (1202), hence 'Arabic numerals'."],
+[0,"Why is decimal unsuitable for hardware?","Hardware would need to distinguish ten voltage levels reliably, impossible as components age, warm and pick up noise."],
+[0,"What is noise margin and why does binary use two states?","Distinguishing near 0 V from near 5 V tolerates stray fluctuation; ten levels in 5 V are only about 0.55 V apart and would be corrupted. Binary trades more digits for enormous reliability."],
+[0,"Why use octal and hexadecimal?","They are convenient shorthand for binary: 8 = 2^3 so each octal digit is 3 bits; 16 = 2^4 so each hex digit is 4 bits (a byte is exactly two hex digits)."],
+[0,"Where is octal still used?","Unix and Linux file permissions: chmod 755 sets three groups of three bits (read, write, execute) for owner, group and others."],
+[0,"Why is #FF0000 pure red?","The three pairs of hex digits give red, green and blue: FF (255) red, 00 green, 00 blue."],
+[0,"What are the first powers of two to memorise?","1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024."],
+[0,"How many combinations do n bits give, and what is the largest unsigned value?","2^n combinations; largest unsigned value 2^n - 1 (the count includes zero)."],
+[0,"What is the pitfall with hexadecimal letters?","They are digits, not variables: in 2F the F is the value 15. Write the value above each letter before expanding."],
+[0,"Expand (2574)10, (1011)2, (57)8, (2F)16.","(2574)10 = 2000 + 500 + 70 + 4; (1011)2 = 8 + 0 + 2 + 1 = 11; (57)8 = 40 + 7 = 47; (2F)16 = 32 + 15 = 47."],
+[1,"What are the only two master conversion rules?","From decimal: repeated division by the target base, reading remainders upward. To decimal: positional expansion. Between binary and octal or hex: grouping (never route through decimal)."],
+[1,"Convert (43)10 to binary.","101011 (remainders 1,1,0,1,0,1 read upward; check 32 + 8 + 2 + 1 = 43)."],
+[1,"What is the faster mental method for decimal to binary?","Subtract place values from the left: write 1 where the power of two fits and subtract it, 0 where it does not (43: 32, 8, 2, 1)."],
+[1,"Convert (101011)2 to decimal.","32 + 0 + 8 + 0 + 2 + 1 = 43."],
+[1,"Convert (255)10 to octal and hexadecimal.","(377)8 and (FF)16; FF is the largest value a byte holds, hence 255 in colours, IP octets and unsigned 8-bit maxima."],
+[1,"How do you convert binary to octal?","Group bits in threes from the right, padding the leftmost group with zeros, and convert each group. (101011)2 = 101 011 = (53)8."],
+[1,"How do you convert binary to hexadecimal?","Group bits in fours from the right, padding on the left. (101011)2 = 0010 1011 = (2B)16."],
+[1,"What goes wrong if you group from the left?","The answer is wrong whenever the digit count is not a multiple of 3 or 4: 101011 grouped from the left in fours gives A3 instead of 2B."],
+[1,"How is octal converted to hexadecimal?","Via binary, never via decimal: (753)8 = 111 101 011 = 1 1110 1011 = (1EB)16 (= 491)."],
+[1,"How is a decimal fraction converted to binary?","Repeated multiplication by 2: the integer part of each product is the next digit; the fraction carries on; read downward. 0.625 = 0.101."],
+[1,"Convert (13.375)10 to binary.","Whole part 1101; fraction 0.375 gives 011; so (1101.011)2."],
+[1,"Why does 0.1 not terminate in binary?","0.1 = 0.000110011001100... repeating forever, as 1/3 does in decimal; the computer must stop at a fixed number of bits."],
+[1,"Why is 0.1 + 0.2 not exactly 0.3 in most languages?","Both are stored as rounded binary approximations; not a language bug but a consequence of base conversion. Financial software stores currency in integer paise."],
+[1,"What do examiners award for converting a number with a point?","Separate marks for the whole part (division) and the fractional part (multiplication); state the reading direction of each. Reading fraction digits upward loses marks."],
+[2,"State the rules of binary addition.","0+0=0; 0+1=1; 1+0=1; 1+1=10 (0, carry 1); with a carry, 1+1+1=11 (write 1, carry 1)."],
+[2,"Add 1011 and 0110.","10001 (11 + 6 = 17)."],
+[2,"State the rules of binary subtraction.","0-0=0; 1-1=0; 1-0=1; 0-1=1 with a borrow; a borrow brings a value of 2, so 10 - 1 = 1."],
+[2,"Subtract 0110 from 1101.","0111 (13 - 6 = 7)."],
+[2,"How does binary multiplication work?","Products are 0 or 1; each partial product is a copy of the multiplicand or zeros, shifted left one place each step; add the partial products. 101 x 11 = 1111 (5 x 3 = 15)."],
+[2,"How does binary division work?","Long division: if the divisor fits the current portion write 1 and subtract; otherwise write 0 and bring down the next bit. 1100 / 11 = 100."],
+[2,"What do shifts do?","Left shift (append zero) multiplies by 2; right shift divides by 2 as integer division, losing the bit that falls off. 1011 (11) becomes 10110 (22) or 101 (5). Faster than real multiplication; compilers use shifts."],
+[2,"Add (57)8 and (26)8; add (8B)16 and (A7)16.","(105)8 (47 + 22 = 69) and (132)16 (139 + 167 = 306); a carry occurs at 8 in octal and 16 in hex."],
+[2,"How should binary arithmetic be verified?","Convert both operands and the answer to decimal; it catches carry and borrow slips and earns method credit."],
+[3,"Why must the sign be encoded in the bits?","Memory holds only 0s and 1s, so there is no third symbol for a minus sign."],
+[3,"What is sign-magnitude?","The MSB is a sign flag (0 positive, 1 negative) and the remaining bits hold the magnitude: +25 = 0 0011001; -25 = 1 0011001."],
+[3,"What are the defects of sign-magnitude?","Two zeros (00000000 and 10000000), and arithmetic does not work directly (+5 + -5 gives 10001010 = -10); the hardware must inspect signs and compare magnitudes."],
+[3,"Define the 1's complement.","The number with every bit inverted (bitwise NOT). 10110100 becomes 01001011."],
+[3,"How is subtraction done in 1's complement?","Add the 1's complement of the subtrahend to the minuend; any carry out of the MSB is added back (end-around carry). 1010 - 0011: 1010 + 1100 = 1 0110, add 1 = 0111 = 7."],
+[3,"What are the drawbacks of 1's complement?","Two zeros (0000 and 1111) and the extra end-around carry step."],
+[3,"Define the 2's complement.","The 1's complement plus 1; used by virtually every computer built in the last fifty years. 10110100 becomes 01001100."],
+[3,"What is the copy-and-flip shortcut?","Scan from the right: copy every bit up to and including the first 1, then invert everything to the left. 10110100 gives 01001100."],
+[3,"How is subtraction done in 2's complement?","Take the 2's complement of the subtrahend, add, and discard the carry out of the MSB. 1010 - 0011: 1010 + 1101 = 1 0111, discard the carry: 0111 = 7."],
+[3,"Why did 2's complement win?","One zero only; no end-around carry (surplus carry discarded); one adder does addition and subtraction of signed numbers with no sign inspection, so a processor has an adder but no subtractor."],
+[3,"How is the value of a negative 2's complement number found?","The MSB is 1, so take the 2's complement again and read the magnitude. 11110011: invert 00001100, add 1 = 00001101 = 13, so -13."],
+[3,"Why is the 8-bit 2's complement range -128 to +127?","With only one zero, one bit pattern is freed and allocated to the negative side; 10000000 = -128 has no positive counterpart (its 2's complement is itself)."],
+[3,"What is overflow?","A result too large or too negative for the available bits; the stored result is wrong and the overflow flag is set."],
+[3,"State the rule for detecting overflow in 2's complement.","Overflow occurs when the two operands have the same sign and the result has the opposite sign. Operands of opposite signs can never overflow."],
+[3,"100 + 50 in 8-bit 2's complement?","01100100 + 00110010 = 10010110 = -106: two positives gave a negative, so overflow (the true value 150 exceeds +127)."],
+[3,"100 + (-50) in 8-bit 2's complement?","01100100 + 11001110 = 1 00110010; discard the carry: 50. A carry occurred without overflow."],
+[3,"What is the difference between carry and overflow?","Carry out of the MSB matters for unsigned arithmetic and is discarded in signed arithmetic. Overflow means the signed result is wrong. They are different: there can be carry without overflow and overflow without carry."],
+[3,"What happened to Ariane 5?","On 4 June 1996 it was destroyed 37 seconds after launch: a 64-bit floating-point horizontal velocity was converted to a 16-bit signed integer and exceeded 32,767; the overflow exception shut down the guidance computer; loss about $370 million."],
+[4,"What is fixed-point representation?","The binary point is at a position agreed in advance (e.g. 8 bits whole, 8 fraction). Simple and fast; used in embedded systems, DSP and financial software; limited range (8:8 gives about 0.004 to 255)."],
+[4,"What is floating-point representation?","A binary scientific notation: Value = (-1)^S x M x 2^E, with sign bit S, mantissa (significand) M and exponent E; the point floats to suit the magnitude."],
+[4,"What is normalisation?","Writing the number with exactly one non-zero digit before the point (1011.011 = 1.011011 x 2^3) so each value has one canonical form."],
+[4,"What does IEEE 754 standardise?","Floating-point formats (before 1985 each maker used its own). Single: 32 bits = 1 sign + 8 exponent + 23 mantissa. Double: 64 bits = 1 + 11 + 52."],
+[4,"What are the exponent bias and the implicit bit?","Single precision stores true exponent + 127 so all exponents are positive and comparable. Normalisation makes the leading digit always 1, so it is not stored, giving 24 bits of precision from 23 stored."],
+[4,"Store -6.75 in IEEE 754 single precision.","6.75 = 110.11 = 1.1011 x 2^2. S = 1; exponent 2 + 127 = 129 = 10000001; mantissa 10110000000000000000000. Result: 1 10000001 10110000000000000000000."],
+[4,"What is the precision trade-off of floating point?","Range at the cost of exactness: single spans about 10^-38 to 10^38 with about 7 significant digits; double about 15. Hence never test floats for exact equality; test whether |a - b| is below a tolerance."],
+[5,"What is a coding system?","A definition of which binary pattern stands for which value or character; different systems optimise for decimal display, compactness, multilingual coverage or error resistance."],
+[5,"What is BCD and how does it differ from pure binary?","Binary Coded Decimal encodes each decimal digit separately in 4 bits. 29: pure binary 11101; BCD 0010 1001. They are entirely different patterns."],
+[5,"What is BCD's drawback and strength?","Wastes six of sixteen patterns (1010 to 1111), about 20%, but represents decimal digits exactly, so 0.10 is exactly ten paise; used by finance, DECIMAL database types and IBM packed-decimal instructions."],
+[5,"What is Excess-3 code?","Each decimal digit's BCD value plus three (0 = 0011, 9 = 1100)."],
+[5,"Why is Excess-3 self-complementing?","The 1's complement of any Excess-3 digit is the code of its 9's complement: invert 0100 (code for 1) to get 1011 (code for 8), and 1 + 8 = 9. It simplifies subtraction circuits."],
+[5,"What are ASCII's key facts?","Standardised 1963; 7-bit; 128 characters (26 upper, 26 lower, 10 digits, punctuation, mathematical symbols, 33 control characters); A = 65, a = 97, 0 = 48; case differs by 32 = 2^5, so changing case flips one bit."],
+[5,"What is EBCDIC's peculiarity?","IBM's 8-bit mainframe code with letters not contiguous (gaps between I and J, R and S), breaking the test that a code lies between A and Z."],
+[5,"What is ISCII?","Indian Script Code for Information Interchange: 8-bit, standardised by the Bureau of Indian Standards in 1991; one table for all scripts descended from Brahmi, with the script selected separately; lower 128 codes ASCII-compatible; superseded by Unicode."],
+[5,"What is Unicode?","A unique code point for every character in every writing system (over 140,000 characters, about 150 scripts, plus symbols and emoji)."],
+[5,"What is the Malayalam range in Unicode?","U+0D00 to U+0D7F; three bytes per character in UTF-8, so a Malayalam document is about three times larger than English; older ASCII-based font hacks were unsearchable and unsortable."],
+[5,"What is Gray code?","Reflected binary code in which consecutive values differ in exactly one bit."],
+[5,"Why is Gray code used in encoders?","In binary, 3 to 4 (011 to 100) changes all bits, which never switch at exactly the same instant, giving momentary wrong readings (111 or 000). Gray code has only one bit in transition."],
+[5,"Convert binary to Gray code.","Copy the MSB; each further Gray bit is the XOR of adjacent binary bits. 1011 gives 1110."],
+[5,"Convert Gray code to binary.","Copy the MSB; each further binary bit is the XOR of the previous binary bit with the next Gray bit. 1110 gives 1011."],
+[5,"What is a parity bit?","One extra bit appended to make the number of 1s even (even parity) or odd (odd parity); a receiver that counts the wrong parity requests retransmission."],
+[5,"Compute the even-parity bit for ASCII A (1000001).","Two 1s is already even, so the parity bit is 0: 10000010. Under odd parity it is 1: 10000011."],
+[5,"What is parity's limitation?","It detects any odd number of bit errors but fails when two bits flip, and cannot identify which bit is wrong (so cannot repair). Stronger: checksums, CRCs, Hamming codes."],
+[6,"Define Boolean logic.","A branch of algebra in which every value is true (1) or false (0): the foundation of digital circuitry."],
+[6,"Who are Boole and Shannon in this context?","George Boole published An Investigation of the Laws of Thought (1854). Claude Shannon (MIT, 1937) showed relay switching circuits obey Boole's algebra: closed = 1, open = 0, series = AND, parallel = OR."],
+[6,"Define a logic gate and a truth table.","A gate is an electronic circuit performing a Boolean operation on one or more binary inputs to give a single output. A truth table lists every input combination with the output and defines the gate completely."],
+[6,"Describe the AND gate.","Outputs 1 only when all inputs are 1; written A.B or AB; behaves like multiplication. Truth table output for 00, 01, 10, 11: 0, 0, 0, 1."],
+[6,"Describe the OR gate.","Outputs 1 when at least one input is 1; written A + B; like addition except 1 + 1 = 1. Output: 0, 1, 1, 1."],
+[6,"Describe the NOT gate.","A unary gate (one input) that inverts its value; A' or A-bar; the inverter or complement. 0 gives 1, 1 gives 0."],
+[6,"Describe the NAND gate.","NOT-AND: outputs 0 only when all inputs are 1; (A.B)'. Output: 1, 1, 1, 0. The bubble at the output denotes inversion."],
+[6,"Describe the NOR gate.","NOT-OR: outputs 1 only when all inputs are 0; (A + B)'. Output: 1, 0, 0, 0."],
+[6,"What is a universal gate?","A gate from which any logic function can be built using only that gate: NAND and NOR."],
+[6,"Show NOT, AND and OR using only NAND.","NOT: tie both inputs, (A.A)' = A'. AND: NAND followed by a NAND-as-NOT. OR: invert both inputs then NAND: (A'.B')' = A + B."],
+[6,"Why is NAND the most manufactured logic component?","One gate type gives better yield, simpler testing and lower cost; in CMOS an inverting gate is the natural form, so NAND is faster and smaller than AND."],
+[6,"Describe the XOR gate and three reasons it matters.","Outputs 1 when the inputs differ (A (+) B). (1) It is binary addition (sum bit; half adder). (2) It is its own inverse: if A (+) B = C then C (+) B = A (encryption). (3) It counts parity: XOR of a block is 1 if the number of 1s is odd."],
+[6,"Describe the XNOR gate.","Inverse of XOR: outputs 1 when the inputs are identical; the equivalence gate; basis of equality comparators. Output: 1, 0, 0, 1."],
+[6,"How can the six two-input gate tables be learned efficiently?","NAND, NOR and XNOR are the exact opposites of AND, OR and XOR: learn three tables and invert them; only NOT stands alone."],
+[6,"What distinguishes NAND from AND in a drawing?","The bubble at the output (inversion); omitting it turns a correct answer into a wrong one."],
+[7,"What is a Boolean expression and why simplify it?","A formula of Boolean variables and AND, OR, NOT describing a circuit's input-output relation. A shorter expression means a smaller, cheaper, faster circuit; removing one gate repeated a billion times removes a billion gates."],
+[7,"State the identity, null, idempotent and complement laws.","Identity: A + 0 = A, A.1 = A. Null: A + 1 = 1, A.0 = 0. Idempotent: A + A = A, A.A = A. Complement: A + A' = 1, A.A' = 0."],
+[7,"State the involution, commutative, associative and absorption laws.","Involution: (A')' = A. Commutative: A + B = B + A, AB = BA. Associative: (A + B) + C = A + (B + C). Absorption: A + AB = A, A(A + B) = A."],
+[7,"State the two distributive laws.","A(B + C) = AB + AC and A + BC = (A + B)(A + C); the second has no counterpart in ordinary algebra."],
+[7,"Which two laws behave unlike ordinary arithmetic?","A + 1 = 1 (not 2) and the second distributive law A + BC = (A + B)(A + C). Verify with a truth table once."],
+[7,"State the principle of duality.","Any valid Boolean identity remains valid if AND and OR are interchanged and 0 and 1 are interchanged, leaving variables untouched. Dual of A + 0 = A is A.1 = A. It is about identities, not individual expressions."],
+[7,"State De Morgan's laws.","(A + B)' = A'.B' and (A.B)' = A' + B'. Break the bar, change the operator."],
+[7,"How are De Morgan's laws proved?","By a truth table: columns for (A + B)' and A'.B' are identical for every input combination. With finitely many cases, checking all is a rigorous proof."],
+[7,"Why do De Morgan's laws matter?","They enable implementation with NAND or NOR alone, simplify circuits (AND-OR to NAND-NOR), and apply in programming: !(a && b) = !a || !b."],
+[7,"Simplify F = AB + AB'.","F = A(B + B') = A.1 = A (distributive, complement, identity)."],
+[7,"Simplify F = A + A'B.","F = (A + A')(A + B) = 1.(A + B) = A + B. The identity A + A'B = A + B is worth memorising."],
+[7,"Simplify F = AB + ABC + AB'.","F = AB(1 + C) + AB' = AB + AB' = A(B + B') = A."],
+[7,"In what order should simplification be attempted?","(1) Factor out common variables, (2) apply the complement law to X + X' = 1, (3) apply the null law to absorb terms with + 1, (4) use De Morgan to remove nested bars. State the law at each step."],
+[8,"What is a minterm and how is SOP formed?","A product (AND) term for a row where the output is 1: plain variable if 1 in the row, complemented if 0. OR all minterms together."],
+[8,"What is a maxterm and how is POS formed?","A sum (OR) term for a row where the output is 0: plain variable if 0 in the row, complemented if 1 (the reverse of SOP). AND all maxterms together."],
+[8,"Give SOP and POS for XOR.","SOP: A'B + AB'. POS: (A + B)(A' + B'). Choose SOP when the output has few 1s and POS when it has few 0s."],
+[8,"What is a Karnaugh map?","A truth table redrawn as a grid, devised by Maurice Karnaugh at Bell Labs in 1953, with Gray-code labelled axes so adjacent cells differ in one variable; grouping neighbouring 1s is simplification by eye."],
+[8,"Why must K-map axes be in Gray code order?","So adjacent cells differ in exactly one variable, letting that variable cancel by the complement law when 1s are grouped. Labelling 00, 01, 10, 11 invalidates all groupings."],
+[8,"What is the correct label order?","00, 01, 11, 10."],
+[8,"What are the K-map grouping rules?","Rectangular groups of only 1s; sizes 1, 2, 4, 8 or 16; as large as possible; overlap allowed; wrap-around edges; fewest groups covering every 1."],
+[8,"Minimise the 2-variable map with minterms A'B, AB', AB.","The row A = 1 gives A and the column B = 1 gives B: F = A + B."],
+[8,"Minimise F = A'B'C + A'BC + AB'C + ABC.","One group of four with C = 1 throughout: F = C."],
+[8,"What are the five steps for a K-map question?","(1) Draw the map with Gray-code labels, (2) fill the 1s, (3) circle the largest groups, (4) write one product term per group, (5) OR them. Show the circles on the map."],
+[9,"What is a combinational circuit?","One whose output depends only on its present inputs (no memory): gates, adders, multiplexers, decoders."],
+[9,"What is a sequential circuit?","One whose output depends on present inputs and the stored history of past inputs: flip-flops, registers, counters."],
+[9,"Give the half adder.","Adds two bits. Sum = A XOR B; Carry = A.B. Truth table: 00 gives 0,0; 01 gives 1,0; 10 gives 1,0; 11 gives 0,1."],
+[9,"Why can a half adder not add multi-bit numbers?","It has no carry-in, so it can only add the rightmost pair of bits."],
+[9,"Give the full adder equations.","Sum = A XOR B XOR Cin; Cout = AB + Cin(A XOR B). The sum is 1 when an odd number of inputs are 1; Cout is 1 when at least two are."],
+[9,"How is a full adder built?","From two half adders plus an OR gate."],
+[9,"What is a ripple-carry adder?","n full adders in a row, each carry-out wired to the next carry-in, adding two n-bit numbers; the carry ripples, so delay grows with the bit count. Real processors use carry-lookahead adders."],
+[9,"How is subtraction done by the adder?","Feed the 2's complement of the second operand into the same adder."],
+[9,"What is a multiplexer?","A data selector with several data inputs, select lines and one output; a 2^n-to-1 MUX needs n select lines. A 4-to-1 MUX: S1S0 = 00, 01, 10, 11 select I0, I1, I2, I3."],
+[9,"What is a decoder?","Converts an n-bit code into one of 2^n output lines, activating exactly one; a 3-to-8 decoder with input 101 raises line 5. Used for memory addressing, opcode decoding, BCD to seven-segment."],
+[9,"How does a comparator test equality?","XNOR each bit pair (1 when they match) and feed all XNOR outputs to one AND: Equal = (A0 XNOR B0).(A1 XNOR B1)... It implements relational operators in programs."],
+[10,"Which circuits is the ALU built from?","Full adders and AND, OR, XOR, NOT gates; the control unit is a decoder; a register is an array of flip-flops."],
+[10,"How does binary logic form memory?","Two cross-coupled NAND or NOR gates form a bistable flip-flop that holds one bit while powered; billions addressed through decoders form RAM."],
+[10,"How is XOR used in error detection and cryptography?","XOR reports whether a group of bits has an odd or even number of 1s (parity); it is reversible (C XOR B = A), so the same key encrypts and decrypts (stream ciphers, part of AES)."],
+[10,"What is short-circuit evaluation?","Most languages stop evaluating a Boolean expression as soon as the result is determined, since 0 AND X = 0 regardless of X; so the order of conditions matters."],
+[10,"What do BCD and Gray code drive in displays and machines?","BCD feeds a decoder that drives seven-segment displays (clocks, calculators, microwaves, scales, pumps); Gray code encodes angular position in rotary and shaft encoders."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Numerical problems",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["The radix of a number system is:",["The largest digit","The count of unique digits","The number of positions","The place value of the first digit"],1,"The radix (base) is the total count of unique digits available."],
+["Which is a non-positional number system?",["Binary","Octal","Roman numerals","Hexadecimal"],2,"A symbol in Roman numerals has the same value wherever it appears."],
+["The rightmost place value in any positional system is:",["0","1","The radix","10"],1,"r^0 = 1."],
+["One octal digit corresponds to how many bits?",["2","3","4","8"],1,"8 = 2^3."],
+["The hexadecimal digit F has the decimal value:",["10","14","15","16"],2,"A to F stand for 10 to 15."],
+["The largest unsigned value that 8 bits can hold is:",["127","128","255","256"],2,"2^8 - 1 = 255."],
+["Binary numbers are grouped from the ___ when converting to octal or hexadecimal.",["Left","Right","Middle","Either side"],1,"Group from the binary point (the right for integers) and pad on the left."],
+["(1011)2 in decimal is:",["9","10","11","13"],2,"8 + 0 + 2 + 1 = 11."],
+["(FF)16 in decimal is:",["155","225","255","256"],2,"15 x 16 + 15 = 255."],
+["The fraction 0.1 in binary:",["Terminates after four digits","Terminates after eight digits","Repeats without end","Equals 0.001"],2,"0.1 = 0.000110011... repeating."],
+["1 + 1 + 1 in binary equals:",["10","11","110","3"],1,"3 = 11: write 1, carry 1."],
+["(1010)2 - (0011)2 equals:",["0111","0101","1101","0011"],0,"10 - 3 = 7 = 0111."],
+["Shifting a binary integer left by one place:",["Divides it by 2","Multiplies it by 2","Adds 1","Negates it"],1,"Each place is a power of two."],
+["How many zeros does sign-magnitude representation have?",["None","One","Two","Three"],2,"+0 (00000000) and -0 (10000000)."],
+["The 1's complement of 10110100 is:",["01001100","01001011","10110101","11001011"],1,"Invert every bit."],
+["The 2's complement of 10110100 is:",["01001011","01001100","01001101","10110100"],1,"01001011 + 1 = 01001100."],
+["Which representation is used by almost all modern computers for signed integers?",["Sign-magnitude","1's complement","2's complement","BCD"],2,"One zero, no end-around carry, one adder for add and subtract."],
+["The 8-bit 2's complement range is:",["-127 to +127","-128 to +127","-128 to +128","0 to 255"],1,"Only one zero, so one extra negative pattern."],
+["Overflow in 2's complement addition occurs when:",["There is a carry out of the MSB","Operands of different signs are added","Operands of the same sign give a result of opposite sign","The result is zero"],2,"This is the sign rule for overflow."],
+["The Ariane 5 failure of 1996 was caused by:",["A parity error","An integer overflow in a conversion","A BCD rounding error","A faulty NAND gate"],1,"A 64-bit float exceeded the range of a 16-bit signed integer."],
+["IEEE 754 single precision uses how many bits for the exponent?",["5","8","11","23"],1,"1 sign + 8 exponent + 23 mantissa = 32."],
+["The exponent bias in IEEE 754 single precision is:",["64","127","128","1023"],1,"The stored exponent is the true exponent + 127."],
+["The 'implicit bit' in a normalised IEEE 754 mantissa is:",["A leading 0","A leading 1 that is not stored","The sign bit","The parity bit"],1,"The leading 1 is always present so it is omitted."],
+["The BCD representation of decimal 29 is:",["11101","0010 1001","0001 1101","0010 1100"],1,"Each digit is coded separately: 2 = 0010, 9 = 1001."],
+["Excess-3 code of a digit is its BCD value plus:",["1","2","3","9"],2,"For example 0 = 0011."],
+["ASCII uses how many bits per character?",["5","7","8","16"],1,"7 bits give 128 characters."],
+["The ASCII code of lowercase 'a' is:",["65","90","97","122"],2,"A = 65 and a = 97; they differ by 32."],
+["Which code changes exactly one bit between consecutive values?",["BCD","Excess-3","Gray code","ASCII"],2,"Gray code is the reflected binary code."],
+["Gray code is used in rotary encoders to:",["Save memory","Avoid glitches when several bits would change at once","Encrypt data","Display digits"],1,"Only one bit is in transition, so no false intermediate reading."],
+["An even-parity bit is chosen so that the total number of 1s is:",["Odd","Even","Zero","A power of two"],1,"Even parity: even number of 1s."],
+["A single parity bit can detect:",["All errors","Any odd number of bit errors","Only two-bit errors","No errors"],1,"Two flipped bits cancel out and are missed."],
+["Which gate outputs 1 only when all inputs are 1?",["OR","AND","NOR","XOR"],1,"AND."],
+["Which gate outputs 0 only when all inputs are 1?",["AND","NOR","NAND","XNOR"],2,"NAND is NOT-AND."],
+["The two universal gates are:",["AND and OR","NAND and NOR","XOR and XNOR","NOT and AND"],1,"Any function can be built from NAND alone or NOR alone."],
+["Which gate outputs 1 when its inputs are different?",["XNOR","XOR","NAND","OR"],1,"XOR is the inequality gate."],
+["A small circle (bubble) at a gate output denotes:",["A clock","Inversion","An enable","A buffer"],1,"It marks the NOT of the function."],
+["A + 1 in Boolean algebra equals:",["A","2","1","0"],2,"Null law."],
+["A + A' equals:",["0","1","A","A'"],1,"Complement law."],
+["De Morgan's law: (A + B)' equals:",["A' + B'","A'.B'","A.B","A + B'"],1,"Break the bar, change the operator."],
+["A + A'B simplifies to:",["A","B","A + B","AB"],2,"(A + A')(A + B) = A + B."],
+["In the principle of duality, which interchange is made?",["Variables and constants","AND with OR and 0 with 1","Sum with product only","True with false only"],1,"Variables are untouched."],
+["A minterm corresponds to a row where the output is:",["0","1","Undefined","Either"],1,"SOP uses the rows with output 1."],
+["The POS form is built from maxterms of the rows where the output is:",["1","0","Both","Undefined"],1,"POS uses the rows with output 0."],
+["The axes of a Karnaugh map are labelled in the order:",["00, 01, 10, 11","00, 01, 11, 10","00, 11, 01, 10","11, 10, 01, 00"],1,"Gray code order, so neighbouring cells differ in one variable."],
+["A valid K-map group has a size of:",["3","5","6","4"],3,"Group sizes are powers of two."],
+["The Sum output of a half adder is:",["A.B","A XOR B","A + B","A XNOR B"],1,"Sum = A XOR B, Carry = A.B."],
+["A full adder differs from a half adder in having:",["Two outputs","A carry-in","Three outputs","No XOR gate"],1,"It accepts the carry from the previous stage."],
+["A 4-to-1 multiplexer has how many select lines?",["1","2","4","16"],1,"2^n data inputs need n select lines."],
+["A 3-to-8 decoder activates:",["Three outputs","Exactly one of eight outputs","All eight outputs","Eight inputs"],1,"One output line corresponds to the input code."],
+["A circuit whose output depends on stored history as well as present inputs is:",["Combinational","Sequential","Linear","Passive"],1,"Flip-flops and registers are sequential."],
+["Short-circuit evaluation in programming relies on the fact that:",["1 AND X = 1","0 AND X = 0 for any X","X OR X = 0","NOT 1 = 1"],1,"Once the result is determined, the rest need not be evaluated."]
+];
+const FILL=[
+["The count of unique digits in a number system is called its ___.",["radix","base"],"Radix or base."],
+["The binary system has ___ unique digits.",["two","2"],"0 and 1."],
+["One hexadecimal digit represents ___ bits.",["four","4"],"16 = 2^4."],
+["Decimal to binary conversion uses repeated ___ by 2.",["division"],"Remainders are read upward."],
+["Decimal fractions are converted to binary by repeated ___ by 2.",["multiplication"],"Integer parts are read downward."],
+["The 2's complement of a number is its 1's complement plus ___.",["one","1"],"Add 1 to the bit-inverted number."],
+["In 8-bit 2's complement the most negative value is ___.",["-128","128","minus 128"],"10000000 = -128."],
+["The IEEE 754 single-precision format has ___ bits in total.",["32","thirty two","thirty-two"],"1 + 8 + 23."],
+["BCD stands for Binary Coded ___.",["decimal"],"Each decimal digit is coded in 4 bits."],
+["ASCII is a ___-bit code.",["7","seven"],"128 characters."],
+["The code in which consecutive values differ in exactly one bit is ___ code.",["gray"],"Reflected binary."],
+["An ___ gate outputs 1 only when all its inputs are 1.",["and"],"Logical product."],
+["NAND and NOR are called ___ gates.",["universal"],"Any function can be built from either."],
+["The principle of ___ interchanges AND with OR and 0 with 1.",["duality"],"Valid identities stay valid."],
+["De Morgan's law: (A.B)' = ___.",["a' + b'","a+b'","a bar + b bar"],"Break the bar, change the operator."],
+["The sum-of-products form is built from ___ of the rows with output 1.",["minterms","minterm"],"Product terms ORed together."],
+["Karnaugh maps were devised at Bell Labs in ___.",["1953"],"By Maurice Karnaugh."],
+["The carry output of a half adder is ___ of the two inputs.",["and","the and","a.b"],"Carry = A.B."],
+["A full adder can be built from two half adders and an ___ gate.",["or"],"The two carries are ORed."],
+["A ___ selects one of several inputs for a single output.",["multiplexer","mux"],"A data selector."],
+["A ___ activates one of 2^n lines from an n-bit code.",["decoder"],"Used for memory addressing."],
+["XOR is its own inverse, so the same ___ both encrypts and decrypts.",["key"],"C XOR K = P."]
+];
+const TF=[
+["Roman numerals form a positional number system.",false,"They are non-positional: a symbol keeps its value wherever it stands."],
+["Any octal digit can be written with exactly three bits.",true,"8 = 2^3."],
+["Hexadecimal letters A to F are variables.",false,"They are digits with the values 10 to 15."],
+["Octal to hexadecimal conversion is best done through decimal.",false,"Go through binary by grouping."],
+["The fraction 0.1 terminates in binary.",false,"It repeats forever, so most floating-point systems store an approximation."],
+["Binary subtraction 0 - 1 produces a borrow worth 2.",true,"10 - 1 = 1 with a borrow."],
+["Shifting a binary number right by one place performs integer division by 2.",true,"The bit shifted out is lost."],
+["Sign-magnitude representation has a single zero.",false,"It has +0 and -0."],
+["In 2's complement subtraction the carry out of the MSB is discarded.",true,"Unlike 1's complement, no end-around carry is needed."],
+["The 8-bit 2's complement range is symmetric about zero.",false,"It is -128 to +127."],
+["Overflow can occur when a positive and a negative number are added.",false,"Opposite-sign operands can never overflow."],
+["A carry out of the MSB always means the signed result is wrong.",false,"Carry and overflow are different conditions."],
+["IEEE 754 stores the leading 1 of a normalised mantissa.",false,"It is implicit and not stored."],
+["Floating-point numbers should be tested for equality using a tolerance.",true,"Rounding makes exact equality unreliable."],
+["The BCD representation of 29 equals its pure binary representation.",false,"BCD 0010 1001; binary 11101."],
+["Excess-3 is a self-complementing code.",true,"Inverting the bits gives the code of the 9's complement."],
+["ASCII uppercase and lowercase letters differ by 32.",true,"A = 65, a = 97."],
+["Unicode assigns a unique code point to each character of every writing system it covers.",true,"Over 140,000 characters."],
+["In Gray code, consecutive values differ in two bits.",false,"They differ in exactly one bit."],
+["A parity bit can correct a single-bit error.",false,"It can only detect an odd number of errors."],
+["A NOR gate outputs 1 only when all inputs are 0.",true,"It is NOT-OR."],
+["XNOR outputs 1 when its inputs are different.",false,"It outputs 1 when they are the same."],
+["A + BC equals (A + B)(A + C).",true,"Second distributive law."],
+["By De Morgan's law, (A + B)' = A' + B'.",false,"(A + B)' = A'.B'."],
+["A Karnaugh map may be labelled 00, 01, 10, 11 on its axes.",false,"It must be 00, 01, 11, 10."],
+["A K-map group may contain 3 cells.",false,"Group sizes are 1, 2, 4, 8 or 16."],
+["A half adder has a carry-in input.",false,"Only the full adder has one."],
+["A combinational circuit stores the history of its inputs.",false,"That is a sequential circuit."],
+["A ripple-carry adder is built by chaining full adders.",true,"Each carry-out feeds the next carry-in."],
+["With short-circuit evaluation, the right operand of 0 AND X is not evaluated.",true,"The result is 0 regardless of X."]
+];
+const VSA=[
+["Define the term radix.",["count of unique digits","number of unique digits","number of digits","base"],"The total count of unique digits in a number system."],
+["How many bits does one hexadecimal digit represent?",["4","four"],"Four bits."],
+["Give one example of a non-positional number system.",["roman"],"Roman numerals."],
+["State the two universal gates.",["nand nor","nor nand","nand and nor","nor and nand"],"NAND and NOR.",1],
+["Write the Boolean expression for the sum output of a half adder (use the word XOR).",["xor","exclusive or"],"Sum = A XOR B."],
+["What is the largest unsigned value that can be stored in 8 bits?",["255"],"2^8 - 1 = 255."],
+["Expand ASCII.",["american standard code for information interchange"],"American Standard Code for Information Interchange."],
+["Expand BCD.",["binary coded decimal"],"Binary Coded Decimal."],
+["Expand ISCII.",["indian script code for information interchange"],"Indian Script Code for Information Interchange."],
+["Expand SOP and MSB.",["sum of products","most significant bit"],"Sum of Products; Most Significant Bit.",1],
+["Which gate outputs 1 only when its inputs are different?",["xor","exclusive or"],"XOR."],
+["State the 1's complement of 10110.",["01001"],"Invert every bit: 01001."],
+["In which order are the axes of a Karnaugh map labelled?",["gray","00 01 11 10"],"Gray code order: 00, 01, 11, 10."],
+["What is the decimal equivalent of the ASCII code for A?",["65"],"65."],
+["Name the circuit that selects one of several inputs for a single output.",["multiplexer","mux","data selector"],"The multiplexer."],
+["What is the number of combinations that n bits can represent?",["2^n","2 n","2 to the n","two to the power n"],"2^n."],
+["Who showed in 1937 that switching circuits obey Boolean algebra?",["shannon","claude shannon"],"Claude Shannon."],
+["What does the principle of duality interchange?",["and with or","and and or","or with and"],"AND with OR and 0 with 1."],
+["Which code is self-complementing: BCD or Excess-3?",["excess 3","excess3","xs3"],"Excess-3."],
+["What is the name of the implicit bit stored in an IEEE 754 mantissa?",["none","not stored","leading 1","hidden"],"The leading 1 is not stored at all."],
+["Name the circuit that converts an n-bit code to one of 2^n lines.",["decoder"],"A decoder."],
+["What is the Boolean expression for the carry of a half adder?",["a.b","ab","a and b","a b"],"Carry = A.B."]
+];
+const CALC=[
+{q:"Convert (156) in decimal to binary, octal and hexadecimal.",alts:[["10011100","234","9c"]],model:"10011100, 234, 9C",e:"156 = 128 + 16 + 8 + 4 = 10011100. Groups of three: 010 011 100 = 234. Groups of four: 1001 1100 = 9C."},
+{q:"Convert (11010110) in binary to decimal, octal and hexadecimal.",alts:[["214","326","d6"]],model:"214, 326, D6",e:"128 + 64 + 16 + 4 + 2 = 214. Groups of three: 011 010 110 = 326. Groups of four: 1101 0110 = D6."},
+{q:"Convert (3F7) in hexadecimal to binary and decimal.",alts:[["1111110111","1015"]],model:"1111110111 and 1015",e:"3 = 0011, F = 1111, 7 = 0111, giving 1111110111 once the leading zeros are dropped. Decimal: 3 x 256 + 15 x 16 + 7 = 768 + 240 + 7 = 1015."},
+{q:"Convert (647) in octal to hexadecimal, via binary.",alts:[["1a7"]],model:"1A7",e:"647 = 110 100 111 = 1 1010 0111 = 1A7."},
+{q:"Convert (0.8125) in decimal to binary.",alts:[["0 1101"],["1101"]],model:"0.1101",e:"0.8125 x 2 = 1.625 (1); 0.625 x 2 = 1.25 (1); 0.25 x 2 = 0.5 (0); 0.5 x 2 = 1.0 (1). Read downward: 0.1101."},
+{q:"Convert (27.625) in decimal to binary.",alts:[["11011 101"]],model:"11011.101",e:"27 = 11011. Fraction: 0.625 x 2 = 1.25 (1); 0.25 x 2 = 0.5 (0); 0.5 x 2 = 1.0 (1), so .101."},
+{q:"Convert binary 1011 to Gray code.",alts:[["1110"]],model:"1110",e:"Copy the MSB 1; then 1 XOR 0 = 1; 0 XOR 1 = 1; 1 XOR 1 = 0."},
+{q:"Convert the Gray code 1101 to binary.",alts:[["1001"]],model:"1001",e:"Copy the MSB 1; 1 XOR 1 = 0; 0 XOR 0 = 0; 0 XOR 1 = 1."},
+{q:"Represent decimal 472 in BCD.",alts:[["0100 0111 0010"],["010001110010"]],model:"0100 0111 0010",e:"4 = 0100, 7 = 0111, 2 = 0010."},
+{q:"Add the binary numbers 11011 and 10110.",alts:[["110001"]],model:"110001 (= 49)",e:"27 + 22 = 49 = 110001."},
+{q:"Subtract (1011) from (11010) in binary, directly.",alts:[["1111"]],model:"1111 (= 15)",e:"26 - 11 = 15 = 1111."},
+{q:"Multiply the binary numbers 1101 and 101.",alts:[["1000001"]],model:"1000001 (= 65)",e:"13 x 5 = 65 = 1000001; partial products 1101 + 110100 = 1000001."},
+{q:"Divide 11011 by 101 in binary. State the quotient and remainder.",alts:[["101 10"],["101 r 10"],["101 remainder 10"],["quotient 101 remainder 10"]],model:"quotient 101, remainder 10",ex:false,e:"27 / 5 = 5 remainder 2, that is 101 remainder 10."},
+{q:"Find the 1's complement and 2's complement of 10010110.",alts:[["01101001","01101010"]],model:"01101001 and 01101010",e:"Invert: 01101001. Add 1: 01101010."},
+{q:"Compute (1101) - (0111) using 2's complement (4 bits). Give the result.",alts:[["0110"]],model:"0110 (= 6)",e:"2's complement of 0111 is 1001. 1101 + 1001 = 1 0110; discard the carry: 0110."},
+{q:"What decimal value does 10110100 hold in 8-bit 2's complement?",alts:[["76"]],model:"-76",e:"MSB is 1, so negative. Invert: 01001011; add 1: 01001100 = 76. The value is -76."},
+{q:"Add (8F) and (7B) in hexadecimal.",alts:[["10a"]],model:"10A",e:"143 + 123 = 266 = 0x10A."},
+{q:"Add +100 and +50 in 8-bit 2's complement. Give the 8-bit result and its decimal reading.",alts:[["10010110","106"]],model:"10010110 = -106 (overflow)",e:"01100100 + 00110010 = 10010110. Two positives gave a negative result, so overflow occurred."},
+{q:"What are the least and greatest values in 12-bit 2's complement? (Give both magnitudes.)",alts:[["2048","2047"]],model:"-2048 and +2047",e:"-2^11 to 2^11 - 1."},
+{q:"How many different values can 10 bits represent?",alts:[["1024"]],model:"2^10 = 1024",e:"n bits give 2^n combinations."},
+{q:"Find the biased exponent field (decimal) in IEEE 754 single precision for 6.75.",alts:[["129"],["10000001"]],model:"129 (10000001)",e:"6.75 = 110.11 = 1.1011 x 2^2. Biased exponent: 2 + 127 = 129 = 10000001."},
+{q:"Find the 2's complement of 00101101 (8 bits).",alts:[["11010011"]],model:"11010011",e:"Invert: 11010010; add 1: 11010011. Shortcut: copy 1, then invert the rest to its left."},
+{q:"What decimal value does 11110011 hold in 8-bit 2's complement?",alts:[["13"]],model:"-13",e:"Invert: 00001100; add 1: 00001101 = 13; so -13."},
+{q:"Add the octal numbers 57 and 26.",alts:[["105"]],model:"105",e:"47 + 22 = 69 = 105 in octal."},
+{q:"Shift the binary number 1011 left by two places. Give the result in binary.",alts:[["101100"]],model:"101100 (= 44)",e:"11 x 4 = 44 = 101100."},
+{q:"Write the Excess-3 code of the decimal digit 7.",alts:[["1010"]],model:"1010",e:"7 + 3 = 10 = 1010."},
+{q:"Convert the binary number 0110 to Gray code.",alts:[["0101"]],model:"0101",e:"Copy 0; 0 XOR 1 = 1; 1 XOR 1 = 0; 1 XOR 0 = 1."},
+{q:"Find the even-parity bit for the ASCII character with data bits 1011011.",alts:[["1"]],ex:true,model:"1",e:"The data has five 1s (odd), so the parity bit must be 1 to make the total even."},
+{q:"What are the decimal ASCII codes of 'D' and 'd'?",alts:[["68","100"]],model:"68 and 100",e:"A = 65, so D = 68; the lowercase code is 32 more: 100."}
+];
+const SHORT=[
+["Distinguish between positional and non-positional number systems with examples.","In a positional system the value of a digit depends on the digit and its position: each position is a successive power of the radix (decimal, binary, octal, hexadecimal), and a zero symbol exists. In a non-positional system a symbol has a fixed value wherever it appears (Roman numerals: V is always five). Non-positional systems have no zero, scale badly and do not support systematic arithmetic.",["Positional: value depends on position and radix","Example: decimal or binary","Non-positional: symbol value fixed","Example: Roman numerals"]],
+["Why do computers use binary rather than decimal? Give two reasons.","(1) Reliability: electronic circuits distinguish two states (low and high voltage) with a wide noise margin; ten levels in the same voltage range would be only about 0.55 V apart and would be corrupted by noise, ageing and heat. (2) Simplicity: two-state devices (switches, transistors) are cheap and small, and Boolean logic maps directly onto them, so a few simple gate types can build all arithmetic and control.",["Two voltage states are reliable","Noise margin","Switches and gates map onto two values","Simpler, cheaper circuits"]],
+["Differentiate between BCD and pure binary representation with an example.","BCD encodes each decimal digit separately in four bits, whereas pure binary represents the whole number as one value in base 2. For 29, BCD is 0010 1001 (2 and 9 coded individually) and pure binary is 11101. BCD wastes six of sixteen patterns and needs more bits, but represents decimal digits exactly and is easily displayed.",["BCD codes digit by digit","Pure binary codes the whole number","Example: 29","BCD less compact but exact for decimal"]],
+["State the four rules of binary addition.","0 + 0 = 0; 0 + 1 = 1; 1 + 0 = 1; 1 + 1 = 10 (sum 0 with a carry of 1 to the next position). With an incoming carry, 1 + 1 + 1 = 11 (sum 1, carry 1).",["0+0=0","0+1=1 and 1+0=1","1+1=10 with carry 1","1+1+1=11"]],
+["Explain the difference between 1's complement and 2's complement.","The 1's complement of a binary number is obtained by inverting every bit; the 2's complement is the 1's complement plus 1. In 1's complement a carry out of the MSB must be added back (end-around carry) and there are two zeros; in 2's complement the carry is discarded and there is one zero. 2's complement therefore has a range of -2^(n-1) to 2^(n-1) - 1, while 1's complement is symmetric.",["1's complement: invert bits","2's complement: invert and add 1","End-around carry versus discard carry","Two zeros versus one zero"]],
+["Why is 2's complement preferred over 1's complement? Give two reasons.","(1) It has a single representation of zero, giving one extra negative value and no ambiguity in comparisons. (2) Subtraction needs no end-around carry: the carry out of the MSB is simply discarded, so one adder circuit performs both signed addition and subtraction without examining signs.",["One zero","No end-around carry","Same adder for add and subtract"]],
+["Distinguish between a carry and an overflow.","A carry is the bit passed out of the most significant position; it matters for unsigned arithmetic and is discarded in signed arithmetic. An overflow means that a signed result is too large or too small for the available bits and is therefore wrong; it occurs when two operands of the same sign give a result of the opposite sign. Carry can occur without overflow (100 + (-50) in 8 bits) and overflow without carry (100 + 50).",["Carry: bit out of MSB","Overflow: signed result out of range","Same-sign operands, opposite-sign result","They can occur independently"]],
+["Why is the 2's complement range asymmetric, from -128 to +127 in 8 bits?","There are 256 patterns. Zero uses one pattern; 127 patterns have MSB 0 for the positive values. Because 2's complement has only one zero, the remaining pattern 10000000 is allocated to the negative side as -128. Its 2's complement is itself, so it has no positive counterpart.",["256 patterns","Only one zero","10000000 = -128","No positive counterpart"]],
+["What is a universal gate? Show how a NOT gate is built from a NAND gate.","A universal gate is one from which every other gate, and therefore any logic function, can be built using only that gate type: NAND and NOR are universal. A NOT gate is formed by connecting both inputs of a NAND gate together (or tying one input to 1): (A.A)' = A'.",["Definition of universal gate","NAND and NOR","Both inputs tied together","(A.A)' = A'"]],
+["State De Morgan's two laws and verify the first using a truth table.","First law: (A + B)' = A'.B'. Second law: (A.B)' = A' + B'. Truth table for the first (A, B, (A+B)', A'.B'): 00: 1, 1; 01: 0, 0; 10: 0, 0; 11: 0, 0. The two columns are identical for all four rows, so the law is verified.",["First law stated","Second law stated","Four-row truth table","Columns compared and identical"]],
+["What is Gray code, and why is it used in rotary encoders?","Gray code (reflected binary code) is a code in which consecutive values differ in exactly one bit. In ordinary binary, a change such as 011 to 100 alters several bits, which never switch at precisely the same instant, so an encoder can momentarily read a wrong position. In Gray code only one bit changes at each step, so the reading is always either the old or the new position.",["One bit changes between consecutive values","Binary changes several bits at once","Momentary wrong readings","Gray code removes the glitch"]],
+["Explain the purpose of a parity bit and state its main limitation.","A parity bit is one extra bit appended to a group of bits so that the number of 1s is even (even parity) or odd (odd parity). The receiver recounts; a wrong parity signals an error and a retransmission is requested. Limitation: it detects only an odd number of bit errors, misses two-bit errors, and cannot show which bit is wrong, so it cannot correct errors.",["Extra bit to make parity even or odd","Receiver recounts to detect errors","Detects only odd numbers of errors","Cannot locate or correct"]],
+["Distinguish between combinational and sequential circuits.","In a combinational circuit the output depends only on the present inputs; it has no memory (gates, adders, multiplexers, decoders). In a sequential circuit the output depends on the present inputs and the stored history of past inputs; it contains memory elements (flip-flops, registers, counters).",["Combinational: present inputs only","Sequential: also stored history","Examples of each"]],
+["Why must a Karnaugh map be labelled in Gray code order?","Because adjacent cells must differ in exactly one variable. When two adjacent 1s are grouped, that variable appears in both its true and complemented forms and cancels by the complement law (A + A' = 1), leaving a simpler term. With binary order 00, 01, 10, 11 neighbours such as 01 and 10 differ in two variables, and groups would no longer simplify correctly. The correct order is 00, 01, 11, 10.",["Adjacent cells differ in one variable","Variable cancels by complement law","Binary order breaks adjacency","Order 00, 01, 11, 10"]],
+["Differentiate between fixed-point and floating-point representation.","In fixed point the binary point is at a position agreed in advance, so the format is simple and fast but has a limited range (suited to embedded systems, DSP and financial software). In floating point the value is stored as (-1)^S x M x 2^E, with sign, mantissa and exponent, so the point floats and a very wide range is covered (IEEE 754 single: about 10^-38 to 10^38) at the cost of limited precision and rounding.",["Fixed: point at agreed position","Floating: sign, mantissa, exponent","Range versus simplicity","Precision and rounding in floating point"]],
+["Explain why a half adder cannot be used for multi-bit addition.","A half adder has only two inputs, A and B, and no carry-in. In multi-bit addition every position except the rightmost must add two bits plus the carry from the previous position, which needs three inputs. Hence a half adder can serve only the least significant position; a full adder is required for the others.",["Two inputs only","No carry-in","Each higher position needs three inputs","Full adder needed"]]
+];
+const LONG=[
+["Describe the four number systems used in computing, stating the base, digits, and a typical application of each.","Binary (base 2) uses the digits 0 and 1; it is the native language of hardware, since two voltage states are reliable. Octal (base 8) uses 0 to 7; each digit equals three bits; it is used for Unix file permissions (chmod 755). Decimal (base 10) uses 0 to 9; it is the human system for input and output. Hexadecimal (base 16) uses 0 to 9 and A to F (A = 10 to F = 15); each digit equals four bits, so a byte is two hex digits; it is used for memory addresses, colour codes (#FF0000) and machine code. All four are positional: the value of each digit is the digit multiplied by a power of the radix.",["Binary: base 2, digits 0 and 1, hardware","Octal: base 8, digits 0 to 7, 3 bits, file permissions","Decimal: base 10, human use","Hexadecimal: base 16, A to F, 4 bits, addresses and colours","All positional systems"]],
+["Explain all methods of converting between binary, octal, decimal, and hexadecimal, with one worked example of each.","(1) Decimal to any base: repeated division by the base, reading remainders upward; 43 / 2 gives remainders 1,1,0,1,0,1, so 101011. (2) Any base to decimal: positional expansion; (1011)2 = 8 + 0 + 2 + 1 = 11. (3) Binary to octal: group in threes from the right; 101011 = 101 011 = 53. (4) Binary to hexadecimal: group in fours from the right, padding left; 101011 = 0010 1011 = 2B. (5) Octal or hex to binary: replace each digit with its 3 or 4 bit group; (2F)16 = 0010 1111. (6) Octal to hexadecimal (or reverse) via binary, not decimal; (753)8 = 111 101 011 = 1 1110 1011 = 1EB. (7) Fractions: whole part by division, fractional part by repeated multiplication by 2 with integer parts read downward; 13.375 = 1101.011.",["Repeated division with example","Positional expansion with example","Grouping for octal and hex with example","Octal to hex via binary","Fractions by repeated multiplication","Direction of reading remainders"]],
+["Explain sign-magnitude, 1's complement, and 2's complement representation, comparing them on zeros, range, and ease of arithmetic.","Sign-magnitude uses the MSB as a sign flag (0 positive, 1 negative) and the other bits as the magnitude; +25 = 00011001, -25 = 10011001. It has two zeros, a symmetric range of -(2^(n-1) - 1) to +(2^(n-1) - 1) and arithmetic requires comparing signs and magnitudes. 1's complement represents a negative number by inverting every bit of the positive; it also has two zeros (0000 and 1111), the same symmetric range, and subtraction needs an end-around carry. 2's complement represents a negative number as the 1's complement plus 1; it has one zero, range -2^(n-1) to 2^(n-1) - 1 (-128 to +127 for 8 bits), and a single adder performs addition and subtraction with the carry out discarded. Hence 2's complement is used in nearly all computers.",["Sign-magnitude described with example","1's complement described","2's complement described","Zeros compared","Range compared","Ease of arithmetic compared","2's complement preferred"]],
+["Draw the logic symbol and truth table for each of the seven logic gates.","AND: output 1 only when both inputs are 1; outputs for A,B = 00,01,10,11: 0,0,0,1; symbol with a flat back and curved front. OR: output 1 when at least one input is 1: 0,1,1,1; curved back. NOT: inverts the single input: 0 gives 1, 1 gives 0; triangle with a bubble. NAND: AND followed by NOT: 1,1,1,0; AND symbol with a bubble. NOR: OR followed by NOT: 1,0,0,0; OR symbol with a bubble. XOR: output 1 when inputs differ: 0,1,1,0; OR symbol with an extra curve at the back. XNOR: output 1 when inputs are the same: 1,0,0,1; XOR with a bubble. NAND, NOR and XNOR are the exact complements of AND, OR and XOR.",["Symbol for each of seven gates","AND truth table","OR truth table","NOT truth table","NAND and NOR truth tables","XOR and XNOR truth tables","Bubble denotes inversion"]],
+["State all the laws of Boolean algebra and explain the principle of duality.","Identity: A + 0 = A, A.1 = A. Null: A + 1 = 1, A.0 = 0. Idempotent: A + A = A, A.A = A. Complement: A + A' = 1, A.A' = 0. Involution: (A')' = A. Commutative: A + B = B + A, AB = BA. Associative: (A + B) + C = A + (B + C), (AB)C = A(BC). Distributive: A(B + C) = AB + AC and A + BC = (A + B)(A + C). Absorption: A + AB = A, A(A + B) = A. De Morgan: (A + B)' = A'B', (AB)' = A' + B'. Duality: every valid Boolean identity remains valid if AND and OR are interchanged and 0 and 1 are interchanged, with variables unchanged; for example the dual of A + 0 = A is A.1 = A, and the dual of A + A' = 1 is A.A' = 0. This is why laws occur in pairs.",["Identity, null, idempotent, complement","Involution, commutative, associative","Both distributive laws","Absorption","De Morgan's laws","Duality statement with an example"]],
+["Explain De Morgan's laws, verify both with truth tables, and describe two practical applications.","First law: (A + B)' = A'.B'. Second law: (A.B)' = A' + B'. The rule is: break the bar, change the operator. Truth table (A,B): (A+B)' and A'.B' are 1,0,0,0 in rows 00,01,10,11; (A.B)' and A' + B' are 1,1,1,0. The identical columns verify both laws. Applications: (1) building circuits from NAND or NOR gates only, since an OR can be formed as a NAND of inverted inputs (A + B = (A'.B')'); (2) simplifying expressions with nested complements, and in programming, where !(a && b) equals !a || !b.",["First law","Second law","Truth table for first law","Truth table for second law","Application: NAND or NOR implementation","Application: simplification or programming"]],
+["Describe BCD, Excess-3, ASCII, Unicode, and Gray code, stating one use of each.","BCD encodes each decimal digit in four bits (29 = 0010 1001); wasteful (six patterns unused) but exact for decimal; used in digital clocks, calculators and financial systems. Excess-3 is BCD plus 3 (0 = 0011, 9 = 1100); it is self-complementing, which simplifies subtraction circuits. ASCII is a 7-bit code for 128 characters (A = 65, a = 97, 0 = 48), used for plain text exchange. Unicode assigns a code point to every character in every writing system (over 140,000 characters), encoded as UTF-8, UTF-16 or UTF-32; it is the basis of multilingual text on the web. Gray code (reflected binary) changes exactly one bit between consecutive values; it is used in rotary encoders to avoid false readings.",["BCD with use","Excess-3 with property","ASCII with facts and use","Unicode with encodings and use","Gray code with use"]],
+["Explain the Karnaugh map method of simplification, listing the grouping rules, and minimise a three-variable function as an illustration.","A Karnaugh map is a truth table redrawn as a grid whose axes are labelled in Gray code order (00, 01, 11, 10) so that adjacent cells differ in one variable. Procedure: draw the map, fill in the 1s, circle the largest possible groups, write one product term per group (keeping only the variables that do not change within the group), and OR the terms. Rules: groups are rectangular, contain only 1s, have a size of 1, 2, 4, 8 or 16, are as large as possible, may overlap, may wrap around the edges, and the fewest groups must cover every 1. Illustration: F = A'B'C + A'BC + AB'C + ABC has 1s in the four cells with C = 1; they form one group of four in which only C is constant, so F = C.",["Map drawn in Gray code order","Fill 1s and circle groups","Grouping rules listed","One product per group, ORed","Worked three-variable example with correct result"]],
+["Draw and explain the half adder and the full adder, giving truth tables and Boolean expressions, and explain how full adders combine into a multi-bit adder.","The half adder adds two bits: Sum = A XOR B, Carry = A.B; it is one XOR gate and one AND gate; rows 00, 01, 10, 11 give (Sum, Carry) = (0,0), (1,0), (1,0), (0,1). It has no carry-in, so it serves only the least significant position. The full adder adds A, B and a carry-in: Sum = A XOR B XOR Cin; Cout = AB + Cin(A XOR B); the sum is 1 when an odd number of inputs are 1 and Cout when at least two are; it is built from two half adders and an OR gate. Truth table (A B Cin: Sum Cout): 000: 0 0; 001: 1 0; 010: 1 0; 011: 0 1; 100: 1 0; 101: 0 1; 110: 0 1; 111: 1 1. n full adders in a row, with each carry-out connected to the next carry-in, form an n-bit ripple-carry adder; the carry ripples through, so the delay grows with n, and fast processors use carry-lookahead adders. Subtraction uses the same adder with the 2's complement of the second operand.",["Half adder expressions and truth table","Half adder limitation","Full adder expressions and truth table","Built from two half adders and an OR","Ripple-carry connection of full adders","Carry-lookahead mention or subtraction"]],
+["Describe five applications of binary logic in computing.","(1) Hardware: the ALU is built from full adders and gates, the control unit from decoders, and registers from flip-flops. (2) Memory: two cross-coupled NAND or NOR gates form a flip-flop that stores one bit; billions of them, addressed through decoders, make RAM. (3) Communication: parity bits, checksums, CRCs and Hamming codes use XOR to detect and correct errors. (4) Cryptography: XOR is reversible (C XOR K = P), so the same key encrypts and decrypts in stream ciphers and as a step in AES. (5) Programming: conditions use AND, OR and NOT (&&, ||, !), with short-circuit evaluation since 0 AND X = 0. Also: BCD feeds seven-segment displays and Gray code serves rotary encoders.",["ALU, control unit and registers","Flip-flop memory","Error detection with XOR","Cryptography with XOR","Programming conditions","Each application explained, not just named"]]
+];
+const APP=[
+["A programmer finds that 0.1 + 0.2 does not equal 0.3 in their program. Explain why, and suggest how financial software avoids the problem.","The decimal fractions 0.1 and 0.2 have no exact finite binary representation (0.1 = 0.0001100110011... repeating), so each is stored as a rounded approximation in floating point; their sum differs from the stored approximation of 0.3 by a tiny amount. It is not a language bug but a consequence of base conversion. Financial software stores amounts as integers in the smallest unit (paise or cents) or uses decimal formats such as BCD or decimal types, and compares floats using a tolerance.",["Not exactly representable in binary","Rounded approximations are stored","Not a bug","Integer paise or decimal or BCD types"]],
+["Explain why a chip manufacturer might build an entire processor using only NAND gates.","NAND is a universal gate: NOT, AND, OR and every other function can be built from it. Using one gate type simplifies design, testing and verification, improves manufacturing yield and lowers cost. In CMOS technology an inverting gate is the natural form, so a NAND gate is faster and smaller than an AND gate, which is a NAND followed by an inverter.",["NAND is universal","One gate type simplifies fabrication and testing","CMOS naturally inverting","Faster, smaller and cheaper"]],
+["A rotary encoder using ordinary binary occasionally reports wildly incorrect positions during movement. Diagnose the cause and recommend a solution.","In ordinary binary some transitions change many bits at once (for example 011 to 100 changes all three). The bits never switch at exactly the same instant, so for a moment the sensors can read an intermediate value such as 111 or 000, a position far from the true one. The remedy is to encode position in Gray code, in which consecutive positions differ in only one bit, so the reading is always either the old or the new position; convert to binary afterwards in software if needed.",["Several bits change at once","Not simultaneous, so false intermediate reading","Use Gray code","Only one bit changes per step"]],
+["An 8-bit signed counter holding +127 is incremented by 1 and the result reads -128. Explain what has happened.","The counter overflowed. +127 is 01111111; adding 1 gives 10000000, which in 8-bit 2's complement is -128. Two operands of the same (positive) sign produced a result of the opposite sign, so the stored result is wrong: the true value 128 is beyond the +127 limit. The counter wraps around. Such overflow caused the Ariane 5 failure in 1996, and should be prevented by wider types or range checks.",["01111111 + 1 = 10000000","Interpreted as -128","Overflow: same sign, opposite result","Range limit +127 exceeded"]],
+["Explain why XOR is suitable for simple encryption, and state one weakness of using it alone with a short repeating key.","XOR is reversible and its own inverse: if C = P XOR K then C XOR K = P, so the same operation and key encrypt and decrypt, and the operation is extremely fast in hardware. Weakness: with a short repeating key the same key bits are applied to many parts of the message, so patterns in the plaintext (common letters, known headers) show through; XOR of two ciphertext blocks cancels the key, and knowing a small part of the plaintext reveals the key, so it is easily broken by frequency analysis.",["Reversible, same key both ways","C XOR K = P","Fast","Weakness: repeating key reveals patterns or key"]],
+["A system uses even parity. The byte 10110101 is received. Determine whether an error has been detected, and state what the receiver can and cannot conclude.","Count the 1s: 10110101 has five 1s, which is odd. Under even parity the total should be even, so an error has been detected. The receiver can conclude that an odd number of bits (one, three, ...) were corrupted and can request retransmission. It cannot tell which bit is wrong, so it cannot correct the byte, and it cannot rule out that three bits were flipped. If two bits had been flipped, the parity would have appeared correct and the error would not have been detected.",["Five 1s counted","Odd, so error detected","Odd number of bit errors","Cannot locate or correct","Even number of errors would be missed"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson2-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Logic lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Number systems",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Number system and radix",d:"A number system is a structured method of representing quantities using a defined set of symbols called digits. The radix (or base) of a number system is the total count of unique digits available in it.",p:["Every number system is built on its radix. A system with radix r uses r distinct digits, from 0 to r - 1, and the weight of each position is a power of r."]},
+ {h:"Positional and non-positional systems",d:"In a positional number system the value of a digit depends on the digit itself and on its position; each position carries a place value that is a successive power of the radix. In a non-positional system a symbol has a fixed value irrespective of its position.",p:["Roman numerals are non-positional: V is always five. Such systems lack a zero, become unwieldy for large values and do not support systematic arithmetic. Decimal, binary, octal and hexadecimal are positional. The positional decimal system with a symbol for zero was formalised by Brahmagupta in 628 CE in India, and reached Europe through the Arab world and Fibonacci's Liber Abaci (1202), hence the name Arabic numerals."],t:T[0]},
+ {h:"Place value",p:["For a number with digits d_n ... d_1 d_0 in radix r:"],l:["Value = d_n x r^n + ... + d_1 x r^1 + d_0 x r^0.","The place value of position n is r^n, counting from position 0 at the right; the rightmost place value is always r^0 = 1.","Example: (2574)10 = 2 x 1000 + 5 x 100 + 7 x 10 + 4 x 1.","Example: (1011)2 = 1 x 8 + 0 x 4 + 1 x 2 + 1 x 1 = 11.","Example: (57)8 = 5 x 8 + 7 = 47.","Example: (2F)16 = 2 x 16 + 15 = 47. The letter F is a digit with the value 15, not a variable."]},
+ {h:"The four systems used in computing",p:["Decimal (base 10) is used by people because of the ten fingers; it is unsuited to hardware, which would need ten reliably distinguishable voltage levels (about 0.55 V apart in a 5 V range), impossible in the presence of noise, ageing and heat.","Binary (base 2) uses two states, low and high voltage, with a wide noise margin, which is why computers use it. Octal (base 8) and hexadecimal (base 16) are shorthand for binary: 8 = 2^3, so one octal digit equals three bits; 16 = 2^4, so one hexadecimal digit equals four bits and a byte is exactly two hexadecimal digits."],t:T[2]},
+ {h:"Bits and groupings",p:["A bit (binary digit) is the smallest unit of information. A group of four bits is a nibble, eight bits a byte, and the word is the natural unit of a processor (commonly 32 or 64 bits). The leftmost bit is the Most Significant Bit (MSB) and the rightmost the Least Significant Bit (LSB). n bits give 2^n combinations; the largest unsigned value is 2^n - 1."],t:T[1]},
+ {h:"Examination notes",l:["Octal survives in Unix and Linux file permissions: chmod 755 sets read, write, execute bits for owner, group and others.","Hexadecimal colour codes: #FF0000 is pure red (red = FF = 255, green = 00, blue = 00).","Write the decimal value above each hexadecimal letter before expanding."]}
+]},
+{t:"Number conversion",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"The three rules",p:["Conversion between the four systems follows three rules only."],l:["From decimal to another base: repeated division by the target base; the remainders, read from the last to the first (upward), form the answer.","From another base to decimal: positional expansion.","Between binary and octal or hexadecimal: grouping of bits, never through decimal."],t:T[4]},
+ {h:"Decimal to binary",p:["Divide by 2 repeatedly, noting each remainder, until the quotient is 0; read the remainders upward. Example: 43 / 2 = 21 r 1; 21 / 2 = 10 r 1; 10 / 2 = 5 r 0; 5 / 2 = 2 r 1; 2 / 2 = 1 r 0; 1 / 2 = 0 r 1. Reading upward: (101011)2.","Shortcut: subtract place values from the left. 43 contains 32 (1), not 16 (0), contains 8 (1), not 4 (0), contains 2 (1), contains 1 (1): 101011. Check: 32 + 8 + 2 + 1 = 43."]},
+ {h:"Decimal to octal and hexadecimal",p:["Divide by 8 or by 16 in the same way. 255 / 8 = 31 r 7; 31 / 8 = 3 r 7; 3 / 8 = 0 r 3: (377)8. 255 / 16 = 15 r 15 (F); 15 / 16 = 0 r 15 (F): (FF)16. FF is the largest value of a byte (255), hence its frequent occurrence in colours, IP addresses and unsigned maxima."]},
+ {h:"Binary to decimal, octal and hexadecimal",p:["To decimal: add the place values of the 1 bits: (101011)2 = 32 + 8 + 2 + 1 = 43.","To octal: group the bits in threes from the right, padding the leftmost group with zeros, and replace each group by its digit: 101 011 = (53)8.","To hexadecimal: group in fours from the right, padding on the left: 0010 1011 = (2B)16.","Grouping must start from the right (the binary point); grouping from the left gives wrong answers whenever the digit count is not a multiple of the group size."]},
+ {h:"Octal and hexadecimal to binary; octal to hexadecimal",p:["Replace each digit by its three- or four-bit group: (2F)16 = 0010 1111. To convert octal to hexadecimal, go through binary: (753)8 = 111 101 011 = 1 1110 1011 = (1EB)16, and never through decimal."],t:T[3]},
+ {h:"Fractions",d:"A decimal fraction is converted to binary by repeated multiplication by 2: the integer part of each product gives the next bit, the fractional part is multiplied again, and the bits are read downward.",p:["Example: 0.625 x 2 = 1.25 (1); 0.25 x 2 = 0.5 (0); 0.5 x 2 = 1.0 (1). Result: 0.101. A number with a whole and a fractional part is converted in two parts: (13.375)10 = 1101 . 011 = (1101.011)2.","Many fractions do not terminate: 0.1 = 0.000110011001100... repeating, just as 1/3 = 0.333... in decimal. A computer must stop at a fixed number of bits and store an approximation; hence 0.1 + 0.2 is not exactly 0.3 in most programming languages, and financial software stores amounts as integers in the smallest unit (paise)."]},
+ {h:"Examination note",p:["Whole part and fractional part are awarded separate marks, and the direction of reading must be stated: remainders upward, fraction digits downward."]}
+]},
+{t:"Binary arithmetic",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Rules",p:["Binary arithmetic follows the same procedures as decimal arithmetic, but carries and borrows occur at 2 rather than at 10."],t:T[5]},
+ {h:"Addition",p:["Add the columns from the right, writing the sum bit and carrying 1 into the next column whenever the column total is 2 or more. Example: 1011 + 0110: columns give 1 + 0 = 1; 1 + 1 = 0 carry 1; 0 + 1 + 1 = 0 carry 1; 1 + 0 + 1 = 0 carry 1; final carry 1. Result 10001 (11 + 6 = 17)."]},
+ {h:"Subtraction",p:["Subtract column by column; when 0 - 1 is required, borrow 1 from the next higher column, which brings a value of 2 (so 10 - 1 = 1). Example: 1101 - 0110 = 0111 (13 - 6 = 7)."]},
+ {h:"Multiplication",p:["Each partial product is either a copy of the multiplicand (multiplier bit 1) or zeros (multiplier bit 0), shifted one place left for each successive bit; the partial products are added. Example: 101 x 11 = 101 + 1010 = 1111 (5 x 3 = 15)."]},
+ {h:"Division",p:["Binary long division: if the divisor fits into the current portion of the dividend, write 1 in the quotient and subtract; otherwise write 0 and bring down the next bit. Example: 1100 / 11 = 100 (12 / 3 = 4)."]},
+ {h:"Shifts",p:["Shifting a binary integer left by one place (appending a zero) multiplies it by 2; shifting right by one place divides it by 2 as an integer division, the bit that falls off being lost. 1011 (11) shifted left gives 10110 (22) and shifted right gives 101 (5). Shifts are much faster than multiplication, and compilers use them."]},
+ {h:"Octal and hexadecimal arithmetic",p:["The same method applies, with a carry at 8 in octal and at 16 in hexadecimal. (57)8 + (26)8 = (105)8 (47 + 22 = 69). (8B)16 + (A7)16 = (132)16 (139 + 167 = 306)."]},
+ {h:"Verification",p:["Convert both operands and the answer to decimal and check; this catches carry and borrow slips and earns method marks."]}
+]},
+{t:"Signed numbers and complements",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Representing the sign",p:["Memory holds only 0s and 1s, so there is no third symbol for a minus sign; the sign must be encoded in the bits themselves. Three schemes exist; the leftmost bit (MSB) is the sign bit in all of them."]},
+ {h:"Sign-magnitude",d:"In sign-magnitude representation the MSB is a sign flag (0 for positive, 1 for negative) and the remaining bits hold the magnitude.",p:["+25 = 0 0011001 and -25 = 1 0011001 in eight bits. Defects: two zeros (00000000 and 10000000) and arithmetic that does not work directly: +5 + (-5) gives 10001010 = -10. The hardware must examine signs and compare magnitudes."]},
+ {h:"1's complement",d:"The 1's complement of a binary number is obtained by inverting every bit (bitwise NOT).",p:["10110100 becomes 01001011. Negative numbers are represented by the 1's complement of the positive value. Subtraction is performed by adding the 1's complement of the subtrahend; any carry out of the MSB is added back to the result (end-around carry). Example: 1010 - 0011: 1010 + 1100 = 1 0110; adding the carry gives 0111 = 7. Drawbacks: two zeros (0000 and 1111) and the extra end-around step."]},
+ {h:"2's complement",d:"The 2's complement of a binary number is its 1's complement plus 1.",p:["10110100 becomes 01001011 + 1 = 01001100. Shortcut: scan from the right, copy every bit up to and including the first 1, then invert all bits to its left.","Subtraction: add the 2's complement of the subtrahend and discard the carry out of the MSB. Example: 1010 - 0011: 1010 + 1101 = 1 0111; discard the carry: 0111 = 7.","Advantages: a single zero; no end-around carry; the same adder performs signed addition and subtraction without inspecting signs. Hence virtually every computer of the last fifty years uses 2's complement."]},
+ {h:"Value of a negative number",p:["If the MSB is 1, take the 2's complement again and read the magnitude. 11110011: invert 00001100; add 1: 00001101 = 13; the value is -13."]},
+ {h:"Ranges",p:["With n bits, 2's complement represents -2^(n-1) to 2^(n-1) - 1. For eight bits the range is -128 to +127. Because there is only one zero, one pattern is freed for the negative side: 10000000 = -128, which has no positive counterpart (its 2's complement is itself)."],t:T[6]},
+ {h:"The schemes compared",t:T[7]},
+ {h:"Overflow",d:"Overflow is the condition in which the result of an arithmetic operation is too large or too small to be represented in the available bits, so that the stored result is wrong.",p:["Rule for 2's complement addition: overflow occurs when the two operands have the same sign and the result has the opposite sign. Operands of opposite signs can never overflow.","Example: 100 + 50 in eight bits: 01100100 + 00110010 = 10010110 = -106; two positives gave a negative, so overflow occurred (the true value 150 exceeds +127). Example: 100 + (-50): 01100100 + 11001110 = 1 00110010; discard the carry: 00110010 = 50, a correct result with a carry but no overflow."],t:T[24]},
+ {h:"Case study",p:["Ariane 5, 4 June 1996: a 64-bit floating-point horizontal velocity was converted to a 16-bit signed integer and exceeded 32,767; the overflow exception shut down the guidance computer and the rocket was destroyed 37 seconds after launch, a loss of about $370 million."]}
+]},
+{t:"Real numbers",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Fixed-point representation",d:"In fixed-point representation the binary point is placed at a position agreed in advance, so that a fixed number of bits represent the whole part and a fixed number the fractional part.",p:["It is simple and fast and is used in embedded systems, digital signal processing and financial software, but its range is limited (an 8:8 format covers about 0.004 to 255)."]},
+ {h:"Floating-point representation",d:"Floating-point representation stores a number in a binary scientific notation, Value = (-1)^S x M x 2^E, where S is the sign bit, M the mantissa (significand) and E the exponent, so that the binary point floats to suit the magnitude.",p:["Normalisation writes the number with exactly one non-zero digit before the point (1011.011 = 1.011011 x 2^3), so that every value has one canonical form."]},
+ {h:"IEEE 754",d:"IEEE 754 is the international standard for floating-point formats (before 1985 every manufacturer used its own).",p:["Single precision: 32 bits = 1 sign + 8 exponent + 23 mantissa. Double precision: 64 bits = 1 + 11 + 52. The exponent is stored with a bias (127 for single precision) so that all stored exponents are positive and comparable. Because normalisation makes the leading digit always 1, it is not stored (the implicit bit), which gives 24 bits of precision from 23 stored."],t:T[8]},
+ {h:"Worked example",p:["Store -6.75 in single precision. 6.75 = 110.11 = 1.1011 x 2^2. Sign S = 1. Exponent 2 + 127 = 129 = 10000001. Mantissa (fraction after the leading 1): 1011 followed by zeros to 23 bits. Result: 1 10000001 10110000000000000000000."]},
+ {h:"Precision",p:["Floating point trades exactness for range: single precision spans about 10^-38 to 10^38 with about 7 significant decimal digits; double about 15. Floating-point values should therefore never be tested for exact equality; test whether the absolute difference is below a tolerance."],t:T[9]}
+]},
+{t:"Coding systems",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Coding systems",d:"A coding system is a defined correspondence between binary patterns and the values or characters they represent.",p:["Different systems optimise for different purposes: decimal display, compactness, multilingual coverage or error resistance."],t:T[11]},
+ {h:"BCD",d:"Binary Coded Decimal (BCD) encodes each decimal digit separately in four bits.",p:["29 is 0010 1001 in BCD but 11101 in pure binary. BCD wastes six of sixteen patterns (1010 to 1111), about 20 percent, but represents decimal digits exactly (0.10 is exactly ten paise) and is easily displayed; it is used in finance, DECIMAL database types, IBM packed-decimal instructions, calculators and clocks."],t:T[10]},
+ {h:"Excess-3",d:"Excess-3 code represents each decimal digit by its BCD value plus 3.",p:["0 = 0011 and 9 = 1100. It is self-complementing: the 1's complement of any Excess-3 digit is the code of its 9's complement (invert 0100, the code for 1, to get 1011, the code for 8; 1 + 8 = 9), which simplifies subtraction circuits."]},
+ {h:"ASCII and EBCDIC",d:"ASCII (American Standard Code for Information Interchange, standardised 1963) is a 7-bit code for 128 characters.",p:["It comprises 26 uppercase and 26 lowercase letters, 10 digits, punctuation and mathematical symbols and 33 control characters. A = 65, a = 97 and 0 = 48; uppercase and lowercase differ by 32 = 2^5, so changing the case flips a single bit. EBCDIC is IBM's 8-bit mainframe code in which the letters are not contiguous (gaps between I and J and between R and S)."],t:T[13]},
+ {h:"ISCII and Unicode",d:"ISCII (Indian Script Code for Information Interchange) is an 8-bit code standardised by the Bureau of Indian Standards in 1991, with one table for all scripts descended from Brahmi.",p:["The script is selected separately and the lower 128 codes are ASCII-compatible. Unicode assigns a unique code point to every character in every writing system (over 140,000 characters, about 150 scripts, plus symbols and emoji), superseding ISCII. The Malayalam block is U+0D00 to U+0D7F; in UTF-8 each Malayalam character occupies three bytes, so a Malayalam document is about three times larger than the English equivalent. Older ASCII-based font hacks were unsearchable and unsortable."],t:T[12]},
+ {h:"Gray code",d:"Gray code (reflected binary code) is a code in which consecutive values differ in exactly one bit.",p:["Its use in rotary and shaft encoders: in ordinary binary, 3 to 4 (011 to 100) changes all three bits, which never switch at exactly the same instant, so a momentary wrong reading (111 or 000) may occur; in Gray code only one bit is in transition.","Binary to Gray: copy the MSB; each further Gray bit is the XOR of adjacent binary bits. 1011 becomes 1110. Gray to binary: copy the MSB; each further binary bit is the XOR of the previous binary bit with the next Gray bit. 1110 becomes 1011."],t:T[14]},
+ {h:"Parity",d:"A parity bit is one extra bit appended to a group of bits so that the number of 1s is even (even parity) or odd (odd parity).",p:["The receiver recounts; a wrong parity signals an error and retransmission is requested. For ASCII A (1000001), which has two 1s, the even-parity bit is 0 (10000010) and the odd-parity bit is 1.","Limitation: parity detects any odd number of bit errors, fails when two bits flip and cannot identify the faulty bit, so cannot repair it. Stronger methods: checksums, CRCs, Hamming codes."]}
+]},
+{t:"Logic gates",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Boolean logic and gates",d:"Boolean logic is a branch of algebra in which every value is either true (1) or false (0). A logic gate is an electronic circuit that performs a Boolean operation on one or more binary inputs to produce a single output. A truth table lists every input combination together with the output and defines a gate completely.",p:["George Boole published An Investigation of the Laws of Thought in 1854. In 1937 Claude Shannon (MIT) showed that relay switching circuits obey Boole's algebra: closed switch = 1, open switch = 0, series connection = AND, parallel connection = OR. This is the foundation of digital circuitry."]},
+ {h:"The basic gates",l:["AND: output 1 only when all inputs are 1; written A.B or AB; like multiplication. Output for AB = 00, 01, 10, 11: 0, 0, 0, 1.","OR: output 1 when at least one input is 1; written A + B; like addition except 1 + 1 = 1. Output: 0, 1, 1, 1.","NOT: a unary gate that inverts its single input; written A' or A-bar. 0 gives 1; 1 gives 0."]},
+ {h:"Derived gates",l:["NAND: NOT-AND; output 0 only when all inputs are 1; (A.B)'. Output: 1, 1, 1, 0.","NOR: NOT-OR; output 1 only when all inputs are 0; (A + B)'. Output: 1, 0, 0, 0.","XOR: output 1 when the inputs differ; A (+) B. Output: 0, 1, 1, 0.","XNOR: the equivalence gate; output 1 when the inputs are identical. Output: 1, 0, 0, 1."],t:T[15]},
+ {h:"Reading the symbols",p:["A small circle (bubble) at a gate output denotes inversion; omitting it turns a correct answer into a wrong one. NAND, NOR and XNOR are the exact opposites of AND, OR and XOR, so only three tables need to be learned; NOT stands alone."]},
+ {h:"Universal gates",d:"A universal gate is a gate from which any logic function can be constructed using only that gate type; NAND and NOR are universal.",p:["NOT: tie both inputs together, (A.A)' = A'. AND: a NAND followed by a NAND used as NOT. OR: invert both inputs, then NAND them: (A'.B')' = A + B. NAND is the most manufactured logic component: one gate type gives better yield, simpler testing and lower cost, and in CMOS an inverting gate is the natural form, so a NAND gate is faster and smaller than an AND gate."],t:T[16]},
+ {h:"Importance of XOR",l:["It is binary addition: the sum bit of a half adder.","It is its own inverse: if A (+) B = C then C (+) B = A, which makes it the basis of simple encryption.","It counts parity: the XOR of a block of bits is 1 when the number of 1s is odd."]}
+]},
+{t:"Boolean algebra",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Boolean expressions",d:"A Boolean expression is a formula built from Boolean variables and the operations AND, OR and NOT that describes the relation between the inputs and the output of a circuit.",p:["A shorter expression gives a smaller, cheaper and faster circuit; removing one gate repeated a billion times removes a billion gates."]},
+ {h:"Laws of Boolean algebra",p:["Each law is stated in a pair of forms, one for OR and one for AND."],t:T[17]},
+ {h:"Laws that differ from ordinary arithmetic",l:["A + 1 = 1 (not 2).","The second distributive law, A + BC = (A + B)(A + C), has no counterpart in ordinary algebra.","Verify any doubtful law once by a truth table."]},
+ {h:"Principle of duality",d:"The principle of duality states that every valid Boolean identity remains valid if AND and OR are interchanged and 0 and 1 are interchanged, the variables being left unchanged.",p:["The dual of A + 0 = A is A.1 = A; the dual of A + A' = 1 is A.A' = 0. It applies to identities, not to individual expressions."]},
+ {h:"De Morgan's laws",d:"De Morgan's laws state (A + B)' = A'.B' and (A.B)' = A' + B'.",p:["Rule: break the bar, change the operator. Proof: a truth table with columns for (A + B)' and A'.B' shows identical values (1, 0, 0, 0 for AB = 00, 01, 10, 11); with finitely many cases, checking all is a rigorous proof.","Importance: they allow implementation with NAND or NOR gates alone, simplify circuits with nested complements, and apply in programming: !(a && b) = !a || !b."]},
+ {h:"Simplification",t:T[18],p:["Worked examples:"],l:["F = AB + AB' = A(B + B') = A.1 = A (distributive, complement, identity).","F = A + A'B = (A + A')(A + B) = 1.(A + B) = A + B.","F = AB + ABC + AB' = AB(1 + C) + AB' = AB + AB' = A(B + B') = A.","Order of attack: factor common variables; apply the complement law X + X' = 1; apply the null law to absorb terms; use De Morgan to remove nested bars. State the law used at each step."]}
+]},
+{t:"Canonical forms and Karnaugh maps",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Minterms and maxterms",d:"A minterm is a product (AND) term, containing every variable once, that is 1 for exactly one input combination; a maxterm is a sum (OR) term, containing every variable once, that is 0 for exactly one input combination.",p:["Sum of products (SOP): form a minterm for each row where the output is 1 (a variable appears plain if it is 1 in the row, complemented if it is 0) and OR them. Product of sums (POS): form a maxterm for each row where the output is 0 (a variable appears plain if it is 0 in the row, complemented if it is 1, the reverse of SOP) and AND them.","For XOR: SOP = A'B + AB'; POS = (A + B)(A' + B'). Choose SOP when the output has few 1s and POS when it has few 0s."],t:T[19]},
+ {h:"The Karnaugh map",d:"A Karnaugh map (K-map) is a truth table redrawn as a grid whose axes are labelled in Gray code order, so that cells which are adjacent differ in exactly one variable; grouping neighbouring 1s performs simplification by inspection.",p:["It was devised by Maurice Karnaugh at Bell Labs in 1953. The labels must be in the order 00, 01, 11, 10, never 00, 01, 10, 11: adjacency is what allows the differing variable to cancel by the complement law (A + A' = 1)."]},
+ {h:"Grouping rules",t:T[20]},
+ {h:"Examples",l:["Two variables, minterms A'B, AB', AB: the row A = 1 gives A and the column B = 1 gives B, so F = A + B.","Three variables, F = A'B'C + A'BC + AB'C + ABC: the four 1s all have C = 1 and form one group of four in which only C is constant, so F = C."]},
+ {h:"Examination procedure",l:["Draw the map with Gray-code labels.","Fill in the 1s from the truth table or minterms.","Circle the largest possible groups.","Write one product term per group, keeping the variables that do not change within the group.","OR the terms together. Show the circles on the map."]}
+]},
+{t:"Combinational circuits",sec:[9],notes:[9],dump:[9],blocks:[
+ {h:"Combinational and sequential circuits",d:"A combinational circuit is one whose output depends only on its present inputs. A sequential circuit is one whose output depends on its present inputs and on the stored history of past inputs.",p:["Gates, adders, multiplexers and decoders are combinational; flip-flops, registers and counters are sequential."],t:T[21]},
+ {h:"Half adder",d:"A half adder is a combinational circuit that adds two bits, producing a sum and a carry.",p:["Sum = A XOR B; Carry = A.B (one XOR gate and one AND gate). For AB = 00, 01, 10, 11, (Sum, Carry) = (0,0), (1,0), (1,0), (0,1). It has no carry-in, so it can add only the rightmost pair of bits and cannot be used for multi-bit addition."]},
+ {h:"Full adder",d:"A full adder adds three bits (A, B and a carry-in) and produces a sum and a carry-out.",p:["Sum = A XOR B XOR Cin; Cout = AB + Cin(A XOR B). The sum is 1 when an odd number of inputs are 1 and the carry-out is 1 when at least two are. It is built from two half adders and an OR gate."],t:T[22]},
+ {h:"Ripple-carry adder",d:"A ripple-carry adder is a chain of n full adders, each carry-out being connected to the next carry-in, that adds two n-bit numbers.",p:["The carry ripples from the least to the most significant stage, so the delay grows with the number of bits; fast processors use carry-lookahead adders. Subtraction uses the same adder, the second operand being supplied in 2's complement form."]},
+ {h:"Multiplexer, decoder and comparator",l:["Multiplexer (data selector): several data inputs, select lines and one output; a 2^n-to-1 multiplexer needs n select lines. A 4-to-1 multiplexer with select S1S0 = 00, 01, 10, 11 passes I0, I1, I2, I3.","Decoder: converts an n-bit code into one of 2^n output lines, activating exactly one; a 3-to-8 decoder with input 101 raises line 5. Used for memory addressing, opcode decoding and BCD to seven-segment conversion.","Comparator: XNOR each bit pair (1 when they match) and feed all XNOR outputs to one AND gate: Equal = (A0 XNOR B0).(A1 XNOR B1)... It implements relational operators in programs."]}
+]},
+{t:"Applications of binary logic",sec:[10],notes:[10],dump:[10],blocks:[
+ {h:"Applications",p:["Binary logic underlies every part of computing; the principal applications are summarised below."],t:T[23]},
+ {h:"Hardware and memory",p:["The ALU is built from full adders and AND, OR, XOR and NOT gates; the control unit is a decoder; a register is an array of flip-flops. Two cross-coupled NAND or NOR gates form a bistable flip-flop that holds one bit while power is applied; billions of them, addressed through decoders, form RAM."]},
+ {h:"Communication and cryptography",p:["Parity, checksums, CRCs and Hamming codes detect and correct transmission errors; all rely on XOR. XOR is reversible (C XOR K = P), so the same key encrypts and decrypts in stream ciphers and as a step in AES. With a short repeating key it is easily broken, since patterns in the plaintext show through."]},
+ {h:"Programming and displays",p:["Programs use AND, OR and NOT as &&, || and !. Most languages use short-circuit evaluation: evaluation stops as soon as the result is determined, since 0 AND X = 0 whatever X is; hence the order of conditions matters. BCD feeds a decoder that drives seven-segment displays in clocks, calculators and meters; Gray code encodes angular position in rotary and shaft encoders."]}
+]}
+];
+
+/* ============ LAB (Lesson 2): conversion, arithmetic, signed numbers, codes, logic and K-maps, adder ============ */
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+const DG="0123456789ABCDEF";
+const BASEN={2:"binary",8:"octal",10:"decimal",16:"hexadecimal"};
+const L={tool:"conv",cv:"27.625",cb:10,aa:"11011",ab:"10110",ao:"+",sv:"-76",sx:"100",sy:"50",so:"+",kc:"472",kg:"1011",kh:"1101",kp:"1011011",kr:"10110101",kt:"Aa5",
+  ke:"A'B'C + A'BC + AB'C + ABC",ke2:"C",ra:"1011",rb:"0110",rc:"0",qz:{type:0,v:null,fb:"",right:null,ans:"",exp:"",prompt:""}};
+const LABTOOLS=[["conv","Base converter"],["arith","Binary arithmetic"],["signed","Signed numbers"],["codes","Codes and parity"],["logic","Logic and K-map"],["adder","Adder circuit"],["quiz","Practice"]];
+const pad=(s,k)=>{while(s.length%k)s="0"+s;return s;};
+const groupStr=(s,k)=>pad(s,k).replace(new RegExp("(.{"+k+"})(?=.)","g"),"$1 ");
+const inp=(id,lab,w,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><input type="text" id="'+id+'" data-lin="'+t+'" class="mono" value="'+esc(L[id])+'" autocomplete="off" spellcheck="false" style="max-width:'+(w||10)+'rem"></div>';
+const sel=(id,lab,opts,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><select id="'+id+'" data-lin="'+t+'" style="width:auto">'+opts.map(o=>'<option value="'+esc(o[0])+'"'+(String(L[id])===String(o[0])?" selected":"")+">"+esc(o[1])+"</option>").join("")+"</select></div>";
+const note=t=>'<div class="rs note">'+t+"</div>";
+const okb=t=>'<div class="rs ok">'+t+"</div>";
+const bin=(n,w)=>{let s=(n>>>0).toString(2);return w?s.slice(-w).padStart(w,"0"):s;};
+function labView(){
+  let h='<p class="hint">Calculation skills are learned by doing. Work each problem on paper first, then use these tools to check the answer and to see every step of the method.</p>';
+  h+='<div class="subnav" role="group" aria-label="Lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  return '<div class="labwrap">'+h+TOOLS[L.tool].v()+"</div>";
+}
+/* ---------- base converter ---------- */
+function bParse(s,b){
+  s=String(s).trim().replace(/[\s_]+/g,"").toUpperCase();
+  const m=/^([0-9A-F]*)\.?([0-9A-F]*)$/.exec(s);
+  if(!m||!(m[1]||m[2])||s.length>20)return null;
+  const ok=x=>x.split("").every(c=>DG.indexOf(c)<b);
+  if(!ok(m[1])||!ok(m[2]))return null;
+  let i=0n;for(const c of m[1])i=i*BigInt(b)+BigInt(DG.indexOf(c));
+  let num=0n;for(const c of m[2])num=num*BigInt(b)+BigInt(DG.indexOf(c));
+  return {i:i,ip:m[1]||"0",f:m[2],num:num,den:BigInt(b)**BigInt(m[2].length)};
+}
+function fracOut(num,den,t,maxd){
+  let ds="",st=[],n=num;
+  for(let k=0;k<maxd&&n!==0n;k++){const before=n;n*=BigInt(t);const d=n/den;n%=den;ds+=DG[Number(d)];st.push({before:before,prod:n+d*den,d:Number(d),rest:n});}
+  return {ds:ds,st:st,term:n===0n};
+}
+function decStr(n,den,k){ // n/den as decimal text with k digits (den = 10^k)
+  return k?String(n).padStart(k,"0"):"0";
+}
+function convRes(){
+  const p=bParse(L.cv,+L.cb);
+  if(!p||p.i>=(1n<<60n))return {cres:note("Enter a valid "+BASEN[L.cb]+" number (digits "+({2:"0 and 1",8:"0 to 7",10:"0 to 9",16:"0 to 9 and A to F"}[L.cb])+"), optionally with a point, at most 20 characters.")};
+  const hasF=p.f.length>0;
+  const row=(b)=>{const ip=p.i.toString(b).toUpperCase();let fr="";let more="";
+    if(hasF){const o=fracOut(p.num,p.den,b,12);fr="."+(o.ds||"0");if(!o.term)more=" ...";}
+    return "<tr><th>"+BASEN[b]+'</th><td class="mono">'+(b===2?groupStr(ip,4):ip)+fr+more+"</td></tr>";};
+  let h='<div class="tbl"><table><tbody>'+[2,8,10,16].map(row).join("")+"</tbody></table></div>";
+  if(hasF)h+='<p class="hint">Fractions that do not terminate are cut after 12 digits (marked ...).</p>';
+  if(+L.cb===10){
+    let q=p.i,rows=[];if(q===0n)rows.push("0 / 2 = 0 remainder 0");
+    while(q>0n){rows.push(q+" / 2 = "+(q/2n)+" remainder "+(q%2n));q/=2n;}
+    h+='<p>Whole part, decimal to binary by repeated division by 2:</p><ol class="steps">'+rows.map(r=>'<li><span class="exp">'+r+"</span></li>").join("")+'</ol><p>Read the remainders from bottom to top: <b class="mono">'+p.i.toString(2)+"</b>.</p>";
+    if(hasF){
+      const o=fracOut(p.num,p.den,2,10),k=p.f.length;
+      h+='<p>Fractional part, by repeated multiplication by 2 (integer parts are the bits):</p><ol class="steps">'+o.st.map(s=>'<li><span class="exp">0.'+decStr(s.before,p.den,k)+" x 2 = "+s.d+"."+decStr(s.rest,p.den,k)+"  (bit "+s.d+")</span></li>").join("")+'</ol><p>Read the bits from top to bottom: <b class="mono">.'+(o.ds||"0")+"</b>"+(o.term?"":" (the process does not terminate; the pattern repeats)")+".</p>";
+    }
+  }else{
+    const b=+L.cb,d=p.ip.split("");
+    h+="<p>To decimal by positional expansion (place value "+b+"^n, from 0 at the right):</p>";
+    h+='<p class="mono">'+d.map((c,i)=>c+" x "+(BigInt(b)**BigInt(d.length-1-i))).join(" + ")+"</p>";
+    if(hasF)h+='<p class="mono">fraction: '+p.f.split("").map((c,i)=>c+" x "+b+"^-"+(i+1)).join(" + ")+"</p>";
+    if(b!==10){const k=b===16?4:b===8?3:1;if(b!==2)h+='<p>Each digit as '+k+' bits: <span class="mono">'+p.ip.split("").map(c=>c+" = "+bin(DG.indexOf(c),k)).join(" &nbsp; ")+"</span></p>";}
+  }
+  const ib=p.i.toString(2);
+  h+='<p>Binary to octal (groups of three) and hexadecimal (groups of four), grouped from the point: <span class="mono">'+groupStr(ib,3)+" = "+pad(ib,3).match(/.{3}/g).map(g=>parseInt(g,2)).join("")+"; "+groupStr(ib,4)+" = "+pad(ib,4).match(/.{4}/g).map(g=>parseInt(g,2).toString(16).toUpperCase()).join("")+"</span></p>";
+  return {cres:h};
+}
+function viewConv(){
+  return '<div class="panel"><h3>Number system converter with working</h3><div class="row">'+inp("cv","Number",12,"conv")+sel("cb","Base of the number",[[10,"Decimal"],[2,"Binary"],[8,"Octal"],[16,"Hexadecimal"]],"conv")+'</div><p class="hint">A point is allowed: try 13.375 (decimal), 0.8125 or 1101.011 (binary).</p><div id="cres">'+convRes().cres+"</div></div>";
+}
+/* ---------- binary arithmetic ---------- */
+function arithRes(){
+  const a=L.aa.trim(),b=L.ab.trim();
+  if(!/^[01]{1,12}$/.test(a)||!/^[01]{1,12}$/.test(b))return {ares:note("Enter two binary numbers of at most 12 digits (only 0 and 1).")};
+  const x=parseInt(a,2),y=parseInt(b,2),op=L.ao;let h="";
+  const chk=(sym,v)=>okb("Check in decimal: "+x+" "+sym+" "+y+" = "+v+", and "+bin(Math.abs(v))+" in binary"+(v<0?" (negative)":"")+" is "+Math.abs(v)+".");
+  if(op==="+"){
+    const n=Math.max(a.length,b.length),X=a.padStart(n,"0"),Y=b.padStart(n,"0");
+    let carry=0,res="",car=new Array(n).fill(" ");
+    for(let i=n-1;i>=0;i--){const s=+X[i]+ +Y[i]+carry;res=(s%2)+res;carry=s>1?1:0;if(carry&&i>0)car[i-1]="1";}
+    if(carry)res="1"+res;
+    const w=res.length,P=s=>s.padStart(w," ");
+    h='<pre class="codeview">'+esc("carries "+car.join("").padStart(w," ")+"\n         "+P(X)+"\n       + "+P(Y)+"\n         "+"-".repeat(w)+"\n         "+res)+"</pre>"+chk("+",x+y);
+  }else if(op==="-"){
+    const n=Math.max(a.length,b.length)+1,mask=(1<<n)-1;
+    h='<p>Direct result: <b class="mono">'+(x>=y?bin(x-y):"-"+bin(y-x))+"</b></p>"+chk("-",x-y);
+    const comp=((~y)+1)&mask,sum=x+comp;
+    h+='<p>By 2\'s complement in '+n+" bits: 2's complement of "+bin(y,n)+" is <span class=\"mono\">"+bin(comp,n)+'</span>. Add: <span class="mono">'+bin(x,n)+" + "+bin(comp,n)+" = "+(sum>mask?"1 ":"")+bin(sum&mask,n)+"</span>. "+(sum>mask?"A carry out occurred and is discarded; the result is positive: "+bin(sum&mask,n)+".":"There is no carry out, so the result is negative and appears in 2's complement form: "+bin(sum&mask,n)+" = -"+bin(y-x)+".")+"</p>";
+  }else if(op==="*"){
+    const rows=[];for(let i=0;i<b.length;i++){const bit=b[b.length-1-i];rows.push(bit==="1"?a+"0".repeat(i):"0".repeat(a.length)+"0".repeat(i));}
+    const w=Math.max(bin(x*y).length,...rows.map(r=>r.length));
+    h='<pre class="codeview">'+esc("  "+a.padStart(w)+"\nx "+b.padStart(w)+"\n"+"  "+"-".repeat(w)+"\n"+rows.map(r=>"  "+r.padStart(w)).join("\n")+"\n  "+"-".repeat(w)+"\n  "+bin(x*y).padStart(w))+"</pre>"+chk("x",x*y);
+  }else{
+    if(y===0)return {ares:note("Division by zero is undefined.")};
+    h='<p>Quotient <b class="mono">'+bin(Math.floor(x/y))+'</b>, remainder <b class="mono">'+bin(x%y)+"</b>.</p>"+okb("Check in decimal: "+x+" / "+y+" = "+Math.floor(x/y)+" remainder "+(x%y)+", and "+Math.floor(x/y)+" x "+y+" + "+(x%y)+" = "+x+".");
+  }
+  return {ares:h};
+}
+function viewArith(){
+  return '<div class="panel"><h3>Binary arithmetic with working</h3><p class="hint">Rules: 0+0=0, 0+1=1, 1+1=10 (write 0, carry 1), 1+1+1=11; 0-1 needs a borrow worth 2.</p><div class="row">'+inp("aa","First number (binary)",10,"arith")+sel("ao","Operation",[["+","Add"],["-","Subtract"],["*","Multiply"],["/","Divide"]],"arith")+inp("ab","Second number (binary)",10,"arith")+'</div><div id="ares">'+arithRes().ares+"</div></div>";
+}
+/* ---------- signed numbers ---------- */
+const intIn=(s,lo,hi)=>{s=String(s).trim();if(!/^[+-]?\d{1,4}$/.test(s))return null;const n=parseInt(s,10);return n>=lo&&n<=hi?n:null;};
+function signedRes(){
+  const R={};
+  const v=intIn(L.sv,-128,127);
+  if(v===null)R.sres=note("Enter a whole number from -128 to +127.");
+  else{
+    const m=Math.abs(v),pb=bin(m,8);let h='<div class="tbl"><table><thead><tr><th>Scheme</th><th>8-bit pattern</th></tr></thead><tbody>';
+    const sm=v===-128?"not representable":(v<0?"1"+bin(m,7):"0"+bin(m,7));
+    const oc=v===-128?"not representable":(v<0?bin(~m,8):pb);
+    h+="<tr><th>Sign-magnitude</th><td class=\"mono\">"+sm+"</td></tr><tr><th>1's complement</th><td class=\"mono\">"+oc+"</td></tr><tr><th>2's complement</th><td class=\"mono\">"+bin(v&255,8)+"</td></tr></tbody></table></div>";
+    if(v<0)h+="<p>Working for "+v+": the positive value "+m+" is <span class=\"mono\">"+pb+"</span>. Invert every bit (1's complement): <span class=\"mono\">"+bin(~m,8)+"</span>. Add 1 (2's complement): <span class=\"mono\">"+bin(v&255,8)+"</span>.</p>"+(v===-128?"<p>-128 has no positive counterpart in 8 bits: this is why the range is asymmetric.</p>":"");
+    else h+="<p>A non-negative number has the same pattern in 1's and 2's complement; its sign bit is 0.</p>";
+    R.sres=h;
+  }
+  const x=intIn(L.sx,-128,127),y=intIn(L.sy,-128,127);
+  if(x===null||y===null)R.s2res=note("Enter two whole numbers from -128 to +127.");
+  else{
+    const sub=L.so==="-",ye=sub?-y:y,b=ye&255,a=x&255,sum=a+b,res=sum&255,sv=res>127?res-256:res,tv=x+ye,ov=tv<-128||tv>127;
+    let h='<pre class="codeview">'+esc("  "+bin(a,8)+"  ("+x+")\n"+(sub?"+ "+bin(b,8)+"  (2's complement of "+y+")":"+ "+bin(b,8)+"  ("+y+")")+"\n  "+"-".repeat(8)+"\n  "+bin(res,8)+"  = "+sv)+"</pre>";
+    h+="<p>Carry out of the MSB: <b>"+(sum>255?1:0)+"</b> (discarded in signed arithmetic). Sign of first operand: "+(x<0?"negative":"positive")+"; of second operand"+(sub?" as added":"")+": "+(ye<0?"negative":"positive")+"; of result: "+(sv<0?"negative":"positive")+".</p>";
+    h+=ov?'<div class="rs bad">Overflow: the true value '+tv+" lies outside -128 to +127, so the stored result "+sv+" is wrong. "+((x<0)===(ye<0)?"Same-sign operands gave an opposite-sign result.":"")+"</div>":okb("No overflow: the result "+sv+" is correct"+(sum>255?" (a carry occurred, but a carry is not an overflow)":"")+(((x<0)!==(ye<0))?"; operands of opposite signs can never overflow":"")+".");
+    R.s2res=h;
+  }
+  return R;
+}
+function viewSigned(){
+  const R=signedRes();
+  return '<div class="panel"><h3>Signed representations of a decimal number (8 bits)</h3><div class="row">'+inp("sv","Decimal value",8,"signed")+'</div><div id="sres">'+R.sres+'</div></div><div class="panel"><h3>2\'s complement addition and subtraction with overflow check</h3><div class="row">'+inp("sx","First number",8,"signed")+sel("so","Operation",[["+","Add"],["-","Subtract"]],"signed")+inp("sy","Second number",8,"signed")+'</div><p class="hint">Try 100 + 50 (overflow), 100 + (-50) (carry without overflow), 127 + 1 (the Ariane 5 type of fault).</p><div id="s2res">'+R.s2res+"</div></div>";
+}
+/* ---------- codes ---------- */
+function codesRes(){
+  const R={};
+  const d=String(L.kc).trim();
+  if(!/^\d{1,8}$/.test(d))R.cdres=note("Enter 1 to 8 decimal digits.");
+  else{
+    let h='<div class="tbl"><table><thead><tr><th>Digit</th><th>BCD</th><th>Excess-3</th></tr></thead><tbody>'+d.split("").map(c=>'<tr><td class="mono">'+c+'</td><td class="mono">'+bin(+c,4)+'</td><td class="mono">'+bin(+c+3,4)+"</td></tr>").join("")+"</tbody></table></div>";
+    h+='<p>BCD: <b class="mono">'+d.split("").map(c=>bin(+c,4)).join(" ")+'</b> ('+(d.length*4)+' bits). Pure binary of the whole number: <b class="mono">'+Number(d).toString(2)+"</b> ("+Number(d).toString(2).length+" bits). The two are entirely different patterns.</p>";
+    R.cdres=h;
+  }
+  const g=String(L.kg).trim();
+  if(!/^[01]{1,12}$/.test(g))R.grres=note("Enter a binary number of at most 12 bits.");
+  else{
+    let o=g[0],st=["copy MSB: "+g[0]];for(let i=1;i<g.length;i++){const c=(+g[i-1]^+g[i]);o+=c;st.push(g[i-1]+" XOR "+g[i]+" = "+c);}
+    R.grres=okb("Gray code of "+g+" is <b class=\"mono\">"+o+"</b>.")+'<p class="mono">'+st.join(" &nbsp;|&nbsp; ")+"</p>";
+  }
+  const h2=String(L.kh).trim();
+  if(!/^[01]{1,12}$/.test(h2))R.gbres=note("Enter a Gray code of at most 12 bits.");
+  else{
+    let o=h2[0],st=["copy MSB: "+h2[0]];for(let i=1;i<h2.length;i++){const c=(+o[i-1]^+h2[i]);o+=c;st.push(o[i-1]+" XOR "+h2[i]+" = "+c);}
+    R.gbres=okb("Binary equivalent of Gray code "+h2+" is <b class=\"mono\">"+o+"</b>.")+'<p class="mono">'+st.join(" &nbsp;|&nbsp; ")+"</p>";
+  }
+  const p=String(L.kp).trim();
+  if(!/^[01]{1,16}$/.test(p))R.pares=note("Enter data bits (at most 16).");
+  else{
+    const ones=(p.match(/1/g)||[]).length,ev=ones%2;
+    R.pares=okb("Data "+p+" has <b>"+ones+"</b> ones. Even-parity bit: <b>"+ev+"</b> (word "+p+ev+"). Odd-parity bit: <b>"+(1-ev)+"</b> (word "+p+(1-ev)+").");
+  }
+  const r=String(L.kr).trim();
+  if(!/^[01]{1,17}$/.test(r))R.prres=note("Enter the received word (at most 17 bits).");
+  else{
+    const ones=(r.match(/1/g)||[]).length;
+    R.prres=ones%2?'<div class="rs bad">'+r+" has "+ones+" ones (odd): under even parity an error is detected. An odd number of bits is wrong, but which bit cannot be told, so the word cannot be corrected.</div>":okb(r+" has "+ones+" ones (even): no error is detected under even parity. (An even number of flipped bits would pass unnoticed.)");
+  }
+  const t=String(L.kt).slice(0,8);
+  if(!t)R.asres=note("Enter up to 8 characters.");
+  else R.asres='<div class="tbl"><table><thead><tr><th>Char</th><th>Decimal</th><th>7-bit binary</th><th>Hex</th></tr></thead><tbody>'+t.split("").map(c=>{const n=c.charCodeAt(0);return n>127?'<tr><td>'+esc(c)+'</td><td colspan="3">outside ASCII (Unicode code point U+'+n.toString(16).toUpperCase().padStart(4,"0")+")</td></tr>":'<tr><td class="mono">'+esc(c===" "?"(space)":c)+'</td><td class="mono">'+n+'</td><td class="mono">'+bin(n,7)+'</td><td class="mono">'+n.toString(16).toUpperCase()+"</td></tr>";}).join("")+"</tbody></table></div><p class=\"hint\">A = 65, a = 97, 0 = 48. Uppercase and lowercase differ by 32 (one bit).</p>";
+  return R;
+}
+function viewCodes(){
+  const R=codesRes();
+  return '<div class="panel"><h3>BCD and Excess-3</h3><div class="row">'+inp("kc","Decimal number",10,"codes")+'</div><div id="cdres">'+R.cdres+'</div></div><div class="panel"><h3>Gray code</h3><div class="row">'+inp("kg","Binary to Gray",10,"codes")+'</div><div id="grres">'+R.grres+'</div><div class="row">'+inp("kh","Gray to binary",10,"codes")+'</div><div id="gbres">'+R.gbres+'</div></div><div class="panel"><h3>Parity</h3><div class="row">'+inp("kp","Data bits",12,"codes")+'</div><div id="pares">'+R.pares+'</div><div class="row">'+inp("kr","Received word (even parity)",12,"codes")+'</div><div id="prres">'+R.prres+'</div></div><div class="panel"><h3>ASCII</h3><div class="row">'+inp("kt","Characters",10,"codes")+'</div><div id="asres">'+R.asres+"</div></div>";
+}
+/* ---------- Boolean expressions ---------- */
+function bTok(s){
+  const t=[],re=/\s*([A-Za-z]|[01]|[()'!~+.*^])/y;let m,pos=0;s=String(s);
+  while(pos<s.length){re.lastIndex=pos;m=re.exec(s);if(!m){if(/^\s*$/.test(s.slice(pos)))break;throw new Error("Unexpected character near '"+s.slice(pos).trim().charAt(0)+"'.");}t.push(m[1]);pos=re.lastIndex;}
+  return t;
+}
+function bParseExpr(s){
+  const t=bTok(s);let i=0;if(!t.length)throw new Error("Enter an expression.");
+  const peek=()=>t[i],isAtomStart=c=>c!==undefined&&(/^[A-Za-z01(!~]$/.test(c));
+  function or(){let a=xor();while(peek()==="+"){i++;a={t:"o",a:a,b:xor()};}return a;}
+  function xor(){let a=and();while(peek()==="^"){i++;a={t:"x",a:a,b:and()};}return a;}
+  function and(){let a=un();for(;;){if(peek()==="."||peek()==="*"){i++;a={t:"a",a:a,b:un()};}else if(isAtomStart(peek())){a={t:"a",a:a,b:un()};}else break;}return a;}
+  function un(){if(peek()==="!"||peek()==="~"){i++;return {t:"n",a:un()};}return post();}
+  function post(){let a=atom();while(peek()==="'"){i++;a={t:"n",a:a};}return a;}
+  function atom(){const c=t[i++];
+    if(c===undefined)throw new Error("The expression ends unexpectedly.");
+    if(c==="("){const a=or();if(t[i++]!==")")throw new Error("Missing closing bracket.");return a;}
+    if(c==="0"||c==="1")return {t:"c",v:+c};
+    if(/^[A-Za-z]$/.test(c))return {t:"v",n:c.toUpperCase()};
+    throw new Error("Unexpected '"+c+"'.");}
+  const a=or();if(i<t.length)throw new Error("Unexpected '"+t[i]+"'.");return a;
+}
+function bVars(a,set){set=set||new Set();if(a.t==="v")set.add(a.n);else{if(a.a)bVars(a.a,set);if(a.b)bVars(a.b,set);}return set;}
+function bEval(a,env){switch(a.t){case "v":return env[a.n];case "c":return a.v;case "n":return 1-bEval(a.a,env);case "a":return bEval(a.a,env)&bEval(a.b,env);case "o":return bEval(a.a,env)|bEval(a.b,env);default:return bEval(a.a,env)^bEval(a.b,env);}}
+function bTable(a,vars){const n=vars.length,out=[];for(let i=0;i<(1<<n);i++){const env={};vars.forEach((v,j)=>env[v]=(i>>(n-1-j))&1);out.push(bEval(a,env));}return out;}
+function qmin(ms,n){
+  if(!ms.length)return [];
+  const key=(s)=>s;let cur=[...new Set(ms.map(m=>bin(m,n)))],primes=[];
+  while(cur.length){
+    const used=new Set(),next=new Set();
+    for(let i=0;i<cur.length;i++)for(let j=i+1;j<cur.length;j++){
+      let d=-1,ok=true;
+      for(let k=0;k<n;k++){if(cur[i][k]!==cur[j][k]){if(cur[i][k]==="-"||cur[j][k]==="-"||d>=0){ok=false;break;}d=k;}}
+      if(ok&&d>=0){next.add(cur[i].slice(0,d)+"-"+cur[i].slice(d+1));used.add(cur[i]);used.add(cur[j]);}
+    }
+    cur.forEach(c=>{if(!used.has(c))primes.push(c);});
+    cur=[...next];
+  }
+  primes=[...new Set(primes)];
+  const covers=(p,m)=>{const b=bin(m,n);for(let k=0;k<n;k++)if(p[k]!=="-"&&p[k]!==b[k])return false;return true;};
+  const chosen=new Set();
+  ms.forEach(m=>{const c=primes.filter(p=>covers(p,m));if(c.length===1)chosen.add(c[0]);});
+  const left=ms.filter(m=>![...chosen].some(p=>covers(p,m)));
+  if(left.length){
+    const rest=primes.filter(p=>!chosen.has(p)&&left.some(m=>covers(p,m)));
+    let best=null;
+    const lits=s=>s.split("").filter(c=>c!=="-").length;
+    for(let mask=1;mask<(1<<rest.length);mask++){
+      const pick=rest.filter((_,i)=>mask>>i&1);
+      if(!left.every(m=>pick.some(p=>covers(p,m))))continue;
+      const sc=[pick.length,pick.reduce((s,p)=>s+lits(p),0)];
+      if(!best||sc[0]<best.sc[0]||(sc[0]===best.sc[0]&&sc[1]<best.sc[1]))best={pick:pick,sc:sc};
+    }
+    if(best)best.pick.forEach(p=>chosen.add(p));
+  }
+  return [...chosen].sort();
+}
+function impStr(p,vars){const s=p.split("").map((c,i)=>c==="-"?"":vars[i]+(c==="0"?"'":"")).join("");return s||"1";}
+function kmapHtml(ms,n,vars,groups){
+  const g2=["0","1"],g4=["00","01","11","10"];
+  let rv,cv,rl,cl;
+  if(n===2){rv=g2;cv=g2;rl=vars[0];cl=vars[1];}else if(n===3){rv=g2;cv=g4;rl=vars[0];cl=vars[1]+vars[2];}else{rv=g4;cv=g4;rl=vars[0]+vars[1];cl=vars[2]+vars[3];}
+  const cov=(p,m)=>{const b=bin(m,n);for(let k=0;k<n;k++)if(p[k]!=="-"&&p[k]!==b[k])return false;return true;};
+  const hues=[210,20,140,300,50,0,260,170];
+  let h='<div class="tbl"><table style="text-align:center"><thead><tr><th>'+esc(rl)+" \\ "+esc(cl)+"</th>"+cv.map(c=>'<th class="mono">'+c+"</th>").join("")+"</tr></thead><tbody>";
+  rv.forEach(r=>{h+='<tr><th class="mono">'+r+"</th>";cv.forEach(c=>{
+    const m=parseInt(r+c,2),on=ms.indexOf(m)>=0,gi=groups.map((p,i)=>cov(p,m)?i:-1).filter(i=>i>=0);
+    const st=gi.length?"background:hsla("+hues[gi[0]%8]+",70%,50%,.30);"+(gi.length>1?"box-shadow:inset 0 0 0 3px hsla("+hues[gi[1]%8]+",70%,45%,.8);":""):"";
+    h+='<td class="mono" style="'+st+'" title="m'+m+'">'+(on?"<b>1</b>":"0")+'<div style="font-size:.65rem;opacity:.6">m'+m+"</div></td>";});h+="</tr>";});
+  h+="</tbody></table></div>";
+  h+='<div class="row" style="gap:.5rem">'+groups.map((p,i)=>'<span class="tag" style="background:hsla('+hues[i%8]+',70%,50%,.30)">'+esc(impStr(p,vars))+"</span>").join("")+"</div>";
+  return h;
+}
+function logicRes(){
+  let A,B=null,eb="";
+  try{A=bParseExpr(L.ke);}catch(e){return {lres:note(esc(e.message))};}
+  const s2=String(L.ke2).trim();
+  if(s2){try{B=bParseExpr(s2);}catch(e){eb=e.message;}}
+  const vs=new Set();bVars(A,vs);const v1=[...vs].sort();if(B)bVars(B,vs);
+  const vars=[...vs].sort(),n=vars.length;
+  if(n>4)return {lres:note("Use at most four variables (A to D).")};
+  const fa=bTable(A,vars),fb=B?bTable(B,vars):null,N=1<<n;
+  const ms=[],xs=[];fa.forEach((v,i)=>(v?ms:xs).push(i));
+  let h='<div class="tbl"><table style="text-align:center"><thead><tr><th>m</th>'+vars.map(v=>"<th>"+v+"</th>").join("")+"<th>F</th>"+(B?"<th>G</th>":"")+"</tr></thead><tbody>";
+  for(let i=0;i<N;i++)h+='<tr><td class="mono">'+i+"</td>"+vars.map((v,j)=>'<td class="mono">'+((i>>(n-1-j))&1)+"</td>").join("")+'<td class="mono"><b>'+fa[i]+"</b></td>"+(B?'<td class="mono"><b>'+fb[i]+"</b></td>":"")+"</tr>";
+  h+="</tbody></table></div>";
+  if(eb)h+=note("Second expression: "+esc(eb));
+  if(B){const diff=[];for(let i=0;i<N;i++)if(fa[i]!==fb[i])diff.push(i);
+    h+=diff.length?'<div class="rs bad">F and G are <b>not</b> equivalent: they differ in row(s) m'+diff.join(", m")+".</div>":okb("F and G are <b>equivalent</b>: identical outputs for every one of the "+N+" input combinations (a truth table proves the identity).");}
+  const term=(i,mx)=>vars.map((v,j)=>{const b=(i>>(n-1-j))&1;return mx?(b?v+"'":v):(b?v:v+"'");});
+  h+='<p><b>Minterms</b> (SOP rows with F = 1): F = &Sigma;m('+(ms.join(", ")||"none")+")"+(ms.length&&ms.length<N?'<br><span class="mono">F = '+ms.map(i=>term(i,false).join("")).join(" + ")+"</span>":"")+"</p>";
+  h+='<p><b>Maxterms</b> (POS rows with F = 0): F = &Pi;M('+(xs.join(", ")||"none")+")"+(xs.length&&xs.length<N?'<br><span class="mono">F = '+xs.map(i=>"("+term(i,true).join(" + ")+")").join("")+"</span>":"")+"</p>";
+  const pr=qmin(ms,n);
+  const minS=!ms.length?"0":ms.length===N?"1":pr.map(p=>impStr(p,vars)).join(" + ");
+  h+='<p><b>Minimal SOP</b> (Quine-McCluskey, the same result as a K-map): <span class="mono">F = '+esc(minS)+"</span></p>";
+  if(n>=2&&n<=4)h+="<p><b>Karnaugh map of F</b> (Gray-code labels; coloured groups):</p>"+kmapHtml(ms,n,vars,ms.length===N?["-".repeat(n)]:pr);
+  else if(n<2)h+='<p class="hint">A Karnaugh map needs two to four variables.</p>';
+  return {lres:h};
+}
+function viewLogic(){
+  return '<div class="panel"><h3>Boolean expression analyser</h3><p class="hint">Write A, B, C, D for variables; + is OR; . or * or juxtaposition is AND; ^ is XOR; a prime (A\') or ! is NOT; brackets allowed. Examples: A\'B + AB\' and A ^ B; A + A\'B and A + B (equivalent); (A + B)(A + B\') and A.</p><div class="row">'+inp("ke","Expression F",18,"logic")+inp("ke2","Compare with G (optional)",14,"logic")+'</div><div id="lres">'+logicRes().lres+"</div></div>";
+}
+/* ---------- adder circuit ---------- */
+function adderRes(){
+  const a=String(L.ra).trim(),b=String(L.rb).trim();
+  if(!/^[01]{1,8}$/.test(a)||!/^[01]{1,8}$/.test(b))return {rres:note("Enter two binary numbers of at most 8 bits.")};
+  const n=Math.max(a.length,b.length),X=a.padStart(n,"0"),Y=b.padStart(n,"0");
+  let c=+L.rc,sum="",rows=[];
+  for(let i=n-1;i>=0;i--){const x=+X[i],y=+Y[i],p=x^y,g=x&y,s=p^c,pc=p&c,co=g|pc;rows.push('<tr><td>'+(n-1-i)+'</td><td class="mono">'+x+'</td><td class="mono">'+y+'</td><td class="mono">'+c+'</td><td class="mono">'+p+'</td><td class="mono">'+g+'</td><td class="mono">'+pc+'</td><td class="mono"><b>'+s+'</b></td><td class="mono"><b>'+co+"</b></td></tr>");sum=s+sum;c=co;}
+  const total=sum,res=(c?"1":"")+total,dec=parseInt(X,2)+parseInt(Y,2)+ +L.rc;
+  let h='<div class="tbl"><table style="text-align:center"><thead><tr><th>Stage</th><th>A</th><th>B</th><th>Cin</th><th>A XOR B</th><th>A.B</th><th>(A XOR B).Cin</th><th>Sum</th><th>Cout</th></tr></thead><tbody>'+rows.join("")+"</tbody></table></div>";
+  h+='<p class="hint">Stage 0 is the least significant. Each stage is a full adder: Sum = (A XOR B) XOR Cin; Cout = A.B + (A XOR B).Cin, built from two half adders and an OR gate. The carry-out of each stage is the carry-in of the next (the carry ripples).</p>';
+  h+=okb("Result: <b class=\"mono\">"+res+"</b> (final carry-out "+c+"). Decimal check: "+parseInt(X,2)+" + "+parseInt(Y,2)+(+L.rc?" + 1":"")+" = "+dec+" = "+dec.toString(2)+".");
+  return {rres:h};
+}
+function viewAdder(){
+  return '<div class="panel"><h3>Ripple-carry adder, stage by stage</h3><div class="row">'+inp("ra","First number (binary)",10,"adder")+inp("rb","Second number (binary)",10,"adder")+sel("rc","Carry-in",[[0,"0"],[1,"1"]],"adder")+'</div><div id="rres">'+adderRes().rres+"</div></div>";
+}
+/* ---------- practice ---------- */
+const QT=["Decimal to binary","Binary to decimal","Binary to hexadecimal","Hexadecimal to binary","2's complement of an 8-bit number","Binary to Gray code","Decimal number to BCD"];
+function qNew(){
+  const q=L.qz,r=n=>1+Math.floor(Math.random()*n);
+  q.fb="";q.right=null;q.ans="";
+  switch(q.type){
+    case 0:{const v=r(255);q.prompt="Convert "+v+" (decimal) to binary.";q.exp=v.toString(2);break;}
+    case 1:{const v=r(255);q.prompt="Convert "+groupStr(v.toString(2),4)+" (binary) to decimal.";q.exp=String(v);break;}
+    case 2:{const v=r(255);q.prompt="Convert "+groupStr(v.toString(2),4)+" (binary) to hexadecimal.";q.exp=v.toString(16).toUpperCase();break;}
+    case 3:{const v=r(255);q.prompt="Convert "+v.toString(16).toUpperCase()+" (hexadecimal) to binary.";q.exp=v.toString(2);break;}
+    case 4:{const v=r(254);q.prompt="Find the 8-bit 2's complement of "+bin(v,8)+".";q.exp=bin((~v+1)&255,8);break;}
+    case 5:{const v=r(15);q.prompt="Convert "+bin(v,4)+" (binary) to Gray code.";q.exp=bin(v^(v>>1),4);break;}
+    default:{const v=r(999);q.prompt="Write "+v+" in BCD (give the groups of four bits).";q.exp=String(v).split("").map(c=>bin(+c,4)).join("");}
+  }
+}
+qNew();
+function viewQuiz(){
+  const q=L.qz;
+  let h='<div class="panel"><h3>Practice</h3><div class="subnav">'+QT.map((x,i)=>'<button class="chip" data-act="qtype" data-v="'+i+'" aria-pressed="'+(q.type===i)+'">'+x+"</button>").join("")+"</div>";
+  h+='<p><b>'+esc(q.prompt)+'</b></p><input type="text" id="qans" data-lin="quiz" class="mono" value="'+esc(q.ans||"")+'" autocomplete="off" spellcheck="false" aria-label="Your answer" style="max-width:16rem"> <button class="btn primary" data-act="qcheck">Check</button> <button class="btn" data-act="qnew">New question</button>';
+  if(q.fb)h+='<div class="rs '+(q.right?"ok":"bad")+'">'+esc(q.fb)+"</div>";
+  return h+"</div>";
+}
+/* ---------- registry and events ---------- */
+const TOOLS={conv:{v:viewConv,r:convRes},arith:{v:viewArith,r:arithRes},signed:{v:viewSigned,r:signedRes},codes:{v:viewCodes,r:codesRes},logic:{v:viewLogic,r:logicRes},adder:{v:viewAdder,r:adderRes},quiz:{v:viewQuiz,r:()=>({})}};
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "qtype":L.qz.type=+v;qNew();render();return true;
+    case "qnew":qNew();render();return true;
+    case "qcheck":{const q=L.qz,e=document.getElementById("qans");q.ans=e?e.value:"";
+      let u=q.ans.replace(/[\s_]+/g,"").toUpperCase(),x=q.exp.toUpperCase();
+      if(q.type===0||q.type===1||q.type===2||q.type===3){u=u.replace(/^0+(?=.)/,"");x=x.replace(/^0+(?=.)/,"");}
+      q.right=(u===x);q.fb=(q.right?"Correct. ":"Not quite. ")+"The answer is "+(q.type===6?q.exp.match(/.{4}/g).join(" "):q.type===5||q.type===4?q.exp:q.exp)+".";render();return true;}
+  }
+  return false;
+}
+function labInput(el){
+  if(el.dataset.lin==="quiz"){L.qz.ans=el.value;return true;}
+  if(el.id in L&&el.id!=="qz")L[el.id]=el.value;
+  const R=TOOLS[L.tool].r();
+  Object.keys(R).forEach(k=>{const e=document.getElementById(k);if(e)e.innerHTML=R[k];});
+  return true;
+}
+function labSelect(el){return false;}
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes, then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

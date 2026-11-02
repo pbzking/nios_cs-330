@@ -1,0 +1,1026 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Open Source Recall Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 2 · Office Automation · Lesson 11</div>
+    <h1>Open Source Resources</h1>
+    <div><div class="spectrum"><i></i><i></i><i></i><i></i></div>
+    <div class="spectrum-l"><span>MIT</span><span>LGPL</span><span>GPL</span><span>AGPL</span></div></div>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Recall, don't re-read</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const SECS=["Fundamentals","Open standards","Licences & community","Linux","Productivity suites","Mozilla apps","Creative tools","Open education"];
+const CARDS=[
+[0,"What is open source software?","Software whose source code is published under a licence that lets anyone use, study, modify and redistribute it."],
+[0,"What is proprietary (closed-source) software?","Software where the developer withholds the source code and distributes only the compiled program."],
+[0,"Which 1998 event gave the open source movement sudden momentum?","Netscape announced it would release its web browser's source code (January 1998). That code became the Mozilla project, and later Firefox."],
+[0,"Who chose the name 'open source', and why?","Christine Peterson, Eric S. Raymond and Bruce Perens, among others, in 1998. The label was meant to appeal to businesses more than the philosophical 'free software'."],
+[0,"What is the OSI and what are its two jobs?","The Open Source Initiative, a non-profit founded in 1998. It maintains the Open Source Definition and approves licences that pass it."],
+[0,"How is the Open Source Initiative different from the OSI model?","The OSI model (Open Systems Interconnection, Lesson 5) is the seven-layer networking model. The two share only the abbreviation."],
+[0,"How many criteria does the Open Source Definition have? Name four.","Ten. For example: free redistribution, source code included, derived works allowed, integrity of the author's source, no discrimination against persons or fields."],
+[0,"What do FOSS and FLOSS stand for?","FOSS: Free and Open Source Software. FLOSS: Free, Libre and Open Source Software ('libre' makes the freedom-not-price meaning clear)."],
+[0,"How does the Free Software movement argue its case?","From ethics: users deserve liberty over the software they run. Founded by Richard Stallman in the early 1980s and organised through the FSF. 'Free' means freedom, not price."],
+[0,"How does the Open Source movement argue its case?","From practical benefit: publicly reviewed code tends to be better, bugs are found faster, and innovation is collaborative."],
+[0,"State the four freedoms, numbered from 0.","0: run the program for any purpose. 1: study how it works and adapt it. 2: redistribute copies. 3: improve it and release your improvements."],
+[0,"Which of the four freedoms need source code, and why?","Freedoms 1 and 3. Nobody can study or improve a program whose instructions are hidden."],
+[0,"What is 'The Cathedral and the Bazaar'?","Eric Raymond's 1997 essay. Cathedral: a small closed team reveals software only at finished releases. Bazaar: code is developed in public and released early and often (Linux is the example)."],
+[0,"Who started the GNU Project, when, and what does GNU mean?","Richard Stallman, 1983. 'GNU's Not Unix', a recursive acronym. Goal: a complete free Unix-like operating system."],
+[0,"Name five GNU components and their roles.","GCC (compilers), Bash (command-line shell), Coreutils (ls, cp, mv, rm, cat), glibc (C library between programs and kernel), Emacs (text editor)."],
+[0,"What is the GPL, and what is copyleft?","The GNU General Public License guarantees the four freedoms. Copyleft: any distributed modified version must carry the same licence, with source available."],
+[0,"How is freeware different from open source?","Freeware costs nothing but its source stays closed and you may not modify it (e.g. Adobe Reader). Open source gives source access and the right to modify."],
+[0,"What is shareware?","Closed-source software that is free only as a trial (e.g. WinRAR)."],
+[0,"Does open source mean free of cost?","No. Most is available without charge, but the defining feature is source access and freedom to change and share. It can be sold, or supported for a fee."],
+
+[1,"What is an open standard?","A published specification, built through an open consensus process, that anyone may implement royalty-free and without discrimination, so software can interoperate."],
+[1,"Open source vs open standard: what does each govern?","Open source: rights over a specific implementation (code). Open standard: a specification that many implementations, open or closed, may follow."],
+[1,"Give three examples of open standards.","PDF, HTTP and JPEG. A proprietary program is free to implement them."],
+[1,"What is interoperability?","The ability of independently written software to correctly exchange and interpret each other's data."],
+[1,"W3C: full name and what it publishes","World Wide Web Consortium: HTML, CSS and the core web standards."],
+[1,"IETF: full name and what it publishes","Internet Engineering Task Force: internet protocols (TCP/IP, HTTP, SMTP) as numbered RFC documents."],
+[1,"ISO: full name and the example from this chapter","International Organization for Standardization: standards across every industry, including ODF."],
+[1,"NISO: full name and focus","National Information Standards Organization: library, publishing and information-management standards, including OER metadata."],
+[1,"IEEE: full name and two standards","Institute of Electrical and Electronics Engineers: IEEE 754 (floating-point) and IEEE 802 (Ethernet and Wi-Fi)."],
+[1,"ECMA: what is its famous standard?","Ecma International publishes ECMAScript, the standard that JavaScript implements."],
+[1,"How does a specification become an industry standard?","By adoption: enough vendors implement it that it becomes the expected baseline. It may be formally ratified, or de facto through sheer popularity."],
+[1,"List the commercial benefits of open standards.","Larger addressable market; lower cost and faster development; less vendor lock-in; shared cost of innovation; regulatory and procurement advantage."],
+
+[2,"Name the four licence families from fewest to most conditions.","Permissive, weak copyleft, strong copyleft, network copyleft."],
+[2,"Permissive licences: examples and rule","MIT, BSD, Apache. Code may go into a closed product with no duty to release source. MIT and Apache only require keeping the original copyright notice."],
+[2,"Weak copyleft: examples and rule","LGPL and MPL. Copyleft applies only to the licensed component; a program that merely links to it may stay closed."],
+[2,"Why was the LGPL created?","So that free libraries could be used by proprietary applications."],
+[2,"How does the MPL apply copyleft?","File by file. The Mozilla Public License covers Firefox."],
+[2,"Strong copyleft: example and rule","GPL. Any distributed work that incorporates the code must be released under the same licence, source included. Used by the Linux kernel, GIMP and Audacity."],
+[2,"Network copyleft: example, and which loophole does it close?","AGPL. Under plain GPL, running modified code on a server that users only reach over a network is not 'distribution'. AGPL requires source for those network users too (the SaaS loophole)."],
+[2,"Which licence family lets a company embed code in a closed commercial product?","Permissive (MIT, BSD, Apache). Strong or network copyleft would force the whole product's source to be released."],
+[2,"State Linus's Law and who wrote it.","'Given enough eyeballs, all bugs are shallow.' Eric Raymond, in The Cathedral and the Bazaar."],
+[2,"Benefits of open source software","No licence fee; independently auditable (no hidden backdoors); no vendor lock-in (projects can be forked); easy localisation into local languages."],
+[2,"Limitations of open source software","Community support may be slower than a paid contract; steeper learning curve or less polish; occasional file-format compatibility problems; small projects can be abandoned."],
+[2,"Name four open source business models.","Support and services, dual licensing, open-core, donations and sponsorship."],
+[2,"Support and services model: give the example","Give the software away, charge for installation, training and guaranteed help. Red Hat built a billion-dollar business around free Linux."],
+[2,"Dual licensing vs open-core","Dual licensing: the same code under a free copyleft licence and a paid commercial licence (MySQL). Open-core: a free open core, with proprietary add-ons sold on top."],
+[2,"Repository, issue, pull request, fork: define each.","Repository: code under version control (GitHub, GitLab). Issue: public bug or feature tracker. Pull request: proposed change that maintainers must approve. Fork: independent copy that needs no permission."],
+[2,"Fork vs pull request","A pull request proposes a change into the original project and needs the maintainers' approval. A fork creates a separate project from the code; no permission is needed because the licence already grants that right."],
+[2,"What is version control?","A system recording every change, who made it and when, so any change can be reviewed or reversed."],
+
+[3,"What is Linux, who made it and when?","A kernel, by Linus Torvalds, a Finnish student. Announced on a newsgroup in August 1991 and released under the GPL."],
+[3,"Why is the full system called GNU/Linux?","Linux is only the kernel. It was designed to work with the GNU tools, and together they form GNU/Linux."],
+[3,"Layers of a Linux system, from hardware up","Hardware; Linux kernel (processes, memory, devices); GNU tools and shell (Bash, GCC, Coreutils); desktop environment (GNOME, KDE Plasma, XFCE); applications (Firefox, LibreOffice, GIMP)."],
+[3,"What is a distribution?","A complete, installable OS: the Linux kernel plus GNU tools, a desktop environment, a package manager and a selection of applications."],
+[3,"Distro family trees (memory aid)","'Debian raises Ubuntu, Fedora raises Red Hat.' Debian: Ubuntu, Mint, Kali, BOSS. Fedora: RHEL; then CentOS Stream and Rocky track RHEL."],
+[3,"Debian: character","Built from scratch. Extremely stable with a conservative release cycle; ancestor of the Debian family."],
+[3,"Ubuntu and Linux Mint","Ubuntu is Debian-based, beginner-friendly, with regular releases. Mint is Ubuntu-based and feels familiar to Windows users."],
+[3,"Fedora, RHEL, CentOS Stream and Rocky","Fedora: cutting edge, sponsored by Red Hat. RHEL: commercial, paid support, long-term stability. CentOS Stream and Rocky: free community builds aiming at RHEL compatibility."],
+[3,"Arch Linux and Kali Linux","Arch: minimal and highly configurable, built piece by piece for advanced users. Kali: Debian-based, pre-loaded with security and penetration-testing tools."],
+[3,"What is BOSS and who built it?","Bharat Operating System Solutions: India's Debian-based national Linux, built by C-DAC under the National Resource Centre for FOSS. Released from 2007; strong Indian-script support including Malayalam."],
+[3,"What is EduBOSS?","A BOSS variant aimed at school computer labs."],
+[3,"What does a package manager do?","Installs, updates, configures and removes software, resolving dependencies (other packages a program needs) automatically."],
+[3,"Package managers by family, with commands","APT (Debian, Ubuntu, Mint): sudo apt install firefox. DNF/YUM (Fedora, RHEL): sudo dnf install firefox. Pacman (Arch): sudo pacman -S firefox."],
+[3,"Why do servers run Linux?","Auditable source, no per-server licence fee, very stable (months or years without reboot), and modular (no desktop needed)."],
+
+[4,"Trace the history: StarOffice to Apache OpenOffice","StarOffice (German; Sun bought it in 1999) → OpenOffice.org (open source, 2000) → Oracle acquires Sun (2010) → community forks LibreOffice (Sept 2010, The Document Foundation) → Oracle donates OpenOffice.org to Apache → Apache OpenOffice."],
+[4,"Why did the 2010 fork happen?","Volunteers were uneasy about the suite's future under Oracle, a less open-source-friendly owner. They used the licence's right to fork."],
+[4,"Why do OpenOffice and LibreOffice look so similar?","LibreOffice is a fork of OpenOffice.org. Both descend from the same original code."],
+[4,"Which suite gets faster development and ships with most Linux distros?","LibreOffice."],
+[4,"What is ODF and why does it matter?","Open Document Format (.odt, .ods, .odp), an open ISO standard. A public specification means documents stay readable for decades by some compliant application."],
+[4,"AbiWord, Gnumeric, OnlyOffice","AbiWord: lightweight word processor for old hardware. Gnumeric: lightweight spreadsheet with accurate calculation. OnlyOffice: suite with an interface close to Microsoft Office."],
+
+[5,"Firefox: origin and organisation","First released 2004; direct descendant of the Netscape source released in 1998; developed by the non-profit Mozilla Foundation."],
+[5,"What makes Firefox distinctive?","Privacy: it blocks third-party tracking cookies by default, and its developer has no advertising business to protect. It popularised tabbed browsing and extensions."],
+[5,"Why might an ad-funded browser treat tracking differently?","Its revenue comes from targeted advertising, so it has a commercial interest in tracking data that a non-profit does not share."],
+[5,"What is Thunderbird?","Mozilla's open source email client, using SMTP, POP3 and IMAP. Also handles calendars and contacts. A free alternative to Microsoft Outlook."],
+
+[6,"GIMP","GNU Image Manipulation Program: raster image editor (layers, filters, retouching), GPL, part of GNU. Counterpart: Adobe Photoshop."],
+[6,"Blender","Complete 3D suite: modelling, sculpting, rigging, animation, simulation, video editing, rendering. Used in professional film and games. Counterparts: Autodesk Maya, Cinema 4D."],
+[6,"Audacity","Multi-track audio editor and recorder: cut, mix, effects, noise reduction. Free, cross-platform, a podcasting staple. Counterpart: Adobe Audition."],
+[6,"VLC Media Player","From the VideoLAN project. Plays almost any format with no separate codecs, plays damaged files, streams and converts. Counterpart: Windows Media Player."],
+
+[7,"What are Open Educational Resources (OER)?","Teaching and learning materials released under an open licence that permits free use and modification: the open source idea applied to content."],
+[7,"What are the 5Rs of openness, and who coined them?","Retain, Reuse, Revise, Remix, Redistribute. Coined by David Wiley. A genuine OER grants all five."],
+[7,"Gloss each of the 5Rs","Retain: keep your own copy. Reuse: use it as it is. Revise: adapt or translate it. Remix: combine with other work. Redistribute: share your version."],
+[7,"Who founded Creative Commons, and when?","Lawrence Lessig and others, in 2001."],
+[7,"The four Creative Commons conditions","BY: credit the creator (in every CC licence). SA: ShareAlike, adaptations use the same licence. NC: non-commercial only. ND: no derivatives."],
+[7,"List the six CC licences, most open to most restrictive","CC BY, CC BY-SA, CC BY-NC, CC BY-NC-SA, CC BY-ND, CC BY-NC-ND."],
+[7,"Why can SA and ND never be combined?","SA requires adaptations to carry the same licence, while ND forbids adaptation entirely. They are logically incompatible."],
+[7,"Decode CC BY-NC-SA","Credit the creator; no commercial use; adaptations are allowed but must be shared under the identical CC BY-NC-SA licence."],
+[7,"What is a MOOC? Is it automatically an OER?","Massive Open Online Course: a full online course with near-unlimited enrolment at little or no cost. Not automatically an OER; only if its materials are also openly licensed."],
+[7,"Wikipedia: licence and operator","CC BY-SA; run by the non-profit Wikimedia Foundation; written and edited by volunteers."],
+[7,"NPTEL and SWAYAM","NPTEL: free IIT and IISc video lectures, India's major higher-education OER initiative. SWAYAM: India's national MOOC platform, run by the Ministry of Education."],
+[7,"Khan Academy, MIT OpenCourseWare, Coursera/edX","Khan Academy: free school lessons and exercises. MIT OCW: materials from real MIT classes, published since 2001. Coursera/edX: university courses, free to audit, certificates usually paid."],
+
+[0,"Why is most commercial software sold only in compiled form?","Customers get a program that runs but cannot read the instructions. The source code, which a compiler turns into machine code (Lesson 3), stays with the developer."],
+[0,"Was sharing source code a new idea in 1998?","No. In the early decades of computing programmers routinely exchanged code freely. Selling closed-source software became dominant later."],
+[0,"What does 'OSI-approved' mean for a licence?","The OSI itself has formally checked the licence against the Open Source Definition. It is not merely claimed to be open by its own author."],
+[0,"Open Source Definition 1: Free redistribution","Anyone may give away or sell the software, with no royalty owed to the author."],
+[0,"Open Source Definition 2: Source code","Source code must be included or easily obtainable."],
+[0,"Open Source Definition 3: Derived works","Modification and redistribution of modified versions must be allowed."],
+[0,"Open Source Definition 4: Integrity of the author's source","A licence may require modified versions to carry a different name, so the original author's reputation is protected."],
+[0,"Open Source Definition 5: No discrimination against persons","Nobody may be excluded from using the software."],
+[0,"Open Source Definition 6: No discrimination against fields of endeavour","Use in business, research or any other field cannot be forbidden."],
+[0,"Open Source Definition 7: Distribution of licence","The rights travel automatically with the software to whoever receives it."],
+[0,"Open Source Definition 8: Not specific to a product","Rights cannot depend on the software being part of one particular package."],
+[0,"Open Source Definition 9: Must not restrict other software","A licence cannot dictate what else is distributed alongside it."],
+[0,"Open Source Definition 10: Technology-neutral","No licence term may be tied to one technology or interface style."],
+[0,"What does FSF stand for, and who founded it?","Free Software Foundation. Richard Stallman's organisation, promoting software freedom on ethical grounds."],
+[0,"Why are the four freedoms numbered from 0?","It follows the tradition of programmers, who count from zero."],
+[0,"How does the GPL use copyright law in an unusual way?","Instead of restricting copying, it guarantees the four freedoms and adds the copyleft condition, so freedom cannot be quietly removed from a derivative."],
+[0,"How did GNU/Linux come into being?","Torvalds released the Linux kernel under the GPL, and the kernel was joined with the GNU tools to make the complete GNU/Linux operating system."],
+[0,"GNU component: GCC","GNU Compiler Collection: compilers for C, C++, Fortran and many other languages."],
+[0,"GNU component: Bash","The default command-line shell on virtually all Linux systems."],
+[0,"GNU component: Coreutils","The everyday command-line tools: ls, cp, mv, rm, cat."],
+[0,"GNU component: glibc","The GNU C Library: the standard interface between programs and the kernel."],
+[0,"GNU component: Emacs","A powerful, extensible text editor."],
+[0,"Proprietary software: source, cost, modify, example","Source: no. Free of charge: usually no. May modify: no. Example: MS Office."],
+[0,"Freeware: source, cost, modify, example","Source: no. Free of charge: yes. May modify: no. Example: Adobe Reader."],
+[0,"Shareware: source, cost, modify, example","Source: no. Free of charge: trial only. May modify: no. Example: WinRAR."],
+[0,"Open source / FOSS: source, cost, modify, example","Source: yes. Free of charge: usually yes. May modify: yes. Examples: LibreOffice, Linux."],
+[0,"Exam tip: how to answer 'Distinguish free software from open source'","Both need published source. Free Software argues from freedom and ethics (four freedoms); Open Source argues from practical benefit (quality, security, collaboration). Say 'free' means liberty not price, and give FOSS or FLOSS."],
+
+[1,"Why does interoperability need a standard?","Every protocol and format exists because someone wrote it down and published it. Both sides implement the identical specification, so any browser can talk to any web server."],
+[1,"What risk arises when there is no open, shared specification?","Every vendor could invent an incompatible format, and a file saved in one program could become unreadable elsewhere: vendor lock-in."],
+[1,"Memory aid: anchor each standards body to one thing","W3C: the Web. IETF: Internet protocols. ISO: ODF. IEEE: floating-point and Wi-Fi. ECMA: JavaScript."],
+[1,"What is a de facto standard?","A specification that spreads by sheer popularity, even if controlled by one company, without ever passing a formal standards process."],
+[1,"What happens to a standard that is published but never widely implemented?","It remains a paper document, not a genuine industry standard."],
+[1,"What are the strongest, most durable industry standards?","Those that are both formally ratified by a body (W3C, ISO and so on) and actually adopted across the whole industry."],
+[1,"Open standards benefit 1: larger addressable market","A product built on an open standard works with every other product implementing it. A browser built to the W3C HTML standard can render essentially the entire web."],
+[1,"Open standards benefit 2: lower cost, faster development","Implementing a documented standard is far cheaper than designing and popularising a private format."],
+[1,"Open standards benefit 3: reduced vendor lock-in","Data saved to an open standard stays usable if the customer switches supplier (ODF's archival guarantee), which makes buyers more willing to buy."],
+[1,"Open standards benefit 4: shared cost of innovation","Competitors co-develop the standard once, split the cost, then compete on implementation quality, price and features."],
+[1,"Open standards benefit 5: regulatory and procurement advantage","Governments increasingly favour or require open standards in public procurement to avoid lock-in for critical infrastructure and records."],
+[1,"What does Windows implementing HTTP show?","A proprietary program following an open standard. It is the strong example for 'distinguish open source from open standard'."],
+
+[2,"How do MIT, Apache and BSD differ in conditions?","MIT and Apache add only a requirement to preserve the original copyright notice. BSD is similar."],
+[2,"Which well-known programs use the GPL?","The Linux kernel, GIMP and Audacity."],
+[2,"Why does Linus's Law work?","Open code can be inspected by thousands of independent programmers, so there is no ceiling on how many people look at the same code and defects are fixed faster."],
+[2,"Benefit: no licence fee","Matters enormously for schools, governments and organisations in developing economies. India's government adoption is partly driven by this."],
+[2,"Benefit: auditable security","Public source can be independently audited. Researchers, even hostile governments' agencies, can verify there is no hidden backdoor, which closed software cannot fully offer."],
+[2,"Benefit: no vendor lock-in","If a company abandons a proprietary product, users may be stranded. An open source project can be forked and continued by its community."],
+[2,"Benefit: easier localisation","Code can be adapted freely, so software is more readily localised into a country's own languages (Indian-language computing)."],
+[2,"Limitation: variable support","Community support is not always as fast or formally guaranteed as a paid contract with service-level agreements."],
+[2,"Limitation: learning curve and polish","Some open source software has a steeper learning curve or less polished interface, though the gap has narrowed for the applications in this chapter."],
+[2,"Limitation: file-format compatibility","Compatibility with proprietary formats is occasionally imperfect, echoing the .docx warning from Lesson 8."],
+[2,"Limitation: abandonment risk","A project kept by a few volunteers can stall if they move on. Forking helps only if someone steps forward to do it."],
+[2,"Why do open source businesses need special models?","Software copies at near-zero marginal cost, which challenges charging per copy."],
+[2,"Business model: dual licensing","Same code under a free copyleft licence and a paid commercial licence for companies that do not want copyleft duties (MySQL)."],
+[2,"Business model: open-core","A genuinely open core product is free; proprietary add-ons are sold on top."],
+[2,"Business model: donation and sponsorship","Funds many smaller projects and non-profits, including the Wikimedia Foundation."],
+[2,"Where do open source projects live, and what is a repository?","On platforms such as GitHub or GitLab. A repository holds the source code under version control."],
+[2,"What are issues in an open source project?","Bugs and feature requests tracked publicly, visible to anyone."],
+[2,"What is a pull request?","A contributor's proposed change. Maintainers review it before merging it into the main codebase."],
+[2,"Why is the fork the 'ultimate safeguard'?","If a project's direction is unwelcome or its maintainers vanish, anyone with the skill may take the code and continue it under a new name."],
+
+[3,"What is a kernel? (recap of Lesson 4)","The privileged core of an operating system, managing the processor, memory and devices directly. Linux is precisely this."],
+[3,"Name three desktop environments for Linux.","GNOME, KDE Plasma, XFCE."],
+[3,"Ubuntu: what is it and what is it based on?","Debian-based. Beginner-friendly, the most widely recommended first distribution, with regular predictable releases."],
+[3,"Linux Mint: what is it and what is it based on?","Ubuntu-based. Designed to feel familiar to users coming from Windows."],
+[3,"Fedora: base and character","Built from scratch. Cutting edge, sponsored by Red Hat, showcases new features early."],
+[3,"RHEL: base and character","Red Hat Enterprise Linux, downstream of Fedora. Commercial, paid support, long-term stability."],
+[3,"CentOS Stream and Rocky Linux","Free community rebuilds of RHEL, aiming for RHEL compatibility."],
+[3,"Arch Linux: base and character","Built from scratch. Minimal and highly configurable, assembled piece by piece, for advanced users."],
+[3,"Kali Linux: base and character","Debian-based, pre-loaded with security and penetration-testing tools."],
+[3,"Which organisation built BOSS, and what else has it built?","C-DAC (Centre for Development of Advanced Computing), also behind the PARAM supercomputers, under the National Resource Centre for FOSS."],
+[3,"What are BOSS's special features?","Debian-based, released from 2007, strong built-in support for Indian scripts and languages including Malayalam (via Unicode ranges), desktop localised for Indian government and education."],
+[3,"What benefit of open source does BOSS illustrate?","Because the code is open, a country can adapt an existing OS to its own linguistic needs instead of depending on a foreign vendor."],
+[3,"Package manager: APT","Used by Debian, Ubuntu and Mint. Command: sudo apt install firefox."],
+[3,"Package manager: DNF (YUM)","Used by Fedora and RHEL. Command: sudo dnf install firefox."],
+[3,"Package manager: Pacman","Used by Arch Linux. Command: sudo pacman -S firefox."],
+[3,"How is a package manager like an app store?","It installs software for you, but it is older and normally driven from the command line described in Lesson 4."],
+[3,"Server reason 1: auditable source","The security argument matters enormously for a machine exposed to the internet."],
+[3,"Server reason 2: no per-server fee","No licence fee matters at data-centre scale with thousands of machines."],
+[3,"Server reason 3: stability","Famously stable, running months or years without a reboot."],
+[3,"Server reason 4: modular","A server distribution needs no graphical desktop, leaving resources for the workload."],
+[3,"Exam tip: 'Name three distributions and their relationship'","Answer with the family tree, e.g. Ubuntu is based on Debian, and Linux Mint is based on Ubuntu. The lineage is being tested, not just the names."],
+
+[4,"What was StarOffice?","A German commercial office suite bought by Sun Microsystems in 1999 and released as open source the next year as OpenOffice.org."],
+[4,"What is The Document Foundation?","The umbrella organisation under which LibreOffice was created in September 2010."],
+[4,"What did Oracle do with OpenOffice.org after the fork?","Donated the original codebase to the Apache Software Foundation, producing Apache OpenOffice."],
+[4,"Which name does this Master Guide use for the suite?","Apache OpenOffice."],
+[4,"ODF file extensions","Text: .odt. Spreadsheet: .ods. Presentation: .odp."],
+[4,"What is ODF's archival guarantee?","Because the specification is public, documents saved today stay readable in fifty years by some compliant application, even if every company involved has disappeared."],
+[4,"AbiWord","A lightweight, fast word processor, useful on older or low-powered hardware."],
+[4,"Gnumeric","A lightweight spreadsheet application known for exceptionally accurate numerical calculation."],
+[4,"OnlyOffice","An open source suite whose interface closely resembles Microsoft Office, easing the move for switching users."],
+
+[5,"What became of the code Netscape released in 1998?","It became the Mozilla project, and Mozilla's descendant is Firefox."],
+[5,"What did Firefox popularise?","Tabbed browsing and a strong extension ecosystem."],
+[5,"Which licence covers Firefox?","The Mozilla Public License (MPL), weak copyleft applied file by file."],
+[5,"Which mail accounts can Thunderbird use?","Any standard account via SMTP, POP3 and IMAP: Gmail, Outlook, Zoho or a private mail server. It also manages calendars and contacts."],
+[5,"Firefox: proprietary counterparts","Google Chrome, Microsoft Edge, Safari."],
+[5,"Thunderbird: proprietary counterpart","Microsoft Outlook."],
+
+[6,"Which free tool would you use to edit a podcast recording?","Audacity: multi-track recording, cutting, mixing, effects, spectral analysis and noise reduction."],
+[6,"Which free tool would you use to create a 3D animated short?","Blender: modelling, rigging, animation, simulation and photorealistic rendering in one application."],
+[6,"Which free tool would you use to retouch photos?","GIMP: layers, filters, colour correction, retouching and custom brushes."],
+[6,"What does Blender's professional use demonstrate?","Open source software can compete with expensive commercial tools such as Autodesk Maya at the professional tier, not only at the beginner tier."],
+[6,"GIMP: what does the name stand for and its licence?","GNU Image Manipulation Program. Part of the GNU Project, released under the GPL."],
+[6,"Which problem from Lesson 10 does VLC solve?","Codec compatibility when playing video across different computers. VLC needs no separate codec installation."],
+[6,"What else can VLC do besides playing media?","Play damaged or incomplete files, stream network video, and convert between formats."],
+[6,"Media playback: open source tool and counterpart","VLC (open source) against Windows Media Player (proprietary)."],
+
+[7,"5Rs: Retain","Keep your own copy."],
+[7,"5Rs: Reuse","Use it as it is."],
+[7,"5Rs: Revise","Adapt or translate it."],
+[7,"5Rs: Remix","Combine it with other work."],
+[7,"5Rs: Redistribute","Share your version."],
+[7,"Why is 'free to view online' not enough to be an OER?","It may grant none of the 5Rs. A genuine OER grants all five."],
+[7,"CC condition: BY (Attribution)","The creator must always be credited. Present in every CC licence."],
+[7,"CC condition: SA (ShareAlike)","Adaptations must be released under the same licence: the copyleft idea applied to content."],
+[7,"CC condition: NC (NonCommercial)","The work, or any adaptation, may not be used for commercial purposes."],
+[7,"CC condition: ND (NoDerivatives)","The work may be redistributed but not modified at all."],
+[7,"CC BY","Most open licence: use, adapt and even sell, provided credit is given."],
+[7,"CC BY-SA","As CC BY, but any adaptation must carry the identical licence. Wikipedia uses it."],
+[7,"CC BY-NC","Use and adapt freely for non-commercial purposes only, with credit."],
+[7,"CC BY-NC-SA","Non-commercial use and adaptation with credit; any adaptation must carry the same licence."],
+[7,"CC BY-ND","Redistribute freely with credit, but no modification permitted."],
+[7,"CC BY-NC-ND","Most restrictive: redistribute with credit only, no commercial use, no modification."],
+[7,"Why exactly six CC licences rather than every pairing?","Combinations with SA and ND together are logically incompatible, so they are excluded."],
+[7,"How do you attribute a Creative Commons work correctly?","Credit the creator. BY applies in every CC licence, and the other conditions (SA, NC, ND) must also be respected for any adaptation or sharing."],
+[7,"Worked example: a photograph marked CC BY-NC-SA 4.0","A student may download it, use it in a school project and edit it. The edited version must credit the photographer, must not be sold or used commercially, and must be shared onward under CC BY-NC-SA."],
+[7,"What does 'massive' mean in MOOC?","Literally massive: one run can enrol hundreds of thousands of learners at once, which no lecture hall could hold."],
+[7,"When is a MOOC also an OER?","When its materials are additionally released under an open licence. A free-to-take course with copyrighted videos is a MOOC only."],
+[7,"NPTEL: full name and scope","National Programme on Technology Enhanced Learning. Free video lectures from IITs and IISc; also delivered in MOOC form."],
+[7,"SWAYAM: scope","India's national platform for free online courses across school and university levels, run by the Ministry of Education."],
+[7,"Khan Academy","Free video lessons and practice exercises across school subjects, widely used worldwide including India."],
+[7,"MIT OpenCourseWare","Course materials from actual MIT classes, published openly since 2001. One of the earliest large OER initiatives."],
+[7,"Coursera and edX","Large platforms hosting university courses. Many are free to audit, but certification is usually paid."],
+[7,"Exam tip: how to answer a question on a licence like CC BY-NC","Decode each letter separately (credit required, non-commercial only) instead of recalling the licence as one opaque label."]
+];
+
+const NOTES=[
+["1 · Fundamentals","Open source software publishes its {{source code}} under a licence that lets anyone use, study, modify and {{redistribute}} it. The term was chosen in {{1998}} after {{Netscape}} released its browser code. The {{Open Source Initiative}} keeps the ten-point Open Source Definition. The Free Software movement, led by {{Richard Stallman}} and the {{FSF}}, argues from {{ethics}}; the Open Source movement argues from practical {{benefit}}. The four freedoms are numbered from {{0}}, and freedoms {{1}} and {{3}} need source code. The GNU Project began in {{1983}}, and its GPL introduced {{copyleft}}."],
+["2 · Open standards","An open standard is a published {{specification}} that anyone may implement, so that software can {{interoperate}}. HTTP, PDF and JPEG are open standards, while open source concerns rights over a specific {{implementation}}. The {{W3C}} publishes HTML and CSS, the {{IETF}} publishes protocols as {{RFC}} documents, {{IEEE}} publishes 754 and 802, and {{ECMA}} publishes ECMAScript. A standard that spreads by wide use without formal ratification is a {{de facto}} standard."],
+["3 · Licences and community","Licences run from {{permissive}} (MIT, BSD, Apache) through {{weak copyleft}} (LGPL, MPL) and {{strong copyleft}} (GPL) to {{network copyleft}} (AGPL). The AGPL closes the {{SaaS}} loophole. The MPL applies copyleft {{file by file}}. Linus's Law says that given enough {{eyeballs}}, all bugs are {{shallow}}. Business models include support and services, {{dual licensing}}, {{open-core}} and donations. A {{pull request}} proposes a change; a {{fork}} is an independent copy that needs no permission."],
+["4 · Linux","Linux is a {{kernel}} created by {{Linus Torvalds}} in {{1991}} and released under the {{GPL}}. With the {{GNU}} tools it forms GNU/Linux. A {{distribution}} bundles the kernel, tools, desktop and package manager. {{Ubuntu}}, Mint, Kali and BOSS descend from {{Debian}}; RHEL descends from {{Fedora}}. BOSS was built by {{C-DAC}}. {{APT}} serves the Debian family, {{DNF}} serves Fedora and RHEL, and {{Pacman}} serves Arch. A package manager resolves {{dependencies}} automatically."],
+["5 · Productivity suites","{{StarOffice}} was bought by Sun in {{1999}} and released as {{OpenOffice.org}}. After Oracle acquired Sun in {{2010}}, the community {{forked}} it into {{LibreOffice}} under The {{Document Foundation}}. Oracle gave the original code to the {{Apache}} Software Foundation. Both suites save in {{ODF}}, an {{ISO}} standard, using .odt, .ods and {{.odp}}."],
+["6 · Mozilla and creative tools","{{Firefox}} descends from the {{Netscape}} code and blocks {{third-party}} tracking cookies by default. {{Thunderbird}} is the email client and uses SMTP, POP3 and {{IMAP}}. {{GIMP}} edits raster images (Photoshop), {{Blender}} does 3D (Maya), {{Audacity}} edits audio (Audition) and {{VLC}} plays almost any format without extra {{codecs}}."],
+["7 · Open education","Open Educational Resources are openly licensed teaching materials. The 5Rs are {{Retain}}, {{Reuse}}, {{Revise}}, {{Remix}} and {{Redistribute}}, coined by {{David Wiley}}. {{Creative Commons}} was founded in {{2001}} by {{Lawrence Lessig}}. {{BY}} means attribution, {{SA}} means ShareAlike, {{NC}} means non-commercial and {{ND}} means no derivatives. SA and ND can never be {{combined}}."],
+["8 · Learning platforms","{{Wikipedia}} uses CC BY-SA and is run by the {{Wikimedia Foundation}}. {{NPTEL}} offers IIT and IISc lectures. {{SWAYAM}} is India's national {{MOOC}} platform, run by the {{Ministry of Education}}. {{MIT OpenCourseWare}} has published since {{2001}}. A MOOC is not automatically an {{OER}}."]
+];
+
+const TABLES=[
+{t:"Licence families",c:["Family","Examples","Rule"],r:[
+["Permissive","MIT, BSD, Apache","Almost no restrictions; code may go into closed products. MIT and Apache only require keeping the copyright notice."],
+["Weak copyleft","LGPL, MPL","Copyleft applies to the licensed component only; programs that merely link to it may stay closed. MPL works file by file."],
+["Strong copyleft","GPL","Any distributed work incorporating the code must use the same licence, source included."],
+["Network copyleft","AGPL","Users who reach the software over a network also get the source (closes the SaaS loophole)."]]},
+{t:"Software categories",c:["Category","Source available?","Free of charge?","May modify?","Example"],r:[
+["Proprietary","No","Usually no","No","MS Office"],
+["Freeware","No","Yes","No","Adobe Reader"],
+["Shareware","No","Trial only","No","WinRAR"],
+["Open source / FOSS","Yes","Usually yes","Yes","LibreOffice, Linux"]]},
+{t:"Standards bodies",c:["Body","Full name","Publishes"],r:[
+["W3C","World Wide Web Consortium","HTML, CSS and core web standards"],
+["IETF","Internet Engineering Task Force","Internet protocols as RFCs (TCP/IP, HTTP, SMTP)"],
+["ISO","International Organization for Standardization","Standards across industries, including ODF"],
+["NISO","National Information Standards Organization","Library, publishing and information standards; OER metadata"],
+["IEEE","Institute of Electrical and Electronics Engineers","IEEE 754 floating-point; IEEE 802 Ethernet and Wi-Fi"],
+["ECMA","Ecma International","ECMAScript (JavaScript)"]]},
+{t:"Linux distributions",c:["Distribution","Built upon","Character"],r:[
+["Debian","Linux from scratch","Extremely stable; ancestor of the Debian family"],
+["Ubuntu","Debian","Beginner-friendly, regular releases"],
+["Linux Mint","Ubuntu","Feels familiar to Windows users"],
+["Fedora","Linux from scratch","Cutting edge; sponsored by Red Hat"],
+["RHEL","Fedora (downstream)","Commercial, paid support, long-term stability"],
+["CentOS Stream / Rocky","RHEL","Free community rebuilds aiming for RHEL compatibility"],
+["Arch Linux","Linux from scratch","Minimal, highly configurable, for advanced users"],
+["Kali Linux","Debian","Security and penetration-testing tools"],
+["BOSS","Debian","India's government-backed distribution (C-DAC)"]]},
+{t:"Package managers",c:["Manager","Used by","Sample command"],r:[
+["APT","Debian, Ubuntu, Mint","sudo apt install firefox"],
+["DNF (YUM)","Fedora, RHEL","sudo dnf install firefox"],
+["Pacman","Arch Linux","sudo pacman -S firefox"]]},
+{t:"GNU components",c:["Component","Role"],r:[
+["GCC","GNU Compiler Collection: C, C++, Fortran and more"],
+["Bash","Default command-line shell on virtually all Linux systems"],
+["Coreutils","Everyday tools: ls, cp, mv, rm, cat"],
+["glibc","GNU C Library: standard interface between programs and kernel"],
+["Emacs","Powerful, extensible text editor"]]},
+{t:"Open source tools and their proprietary counterparts",c:["Category","Open source","Proprietary counterpart"],r:[
+["Web browser","Firefox","Google Chrome, Microsoft Edge, Safari"],
+["Email client","Thunderbird","Microsoft Outlook"],
+["Raster image editing","GIMP","Adobe Photoshop"],
+["3D modelling and animation","Blender","Autodesk Maya, Cinema 4D"],
+["Audio editing","Audacity","Adobe Audition"],
+["Media playback","VLC","Windows Media Player"]]},
+{t:"Creative Commons licences",c:["Licence","Permits"],r:[
+["CC BY","Use, adapt and even sell, provided credit is given"],
+["CC BY-SA","As above, but any adaptation must carry the identical licence (Wikipedia)"],
+["CC BY-NC","Use and adapt freely for non-commercial purposes only, with credit"],
+["CC BY-NC-SA","Non-commercial use and adaptation with credit; adaptations carry the same licence"],
+["CC BY-ND","Redistribute freely with credit, but no modification"],
+["CC BY-NC-ND","Most restrictive: redistribute with credit only, no commercial use, no modification"]]},
+{t:"Open educational platforms",c:["Platform","What it offers"],r:[
+["Wikipedia","Volunteer-written encyclopedia, CC BY-SA, Wikimedia Foundation"],
+["Khan Academy","Free video lessons and practice across school subjects"],
+["NPTEL","Free IIT and IISc video lectures; India's major higher-education OER initiative"],
+["SWAYAM","India's national MOOC platform, run by the Ministry of Education"],
+["MIT OpenCourseWare","Materials from real MIT classes, published openly since 2001"],
+["Coursera / edX","University courses; free to audit, certification usually paid"]]}
+];
+
+const DUMPS=[
+{t:"Fundamentals",p:["Open source: source code public, licence allows use, study, modify, redistribute","Proprietary keeps source closed","1998 Netscape release; name chosen by Peterson, Raymond, Perens","OSI maintains the Open Source Definition (ten criteria) and approves licences","Free Software (Stallman, FSF) argues ethics; Open Source argues practical benefit; FOSS/FLOSS","Four freedoms 0 to 3; freedoms 1 and 3 need source","Cathedral and Bazaar (Raymond, 1997)","GNU Project 1983: GCC, Bash, Coreutils, glibc, Emacs","GPL and copyleft","Free does not mean free of cost; freeware and shareware are closed source"]},
+{t:"Open standards",p:["Open standard is a published specification anyone may implement","Open source (code rights) is different from open standard (specification)","Examples: PDF, HTTP, JPEG","Interoperability needs a shared standard","W3C, IETF (RFCs), ISO, NISO, IEEE (754, 802), ECMA (ECMAScript)","Industry standard by adoption; formal or de facto","Benefits: market, cost, less lock-in, shared innovation, procurement"]},
+{t:"Licence families",p:["Permissive: MIT, BSD, Apache; closed derivatives allowed","Weak copyleft: LGPL, MPL; only the component itself","MPL is file by file and covers Firefox","Strong copyleft: GPL; used by Linux kernel, GIMP, Audacity","Network copyleft: AGPL; closes the SaaS loophole","Closed commercial product needs a permissive licence","Linus's Law: enough eyeballs, all bugs shallow","Business models: support, dual licensing, open-core, donations"]},
+{t:"Community and collaboration",p:["Repository on GitHub or GitLab under version control","Version control records every change, who and when","Pull request proposes a change; maintainers approve","Issues track bugs and requests publicly","Fork is an independent copy; no permission needed","Limitations: slower support, learning curve, format friction, abandonment risk"]},
+{t:"Linux and distributions",p:["Linux is a kernel; Torvalds, 1991, GPL","GNU/Linux with GNU tools","Layers: hardware, kernel, GNU tools and shell, desktop, applications","Distribution bundles kernel, tools, desktop, package manager, apps","Debian family: Ubuntu, Mint, Kali, BOSS","Fedora family: RHEL, CentOS Stream, Rocky","Arch: minimal and configurable","BOSS by C-DAC, Debian-based, Indian scripts; EduBOSS for schools","APT, DNF, Pacman and dependency resolution","Why servers run Linux: auditable, no fee, stable, modular"]},
+{t:"Office suites",p:["StarOffice bought by Sun in 1999","OpenOffice.org released 2000","Oracle bought Sun in 2010","Community forked LibreOffice, Sept 2010, The Document Foundation","Oracle donated OpenOffice.org to Apache, giving Apache OpenOffice","LibreOffice gets faster development and ships in most distros","ODF (.odt .ods .odp) is an open ISO standard that outlives applications","AbiWord, Gnumeric, OnlyOffice"]},
+{t:"Mozilla and creative tools",p:["Firefox from Netscape code; first released 2004; Mozilla Foundation","Firefox blocks third-party tracking cookies; no advertising business","Thunderbird uses SMTP, POP3, IMAP; alternative to Outlook","GIMP (Photoshop), Blender (Maya, Cinema 4D), Audacity (Audition), VLC (Windows Media Player)","VLC plays almost everything without separate codecs"]},
+{t:"OER and Creative Commons",p:["OER: openly licensed teaching materials","5Rs: Retain, Reuse, Revise, Remix, Redistribute (David Wiley)","Creative Commons founded 2001 by Lessig","BY, SA, NC, ND conditions","Six licences from CC BY to CC BY-NC-ND","SA and ND cannot combine","MOOC is not automatically an OER","Wikipedia CC BY-SA; NPTEL, SWAYAM, Khan Academy, MIT OCW, Coursera/edX"]}
+];
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"scn",n:"Licence and scenario problems",m:4}
+];
+
+/* mcq: [question, options, correct index, explanation] */
+const MCQ=[
+["Who launched the GNU Project in 1983?",["Linus Torvalds","Richard Stallman","Eric Raymond","Bruce Perens"],1,"Richard Stallman launched GNU. Torvalds created the Linux kernel."],
+["In which year did Linus Torvalds announce the Linux kernel?",["1983","1991","1998","2004"],1,"August 1991, on a newsgroup."],
+["Which freedom is numbered 0?",["Study the program","Redistribute copies","Run the program for any purpose","Improve the program"],2,"Freedom 0 is the freedom to run the program for any purpose."],
+["Which licence introduced the idea of copyleft?",["MIT","GNU GPL","Apache","BSD"],1,"The GPL guarantees the four freedoms and adds copyleft."],
+["Which Creative Commons condition is present in every CC licence?",["NC","SA","ND","BY"],3,"BY (attribution) always applies."],
+["LibreOffice was created as a fork of which project?",["Apache OpenOffice 4","StarOffice 1","OpenOffice.org","OnlyOffice"],2,"The community forked OpenOffice.org in 2010 after Oracle took over Sun."],
+["Which licence closes the 'SaaS loophole'?",["LGPL","MPL","AGPL","BSD"],2,"AGPL gives source to users who only interact with the software over a network."],
+["Which of these is a permissive licence?",["GPL","AGPL","LGPL","MIT"],3,"MIT, BSD and Apache are permissive."],
+["Why was the LGPL created?",["To forbid commercial use","So proprietary applications can use free libraries","To replace the GPL entirely","To cover network software"],1,"LGPL is weak copyleft aimed at libraries."],
+["The Mozilla Public License applies copyleft...",["to the whole product","to network users","file by file","never"],2,"MPL is file-level weak copyleft and covers Firefox."],
+["Ubuntu is based on which distribution?",["Fedora","Arch","Debian","RHEL"],2,"Debian raises Ubuntu."],
+["Red Hat Enterprise Linux descends from...",["Debian","Fedora","Ubuntu","Arch"],1,"Fedora raises Red Hat."],
+["Which distribution comes pre-loaded with penetration-testing tools?",["Mint","Kali","Fedora","Arch"],1,"Kali is Debian-based for security work."],
+["BOSS, India's national Linux distribution, was developed by...",["ISRO","NIC","C-DAC","IIT Madras"],2,"C-DAC, which also built the PARAM supercomputers."],
+["Which package manager is used on Fedora and RHEL?",["APT","DNF","Pacman","Snap"],1,"DNF (formerly YUM)."],
+["Which file extension belongs to an ODF spreadsheet?",[".odt",".odp",".ods",".xlsx"],2,".ods; .odt is text and .odp is presentations."],
+["Which open source tool is the counterpart of Adobe Photoshop?",["Blender","GIMP","Audacity","VLC"],1,"GIMP is the raster image editor."],
+["Blender is best compared with which proprietary tool?",["Adobe Audition","Windows Media Player","Autodesk Maya","Microsoft Outlook"],2,"Blender is a 3D suite like Maya and Cinema 4D."],
+["What makes VLC especially convenient?",["It edits audio","It plays almost every format without separate codecs","It is an email client","It only plays open formats"],1,"VLC bundles what it needs."],
+["Which is NOT one of the 5Rs of openness?",["Retain","Revise","Reproduce","Remix"],2,"The 5Rs: Retain, Reuse, Revise, Remix, Redistribute."],
+["Wikipedia content is licensed under...",["CC BY-NC-ND","CC BY-SA","MIT","AGPL"],1,"CC BY-SA, copyleft for content."],
+["SWAYAM is run by which body?",["Ministry of Education","Wikimedia Foundation","IIT Madras only","Mozilla Foundation"],0,"SWAYAM is India's national MOOC platform."],
+["Which body publishes HTML and CSS?",["IETF","W3C","IEEE","ECMA"],1,"W3C is the web standards body."],
+["IETF standards are published as numbered...",["RFC documents","ISO sheets","CC licences","OSI layers"],0,"RFC: Request for Comments."],
+["A company wants to embed open source code in a closed product. Which family fits?",["Permissive","Strong copyleft","Network copyleft","None can be used"],0,"Permissive licences allow closed derivatives."],
+["Which pair of CC conditions can never be combined?",["BY and NC","NC and ND","SA and ND","BY and SA"],2,"SA needs adaptations, ND forbids them."],
+["Which statement matches Linus's Law?",["Closed code is safer","Given enough eyeballs, all bugs are shallow","Every program has one bug","Free software is free of cost"],1,"Raymond's line from The Cathedral and the Bazaar."],
+["Thunderbird uses which protocols for email?",["FTP and Telnet","SMTP, POP3 and IMAP","HTTP only","SSH and RDP"],1,"The same protocols as Lesson 7."],
+["Which action needs no permission from the original maintainers?",["Pull request","Fork","Merge","Code review"],1,"The licence already grants the right to fork."],
+["Which is an open standard?",["HTTP","MS Office","Photoshop","Windows"],0,"HTTP, PDF and JPEG are open standards."],
+["Red Hat built its business mainly through...",["Selling closed code","Support and services around free Linux","Advertising","Dual licensing"],1,"Support and services model."],
+["Which organisation founded in 1998 certifies open source licences?",["FSF","W3C","OSI","IEEE"],2,"The Open Source Initiative; not the OSI networking model."],
+["Which distribution is described as 'Debian-based and Windows-friendly'? (via Ubuntu)",["Linux Mint","Fedora","Arch","Rocky Linux"],0,"Mint is Ubuntu-based and designed to feel familiar to Windows users."]
+];
+/* fill: [sentence with ___, accepted answers, explanation] */
+const FILL=[
+["The GNU Project was launched by ___ in 1983.",["richard stallman","stallman"],"Richard Stallman."],
+["GNU stands for GNU's ___ Unix.",["not"],"A recursive acronym."],
+["The Linux ___ was created by Linus Torvalds.",["kernel"],"Linux is a kernel; with GNU tools it forms GNU/Linux."],
+["The four freedoms are numbered starting from ___.",["0","zero"],"Numbered from zero, like programmers."],
+["The Creative Commons condition ___ requires adaptations to carry the same licence.",["sharealike","share alike","sa"],"ShareAlike is copyleft for content."],
+["The ___ licence closes the SaaS loophole in the ordinary GPL.",["agpl","affero gpl","affero"],"Affero GPL."],
+["LibreOffice is stewarded by The ___ Foundation.",["document"],"The Document Foundation."],
+["Oracle donated the OpenOffice.org code to the ___ Software Foundation.",["apache"],"This produced Apache OpenOffice."],
+["The Debian-based distribution for penetration testing is ___ Linux.",["kali"],"Kali Linux."],
+["___ is India's national MOOC platform.",["swayam"],"Run by the Ministry of Education."],
+["The Open Source Definition has ___ criteria.",["ten","10"],"Ten criteria."],
+["Given enough eyeballs, all ___ are shallow.",["bugs"],"Linus's Law."],
+["The 5Rs of openness were coined by David ___.",["wiley"],"David Wiley."],
+["Firefox descends from the ___ browser code released in 1998.",["netscape"],"Netscape."],
+["The package manager of the Debian family is ___.",["apt"],"APT; sudo apt install."],
+["___ is the open source 3D creation suite.",["blender"],"Counterpart of Maya."],
+["Creative Commons was founded in 2001 by Lawrence ___.",["lessig"],"Lawrence Lessig."],
+["The standards body that publishes ECMAScript is ___.",["ecma","ecma international"],"Ecma International."],
+["Sun Microsystems bought StarOffice in ___.",["1999"],"Then released it as OpenOffice.org in 2000."],
+["The Mozilla Public Licence is a ___ copyleft licence that applies file by file.",["weak"],"Weak copyleft, like LGPL."],
+["A fork is an independent copy; a ___ request proposes a change into the original.",["pull"],"Pull request needs maintainer approval."]
+];
+/* tf: [statement, answer, explanation] */
+const TF=[
+["Open source software is always free of charge.",false,"It may be sold; the defining feature is source access."],
+["The four freedoms are numbered starting from 1.",false,"They start at 0."],
+["A permissive licence like MIT requires derivative works to be open source too.",false,"Permissive licences allow closed derivatives."],
+["LibreOffice is a fork of OpenOffice.org.",true,"Forked in 2010."],
+["Linus Torvalds founded the GNU Project.",false,"Richard Stallman did; Torvalds created the Linux kernel."],
+["Ubuntu is based on Fedora.",false,"Ubuntu is based on Debian."],
+["The AGPL requires source disclosure even for software used only over a network.",true,"That is the SaaS loophole it closes."],
+["Wikipedia content is licensed CC BY-SA.",true,"Copyleft for content."],
+["VLC requires separate codec installation to play most video formats.",false,"It plays almost everything out of the box."],
+["A pull request creates an independent, separate copy of a project.",false,"That describes a fork."],
+["PDF is an open standard.",true,"So are HTTP and JPEG."],
+["Open source and open standard mean the same thing.",false,"One concerns code rights, the other a published specification."],
+["Linux is a complete operating system on its own, without GNU tools.",false,"Linux is only the kernel."],
+["The LGPL lets proprietary applications use free libraries.",true,"That was its purpose."],
+["CC BY-NC-ND is the most restrictive Creative Commons licence.",true,"Credit only, no commercial use, no changes."],
+["Every MOOC is automatically an OER.",false,"Only if its materials are openly licensed."],
+["Firefox is developed by a non-profit foundation.",true,"The Mozilla Foundation."],
+["IEEE is the body that publishes ECMAScript.",false,"ECMA does; IEEE publishes 754 and 802."],
+["BOSS is a Debian-based Linux distribution.",true,"Built by C-DAC."],
+["Forking a project needs the original maintainers' permission.",false,"The licence already grants the right."],
+["Gnumeric is a lightweight spreadsheet application.",true,"Known for accurate calculation."],
+["Blender has been used in professional film and game production.",true,"It competes at the professional tier."]
+];
+/* vsa: [question, accepted answers, model answer, all? ] */
+const VSA=[
+["Who founded the GNU Project, and in what year?",["stallman"],"Richard Stallman, 1983."],
+["Who created the Linux kernel, and in what year?",["torvalds"],"Linus Torvalds, 1991."],
+["What does the acronym FOSS stand for?",["free and open source software"],"Free and Open Source Software."],
+["Name the licence that introduced the concept of copyleft.",["gpl","general public license","general public licence"],"The GNU General Public License (GPL)."],
+["Which Creative Commons condition requires attribution and is present in every CC licence?",["by","attribution"],"BY (Attribution)."],
+["Name the event that separated LibreOffice from OpenOffice.org, and its year.",["fork"],"A fork, in 2010."],
+["State Linus's Law.",["eyeballs"],"Given enough eyeballs, all bugs are shallow."],
+["Name India's national platform for free online courses (MOOCs).",["swayam"],"SWAYAM."],
+["Which licence closes the SaaS loophole in the ordinary GPL?",["agpl","affero"],"The AGPL (Affero GPL)."],
+["Name the browser and the email client produced by the Mozilla Foundation.",["firefox","thunderbird"],"Firefox and Thunderbird.",true],
+["Expand: ODF, OER, CC.",["open document format","open educational resources","creative commons"],"Open Document Format, Open Educational Resources, Creative Commons.",true],
+["Which Debian-based distribution is designed for penetration testing?",["kali"],"Kali Linux."],
+["Which body publishes ECMAScript?",["ecma"],"Ecma International."],
+["Which organisation developed BOSS?",["c dac","cdac"],"C-DAC (Centre for Development of Advanced Computing)."],
+["Name the package manager used on Debian and Ubuntu.",["apt"],"APT."]
+];
+/* short: [question, model answer, marking points] */
+const SHORT=[
+["Distinguish between free software and open source software as movements.","Both require published source code. The Free Software movement (Stallman, FSF) argues from ethics and the four freedoms, where 'free' means liberty not price. The Open Source movement argues from practical benefit: quality, security and collaboration. FOSS or FLOSS covers both.",["Both require published source code","Free Software argues from ethics and the four freedoms (Stallman, FSF)","Open Source argues from practical benefits such as quality and collaboration","'Free' means liberty, not price; FOSS/FLOSS names the combination"]],
+["Distinguish between a permissive licence and a copyleft licence.","A permissive licence (MIT, BSD, Apache) lets code be folded into closed products with almost no obligation beyond keeping the copyright notice. A copyleft licence (GPL) requires distributed derivatives to carry the same licence with source available.",["Permissive: few conditions, closed derivatives allowed","Example of permissive: MIT, BSD or Apache","Copyleft: derivatives must carry the same licence with source","Example of copyleft: GPL"]],
+["Explain why 'free software' does not mean 'free of cost'.","'Free' refers to freedom: running, studying, sharing and improving. Open source can be sold or supported for a fee, while freeware may cost nothing yet stay closed.",["'Free' means liberty (freedom), not price","Open source may lawfully be sold or charged for support","Freeware can cost nothing yet be closed source"]],
+["Distinguish between a fork and a pull request.","A pull request proposes a change into the original project and needs maintainers' approval. A fork is an independent copy developed separately and needs nobody's permission, because the licence already grants that right.",["Pull request proposes a change into the original project","Pull request needs maintainers' approval","Fork is a separate, independent copy","Fork needs no permission because the licence grants the right"]],
+["Why can the ShareAlike (SA) and NoDerivatives (ND) conditions never be combined?","SA requires any adaptation to carry the same licence, while ND forbids adaptation entirely. The two are logically incompatible, which is why exactly six CC licences exist.",["SA requires adaptations to carry the same licence","ND forbids adaptation entirely","They are logically incompatible"]],
+["State two benefits and two limitations of open source software.","Benefits: no licence fee, auditable security, freedom from vendor lock-in, easy localisation. Limitations: community support may be slower than a contract, steeper learning curve, occasional file-format friction, risk of abandonment.",["Benefit 1 (e.g. no licence fee or auditable code)","Benefit 2 (e.g. no vendor lock-in or localisation)","Limitation 1 (e.g. variable support or learning curve)","Limitation 2 (e.g. format compatibility or abandonment)"]],
+["Distinguish between weak copyleft and strong copyleft, with one example of each.","Weak copyleft (LGPL, MPL) applies only to the licensed component, so a program that merely links to it may stay closed. Strong copyleft (GPL) applies to any distributed work incorporating the code, which must use the same licence with source.",["Weak copyleft covers only the component itself","Example of weak: LGPL or MPL","Strong copyleft covers any distributed work that incorporates the code","Example of strong: GPL"]],
+["Explain the relationship between Debian, Ubuntu and Linux Mint.","Debian is the stable ancestor distribution. Ubuntu is built on Debian and is beginner-friendly. Linux Mint is built on Ubuntu and feels familiar to Windows users. So Mint descends from Ubuntu, which descends from Debian.",["Ubuntu is based on Debian","Linux Mint is based on Ubuntu","Therefore Mint descends from Debian via Ubuntu"]],
+["What is a package manager, and why is dependency resolution part of its job?","A package manager installs, updates, configures and removes software. Programs need other packages (dependencies), so it fetches and installs those automatically instead of leaving the user to find them.",["Installs, updates, configures and removes software","Programs depend on other packages","It installs required dependencies automatically","Examples: APT, DNF, Pacman"]],
+["Distinguish between the GPL and the LGPL.","The GPL is strong copyleft: any distributed work that incorporates the code must be GPL with source. The LGPL is weak copyleft, created so free libraries can be used by proprietary applications that merely link to them.",["GPL is strong copyleft","LGPL is weak copyleft","LGPL allows proprietary programs to link to the library","GPL requires the whole combined work to be released under it"]],
+["Distinguish between open source software and an open standard.","Open source concerns rights over a specific implementation (code). An open standard is a published specification that many implementations, open or proprietary, may follow. HTTP is an open standard that Windows, a proprietary program, implements.",["Open source concerns rights over code","Open standard is a published specification","Either may be implemented by proprietary software","An example such as HTTP, PDF or JPEG"]]
+];
+/* long: [question, model answer, marking points] */
+const LONG=[
+["Explain the four freedoms of free software and explain why freedoms 1 and 3 specifically require access to source code.","Freedom 0: run the program for any purpose. Freedom 1: study how it works and adapt it to your needs. Freedom 2: redistribute copies to help others. Freedom 3: improve the program and release your improvements. They are numbered from zero, in the programmers' tradition. Freedoms 1 and 3 need source because nobody can study or improve a program whose instructions are hidden. This is the link between the ethical Free Software argument and the practical Open Source argument.",["Freedom 0: run for any purpose","Freedom 1: study and adapt","Freedom 2: redistribute copies","Freedom 3: improve and release improvements","Numbering starts at 0","Freedoms 1 and 3 need source: hidden instructions cannot be studied or improved"]],
+["Describe the spectrum of open source licence families, with one example licence and one distinguishing rule for each.","Permissive (MIT, BSD, Apache): almost no restrictions; code may go into closed products, with only the copyright notice kept. Weak copyleft (LGPL, MPL): copyleft applies to the component itself; programs that link to it may stay closed; MPL works file by file. Strong copyleft (GPL): any distributed work incorporating the code must use the same licence with source. Network copyleft (AGPL): closes the SaaS loophole by giving source to users who only reach the software over a network. Conditions increase from permissive to network copyleft.",["Permissive with example and rule","Weak copyleft with example (LGPL or MPL) and rule","Strong copyleft: GPL with rule","Network copyleft: AGPL","Explains the SaaS loophole","Notes the spectrum runs from fewest to most conditions"]],
+["Trace the history of Apache OpenOffice and LibreOffice from StarOffice to the present, explaining why the 2010 fork happened.","StarOffice, a German commercial suite, was bought by Sun Microsystems in 1999 and released as open source in 2000 as OpenOffice.org. Oracle acquired Sun in 2010 and the volunteer community grew uneasy about the suite's future under a less open-source-friendly owner. In September 2010 they forked the project to create LibreOffice under The Document Foundation. Oracle then donated the OpenOffice.org code to the Apache Software Foundation, giving Apache OpenOffice. The suites look alike because they share an origin; LibreOffice has had faster development and ships in most Linux distributions. Both save ODF.",["StarOffice bought by Sun in 1999","Released as OpenOffice.org (2000)","Oracle acquired Sun in 2010; community uneasy","Fork created LibreOffice (Sept 2010, The Document Foundation)","Oracle donated code to Apache: Apache OpenOffice","Similar because of shared code; LibreOffice developed faster; both use ODF"]],
+["Explain the 5Rs of open educational resources and the six Creative Commons licences built from the BY, SA, NC and ND conditions.","The 5Rs (David Wiley): Retain, Reuse, Revise, Remix, Redistribute. A real OER grants all five. Creative Commons (2001, Lessig) combines BY (credit), SA (same licence for adaptations), NC (non-commercial only) and ND (no derivatives) into six licences: CC BY (most open), CC BY-SA, CC BY-NC, CC BY-NC-SA, CC BY-ND and CC BY-NC-ND (most restrictive). SA and ND cannot combine because adaptation is both required to carry the licence and forbidden.",["Names all 5Rs","Explains that a true OER grants all five","Explains the four CC conditions","Lists all six licences","Notes CC BY is most open and BY-NC-ND most restrictive","Explains why SA and ND cannot combine"]],
+["Describe the layered structure of a Linux-based operating system, from hardware to applications, naming one example at each layer.","Bottom: hardware. Above it the Linux kernel, managing processes, memory and devices. Then GNU tools and shell (Bash, GCC, Coreutils). Then the desktop environment (GNOME, KDE Plasma or XFCE). At the top, applications such as Firefox, LibreOffice and GIMP. A distribution packages these layers with a package manager. The kernel plus GNU tools is GNU/Linux.",["Hardware at the base","Linux kernel: processes, memory, devices","GNU tools and shell with an example (Bash, GCC, Coreutils)","Desktop environment with an example","Applications with an example","Mentions GNU/Linux or the role of a distribution"]],
+["Explain the benefits and limitations of open source software for a school deciding whether to migrate its computer lab from proprietary software.","Benefits: no licence fees (large saving across a lab), auditable code, no vendor lock-in, easy localisation into Indian languages (BOSS and EduBOSS exist for schools), and community help. Limitations: support may be slower than a paid contract, staff and students may face a learning curve, file-format compatibility with .docx can be imperfect, and a small project may be abandoned. A sensible plan is to pilot LibreOffice, Firefox and a Debian-based distribution, keep ODF as the working format, and check key files first.",["Benefit: no licence fee","Benefit: auditable or no lock-in","Benefit: localisation, such as BOSS or EduBOSS","Limitation: support and learning curve","Limitation: format compatibility or abandonment","Reaches a reasoned conclusion for the school"]],
+["Describe any three open source applications covered in this chapter and their proprietary counterparts.","GIMP: raster image editor with layers and filters; counterpart Adobe Photoshop. Blender: full 3D suite for modelling, animation and rendering, used professionally; counterparts Autodesk Maya and Cinema 4D. Audacity: multi-track audio editor and recorder; counterpart Adobe Audition. VLC: plays nearly every format without separate codecs; counterpart Windows Media Player. Firefox (against Chrome, Edge, Safari) and Thunderbird (against Outlook) are also acceptable.",["First application with a capability","Its proprietary counterpart","Second application with a capability","Its proprietary counterpart","Third application with a capability","Its proprietary counterpart"]],
+["Explain how open source business models work despite the software itself being free, naming at least three distinct models.","Software copies cost almost nothing, so companies earn elsewhere. Support and services: give software away and charge for installation, training and guaranteed help (Red Hat). Dual licensing: the same code under a free copyleft licence and a paid commercial licence for firms that want no copyleft duties (MySQL). Open-core: a free open core with proprietary add-ons sold on top. Donation and sponsorship: funds smaller projects and non-profits such as the Wikimedia Foundation.",["Explains near-zero cost of copying","Support and services with example","Dual licensing with example","Open-core","Donation and sponsorship","At least three models named with how each earns money"]]
+];
+/* scn: [question, model answer, marking points] */
+const SCN=[
+["Decode CC BY-NC-SA: state exactly what may and may not be done with a work under this licence.","The work may be used and adapted, but the creator must be credited (BY), it must not be used commercially or sold (NC), and any adaptation shared onward must carry the identical CC BY-NC-SA licence (SA).",["Credit the creator (BY)","No commercial use (NC)","Adaptations allowed","Adaptations must carry the same licence (SA)"]],
+["A company wants to embed open source code in a closed, commercial product with no obligation to release its own source. Recommend a licence family and justify it.","Permissive (MIT, BSD, Apache). They allow closed derivatives and require little more than keeping the copyright notice. Strong or network copyleft would force the whole product's source to be released.",["Recommends permissive","Names an example (MIT, BSD or Apache)","Permissive allows closed derivatives","Strong or network copyleft would force release of the source"]],
+["A student adapts a CC BY-ND diagram for a class project by redrawing part of it. Explain whether this is permitted.","Not permitted. ND (NoDerivatives) allows the work to be redistributed but not modified at all, so redrawing part of it creates an adaptation the licence forbids. Using the original unchanged, with credit, is allowed.",["States it is not permitted","ND means no modification or derivatives","Redrawing creates an adaptation","Unchanged use with credit is allowed"]],
+["Classify each as permissive, weak copyleft, strong copyleft or network copyleft: MIT, GPL, LGPL, AGPL, Apache License, MPL.","MIT: permissive. Apache License: permissive. LGPL: weak copyleft. MPL: weak copyleft. GPL: strong copyleft. AGPL: network copyleft.",["MIT and Apache are permissive","LGPL is weak copyleft","MPL is weak copyleft","GPL is strong copyleft","AGPL is network copyleft"]],
+["A teacher wants to translate a textbook into Malayalam and redistribute the translation freely. Which of the 5Rs does this require, and would a CC BY-ND licence permit it?","Translating is Revise and sharing it is Redistribute (and keeping a copy involves Retain). CC BY-ND forbids modification, so it would not allow a translation. A licence like CC BY or CC BY-SA would.",["Revise (translate or adapt)","Redistribute (share the translation)","CC BY-ND forbids modification","So the translation is not permitted under CC BY-ND"]],
+["A web service runs a modified copy of AGPL software on its own server. Users never receive a copy, they only use it in a browser. Must the service share its modified source? Compare with plain GPL.","Yes. The AGPL requires that users interacting with the software over a network also receive the source, even if no copy was handed over. Under the plain GPL, running modified code on a server is not 'distribution', so source need not be shared. This is the SaaS loophole the AGPL closes.",["Yes, source must be shared under AGPL","Network users count even without a copy being handed over","Under plain GPL server use is not distribution","Names this the SaaS loophole"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="osr-lesson11-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+SCN.forEach(q=>BANK.push({t:"scn",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,scn:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,short:1,long:1,scn:1},n:20},
+  run:null};
+
+const ORIG=CARDS.findIndex(c=>c[1].indexOf("Khan Academy, MIT OpenCourseWare")===0)+1;
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const STEPS=[
+{t:"What open source means",sec:[0],notes:[0],dump:[0],
+ blocks:[
+ {h:"Source code and compiled software",p:["Programmers write source code in a human-readable programming language. A compiler translates the source code into machine code, which the processor executes (Lesson 3).","Most commercial software is distributed only in compiled form. The user receives a program that runs but cannot read the instructions that make it run."]},
+ {h:"Open source software (OSS)",d:"Open source software is software whose source code is made publicly available under a licence that permits anyone to use, study, modify and redistribute it.",p:["It contrasts with proprietary (closed-source) software, in which the developer withholds the source code and distributes only the compiled program."]},
+ {h:"Origin of the term",l:["Sharing of source code is older than the phrase. In the early decades of computing, programmers routinely exchanged code freely; the commercial practice of selling closed-source software became dominant later.","In January 1998 Netscape announced that it would release the source code of its web browser. This gave the modern movement sudden momentum.","Christine Peterson, Eric S. Raymond and Bruce Perens, among others, then chose the name 'open source' deliberately, as a label that would appeal to businesses more than the older, philosophical phrase 'free software'.","The code that Netscape released became the Mozilla project. Mozilla's descendant is Firefox."]},
+ {h:"Open Source Initiative (OSI)",d:"The Open Source Initiative is the non-profit organisation, founded in 1998 by Bruce Perens, Eric S. Raymond and others after the Netscape source-code release, that owns and stewards the term 'open source'.",l:["It maintains the Open Source Definition, the formal test that a licence must pass.","It reviews and approves specific licences against that test. A licence described as 'OSI-approved' has been formally checked by the OSI, not merely claimed to be open by its author.","Do not confuse it with the OSI model (Open Systems Interconnection, Lesson 5), the seven-layer networking reference model. The two share only an abbreviation."]},
+ {h:"The Open Source Definition",p:["A licence is not open source merely because its authors say so. The Open Source Definition sets ten criteria that a licence must satisfy."],t:{c:["#","Criterion","Meaning"],r:[
+  ["1","Free redistribution","Anyone may give away or sell the software, with no royalty owed to the author"],
+  ["2","Source code","Source code must be included or easily obtainable"],
+  ["3","Derived works","Modification and redistribution of modified versions must be allowed"],
+  ["4","Integrity of the author's source","A licence may require modified versions to carry a different name, protecting the original author's reputation"],
+  ["5","No discrimination against persons","Nobody may be excluded from using the software"],
+  ["6","No discrimination against fields of endeavour","Use in business, research or any other field cannot be forbidden"],
+  ["7","Distribution of licence","The rights travel automatically with the software to whoever receives it"],
+  ["8","Not specific to a product","Rights cannot depend on the software being part of one particular package"],
+  ["9","Must not restrict other software","A licence cannot dictate what else is distributed alongside it"],
+  ["10","Technology-neutral","No licence term may be tied to one technology or interface style"]]}},
+ {h:"Free software, open source and FOSS",l:["The Free Software movement was founded by Richard Stallman in the early 1980s and is organised through the Free Software Foundation (FSF). It argues from ethics: users deserve liberty over the software they run. Here 'free' means free as in freedom, not as in price.","The Open Source movement argues from practical benefit: publicly reviewed code tends to be better, bugs are found faster, and innovation is collaborative.","FOSS stands for Free and Open Source Software. It joins the two movements, which share the practical requirement of published source code but differ in their argument for it.","FLOSS stands for Free, Libre and Open Source Software. 'Libre', borrowed from Spanish and French, makes the freedom-not-price meaning unmistakable."]},
+ {h:"The four essential freedoms",p:["According to the FSF, software is truly free only when its users have four freedoms. They are numbered from zero, in the tradition of programmers."],l:["Freedom 0: to run the program for any purpose.","Freedom 1: to study how the program works, and adapt it to your needs.","Freedom 2: to redistribute copies, to help others.","Freedom 3: to improve the program, and release your improvements.","Freedoms 1 and 3 require access to the source code, because nobody can study or improve a program whose instructions are hidden. This is the logical link between the ethical argument of the Free Software movement and the practical argument of the Open Source movement."]},
+ {h:"The Cathedral and the Bazaar",p:["The Cathedral and the Bazaar is a 1997 essay by Eric Raymond contrasting two styles of software development."],l:["Cathedral style: a small, closed team builds the software carefully and reveals it only at finished releases.","Bazaar style: the code is developed in public, released early and often, and improved by a large and varied crowd of contributors. Raymond's example of the bazaar was Linux.","The essay also gave Linus's Law (Step 3)."]},
+ {h:"The GNU Project",d:"The GNU Project, launched by Richard Stallman in 1983, set out to create a complete, free, Unix-like operating system. GNU is a recursive acronym for 'GNU's Not Unix'.",p:["The name declares the project independent of Unix code. GNU produced the essential toolkit on which free operating systems still rely."],t:TABLES[5]},
+ {h:"The GNU General Public License and copyleft",d:"Copyleft is a licence condition requiring that any modified version that is distributed must carry the same licence, with source code available.",p:["The GNU General Public License (GPL) uses copyright law in an unusual way. Instead of restricting copying, it guarantees the four freedoms and adds copyleft, so freedom cannot be quietly removed from a derivative.","When Linus Torvalds released the Linux kernel under the GPL and the kernel was joined with the GNU tools, the result was the complete GNU/Linux operating system (Step 4)."]},
+ {h:"Free, freeware, shareware and open source compared",t:TABLES[1],p:["Open source does not mean 'free of cost'. Most open source software is available without charge, but the defining feature is access to the source code and the freedom to change and share it. Companies may lawfully sell open source software or charge for support, and freeware may cost nothing while remaining completely closed.","Exam point (free software versus open source): both require published source code; Free Software argues from freedom and ethics (the four freedoms), Open Source from practical benefits (quality, security, collaboration)."]}
+ ]},
+{t:"Open standards",sec:[1],notes:[1],dump:[1],
+ blocks:[
+ {h:"Open standard",d:"An open standard is a technical specification developed through an open, consensus-based process and published for anyone to implement, royalty-free and without discrimination, so that independently written software can interoperate without any one company controlling the specification.",p:["A specification is a precise written description of a format or protocol. PDF, HTTP and JPEG are open standards, and a proprietary program is entirely free to implement them."]},
+ {h:"Open source versus open standard",l:["An open source licence concerns one specific piece of software and grants rights over its code.","An open standard is a published specification that many different implementations, open or proprietary, may follow.","The two ideas usually work together, but neither requires the other. Example: Windows implementing the open HTTP standard is a proprietary program following an open standard."]},
+ {h:"Interoperability",d:"Interoperability is the ability of independently written software to correctly exchange and interpret each other's data.",p:["TCP/IP and HTTP (Lessons 5 and 6) let any browser communicate with any web server because both implement the identical published specification. ODF (Lesson 8) lets OpenOffice, LibreOffice and other suites read one another's files for the same reason.","Without an open, shared specification every vendor could invent an incompatible format, and a file saved in one program could become unreadable elsewhere. This is the vendor lock-in risk named in Lesson 6."]},
+ {h:"Major standards bodies",t:TABLES[2],p:["Memory aid: W3C is the Web; IETF is Internet protocols; ISO is ODF; IEEE is floating-point and Wi-Fi; ECMA is JavaScript."]},
+ {h:"Industry standard",d:"An industry standard is a specification so widely adopted that it becomes the practical, expected baseline for a category of software or hardware.",l:["A specification becomes an industry standard by adoption, not by decree: enough independent vendors implement it and enough products depend on it.","A standard published by a recognised body but never widely implemented remains a paper document.","A specification that spreads by sheer popularity, even one controlled by a single company, can become a de facto standard without any formal standards process.","The strongest and most durable standards are both formally ratified by a body and actually adopted across the industry."]},
+ {h:"Commercial benefits of open standards",l:["A larger addressable market: a product works with every other product implementing the standard, not only within one vendor's ecosystem. A browser built to the W3C HTML standard can render essentially the entire web.","Lower cost and faster development: implementing a documented standard is cheaper than designing and popularising a private format.","Reduced vendor lock-in: data saved to an open standard remains usable if the customer changes supplier (the archival guarantee of ODF).","Shared cost of innovation: competitors co-develop the standard once, then compete on implementation quality, price and features.","Regulatory and procurement advantage: governments increasingly favour or require open standards in public procurement to avoid lock-in for critical infrastructure and records."]}
+ ]},
+{t:"Licences and community",sec:[2],notes:[2],dump:[2,3],
+ blocks:[
+ {h:"Families of open source licence",p:["Not every open source licence imposes copyleft. Licences form a spectrum, from those imposing almost no conditions (permissive) to those imposing copyleft even across a network. In order: permissive, weak copyleft, strong copyleft, network copyleft."],t:TABLES[0]},
+ {h:"Details of each family",l:["Permissive: MIT and Apache licences add only a requirement to preserve the original copyright notice; the BSD licence is similar. Code may be folded into a closed, proprietary product.","Weak copyleft: the LGPL (Lesser GPL) was created so that free libraries could be used by proprietary applications. The Mozilla Public License (MPL), which covers Firefox, applies copyleft file by file.","Strong copyleft: the GPL is the defining example, used by the Linux kernel, GIMP and Audacity.","Network copyleft: under the plain GPL, running modified code on a server that users only reach over a network is not 'distribution', so source need not be shared (the 'SaaS loophole'). The AGPL (Affero GPL) closes it by requiring that network users also receive the source.","Scenario rule: a company embedding open source code in a closed commercial product should choose a permissive licence, since strong or network copyleft would require the whole product's source to be released."]},
+ {h:"Linus's Law",d:"Linus's Law, stated by Eric Raymond in The Cathedral and the Bazaar, is: 'Given enough eyeballs, all bugs are shallow.'",p:["When source code is open to inspection by thousands of independent programmers, defects and security flaws are found and fixed faster, because there is no ceiling on how many people can examine the same code."]},
+ {h:"Benefits of open source software",l:["No licence fee: this matters enormously for schools, governments and organisations in developing economies; India's adoption of open source in government IT is driven partly by this.","Auditable security: the public source can be independently audited, so researchers can verify there is no hidden backdoor, an assurance closed software cannot fully offer.","No vendor lock-in: if a company abandons a proprietary product its users may be stranded, but an open source project can be forked and continued by its community.","Easier localisation: the code can be adapted freely, so it is more readily localised into a country's own languages (Indian-language computing, Lesson 1)."]},
+ {h:"Limitations of open source software",l:["Community support is not always as fast or formally guaranteed as a paid contract with service-level agreements.","Some software has a steeper learning curve or less polished interface, though the gap has narrowed.","Compatibility with proprietary file formats is occasionally imperfect (the .docx warning of Lesson 8).","A small project maintained by a few volunteers can stall or be abandoned. Forking is useful only if someone actually steps forward to do it."]},
+ {h:"Business models around free code",p:["Software can be copied at near-zero marginal cost (Lesson 3), which challenges charging per copy. Open source projects and companies use several models."],l:["Support and services: the software is free; installation, training and guaranteed help are charged for. Red Hat built a billion-dollar business around free Linux.","Dual licensing: the same code is offered under a free copyleft licence and under a paid commercial licence for companies that do not want copyleft obligations (MySQL).","Open-core: a genuinely open core product is free, while proprietary add-ons are sold on top.","Donation and sponsorship: funds many smaller projects and non-profits, including the Wikimedia Foundation."]},
+ {h:"How open source communities work",l:["Platform: projects are hosted on collaborative platforms such as GitHub or GitLab.","Repository: where the source code lives, under version control.","Version control: a system recording every change, who made it and when, so any change can be reviewed or reversed.","Pull request: a contributor's proposed change, reviewed by the project maintainers before being merged into the main codebase.","Issue: a bug report or feature request tracked publicly and visible to anyone.","Fork: an independent copy of a project developed separately, the ultimate safeguard of the open licence. If a project's direction is unwelcome or its maintainers vanish, anyone with the skill may continue it under a new name.","Fork versus pull request: a pull request proposes a change into the original project and needs the maintainers' approval; a fork creates a separate, independent project and needs nobody's permission, because the licence already grants that right."]}
+ ]},
+{t:"Linux",sec:[3],notes:[3],dump:[4],
+ blocks:[
+ {h:"The kernel and Linux",d:"The kernel is the privileged core of an operating system, managing the processor, memory and devices directly (Lesson 4).",l:["Linux is precisely a kernel. It began as a personal project by Linus Torvalds, a Finnish student, who announced it on a newsgroup in August 1991 and released it under the GPL.","Linux was designed to work with the GNU tools (Step 1). The combination is properly called GNU/Linux, although 'Linux' is used informally for the whole stack."]},
+ {h:"Layers of a Linux-based system",t:{c:["Layer","Examples"],r:[["Applications","Firefox, LibreOffice, GIMP"],["Desktop environment","GNOME, KDE Plasma, XFCE"],["GNU tools and shell","Bash, GCC, Coreutils"],["Linux kernel","Processes, memory, devices"],["Hardware","Processor, memory, devices"]]}},
+ {h:"Distributions",d:"A distribution (distro) is a complete, installable operating system built by packaging the Linux kernel together with GNU tools, a desktop environment, a package manager and a curated selection of applications.",p:["Distributions form families, since most are built on an earlier distribution. Memory aid: Debian raises Ubuntu, Fedora raises Red Hat. Ubuntu, Mint and Kali descend from Debian; Red Hat Enterprise Linux descends from Fedora, and CentOS Stream and Rocky Linux aim to track RHEL."],t:TABLES[3]},
+ {h:"BOSS: India's national Linux distribution",l:["BOSS (Bharat Operating System Solutions) is a Debian-based distribution developed by C-DAC (Centre for Development of Advanced Computing), the organisation behind the PARAM supercomputers (Lesson 1), under the National Resource Centre for Free and Open Source Software.","Released from 2007 onward, it has built-in support for Indian scripts and languages, including Malayalam, through the Unicode ranges of Lesson 2, and a desktop localised for Indian government and educational users.","EduBOSS is a variant aimed at school computer labs.","BOSS illustrates a benefit of open source: because the code is open, a country can adapt an existing operating system to its own linguistic needs rather than depend on a foreign vendor."]},
+ {h:"Package managers",d:"A package manager is software that installs, updates, configures and removes other software, resolving dependencies (other packages a program needs) automatically.",p:["It is the Linux equivalent of an app store, but older, and is normally driven from the command line described in Lesson 4."],t:TABLES[4]},
+ {h:"Why servers run Linux",l:["Auditable source: the security argument matters enormously for a machine exposed to the internet.","No per-server licensing fee, which matters at data-centre scale.","Stability: it can run for months or years without a reboot.","Modularity: a server distribution need install no graphical desktop, leaving every spare resource for the workload.","Exam point: when asked to name three distributions and their relationship, give the family tree (for example, Ubuntu is based on Debian and Linux Mint on Ubuntu), since the lineage is being tested."]}
+ ]},
+{t:"Office suites",sec:[4],notes:[4],dump:[5],
+ blocks:[
+ {h:"From StarOffice to OpenOffice to LibreOffice",l:["StarOffice was a German commercial office suite that Sun Microsystems bought in 1999 and released as open source the following year under the name OpenOffice.org.","When Oracle acquired Sun in 2010, much of the volunteer development community grew uneasy about the suite's future under a new, less open-source-friendly owner.","In September 2010 that community forked the project, exercising the freedom described in Step 3, to create LibreOffice under a new umbrella called The Document Foundation.","Oracle subsequently donated the original OpenOffice.org codebase to the Apache Software Foundation, producing Apache OpenOffice, the name used throughout this Master Guide.","Today the two suites are very similar in interface and file format because both descend from the same original code. LibreOffice has received more active, faster development since the split and is bundled by default in most Linux distributions.","Exam point: LibreOffice is a fork of OpenOffice.org, created when the community exercised its licence-guaranteed right to continue development independently."]},
+ {h:"Open Document Format (ODF)",d:"The Open Document Format (ODF) is an open, ISO-standardised file format used by both suites, with the extensions .odt (text), .ods (spreadsheet) and .odp (presentation).",p:["Because the ODF specification is public, a government or archive can guarantee that documents saved today remain readable in fifty years by some compliant application, even if every company involved today has disappeared. No proprietary format can offer this guarantee with equal confidence."]},
+ {h:"Other notable open source productivity tools",t:{c:["Application","What it does"],r:[["AbiWord","A lightweight, fast word processor, useful on older or low-powered hardware"],["Gnumeric","A lightweight spreadsheet application known for exceptionally accurate numerical calculation"],["OnlyOffice","An open source suite whose interface closely resembles Microsoft Office, easing the transition for users switching from it"]]}}
+ ]},
+{t:"Mozilla and creative tools",sec:[5,6],notes:[5],dump:[6],
+ blocks:[
+ {h:"Mozilla Firefox",l:["Firefox was first released in 2004. It is the direct descendant of the Netscape source code released in 1998 and is developed by the Mozilla Foundation, a non-profit.","It popularised tabbed browsing and a strong extension ecosystem.","It is distinguished by its privacy stance: it blocks third-party tracking cookies by default (Lesson 6) and has no advertising business of its own to protect.","Exam point: an advertising-funded proprietary browser has a direct commercial interest in tracking data, which a non-profit foundation without an advertising arm does not share."]},
+ {h:"Mozilla Thunderbird",p:["Thunderbird is Mozilla's open source email client. It implements the SMTP, POP3 and IMAP protocols (Lesson 7) to send and retrieve mail from any standard account, such as Gmail, Outlook, Zoho or a private mail server. It also manages calendars and contacts and supports an extension ecosystem. It is a free alternative to Microsoft Outlook."]},
+ {h:"GIMP, Blender, Audacity and VLC",l:["GIMP (GNU Image Manipulation Program): a full-featured raster image editor with layers, filters, colour correction, retouching and custom brushes. It is part of the GNU Project and released under the GPL.","Blender: a complete 3D creation suite covering modelling, sculpting, rigging, animation, simulation, video editing and photorealistic rendering. It is used in professional film and game production, showing that open source can compete at the professional tier.","Audacity: a multi-track audio editor and recorder for recording, cutting, mixing and applying effects. It offers spectral analysis, noise reduction and multi-track mixing, and is free and cross-platform.","VLC Media Player: developed by the VideoLAN project; plays virtually every audio and video format without separate codec installation, solving the codec problem of Lesson 10. It also plays damaged or incomplete files, streams network video and converts between formats."]},
+ {h:"Open source tools and their proprietary counterparts",t:TABLES[6],p:["Exam point: when a question names a task and asks for a free tool, give the tool's name and one defining capability, not the name alone."]}
+ ]},
+{t:"Open education",sec:[7],notes:[6,7],dump:[7],
+ blocks:[
+ {h:"Open Educational Resources (OER)",d:"Open Educational Resources are teaching and learning materials, such as textbooks, courses, videos, images and entire curricula, released under an open licence that permits free use and, crucially, modification.",p:["The idea applies the open source philosophy to educational content rather than program code."]},
+ {h:"The 5Rs of openness",p:["Coined by the open-education researcher David Wiley, the 5Rs describe what a truly open licence must permit. A resource marked only 'free to view' may grant none of them; a genuine OER grants all five."],l:["Retain: keep your own copy.","Reuse: use it as it is.","Revise: adapt or translate it.","Remix: combine it with other work.","Redistribute: share your version."]},
+ {h:"Creative Commons (CC)",d:"Creative Commons, founded in 2001 by the law professor Lawrence Lessig and others, publishes a small, standard family of licences built from four conditions, combined to give six licences of increasing restriction.",t:{c:["Icon","Condition","Meaning"],r:[["BY","Attribution","The creator must always be credited; present in every CC licence"],["SA","ShareAlike","Adaptations must be released under the same licence; the copyleft idea applied to content"],["NC","NonCommercial","The work, or any adaptation, may not be used for commercial purposes"],["ND","NoDerivatives","The work may be redistributed but not modified at all"]]}},
+ {h:"The six Creative Commons licences",t:TABLES[7],l:["NC and ND cannot be combined with SA on the same work, because SA requires that any adaptation carry the same licence while ND forbids adaptation entirely. This is why exactly six combinations exist.","Attribution: every CC licence requires the creator to be credited.","Worked example: a photograph marked CC BY-NC-SA 4.0 may be downloaded, used in a school project and edited. The edited version must credit the photographer, must not be sold or used commercially, and must itself be released under CC BY-NC-SA if shared onward.","Exam point: decode a licence letter by letter (for example, CC BY-NC means credit required, non-commercial only)."]},
+ {h:"Massive Open Online Course (MOOC)",d:"A MOOC is a complete course, with video lectures, readings, assignments and often a certificate, delivered entirely online and open to essentially unlimited enrolment, at little or no cost to the learner.",p:["A single MOOC run can enrol hundreds of thousands of learners. A MOOC is not automatically an OER: a course may be free to take while its videos remain copyrighted and unavailable to revise or remix. Where its materials are also openly licensed, it is both at once. SWAYAM is India's national MOOC platform; NPTEL's courses are also delivered in MOOC form."]},
+ {h:"Open educational platforms",t:TABLES[8]}
+ ]}
+];
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the seven steps in order. Each step explains the idea in plain words, then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All seven steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=1;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes(matches(v,q.acc,q.all)?1:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
