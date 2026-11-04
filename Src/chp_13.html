@@ -1,0 +1,1768 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>OOP Concepts Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 3 · Programming · Lesson 13</div>
+    <h1>Basic Concepts of OOP</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and class lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Procedural and object-oriented programming compared",c:["Feature","Procedural","Object-oriented"],r:[
+["Organising unit","Functions, acting on data passed to them","Objects, bundling data and functions together"],
+["Data access","Usually global or widely passed around","Controlled by access specifiers"],
+["Focus","What should happen, step by step","What things exist and how they behave"],
+["Reuse","Functions can be reused individually","Whole classes can be reused and extended"],
+["Example languages","C, traditional BASIC","C++, Java, Python (which also supports it)"]]},
+/*1*/{s:0,t:"The problem of procedural code at scale",c:["Aspect","Description"],r:[
+["Separation of data and functions","As a program grows, the data and the functions that use it drift apart"],
+["No boundary","Nothing in the language stops any function from reaching into any variable"],
+["Hidden dependencies","A programmer reading one function cannot tell, without searching the whole file, which other functions depend on the same data"],
+["The OOP answer","Bundle each entity's data with its functions in an object and control who may reach inside it"]]},
+/*2*/{s:1,t:"The six principles of OOP",c:["Principle","Meaning"],r:[
+["Encapsulation","Bundling data (member variables) and functions (member functions) into one unit, the class, and controlling access to the data through a defined interface"],
+["Abstraction","Exposing only the essential, relevant features of an object and hiding the complex internal implementation"],
+["Data hiding","Making an object's internal data inaccessible to code outside the class, so it can be read or modified only through the class's own member functions; implemented with the private specifier"],
+["Inheritance","A derived (child) class is created from a base (parent) class and automatically acquires its members; it models an is-a relationship and is OOP's primary mechanism for code reuse"],
+["Polymorphism","Greek for many forms: a single interface works with objects of different classes, each responding in its own way"],
+["Message passing","Objects communicate by calling each other's member functions"]]},
+/*3*/{s:1,t:"Encapsulation, data hiding and abstraction distinguished",c:["Basis","Encapsulation","Data hiding","Abstraction"],r:[
+["Concerned with","Bundling data and functions into one class","Restricting access to the data","Hiding complexity from the user"],
+["Mechanism","The class","Access specifiers, mainly private","A simple public interface"],
+["Memorable form","The container","The lock on the container","What you do not need to know to use the class"],
+["Example","BankAccount holds balance, deposit() and withdraw()","balance is private; balance = -1000 is refused","A Stack class used through push(), pop() and isEmpty() with no knowledge of array or list"]]},
+/*4*/{s:1,t:"The two kinds of polymorphism",c:["Basis","Compile-time (static)","Run-time (dynamic)"],r:[
+["Resolved","At compile time","At run time"],
+["Mechanism","Function overloading (same name, different parameters) and operator overloading","Virtual functions called through a base class pointer to a derived class object"],
+["Where developed","Lesson 21 for operators","Lesson 19"]]},
+/*5*/{s:1,t:"The parts of a message",c:["Part","Example in student1.displayDetails()","Example in bankAccount.deposit(5000)"],r:[
+["Receiver","student1","bankAccount"],
+["Message name","displayDetails","deposit"],
+["Arguments","none","5000"]]},
+/*6*/{s:2,t:"Parts of a class definition",c:["Part","Rule"],r:[
+["Keyword","class, followed by the class name"],
+["Class name","An identifier; by convention begins with an uppercase letter or uses PascalCase (BankAccount, StudentRecord)"],
+["Body","In braces; declares the member variables and the member functions"],
+["Semicolon","Mandatory after the closing brace"],
+["Common error","Forgetting the semicolon gives a confusing error that often points to the line after the class"]]},
+/*7*/{s:2,t:"Objects and the dot operator",c:["Term","Meaning"],r:[
+["Object","An instance of a class, created by declaring a variable of the class type: ClassName objectName;"],
+["Instantiation","Creating an object from a class"],
+["Memory","Each object gets its own independent copy of every member variable; changing s1.rollNo does not affect s2.rollNo"],
+["Size example","A Student with rollNo (4 bytes), marks (4 bytes) and name[50] (50 bytes) occupies at least 58 bytes per object"],
+["Dot operator (.)","Also called the member access operator: objectName.memberName reaches a data member or calls a member function"],
+["Dynamic creation","Objects can also be created on the heap with new (Lesson 20)"]]},
+/*8*/{s:3,t:"The three access specifiers",c:["Specifier","Accessible from","Typical use"],r:[
+["public","Anywhere: inside the class and from any outside code through an object","The class's interface: the functions meant to be called by users of the class"],
+["private","Only from inside the class's own member functions","The class's internal data and helper functions; the mechanism of data hiding"],
+["protected","Inside the class's own member functions and inside any class that inherits from it","Data meant for derived classes (Lesson 19) but hidden from outside code"]]},
+/*9*/{s:3,t:"The default specifier: class and struct",c:["Basis","class","struct"],r:[
+["Default access","private","public"],
+["Use","Normally for objects with hidden data","Grouping data (C++'s other way of grouping)"],
+["Difference","The default access is the only functional difference between class and struct in C++",""]]},
+/*10*/{s:3,t:"What is allowed from outside the BankAccount class",c:["Statement","Allowed?","Reason"],r:[
+["acc.ownerName = \"Anita\";","Yes","ownerName is public"],
+["acc.deposit(5000);","Yes","deposit() is public"],
+["cout << acc.getBalance();","Yes","Reads balance indirectly through a public function"],
+["acc.balance = 999999;","No: compile-time error","balance is private"],
+["acc.accountType = 2;","No: compile-time error","accountType is protected and the code is not in a derived class"]]},
+/*11*/{s:3,t:"Getters and setters",c:["Term","Meaning"],r:[
+["Convention","Make member variables private and provide public member functions as the only way to reach them"],
+["Getter","A public member function that reads a value"],
+["Setter","A public member function that changes a value, with validation"],
+["Why","It is data hiding and encapsulation put into practice: deposit() can refuse a negative amount, whereas outside code writing balance directly could not be checked"],
+["Examination reminder","Unlabelled members of a class are private, and protected behaves like private for code outside the class and its derived classes"]]},
+/*12*/{s:4,t:"Defining a member function inside and outside the class",c:["Basis","Inside the class","Outside the class"],r:[
+["Where the body is written","In the class body","After the class, with the declaration (prototype) left inside"],
+["Syntax","As an ordinary function","ReturnType ClassName::functionName(parameters) { ... }"],
+["Inline","Automatically treated as an inline function","Not inline unless the inline keyword is written"],
+["Suited to","Short functions","Longer functions; mirrors the header (.h) and source (.cpp) split"]]},
+/*13*/{s:4,t:"The scope resolution operator (::)",c:["Use","Example"],r:[
+["Defines a member function outside its class","double Rectangle::area() { return length * width; }"],
+["Defines a static data member outside its class","int Student::studentCount = 0;"],
+["Reaches a static member through the class name","Student::studentCount"],
+["Why it is needed","Without ClassName:: the compiler cannot tell which class's members the function body uses, since many classes may define members of the same name"]]},
+/*14*/{s:4,t:"Inline functions",c:["Fact","Detail"],r:[
+["Meaning","The compiler may substitute the function's code at each call site, saving the small overhead of a function call"],
+["Inside the class","Automatically a candidate for inlining"],
+["Outside the class","Request it with the inline keyword: inline double Circle::area() { ... }"],
+["Nature","Only a request: the compiler may ignore it for a large or complex function"],
+["Advice","Use it only for small, simple functions"]]},
+/*15*/{s:5,t:"What an object stores, and what it shares",c:["Item","Per object or shared","Explanation"],r:[
+["Member variables","Own copy in each object","Each object is a separate block of memory on the stack (when declared in a function)"],
+["Member function code","One shared copy","A single copy of the machine code sits in the code segment and serves every object"],
+["Static data members","One copy for the whole class","Not stored in any object"],
+["Which object is acted on","The this pointer","Tells the shared function body which object it is working on"]]},
+/*16*/{s:5,t:"The this pointer",c:["Fact","Detail"],r:[
+["Meaning","A hidden extra argument of every non-static member function, holding the address of the object through which the function was called"],
+["Effect","s1.deposit(500) effectively passes &s1 as this"],
+["Implicit use","A plain member name such as value means this->value"],
+["Explicit uses","Returning the current object (return *this;) to chain calls; disambiguating a parameter that has the same name as a member (this->x = x;)"],
+["Static functions","Have no this pointer"]]},
+/*17*/{s:5,t:"Static and ordinary (instance) data members",c:["Basis","Static data member","Ordinary data member"],r:[
+["Belongs to","The class as a whole","Each object"],
+["Copies","One shared copy, stored once","One copy per object"],
+["Exists when no object exists","Yes","No"],
+["Declared","Inside the class with static","Inside the class"],
+["Defined","Exactly once outside the class: int Student::studentCount = 0;","With the object"],
+["Accessed by","The class name (Student::studentCount) or an object","An object only"]]},
+/*18*/{s:5,t:"Static member functions",c:["Rule","Detail"],r:[
+["Access","Can use only static data members and other static functions"],
+["Reason","No particular object, so no this pointer"],
+["Calling","Through the class name without any object: Student::getCount()"],
+["Typical use","Reading a shared counter such as the number of objects created"]]},
+/*19*/{s:6,t:"Friend function and member function compared",c:["Basis","Friend function","Member function"],r:[
+["Declared","Inside the class with the keyword friend","Inside the class"],
+["Defined","Outside, like an ordinary function: no ClassName:: prefix","Inside, or outside with ClassName::"],
+["Called","As an ordinary function: isLarger(a, b)","With the dot operator: a.area()"],
+["Member of the class","No; never becomes one","Yes"],
+["Access to private members","Yes, because the class granted it","Yes"]]},
+/*20*/{s:6,t:"Friend function and friend class compared",c:["Basis","Friend function","Friend class"],r:[
+["Declaration","friend bool isLarger(Box b1, Box b2);","friend class Car;"],
+["Access granted to","That one function","Every member function of the friend class"],
+["Example","isLarger() comparing two private volumes","Car reading Engine's private horsepower"]]},
+/*21*/{s:6,t:"Restrictions on friendship",c:["Property","Meaning","Example"],r:[
+["Not mutual","Engine declaring Car a friend does not give Engine access to Car's private members","The grant runs one way only"],
+["Not transitive","If A is a friend of B and B is a friend of C, A gains no access to C","A friend of a friend is not a friend"],
+["Not inherited","A class derived from Box does not inherit Box's friends","Lesson 19"],
+["Granted, never taken","A class decides which outside functions or classes to trust, by writing friend in its own body",""]]},
+/*22*/{s:6,t:"When friend is appropriate",c:["Situation","Verdict"],r:[
+["An operation between two objects that is naturally symmetric, such as overloading + or == (Lesson 21)","Legitimate use"],
+["Access that can be achieved through ordinary public member functions","Prefer the public functions"],
+["Making friend the default way to share data","Inappropriate: it is a controlled puncture in encapsulation and defeats the purpose of private data"]]},
+/*23*/{s:7,t:"Advantages of OOP and the mechanism behind each",c:["Advantage","Why it follows"],r:[
+["Modularity","Each class is a self-contained unit (encapsulation); a large program decomposes into independently understandable pieces"],
+["Data security","Data hiding and access specifiers prevent accidental or unauthorised modification, forcing every change through validated member functions"],
+["Reusability","Inheritance lets a new class acquire and extend an existing one instead of rewriting it"],
+["Flexibility","Polymorphism lets one interface serve many implementations, so new kinds of object can be added with minimal change elsewhere"],
+["Easier maintenance","A bug in a class's behaviour is fixed in one place, that class's own member functions"],
+["Natural modelling","Objects map onto real-world or domain entities, making the design easier to discuss and document"]]},
+/*24*/{s:2,t:"Operators used with classes",c:["Operator","Name","Use"],r:[
+["." ,"Dot (member access) operator","object.member"],
+["::","Scope resolution operator","Class::member for definitions outside the class and for static members"],
+["->","Arrow operator","pointer->member, for example this->value"],
+["*this","Dereferenced this pointer","The current object itself, returned to chain calls"]]}
+];
+
+const NOTES=[
+["1.1 From procedures to objects","In {{procedural}} programming a program is a list of variables and a list of {{functions}} that are passed the data they need. As a program grows, data and functions drift apart: nothing stops {{any function}} from reaching any variable, and a reader cannot tell which other functions depend on the same data. {{Object-oriented programming}} (OOP) organises a program around {{objects}}, each bundling the data describing one entity with the {{functions}} that operate on it. C++ supports {{both}} paradigms and a program may mix them. Procedural examples are {{C}} and traditional BASIC; object-oriented examples are {{C++}}, Java and Python. Procedural reuse is of {{functions}}; object-oriented reuse is of whole {{classes}}."],
+["1.2 The principles of OOP","{{Encapsulation}} bundles data (member variables) and functions (member functions) into one unit, the {{class}}, and controls access to the data. {{Abstraction}} exposes only the {{essential}} features and hides the internal implementation. {{Data hiding}} makes internal data inaccessible outside the class and is implemented with the {{private}} specifier; encapsulation is the {{container}} and data hiding is the {{lock}}. {{Inheritance}} lets a {{derived}} class acquire the members of a {{base}} class and models an {{is-a}} relationship. {{Polymorphism}} means many forms: {{compile-time}} (function and operator overloading) and {{run-time}} (virtual functions through a base class pointer). {{Message passing}} is communication by calling a {{member function}}; a message has a receiver, a message name and arguments."],
+["1.3 Classes and objects","A class definition begins with the keyword {{class}}, a name and a body in braces, followed by a {{mandatory semicolon}}. Class names conventionally use {{PascalCase}}. An {{object}} is an instance of a class, created by declaring a variable of the class type (instantiation); each object has its {{own copy}} of the member variables. Members are reached with the {{dot operator}} (.), for example r1.length. Only {{public}} members can be reached from outside the class. A Student with rollNo (4 bytes), marks (4 bytes) and name[50] (50 bytes) occupies at least {{58}} bytes per object."],
+["1.4 Access specifiers","{{public}} members are accessible from anywhere; {{private}} members only from the class's own member functions; {{protected}} members from the class and from classes {{derived}} from it. If no specifier is written, members of a {{class}} are {{private}}, while those of a {{struct}} are public; this is the only functional difference between the two. Best practice is to keep data {{private}} and expose {{getters}} (to read) and {{setters}} (to change, with {{validation}}) as public functions. Code outside the class that touches a private member gives a {{compile-time}} error."],
+["1.5 Member functions","A member function written inside the class body is automatically treated as an {{inline}} function. A longer function is declared inside the class (a {{prototype}}) and defined outside using the {{scope resolution operator}} ::, written ReturnType ClassName::function(). The class name is needed because the compiler cannot otherwise tell {{which class}}'s members the body uses. A function defined outside can be requested to be inline with the {{inline}} keyword, but this is only a {{request}}: the compiler may ignore it. A member function may call another member function of the same object {{without}} the dot operator."],
+["1.6 Objects in memory, this and static","A local object lives on the {{stack}}, each with its own block holding its member variables. There is exactly {{one copy}} of the compiled code of each member function, shared by all objects; only the {{data}} is duplicated. The hidden {{this}} pointer, an extra argument of every non-static member function, holds the {{address}} of the object on which the function was called; a plain member name means {{this->member}}. It is written explicitly to return the current object (return *this;) or to {{disambiguate}} a parameter with the same name as a member. A {{static}} data member is shared by all objects, stored once, declared inside the class and {{defined}} once outside it (int Student::studentCount = 0;), and is accessed with the {{class name}}. A static member function has no {{this}} pointer, so it can use only static data."],
+["1.7 Friend functions and classes","A {{friend}} function or class is granted permission by the class itself to access its {{private}} and protected members. The friend function is declared inside the class with the keyword friend but defined {{outside}} like an ordinary function, without ClassName::, and is called {{without}} the dot operator; it is {{not a member}}. A friend class (friend class Car;) gives all its member functions access. Friendship is not {{mutual}}, not {{transitive}} and not {{inherited}}. It is legitimately used for operations between two objects such as overloading + or ==, and should be used {{sparingly}} because it punctures encapsulation."],
+["1.8 Advantages of OOP","The advantages are {{modularity}} (encapsulation), {{data security}} (data hiding and access specifiers), {{reusability}} (inheritance), {{flexibility}} (polymorphism), easier {{maintenance}} (a bug is fixed in one class) and {{natural modelling}} of real-world entities. OOP is a {{trade-off}}: a short, linear script gains little from the ceremony of a class, and the advantages grow with the size, lifespan and number of contributors of a program."]
+];
+const DUMPS=[
+{t:"From procedures to objects",p:["Procedural: functions acting on data passed to them","Problem at scale: data reachable from everywhere, no boundary","OOP: objects bundle data and functions","C++ supports both paradigms","Procedural: C, BASIC; OOP: C++, Java, Python","Reuse: functions versus whole classes"]},
+{t:"The principles of OOP",p:["Encapsulation, abstraction, data hiding, inheritance, polymorphism, message passing","Encapsulation is the container; data hiding is the lock","Abstraction hides complexity: a Stack used through push, pop, isEmpty","Inheritance: derived class, base class, is-a","Polymorphism: compile-time (overloading) and run-time (virtual functions)","Message: receiver, message name, arguments"]},
+{t:"Classes and objects",p:["class Name { ... }; semicolon mandatory","PascalCase class names","Object: instance; each has its own copy of member variables","Dot operator: object.member","Only public members reachable from outside","Student with 4 + 4 + 50 bytes is at least 58 bytes"]},
+{t:"Access specifiers",p:["public: anywhere","private: only the class's own member functions","protected: class and derived classes","class defaults to private; struct to public","Private data, public getters and setters","Outside access to private or protected gives a compile-time error"]},
+{t:"Member functions",p:["Inside the class: implicitly inline","Outside: ReturnType ClassName::function()","Scope resolution operator names the class","inline keyword is a request, not a command","Member functions call each other without the dot"]},
+{t:"Objects in memory, this and static",p:["Objects on the stack, each with its own data","One copy of function code for all objects","this: hidden pointer to the calling object","Member name means this->member","return *this; and this->x = x;","Static member: one shared copy, defined outside, used through the class name","Static function: no this, static data only"]},
+{t:"Friend functions and classes",p:["friend: access granted by the class itself","Friend function: declared inside with friend, defined outside, called like an ordinary function","friend class Car; grants every member function of Car access","Not mutual, not transitive, not inherited","Use for symmetric operations; use sparingly"]},
+{t:"Advantages of OOP",p:["Modularity: encapsulation","Data security: data hiding and access specifiers","Reusability: inheritance","Flexibility: polymorphism","Easier maintenance: bug fixed in one class","Natural modelling: objects match real entities","Trade-off: little gain for short linear scripts"]}
+];
+
+const SECS=["From procedures to objects","The principles of OOP","Classes and objects","Access specifiers","Member functions","Objects in memory, this and static","Friend functions and classes","Advantages of OOP"];
+const CORE=[
+[0,"Describe the procedural paradigm.","A program is a list of variables and a list of functions; the functions are passed whatever data they need as arguments. It suits small, linear tasks."],
+[0,"What problem does procedural code meet as a program grows?","Data and the functions that use it drift apart: nothing in the language stops any function from reaching into any variable, and a reader cannot tell without searching the whole file which other functions depend on the same data."],
+[0,"Define object-oriented programming.","A paradigm that organises a program around objects, each bundling the data describing one entity with the functions that operate on that data."],
+[0,"Does C++ force a choice of paradigm?","No. It supports both: a program may be procedural, entirely class-based or, as is normal, a mix of both."],
+[0,"Why is OOP preferred for large projects?","Procedural code at scale has data accessible from everywhere with no language-enforced boundary; OOP puts data inside objects and controls access with specifiers."],
+[1,"Define encapsulation.","Bundling the data (member variables) and the functions that operate on it (member functions) into one unit, the class, and controlling access to that data through a well-defined interface."],
+[1,"What are the two aspects of encapsulation?","Bundling (data and behaviour in one class) and controlled access (the class decides which of its interior is visible outside)."],
+[1,"Define abstraction.","Exposing only the essential, relevant features of an object while hiding the complex internal implementation, presenting a simplified high-level interface."],
+[1,"Give an example of abstraction.","A programmer uses a Stack class through push(), pop() and isEmpty() without knowing whether it is an array or a linked list; a driver uses a steering wheel without understanding the engine."],
+[1,"Define data hiding.","Making an object's internal data inaccessible to code outside the class, so it can be read or modified only through the class's own member functions; in C++ it uses the private specifier."],
+[1,"Why does data hiding protect an object?","Every change must pass through the class's own functions, which can validate it: no outside code can write balance = -1000; deposit() and withdraw() can refuse a negative deposit or an excessive withdrawal."],
+[1,"Distinguish encapsulation from data hiding.","Encapsulation is about bundling data and functions in one class (the container); data hiding is about restricting access to that data with access specifiers (the lock on it)."],
+[1,"Distinguish encapsulation from abstraction.","Abstraction hides complexity: what you do not need to know to use the class. Encapsulation achieves it by physically bundling data and functions together with access control."],
+[1,"Define inheritance.","The mechanism by which a derived (child) class is created from a base (parent) class, automatically acquiring its members and then adding or modifying behaviour; OOP's primary mechanism for code reuse."],
+[1,"What relationship does inheritance model?","An is-a relationship: a Car is a Vehicle; a Dog is an Animal."],
+[1,"Define polymorphism.","Greek for many forms: a single interface (a function name, an operator, a pointer type) works with objects of different classes, each responding in its own appropriate way."],
+[1,"Name the two kinds of polymorphism.","Compile-time (static), resolved at compile time by function and operator overloading; and run-time (dynamic), resolved at run time by virtual functions called through a base class pointer."],
+[1,"Define message passing.","Objects communicate by one object calling a member function of another; the term is the OOP way of describing an ordinary function call, emphasising objects as active entities."],
+[1,"Name the three parts of a message.","The receiver (the object), the message name (the function) and any arguments, as in bankAccount.deposit(5000)."],
+[2,"How does a class definition begin and end?","With the keyword class, the class name and a body in braces; a semicolon after the closing brace is mandatory."],
+[2,"Why is a forgotten semicolon after a class troublesome?","It is one of the most common compile errors, and because of how C++ parses what follows the message is confusing and often points to another line; check the line after the class first."],
+[2,"What naming convention is used for classes?","An uppercase first letter or PascalCase for multi-word names (BankAccount), distinguishing them from variables, which use camelCase or lowercase."],
+[2,"Define a class.","A blueprint defining the member variables and member functions of a type of object."],
+[2,"Define an object.","An instance of a class, created by declaring a variable of the class type, with its own copy of the member variables."],
+[2,"How is an object created?","ClassName objectName; for example Student s1; or Student s2, s3; this is called instantiation."],
+[2,"Do two objects of a class share their data?","No. Each has its own independent copy; changing s1.rollNo has no effect on s2.rollNo."],
+[2,"How much memory does a Student with int rollNo, float marks and char name[50] use?","At least 4 + 4 + 50 = 58 bytes per object."],
+[2,"What does the dot operator do?","Reaches a member of an object, data or function: objectName.memberName; only public members can be reached this way from outside the class."],
+[2,"Which two checks apply to an access such as s1.marks in an examination question?","Is the member public? and has it been assigned a value on that specific object before being read?"],
+[3,"What is an access specifier?","A keyword that controls which parts of a program may reach a class's members: public, private or protected; it implements data hiding."],
+[3,"What does public mean?","Accessible anywhere: inside the class and from outside code through an object; used for the class's interface."],
+[3,"What does private mean?","Accessible only from inside the class's own member functions; used for internal data and helper functions."],
+[3,"What does protected mean?","Accessible inside the class and inside any class that inherits from it, but not from other outside code."],
+[3,"What is the default specifier in a class?","private. A struct defaults to public, which is the only functional difference between class and struct in C++."],
+[3,"What error follows relying on the default specifier wrongly?","A private-access compile error that looks identical to a genuine data hiding violation; check whether a public: label was written."],
+[3,"State the best practice for member variables.","Make them private and provide public getters (to read) and setters (to change, with validation) as the only way in from outside."],
+[3,"Which of these compiles outside the class: acc.balance = 5; acc.deposit(5);?","Only acc.deposit(5); balance is private, so the first is a compile-time error."],
+[3,"Behaviour of protected for code outside the class and its derived classes?","Exactly like private: it is not accessible."],
+[4,"What happens to a member function written inside the class?","It is automatically treated as an inline function; the compiler may substitute its code at each call."],
+[4,"How is a member function defined outside its class?","Declare it inside the class, then write ReturnType ClassName::functionName(parameters) { ... } after the class, using the scope resolution operator."],
+[4,"Why is ClassName:: needed outside the class?","Without it the compiler cannot tell which class's member variables the body refers to, since two classes may define members of the same name."],
+[4,"Why split declaration from definition?","It mirrors the header (.h) and source (.cpp) convention: the header shows what the class offers while the bodies are compiled once and linked."],
+[4,"How is an outside member function requested to be inline?","With the inline keyword: inline double Circle::area() { ... }"],
+[4,"Is the inline keyword a command?","No, only a request: the compiler may ignore it for a large or complex function."],
+[4,"How does one member function call another?","Directly by name, without the dot operator, since it already works inside the object's own context."],
+[5,"Where is a local object stored?","On the stack, in a block holding all its member variables, independent of every other object."],
+[5,"How many copies of a member function's code exist?","One, in the code segment, shared by every object of the class; only the data is duplicated per object."],
+[5,"What is the this pointer?","A hidden extra argument of every non-static member function, holding the address of the object through which it was called."],
+[5,"Why is this needed?","Because all objects share one copy of the function code, the code needs a way to know which object's data to act on."],
+[5,"What does s1.deposit(500) pass as this?","The address of s1, &s1."],
+[5,"What does a plain member name mean inside a member function?","this->member: value is the same as this->value."],
+[5,"When is this written explicitly?","To return the current object (return *this;), enabling chaining, and to disambiguate a parameter with the same name as a member (this->x = x;)."],
+[5,"What is a static data member?","A member shared by every object of the class, stored once, existing even if no object has been created."],
+[5,"How is a static data member declared and defined?","Declared inside the class with static, defined and initialised exactly once outside it with ::, for example int Student::studentCount = 0;"],
+[5,"How is a static member accessed?","Through the class name (Student::studentCount) or an object, but the class name is more idiomatic."],
+[5,"What can a static member function access?","Only static data members (and other static functions): it has no this pointer."],
+[5,"How is a static member function called?","Through the class name with no object: Student::getCount()."],
+[5,"What is printed by three Student objects each incrementing static studentCount?","3, since there is one shared counter."],
+[6,"What problem does friend solve?","An external function or another class sometimes legitimately needs private data, and forcing every access through getters and setters would be clumsy or inefficient."],
+[6,"Define a friend.","A function or class granted explicit permission, by the class itself, to access its private and protected members directly."],
+[6,"Who grants friendship?","The class itself, by writing friend in its own body; it can never be taken."],
+[6,"How is a friend function declared and defined?","Declared inside the class with friend, defined outside like an ordinary function, without ClassName::."],
+[6,"How is a friend function called?","Like an ordinary function, isLarger(a, b), not a.isLarger(b), because it is not a member."],
+[6,"Why is a friend function not a member?","The friend declaration only grants access; the function is defined and called as a standalone function and never becomes a member."],
+[6,"How is a friend class declared?","friend class Car; inside the class being accessed; every member function of Car may then use its private and protected members."],
+[6,"Is friendship mutual?","No. If Engine declares Car a friend, Engine gains no special access to Car's private members."],
+[6,"Is friendship transitive?","No. If A is a friend of B and B of C, A gains no access to C."],
+[6,"Is friendship inherited?","No. A class derived from Box does not inherit Box's friends."],
+[6,"When is friend appropriate?","For operations naturally involving two objects symmetrically, such as overloading + or == between two instances."],
+[6,"Why use friend sparingly?","It is a controlled puncture in encapsulation; overuse defeats the purpose of making data private. Try ordinary public member functions first."],
+[7,"Name the advantages of OOP.","Modularity, data security, reusability, flexibility, easier maintenance and natural modelling."],
+[7,"Which mechanism gives modularity?","Encapsulation: each class is a self-contained unit."],
+[7,"Which mechanism gives data security?","Data hiding and access specifiers: every change passes through validated member functions."],
+[7,"Which mechanism gives reusability?","Inheritance: a new class acquires and extends an existing class instead of rewriting it."],
+[7,"Which mechanism gives flexibility?","Polymorphism: one interface serves many implementations, so new kinds of object are added with minimal change elsewhere."],
+[7,"Why is maintenance easier in OOP?","A bug in a class's behaviour is fixed in one place, in that class's member functions, rather than across every function that touched the data."],
+[7,"Is OOP always better?","No. A short linear script gains little from a class; the advantages grow with the size, lifespan and number of contributors."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Output prediction and classification",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["Procedural programming organises a program around:",["Objects","Functions operating on separate data","Classes only","Inheritance"],1,"Variables and functions are kept apart."],
+["OOP organises a program around:",["Objects bundling data and functions","Global variables","Loops","Pointers"],0,"Objects."],
+["Bundling data and functions into one unit is:",["Abstraction","Encapsulation","Polymorphism","Inheritance"],1,"Encapsulation."],
+["Exposing only essential features and hiding implementation is:",["Abstraction","Inheritance","Overloading","Friendship"],0,"Abstraction."],
+["Restricting outside access to data using private is:",["Data hiding","Inheritance","Message passing","Instantiation"],0,"Data hiding."],
+["Creating a class from an existing class gives:",["Polymorphism","Inheritance","Encapsulation","Abstraction"],1,"Inheritance, an is-a relationship."],
+["Function overloading is an example of:",["Run-time polymorphism","Compile-time polymorphism","Inheritance","Data hiding"],1,"Resolved at compile time."],
+["Run-time polymorphism uses:",["Virtual functions","Static members","Friend functions","Inline functions"],0,"Virtual functions through base pointers."],
+["The three parts of a message are:",["Receiver, message name, arguments","Class, object, member","Public, private, protected","Name, type, value"],0,"As in acc.deposit(500)."],
+["Which punctuation must follow the closing brace of a class?",["Colon",". (dot)","Semicolon","Nothing"],2,"A mandatory semicolon."],
+["A class is:",["A running instance","A blueprint","A variable","A function"],1,"A blueprint; an object is an instance."],
+["Creating an object of a class is called:",["Inheritance","Instantiation","Overloading","Linking"],1,"Instantiation."],
+["Each object of a class has its own copy of:",["Member functions","Static members","Non-static data members","The class name"],2,"Data is per object; function code is shared."],
+["The dot operator is used to:",["Define a member outside","Access a member through an object","Declare a friend","Create a pointer"],1,"object.member."],
+["The default access specifier in a class is:",["public","private","protected","friend"],1,"private."],
+["The default access specifier in a struct is:",["public","private","protected","none"],0,"public."],
+["Members accessible only inside the class are:",["public","private","friend","static"],1,"private."],
+["protected members are accessible in:",["Any code","Only the class","The class and derived classes","Only friends"],2,"Class and its derived classes."],
+["Given private int balance in BankAccount, the statement acc.balance = 5; in main is:",["Valid","A compile-time error","A run-time error","A warning only"],1,"Private access violation."],
+["Which is the best practice for data members?",["All public","All private with getters and setters","All static","All friends"],1,"Private plus a controlled interface."],
+["A function defined inside the class body is automatically:",["static","friend","inline","virtual"],2,"Inline."],
+["To define a member function outside the class, one writes:",["ReturnType name()","ReturnType Class::name()","Class.name()","friend ReturnType name()"],1,"Scope resolution operator."],
+["The operator :: is called:",["Dot operator","Scope resolution operator","Arrow operator","Insertion operator"],1,"Scope resolution."],
+["The inline keyword is:",["A command","A request the compiler may ignore","Compulsory outside the class","Only for friends"],1,"A request."],
+["How many copies of a member function's code exist for 100 objects?",["100","1","10","0"],1,"One shared copy."],
+["The this pointer holds:",["The class name","The address of the calling object","The address of main","Nothing"],1,"The current object's address."],
+["this is available in:",["Static member functions","Non-static member functions","Friend functions","Global functions"],1,"Not in static or friend functions."],
+["In a member function with parameter x and member x, the member is referred to as:",["x","this->x","::x","self.x"],1,"this->x."],
+["To return the current object from a member function one writes:",["return this;  (as an object)","return *this;","return &this;","return that;"],1,"*this is the object."],
+["A static data member is:",["One per object","Shared by all objects","Always private","Constant"],1,"Single shared copy."],
+["A static data member must be defined:",["Inside main","Outside the class once","Only in a friend","Never"],1,"For example int Student::count = 0;"],
+["A static member function can access:",["Any non-static member","Only static members","this","Private data of any object by name"],1,"No this pointer."],
+["A static member function is called as:",["obj->f()","Class::f()","f::Class()","this->f()"],1,"Through the class name."],
+["A friend function:",["Is a member","Is called with the dot operator","Can access private members","Has a this pointer"],2,"Granted access but not a member."],
+["A friend function is declared with friend:",["Outside the class","Inside the class","In main","In a derived class"],1,"Inside the granting class."],
+["A friend function definition outside the class uses:",["Class:: prefix","No Class:: prefix","The static keyword","The this pointer"],1,"It is an ordinary function."],
+["If A declares B a friend, then:",["A can access B's private members","B can access A's private members","Both can","Neither can"],1,"Friendship is one-way."],
+["Friendship is:",["Inherited","Transitive","Neither inherited nor transitive","Both"],2,"Neither."],
+["Who grants friendship?",["The friend","The class being accessed","The compiler","main"],1,"The class itself."],
+["Which is an advantage of OOP?",["Faster hardware","Reusability through inheritance","No need for functions","Smaller executables always"],1,"Reusability."],
+["Data security in OOP comes mainly from:",["Inline","Data hiding","Friend","Overloading"],1,"Data hiding."],
+["Why is the this pointer needed?",["Functions are copied per object","Function code is shared by all objects","To make members public","To define friends"],1,"One shared function body."]
+];
+const FILL=[
+["Bundling data and functions into one unit is called ___.",["encapsulation"],"Encapsulation."],
+["Showing only essential features and hiding implementation is ___.",["abstraction"],"Abstraction."],
+["Making data inaccessible outside the class is called data ___.",["hiding"],"Data hiding."],
+["Inheritance models an ___ relationship.",["is a","isa"],"Is-a."],
+["Polymorphism means ___ forms.",["many"],"Many."],
+["An ___ is an instance of a class.",["object"],"Object."],
+["A class definition must end with a ___.",["semicolon"],"Semicolon."],
+["The default access specifier of a class is ___.",["private"],"Private."],
+["The default access specifier of a struct is ___.",["public"],"Public."],
+["Members declared ___ are accessible in derived classes but not elsewhere.",["protected"],"Protected."],
+["A member function defined outside its class needs the ___ resolution operator.",["scope"],"Scope."],
+["The ___ pointer stores the address of the calling object.",["this"],"this."],
+["A ___ data member is shared by all objects of the class.",["static"],"Static."],
+["A function granted access to private members is a ___ function.",["friend"],"Friend."],
+["A member function defined inside the class is implicitly ___.",["inline"],"Inline."],
+["A static member function has no ___ pointer.",["this"],"this."]
+];
+const TF=[
+["In procedural programming, data and functions are bundled together.",false,"They are kept separate."],
+["C++ supports both procedural and object-oriented styles.",true,"It is multi-paradigm."],
+["Encapsulation and data hiding are exactly the same thing.",false,"Encapsulation bundles; data hiding restricts access."],
+["A class can be used without creating any object, for non-static data.",false,"Non-static data lives in objects."],
+["Two objects of a class share the same non-static data.",false,"Each has its own copy."],
+["Private members can be accessed through the dot operator from main.",false,"Compile-time error."],
+["A class definition needs a semicolon after the closing brace.",true,"Mandatory."],
+["The only functional difference between class and struct is the default access.",true,"private versus public."],
+["Member functions defined inside a class are inline by default.",true,"Yes."],
+["Each object has its own copy of every member function's code.",false,"One shared copy."],
+["The this pointer is available in static member functions.",false,"Static functions have no this."],
+["A static data member is defined once outside the class.",true,"Yes."],
+["A static member function can access non-static data directly.",false,"It has no object."],
+["Static members can be accessed using the class name.",true,"Class::member."],
+["A friend function is a member of the class.",false,"Standalone."],
+["A friend function is called with the dot operator.",false,"Called like an ordinary function."],
+["If A is a friend of B, B is automatically a friend of A.",false,"Not mutual."],
+["Friendship is inherited by derived classes.",false,"Not inherited."],
+["Friendship weakens encapsulation if overused.",true,"Yes."],
+["Inheritance promotes code reuse.",true,"Yes."],
+["Run-time polymorphism uses function overloading.",false,"It uses virtual functions."],
+["Making data members private and providing getters and setters is good practice.",true,"Yes."]
+];
+const VSA=[
+["Name the OOP mechanism that creates a new class from an existing one.",["inheritance"],"Inheritance."],
+["Name the two kinds of polymorphism.",["compile","run"],"Compile-time and run-time.",1],
+["What is an object?",["instance","class"],"An instance of a class.",1],
+["Which operator accesses members through an object?",["dot","."],"The dot operator."],
+["Which operator defines a member function outside the class?",["scope","::"],"Scope resolution ::."],
+["Name the three access specifiers.",["public","private","protected"],"public, private, protected.",1],
+["What does a getter do?",["read","return","value"],"Returns the value of a private member."],
+["What does a setter do?",["set","change","validat"],"Changes a private member, usually after validation."],
+["Which keyword shares one member among all objects?",["static"],"static."],
+["Which keyword grants outside access to private members?",["friend"],"friend."],
+["Which pointer refers to the calling object?",["this"],"this."],
+["Name the two things a static member function can access.",["static"],"Only static members."],
+["Give one advantage of data hiding.",["valid","protect","secur","integrity"],"Changes pass through validating functions."],
+["Is friendship mutual?",["no"],"No."]
+];
+const CALC=[
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nclass Box {\npublic:\n  int l, w, h;\n  int volume() { return l * w * h; }\n};\nint main() {\n  Box b;\n  b.l = 3; b.w = 3; b.h = 3;\n  cout << b.volume();\n  return 0;\n}",alts:[["27"]],ex:1,model:"27",e:"3 x 3 x 3 = 27."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nclass Counter {\npublic:\n  int n;\n  Counter() { n = 0; }\n  void inc() { n++; }\n};\nint main() {\n  Counter c;\n  c.inc(); c.inc(); c.inc();\n  cout << c.n;\n  return 0;\n}",alts:[["3"]],ex:1,model:"3",e:"Three increments from 0."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nclass Student {\npublic:\n  static int count;\n  Student() { count++; }\n};\nint Student::count = 0;\nint main() {\n  Student a, b, c;\n  cout << Student::count;\n  return 0;\n}",alts:[["3"]],ex:1,model:"3",e:"One shared counter incremented by each constructor call."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nclass P {\npublic:\n  int x;\n  P(int x) { this->x = x; }\n};\nint main() {\n  P a(5), b(8);\n  cout << a.x << \" \" << b.x;\n  return 0;\n}",alts:[["5 8"]],ex:1,model:"5 8",e:"this->x is the member; x is the parameter."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nclass Box {\n  int s;\npublic:\n  Box(int v) { s = v; }\n  friend bool isLarger(Box a, Box b);\n};\nbool isLarger(Box a, Box b) { return a.s > b.s; }\nint main() {\n  Box x(5), y(3);\n  cout << isLarger(x, y);\n  return 0;\n}",alts:[["1"]],ex:1,model:"1",e:"The friend reads private s; 5 > 3 is true, printed as 1."},
+{q:"Classify the error in this program.",src:"#include <iostream>\nusing namespace std;\nclass A {\n  int v;\n};\nint main() {\n  A a;\n  a.v = 5;\n  cout << a.v;\n  return 0;\n}",alts:[["private","access"],["access violation"]],model:"Compile-time error: v is private (class default), so main cannot access it.",e:"The default specifier of a class is private."},
+{q:"Classify the error in this program.",src:"#include <iostream>\nusing namespace std;\nclass A {\npublic:\n  int v;\n}\nint main() {\n  A a;\n  a.v = 5;\n  cout << a.v;\n  return 0;\n}",alts:[["semicolon"],["missing","semicolon"]],model:"Compile-time error: missing semicolon after the class definition.",e:"A class definition must end with a semicolon."}
+];
+const SHORT=[
+["Distinguish encapsulation from abstraction.","Encapsulation bundles data and the functions that operate on it into one class and controls access to the interior. Abstraction exposes only the essential features and hides the implementation complexity so a user need not understand the internals. Encapsulation is the mechanism; abstraction is the resulting simplified view. Example: a Stack class bundles an array and functions (encapsulation) and is used through push() and pop() alone (abstraction).",["Encapsulation bundles data and functions with controlled access","Abstraction exposes essentials and hides complexity","Encapsulation is the mechanism, abstraction the result","An example"]],
+["List the three access specifiers and what each permits.","public members are accessible anywhere, inside and outside the class. private members are accessible only within the class's own member functions (and friends). protected members are accessible within the class and in classes derived from it, but not from other outside code.",["public: anywhere","private: only inside the class","protected: the class and derived classes"]],
+["Differentiate class and struct in C++.","Both can contain data members and member functions. The only functional difference is the default access: members of a class are private by default, members of a struct are public by default.",["Both hold data and functions","class defaults to private","struct defaults to public"]],
+["Explain how a member function is defined outside the class.","The function is declared inside the class with its prototype. After the class it is defined as ReturnType ClassName::functionName(parameters) { body }. The scope resolution operator :: tells the compiler which class the function belongs to, so it can find the class's member variables. Example: void Student::show() { cout << rollNo; }",["Declare inside the class","Define with ReturnType Class::name","Scope resolution links it to the class","An example"]],
+["What is the this pointer? Why is it needed?","this is a hidden pointer passed to every non-static member function, holding the address of the object that called it. Since all objects share one copy of the function code, the function needs this to know whose data to use. A plain member name is read as this->member. It is also used to return *this and to separate a parameter from a same-named member.",["Hidden pointer to the calling object","Needed because function code is shared","Plain member means this->member","Uses: return *this, this->x = x"]],
+["Distinguish static and non-static data members.","A non-static data member is stored in every object separately, so each object has its own value. A static data member is stored once for the whole class and shared by all objects; it exists even if no object exists. It is declared with static inside the class and defined once outside it, e.g. int Student::count = 0;",["Non-static: one per object","Static: one shared copy","Static is defined outside once"]],
+["State the properties of a friend function.","It is declared inside a class with the keyword friend, but is not a member of that class. It is defined like an ordinary function without Class::, called without the dot operator, and has no this pointer. It can access the private and protected members of the class that declared it, typically through objects passed as arguments.",["Declared with friend inside the class","Not a member, no Class::, no dot call","No this pointer","Can access private members"]],
+["Explain the restrictions on friendship.","Friendship is granted only by the class itself. It is not mutual: if A declares B a friend, A gains no access to B. It is not transitive: a friend of a friend has no access. It is not inherited: a class derived from the granting class does not pass on its friends.",["Granted only by the class","Not mutual","Not transitive","Not inherited"]]
+];
+const LONG=[
+["Explain the principles of object-oriented programming.","The main principles are encapsulation, abstraction, data hiding, inheritance, polymorphism and message passing. Encapsulation bundles data and functions in a class. Abstraction exposes only essential features and hides implementation. Data hiding makes data private so it can be reached only through member functions that can validate changes. Inheritance derives a new class from an existing one, modelling an is-a relationship and enabling reuse. Polymorphism lets one interface take many forms: compile-time through overloading and run-time through virtual functions. Message passing is communication between objects by calling member functions; a message has a receiver, a name and arguments.",["Encapsulation","Abstraction","Data hiding","Inheritance (is-a, reuse)","Polymorphism, compile-time and run-time","Message passing: receiver, name, arguments"]],
+["Explain access specifiers with a program.","Access specifiers control visibility of class members. public members are accessible everywhere; private only within the class (and friends); protected within the class and derived classes. A class defaults to private. Good practice is private data with public getters and setters.\n\nclass Account {\n  double balance;\npublic:\n  void deposit(double x) { if (x > 0) balance += x; }\n  double getBalance() { return balance; }\n};\n\nHere acc.balance = 5; in main is a compile-time error, while acc.deposit(5); is valid.",["public, private, protected defined","Default private for class","Private data with public interface","Program","Violation is a compile-time error"]],
+["Explain static data members and static member functions with an example.","A static data member is shared by all objects: one copy, declared with static inside the class and defined once outside, e.g. int Student::count = 0;. It can be accessed as Student::count. A static member function has no this pointer so it can access only static members; it is called with the class name, Student::getCount(). Example: a constructor increments count so getCount() reports the number of objects created.",["Static data shared, one copy","Defined outside the class","Accessed with the class name","Static function: only static members, no this","Example with counter"]],
+["Explain friend functions and friend classes with examples.","A friend function is declared in a class with friend; it is not a member, is defined without Class:: and called like an ordinary function, yet can read private members. Example: friend bool isLarger(Box a, Box b); defined as bool isLarger(Box a, Box b) { return a.s > b.s; }. A friend class is declared with friend class Car; so all of Car's member functions can access the private members of the class that declares it. Friendship is granted by the class, one-way, not transitive and not inherited. It should be used sparingly because it weakens encapsulation.",["Friend function declaration and properties","Example","Friend class","Restrictions","Use sparingly"]],
+["Discuss the advantages of object-oriented programming.","Modularity: each class is self-contained. Data security: data hiding and access specifiers force changes through validating functions. Reusability: inheritance lets a class extend an existing one. Flexibility: polymorphism lets one interface serve many types. Easier maintenance: a fix is made in one class. Natural modelling: classes map to real entities in the problem domain. The benefits grow with program size and number of contributors.",["Modularity","Data security","Reusability","Flexibility","Maintenance","Natural modelling"]]
+];
+const APP=[
+["A BankAccount class has public double balance. A programmer sets acc.balance = -1000. What is wrong and how is it fixed?","Public data lets any code assign an invalid value. Fix: make balance private and provide deposit() and withdraw() that validate (reject negative deposits and withdrawals exceeding the balance) plus getBalance() to read it.",["Public data allows invalid values","Make it private","Validate in deposit and withdraw","Provide a getter"]],
+["Class Point has members x, y and a constructor Point(int x, int y) { x = x; y = y; }. The members stay uninitialised. Explain and correct.","The parameter names shadow the members, so x = x assigns the parameter to itself. Use this->x = x; this->y = y; or different parameter names, or an initialiser list.",["Parameters shadow members","Self-assignment","this->x = x"]],
+["A program counts how many Student objects exist. Which kind of member should hold the count, and why?","A static data member, because it must be shared by all objects rather than copied into each; the constructor increments it and a static function returns it. It is defined once outside the class.",["Static data member","Shared, one copy","Constructor increments","Defined outside"]],
+["A function needs to compare the private sizes of two Box objects. Offer two designs and choose one.","Design 1: public getter getSize() and an ordinary function comparing the results. Design 2: a friend function isLarger(Box, Box) reading the private members directly. The getter keeps encapsulation strictest; the friend suits a symmetric two-object operation. Either is acceptable; prefer the getter unless the operation is naturally symmetric.",["Getter design","Friend design","Trade-off","Choice justified"]],
+["Why does a compiler report an error for int Counter::n; inside main but accept it at file scope?","A static data member must be defined once at namespace (file) scope outside the class, not inside a function. Placing it inside main is not a valid definition.",["Defined at file scope","Not inside a function","Once"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson13-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Class lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const R=String.raw;
+const STEPS=[
+{t:"From procedures to objects",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"The procedural paradigm",d:"In procedural programming a program is a list of variables and a list of functions; the functions are passed whatever data they need as arguments.",p:["This style suits small, linear tasks. As programs grow, the data and the functions that use it drift apart: nothing in the language prevents any function from reaching any variable, and a reader must search the entire program to find which functions depend on the same data."],t:T[0]},
+ {h:"The problem at scale",p:["When many functions share many global variables, an invalid value written in one place causes a failure in another. Changing a variable's meaning forces every function that uses it to be reviewed."],t:T[1]},
+ {h:"Object-oriented programming",d:"Object-oriented programming organises a program around objects, each bundling the data describing one entity with the functions that operate on that data.",p:["C++ supports both paradigms. A program may be entirely procedural, entirely class-based or, as is normal, a mixture of the two."]}
+]},
+{t:"The principles of OOP",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"The six principles",p:["Object-oriented programming rests on encapsulation, abstraction, data hiding, inheritance, polymorphism and message passing."],t:T[2]},
+ {h:"Encapsulation, data hiding and abstraction",d:"Encapsulation bundles data and the functions that operate on it into one unit, the class. Abstraction exposes only the essential features and hides the implementation. Data hiding makes data inaccessible to code outside the class.",p:["The three terms are related but distinct: encapsulation is the container, data hiding is the access restriction placed on the contents, and abstraction is the simplified view that results."],t:T[3]},
+ {h:"Inheritance",d:"Inheritance is the mechanism by which a derived class is created from a base class, acquiring its members and then adding to or modifying them. It models an is-a relationship and is the principal mechanism of code reuse."},
+ {h:"Polymorphism",d:"Polymorphism, from the Greek for many forms, allows a single interface to work with objects of different classes, each responding in its own way.",p:[],t:T[4]},
+ {h:"Message passing",d:"Message passing is communication between objects by one object calling a member function of another.",p:["A message has three parts: the receiver, the message name and any arguments, as in bankAccount.deposit(5000)."],t:T[5]}
+]},
+{t:"Classes and objects",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Defining a class",d:"A class is a blueprint that defines the member variables and member functions of a type of object. A semicolon must follow the closing brace.",t:T[6],code:{b:R`#include <iostream>
+using namespace std;
+
+class Rectangle {
+public:
+    int length;
+    int width;
+    int area() {
+        return length * width;
+    }
+};
+
+int main()
+{
+    Rectangle r;
+    r.length = 6;
+    r.width = 4;
+    cout << r.area() << endl;
+    return 0;
+}`,tr:"Delete the semicolon after the closing brace of the class and run: the compiler reports an error."}},
+ {h:"Objects",d:"An object is an instance of a class, created by declaring a variable of the class type. Each object has its own copy of the non-static member variables.",p:["Creating an object is called instantiation: Student s1; or Student s2, s3;. Changing s1.rollNo has no effect on s2.rollNo."],t:T[7],code:{b:R`#include <iostream>
+using namespace std;
+
+class Student {
+public:
+    int rollNo;
+    int marks;
+};
+
+int main()
+{
+    Student s1, s2;
+    s1.rollNo = 1; s1.marks = 90;
+    s2.rollNo = 2; s2.marks = 75;
+    s1.marks = 95;
+    cout << s1.marks << " " << s2.marks << endl;
+    return 0;
+}`,tr:"Change s2.marks. Does s1.marks change?"}},
+ {h:"The member access operators",p:["The dot operator reaches a member through an object; the scope resolution operator :: names the class a member belongs to; the arrow operator reaches a member through a pointer to an object."],t:T[24]}
+]},
+{t:"Access specifiers",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"public, private and protected",d:"An access specifier controls which parts of a program may reach a class's members. public members are accessible anywhere; private members only inside the class; protected members inside the class and its derived classes.",t:T[8]},
+ {h:"class versus struct",p:["The only functional difference between a class and a struct in C++ is the default specifier: private for a class, public for a struct."],t:T[9]},
+ {h:"What may be done from outside",t:T[10],code:{b:R`#include <iostream>
+using namespace std;
+
+class BankAccount {
+    double balance;
+public:
+    void setBalance(double b) { if (b >= 0) balance = b; }
+    double getBalance() { return balance; }
+};
+
+int main()
+{
+    BankAccount acc;
+    acc.setBalance(500);
+    cout << acc.getBalance() << endl;
+    return 0;
+}`,tr:"Add the line acc.balance = 1000; in main and run: the compiler reports an access violation."}},
+ {h:"Getters and setters",p:["Best practice is to make data members private and provide public getters to read them and setters to change them, with validation in the setter."],t:T[11]}
+]},
+{t:"Member functions",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Inside and outside the class",d:"A member function written inside the class body is automatically inline. A member function may instead be declared inside the class and defined outside it using ReturnType ClassName::functionName(parameters).",t:T[12],code:{b:R`#include <iostream>
+using namespace std;
+
+class Student {
+    int rollNo;
+public:
+    void set(int r);
+    void show();
+};
+
+void Student::set(int r) { rollNo = r; }
+void Student::show() { cout << "Roll " << rollNo << endl; }
+
+int main()
+{
+    Student s;
+    s.set(7);
+    s.show();
+    return 0;
+}`,tr:"Remove Student:: from set and run: the compiler cannot find rollNo."}},
+ {h:"Uses of the scope resolution operator",t:T[13]},
+ {h:"Inline functions",d:"An inline function is one whose body the compiler may substitute at the point of the call, avoiding call overhead. The inline keyword is a request, not a command.",t:T[14],code:{b:R`#include <iostream>
+using namespace std;
+
+class Circle {
+    double r;
+public:
+    Circle(double x) { r = x; }
+    double area();
+};
+
+inline double Circle::area() { return 3.14 * r * r; }
+
+int main()
+{
+    Circle c(2);
+    cout << c.area() << endl;
+    return 0;
+}`,tr:"Change the radius to 3 and predict the area first."}}
+]},
+{t:"Objects in memory, this and static",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"What each object stores",p:["Each object has its own copy of the non-static data members; the code of a member function exists once and is shared by all objects."],t:T[15]},
+ {h:"The this pointer",d:"this is a hidden extra argument of every non-static member function, holding the address of the object through which the function was called.",p:["Because all objects share one copy of the function code, the code needs this to know which object's data to use. Inside a member function, value means this->value."],t:T[16],code:{b:R`#include <iostream>
+using namespace std;
+
+class Point {
+    int x, y;
+public:
+    Point(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+    void show() { cout << x << " " << y << endl; }
+};
+
+int main()
+{
+    Point p(3, 4);
+    p.show();
+    return 0;
+}`,tr:"Replace this->x = x with x = x: the member is never set."}},
+ {h:"Static data members",d:"A static data member is shared by every object of the class, is stored once, and exists even if no object has been created. It is declared with static inside the class and defined once outside it.",t:T[17],code:{b:R`#include <iostream>
+using namespace std;
+
+class Student {
+public:
+    static int count;
+    Student() { count++; }
+};
+int Student::count = 0;
+
+int main()
+{
+    Student a, b, c;
+    cout << Student::count << endl;
+    return 0;
+}`,tr:"Delete the line int Student::count = 0; and run: the linker reports an undefined member."}},
+ {h:"Static member functions",d:"A static member function belongs to the class, has no this pointer, and can access only static members. It is called through the class name.",t:T[18]}
+]},
+{t:"Friend functions and classes",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"The friend function",d:"A friend function is granted explicit permission, by the class itself, to access its private and protected members. It is declared inside the class with friend but is not a member.",t:T[19],code:{b:R`#include <iostream>
+using namespace std;
+
+class Box {
+    int side;
+public:
+    Box(int s) { side = s; }
+    friend bool isLarger(Box a, Box b);
+};
+
+bool isLarger(Box a, Box b) { return a.side > b.side; }
+
+int main()
+{
+    Box x(5), y(3);
+    cout << isLarger(x, y) << endl;
+    return 0;
+}`,tr:"Remove the friend line: the function can no longer read side."}},
+ {h:"Friend classes",p:["A friend class is declared with friend class Name; all member functions of that class may then access the private and protected members of the declaring class."],t:T[20],code:{b:R`#include <iostream>
+using namespace std;
+
+class Car;
+class Engine {
+    int power;
+public:
+    Engine(int p) { power = p; }
+    friend class Car;
+};
+class Car {
+public:
+    void show(Engine e) { cout << e.power << endl; }
+};
+
+int main()
+{
+    Engine e(150);
+    Car c;
+    c.show(e);
+    return 0;
+}`,tr:"Remove friend class Car; and run."}},
+ {h:"Restrictions on friendship",t:T[21]},
+ {h:"When friend is appropriate",t:T[22]}
+]},
+{t:"Advantages of OOP",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Advantages",p:["Each advantage traces back to one of the principles in Step 2."],t:T[23]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* ============ C++ CLASS RUNNER ============ */
+/* ============ MINI C++ CLASS RUNNER (the in-browser runner cannot handle classes, so this lab has its own) ============ */
+class CppErr extends Error{constructor(kind,title,detail,line){super(title);this.kind=kind;this.title=title;this.detail=detail;this.line=line;}}
+class Ret{constructor(v){this.v=v;}}class Brk{}class Cnt{}
+const BASET=["int","double","float","bool","char","string","void","long","short","unsigned","auto"];
+function lex(src){
+  const T=[];let i=0,line=1;const n=src.length;
+  const ops=["<<=",">>=","->","::","++","--","+=","-=","*=","/=","%=","==","!=","<=",">=","&&","||","<<",">>"];
+  while(i<n){
+    const c=src[i];
+    if(c==="\n"){line++;i++;continue;}
+    if(/\s/.test(c)){i++;continue;}
+    if(c==="#"){while(i<n&&src[i]!=="\n")i++;continue;}
+    if(c==="/"&&src[i+1]==="/"){while(i<n&&src[i]!=="\n")i++;continue;}
+    if(c==="/"&&src[i+1]==="*"){i+=2;while(i<n&&!(src[i]==="*"&&src[i+1]==="/")){if(src[i]==="\n")line++;i++;}i+=2;continue;}
+    let m;
+    if((m=/^(\d+\.\d*|\.\d+|\d+)[fF]?/.exec(src.slice(i,i+40)))){T.push({t:"num",v:parseFloat(m[1]),f:/[.]/.test(m[1]),line});i+=m[0].length;continue;}
+    if(/[A-Za-z_]/.test(c)){let j=i;while(j<n&&/\w/.test(src[j]))j++;T.push({t:"id",v:src.slice(i,j),line});i=j;continue;}
+    if(c==='"'){let j=i+1,s="";while(j<n&&src[j]!=='"'){if(src[j]==="\\"){const e=src[j+1];s+=e==="n"?"\n":e==="t"?"\t":e;j+=2;}else{if(src[j]==="\n")throw new CppErr("compile","Compile-time error (syntax)","Missing terminating \" character.",line);s+=src[j++];}}T.push({t:"str",v:s,line});i=j+1;continue;}
+    if(c==="'"){let j=i+1,s="";if(src[j]==="\\"){const e=src[j+1];s=e==="n"?"\n":e==="t"?"\t":e;j+=2;}else s=src[j++];T.push({t:"chr",v:s,line});i=j+1;continue;}
+    let op=null;for(const o of ops)if(src.startsWith(o,i)){op=o;break;}
+    if(!op)op=c;T.push({t:"op",v:op,line});i+=op.length;
+  }
+  T.push({t:"eof",v:"<end of file>",line});return T;
+}
+function parseProg(T){
+  let p=0;const classes={},funcs={},globals={};const CL=()=>Object.keys(classes);
+  const peek=(k=0)=>T[Math.min(p+k,T.length-1)],isV=(v,k=0)=>{const t=peek(k);return (t.t==="op"||t.t==="id")&&t.v===v;};
+  const syn=(msg,line)=>{throw new CppErr("compile","Compile-time error (syntax)","Line "+(line||peek().line)+": "+msg,line||peek().line);};
+  const next=()=>T[p++],acc=v=>{if(isV(v)){p++;return true;}return false;};
+  const exp=v=>{if(!acc(v)){const prev=T[Math.max(p-1,0)];syn("expected '"+v+"' before '"+peek().v+"'"+(v===";"?" (a missing semicolon is reported at the next token; check the end of line "+prev.line+")":""),v===";"?prev.line:peek().line);}};
+  const ident=()=>{const t=next();if(t.t!=="id")syn("expected a name but found '"+t.v+"'",t.line);return t.v;};
+  const isTypeStart=()=>{const t=peek();return t.t==="id"&&(BASET.includes(t.v)||t.v==="const"||classes[t.v]!==undefined||(CL().length===0&&false));};
+  function parseType(){
+    const tp={name:"",ref:false};let words=[];
+    while(peek().t==="id"&&(peek().v==="const"||peek().v==="unsigned"||peek().v==="static"||peek().v==="inline"))next();
+    const t=next();if(t.t!=="id")syn("expected a type",t.line);tp.name=t.v;
+    while(peek().t==="id"&&["int","long","short"].includes(peek().v)&&BASET.includes(tp.name))next();
+    if(acc("&"))tp.ref=true;else if(isV("*")){}
+    return tp;
+  }
+  function params(){const ps=[];exp("(");if(!isV(")")){do{if(isV("void")&&isV(")",1)){next();break;}const ty=parseType();let nm="";if(peek().t==="id")nm=ident();ps.push({type:ty,name:nm});}while(acc(","));}exp(")");return ps;}
+  function parseClass(){
+    const kw=next().v,name=ident();const c={name,struct:kw==="struct",fields:[],methods:{},ctors:[],statics:{},sv:{},friendFns:new Set(),friendCls:new Set()};classes[name]=c;
+    exp("{");let spec=kw==="struct"?"public":"private";
+    while(!isV("}")){
+      if(peek().t==="eof")syn("expected '}' at end of input");
+      const t=peek();
+      if((t.v==="public"||t.v==="private"||t.v==="protected")&&isV(":",1)){spec=t.v;p+=2;continue;}
+      if(t.v==="friend"){next();if(acc("class")){c.friendCls.add(ident());exp(";");continue;}const ty=parseType();const fn=ident();params();exp(";");c.friendFns.add(fn);continue;}
+      let isStatic=false;while(isV("static")||isV("inline")||isV("virtual")){if(peek().v==="static")isStatic=true;next();}
+      if(peek().v===name&&isV("(",1)){next();const ps=params();const init=[];if(acc(":")){do{const f=ident();exp("(");const e=expr();exp(")");init.push([f,e]);}while(acc(","));}const body=acc(";")?null:block();c.ctors.push({params:ps,body,init,spec});continue;}
+      if(isV("~")){syn("destructors are outside this lesson",t.line);}
+      const ty=parseType();const nm=ident();
+      if(isV("(")){const ps=params();const line=peek().line;const body=acc(";")?null:block();(c.methods[nm]=c.methods[nm]||[]).push({name:nm,ret:ty,params:ps,body,spec,isStatic,cls:c,decl:true});continue;}
+      let first=true;let cur=nm;
+      for(;;){
+        let arr=false;if(acc("[")){arr=true;next();exp("]");}
+        let init=null;if(acc("="))init=expr();
+        if(isStatic)c.statics[cur]={type:ty.name,spec};else c.fields.push({name:cur,type:arr?"chararr":ty.name,spec,init});
+        if(acc(","))cur=ident();else break;
+      }
+      exp(";");
+    }
+    exp("}");
+    if(!isV(";")){syn("expected ';' after class definition (the semicolon after the closing brace is mandatory)",T[p-1].line);}
+    next();
+  }
+  /* statements */
+  function block(){const line=peek().line;exp("{");const b=[];while(!isV("}")){if(peek().t==="eof")syn("expected '}' at end of input");b.push(stmt());}next();return {k:"block",b,line};}
+  function stmt(){
+    const line=peek().line,t=peek();
+    if(isV("{"))return block();
+    if(t.t==="id"){
+      if(t.v==="if"){next();exp("(");const c=expr();exp(")");const a=stmt();let b=null;if(acc("else"))b=stmt();return {k:"if",c,a,b,line};}
+      if(t.v==="while"){next();exp("(");const c=expr();exp(")");return {k:"while",c,body:stmt(),line};}
+      if(t.v==="for"){next();exp("(");let init=null;if(!isV(";"))init=declOrExpr();else next();let c=null;if(!isV(";"))c=expr();exp(";");let st=null;if(!isV(")"))st=expr();exp(")");return {k:"for",init,c,st,body:stmt(),line};}
+      if(t.v==="return"){next();let e=null;if(!isV(";"))e=expr();exp(";");return {k:"ret",e,line};}
+      if(t.v==="break"){next();exp(";");return {k:"brk",line};}
+      if(t.v==="continue"){next();exp(";");return {k:"cnt",line};}
+    }
+    return declOrExpr();
+  }
+  function declOrExpr(){
+    const line=peek().line;
+    if(isTypeStart()){
+      const save=p;let ty=null;try{ty=parseType();}catch(e){p=save;}
+      if(ty&&peek().t==="id"&&["=","(",";",",","["].includes(peek(1).v)&&!(peek(1).v==="("&&false)){
+        const ds=[];
+        do{const nm=ident();let arr=false,init=null,args=null;if(acc("[")){arr=true;next();exp("]");}
+          if(acc("="))init=expr();else if(acc("(")){args=[];if(!isV(")")){do args.push(expr());while(acc(","));}exp(")");}
+          ds.push({name:nm,arr,init,args});}while(acc(","));
+        exp(";");return {k:"decl",ty,ds,line};
+      }
+      p=save;
+    }
+    const e=expr();exp(";");return {k:"expr",e,line};
+  }
+  /* expressions */
+  const L2=[["||"],["&&"],["==","!="],["<",">","<=",">="],["<<",">>"],["+","-"],["*","/","%"]];
+  function expr(){return assign();}
+  function assign(){
+    const l=bin(0);const t=peek();
+    if(t.t==="op"&&["=","+=","-=","*=","/=","%="].includes(t.v)){next();const r=assign();return {k:"asg",op:t.v,l,r,line:t.line};}
+    return l;
+  }
+  function bin(lv){
+    if(lv>=L2.length)return unary();
+    let l=bin(lv+1);
+    for(;;){const t=peek();if(t.t==="op"&&L2[lv].includes(t.v)&&!(t.v==="<"&&false)){next();const r=bin(lv+1);l={k:"bin",op:t.v,l,r,line:t.line};}else break;}
+    return l;
+  }
+  function unary(){
+    const t=peek();
+    if(t.t==="op"&&["!","-","+","*","&"].includes(t.v)){next();return {k:"un",op:t.v,e:unary(),line:t.line};}
+    if(t.t==="op"&&(t.v==="++"||t.v==="--")){next();return {k:"inc",op:t.v,pre:true,e:unary(),line:t.line};}
+    return post();
+  }
+  function post(){
+    let e=primary();
+    for(;;){
+      const t=peek();
+      if(t.t==="op"&&(t.v==="."||t.v==="->")){next();const nm=ident();e={k:"mem",o:e,name:nm,arrow:t.v==="->",line:t.line};}
+      else if(t.t==="op"&&t.v==="("){next();const args=[];if(!isV(")")){do args.push(expr());while(acc(","));}exp(")");e={k:"call",f:e,args,line:t.line};}
+      else if(t.t==="op"&&t.v==="["){next();const i=expr();exp("]");e={k:"idx",o:e,i,line:t.line};}
+      else if(t.t==="op"&&(t.v==="++"||t.v==="--")){next();e={k:"inc",op:t.v,pre:false,e,line:t.line};}
+      else break;
+    }
+    return e;
+  }
+  function primary(){
+    const t=next();
+    if(t.t==="num")return {k:"num",v:t.v,f:t.f,line:t.line};
+    if(t.t==="str")return {k:"str",v:t.v,line:t.line};
+    if(t.t==="chr")return {k:"chr",v:t.v,line:t.line};
+    if(t.t==="op"&&t.v==="("){const e=expr();exp(")");return e;}
+    if(t.t==="id"){
+      if(t.v==="true"||t.v==="false")return {k:"bool",v:t.v==="true",line:t.line};
+      if(t.v==="this")return {k:"this",line:t.line};
+      if(isV("::")){next();const nm=ident();return {k:"qual",cls:t.v,name:nm,line:t.line};}
+      return {k:"id",name:t.v,line:t.line};
+    }
+    syn("expected an expression before '"+t.v+"'",t.line);
+  }
+  /* top level */
+  while(peek().t!=="eof"){
+    if(isV("using")){while(!isV(";"))next();next();continue;}
+    if((isV("class")||isV("struct"))&&peek(1).t==="id"&&isV(";",2)){p+=3;continue;}
+    if(isV("class")||isV("struct")){parseClass();continue;}
+    while(isV("inline")||isV("static")||isV("template"))next();
+    const ty=parseType();let nm=ident();let q=null;
+    if(isV("::")){next();q=nm;nm=ident();}
+    if(isV("(")){
+      const ps=params();
+      if(acc(";"))continue;
+      const body=block();
+      if(q){const c=classes[q];if(!c)syn("'"+q+"' is not a class",body.line);
+        if(nm===q){const ct=c.ctors.find(x=>x.params.length===ps.length&&!x.body);if(ct){ct.body=body;ct.params=ps;}else c.ctors.push({params:ps,body,init:[],spec:"public"});}
+        else{const m=(c.methods[nm]||[]).find(x=>x.params.length===ps.length);if(!m)syn("no declaration matches '"+ty.name+" "+q+"::"+nm+"()' (declare the function inside the class first)",body.line);if(m.body)syn("'"+q+"::"+nm+"' is defined twice",body.line);m.body=body;m.params=ps;}
+      }else (funcs[nm]=funcs[nm]||[]).push({name:nm,ret:ty,params:ps,body,cls:null});
+      continue;
+    }
+    let init=null;if(acc("="))init=expr();exp(";");
+    if(q){const c=classes[q];if(!c||!c.statics[nm])syn("'"+q+"::"+nm+"' is not a static data member",peek().line);c.sdef=c.sdef||{};c.sdef[nm]=init;}
+    else globals[nm]={type:ty.name,init};
+  }
+  return {classes,funcs,globals};
+}
+function execProg(P,out,warn){
+  let steps=0;const tick=()=>{if(++steps>400000)throw new CppErr("run","Stopped: probably an infinite loop","The program did not finish. This is a run-time problem: the compiler cannot tell whether a loop ends.");};
+  const V=(t,v)=>({t,v});const INT=v=>V("int",v),DBL=v=>V("double",v),STR=v=>V("string",v),BOOL=v=>V("bool",!!v);
+  const ce=(title,detail,line)=>new CppErr("compile",title,detail+(line?" (line "+line+")":""),line);
+  const accessErr=(c,nm,spec,line)=>ce("Compile-time error (access violation)","'"+c.name+"::"+nm+"' is "+spec+" within this context. Only the class's own member functions"+(spec==="protected"?" and classes derived from it":"")+", or its friends, may use it.",line);
+  const zero=ty=>ty==="string"||ty==="chararr"?{t:"string",v:"",u:true}:ty==="bool"?{t:"bool",v:false,u:true}:ty==="double"||ty==="float"?{t:"double",v:0,u:true}:ty==="char"?{t:"char",v:0,u:true}:{t:"int",v:0,u:true};
+  function coerce(ty,v,line){
+    if(v.t==="obj"){if(ty!==v.cls.name&&!(ty==="auto"))throw ce("Compile-time error (type)","Cannot convert an object of class "+v.cls.name+" to "+ty+".",line);return copyObj(v);}
+    if(v.t==="void")throw ce("Compile-time error (type)","A void value cannot be used here.",line);
+    switch(ty){
+      case "int":case "short":case "long":case "unsigned":return INT(typeof v.v==="number"?Math.trunc(v.v):v.v?1:0);
+      case "double":case "float":return DBL(+v.v);
+      case "bool":return BOOL(v.v);
+      case "char":return v.t==="string"?V("char",v.v.charCodeAt(0)||0):V("char",+v.v);
+      case "string":case "chararr":if(v.t!=="string"&&v.t!=="char")throw ce("Compile-time error (type)","Cannot convert a number to string.",line);return STR(v.t==="char"?String.fromCharCode(v.v):v.v);
+      default:return v;
+    }
+  }
+  function copyObj(o){const n={t:"obj",cls:o.cls,f:{}};for(const k in o.f){const c=o.f[k];n.f[k]={v:c.v.t==="obj"?copyObj(c.v):{...c.v},type:c.type};}return n;}
+  const fmtD=x=>{if(!isFinite(x))return x>0?"inf":x<0?"-inf":"nan";if(Number.isInteger(x)&&Math.abs(x)<1e6)return String(x);return String(parseFloat(x.toPrecision(6)));};
+  function show(v){switch(v.t){case "int":return String(v.v);case "double":return fmtD(v.v);case "bool":return v.v?"1":"0";case "char":return String.fromCharCode(v.v);case "string":return v.v;default:return "";}}
+  const num=(v,line)=>{if(v.t==="int"||v.t==="double"||v.t==="bool"||v.t==="char")return +v.v;throw ce("Compile-time error (type)","An arithmetic operation was applied to a non-numeric value.",line);};
+  /* classes: statics */
+  for(const k in P.classes){const c=P.classes[k];for(const s in c.statics){const d=c.statics[s];c.sv[s]={v:zero(d.type),type:d.type};if(c.sdef&&s in c.sdef&&c.sdef[s]){}}}
+  const globalsEnv={};
+  function newCtx(cls,thisObj,fname){return {sc:[new Map()],cls,thisObj,fname};}
+  const Gctx=newCtx(null,null,"<global>");
+  function lookupVar(ctx,name){for(let i=ctx.sc.length-1;i>=0;i--)if(ctx.sc[i].has(name))return ctx.sc[i].get(name);return null;}
+  function checkAcc(cls,spec,nm,ctx,line){
+    if(spec==="public")return;
+    if(ctx.cls===cls)return;
+    if(ctx.fname&&cls.friendFns.has(ctx.fname)&&!ctx.cls)return;
+    if(ctx.cls&&cls.friendCls.has(ctx.cls.name))return;
+    throw accessErr(cls,nm,spec,line);
+  }
+  function fieldCell(obj,name,ctx,line){
+    const c=obj.cls,f=c.fields.find(x=>x.name===name);
+    if(!f){if(c.statics[name]){checkAcc(c,c.statics[name].spec,name,ctx,line);return c.sv[name];}throw ce("Compile-time error (no such member)","Class "+c.name+" has no member named '"+name+"'.",line);}
+    checkAcc(c,f.spec,name,ctx,line);return obj.f[name];
+  }
+  function makeObj(c,args,ctx,line){
+    const o={t:"obj",cls:c,f:{}};
+    c.fields.forEach(f=>{o.f[f.name]={v:zero(f.type),type:f.type};});
+    const pick=c.ctors.filter(x=>x.params.length===args.length);
+    if(c.ctors.length&&!pick.length)throw ce("Compile-time error (no matching constructor)","No constructor of "+c.name+" takes "+args.length+" argument(s).",line);
+    if(!c.ctors.length&&args.length)throw ce("Compile-time error (no matching constructor)","Class "+c.name+" has no constructor taking "+args.length+" argument(s).",line);
+    c.fields.forEach(f=>{if(f.init)o.f[f.name].v=coerce(f.type,ev(f.init,ctx),line);});
+    if(pick.length){
+      const k=pick[0];checkAcc(c,k.spec||"public",c.name+"::"+c.name,ctx,line);
+      if(!k.body)throw new CppErr("link","Linker error: undefined reference","undefined reference to '"+c.name+"::"+c.name+"()': the constructor was declared but never defined.");
+      const cx=newCtx(c,o,c.name);k.params.forEach((p,i)=>cx.sc[0].set(p.name,{v:p.type.ref?args[i].cell?args[i].cell.v:args[i]:coerce(p.type.name,args[i],line),type:p.type.name}));
+      k.init.forEach(([f,e])=>{const cell=o.f[f];if(!cell)throw ce("Compile-time error","'"+f+"' is not a member of "+c.name+".",line);cell.v=coerce(cell.type,ev(e,cx),line);});
+      try{exec(k.body,cx);}catch(e){if(!(e instanceof Ret))throw e;}
+    }
+    return o;
+  }
+  function pickFn(list,args,name,line){const c=list.filter(f=>f.params.length===args.length);if(!c.length)throw ce("Compile-time error (no matching function)","No version of '"+name+"' takes "+args.length+" argument(s).",line);return c[0];}
+  function callFn(fn,thisObj,args,line,label){
+    if(!fn.body)throw new CppErr("link","Linker error: undefined reference","undefined reference to '"+label+"': the function was declared but its definition was never written.");
+    const cx=newCtx(fn.cls||null,thisObj,fn.name);
+    fn.params.forEach((p,i)=>{const a=args[i];cx.sc[0].set(p.name,{v:p.type.ref&&a.t==="obj"?a:coerce(p.type.name,a,line),type:p.type.name});});
+    try{exec(fn.body,cx);}catch(e){if(e instanceof Ret){return fn.ret.name==="void"?V("void",0):e.v?coerce(fn.ret.name,e.v,line):V("void",0);}throw e;}
+    return V("void",0);
+  }
+  /* lvalues */
+  function lval(n,ctx){
+    if(n.k==="id"){
+      const c=lookupVar(ctx,n.name);if(c)return c;
+      if(ctx.cls){const f=ctx.cls.fields.find(x=>x.name===n.name);if(f){if(!ctx.thisObj)throw ce("Compile-time error (static context)","'"+n.name+"' is an ordinary data member, so it cannot be used in a static member function (there is no this pointer).",n.line);return ctx.thisObj.f[n.name];}
+        if(ctx.cls.statics[n.name])return ctx.cls.sv[n.name];}
+      if(globalsEnv[n.name])return globalsEnv[n.name];
+      throw ce("Compile-time error (undeclared name)","'"+n.name+"' was not declared in this scope.",n.line);
+    }
+    if(n.k==="mem"){const o=ev(n.o,ctx);if(o.t!=="obj")throw ce("Compile-time error","The left side of '"+(n.arrow?"->":".")+"' is not an object.",n.line);return fieldCell(o,n.name,ctx,n.line);}
+    if(n.k==="qual"){const c=P.classes[n.cls];if(!c||!c.statics[n.name])throw ce("Compile-time error","'"+n.cls+"::"+n.name+"' is not a static data member.",n.line);checkAcc(c,c.statics[n.name].spec,n.name,ctx,n.line);return c.sv[n.name];}
+    if(n.k==="un"&&n.op==="*"){const o=ev(n.e,ctx);return {v:o,type:"obj"};}
+    throw ce("Compile-time error","The left side of the assignment is not something that can be assigned to.",n.line);
+  }
+  function binop(op,a,b,line){
+    if(op==="<<"&&a.t==="stream"){const s=show(b);if(b.t==="obj")throw ce("Compile-time error (no operator)","No operator << is defined for a "+b.cls.name+" object.",line);out.push(b.t==="endl"?"\n":s);return a;}
+    if(a.t==="string"&&b.t==="string"){if(op==="+")return STR(a.v+b.v);const r=a.v<b.v?-1:a.v>b.v?1:0;switch(op){case "==":return BOOL(r===0);case "!=":return BOOL(r!==0);case "<":return BOOL(r<0);case ">":return BOOL(r>0);case "<=":return BOOL(r<=0);case ">=":return BOOL(r>=0);}}
+    if(a.t==="string"&&b.t==="char"&&op==="+")return STR(a.v+String.fromCharCode(b.v));
+    const x=num(a,line),y=num(b,line),dbl=a.t==="double"||b.t==="double";
+    switch(op){
+      case "+":return dbl?DBL(x+y):INT(x+y);case "-":return dbl?DBL(x-y):INT(x-y);case "*":return dbl?DBL(x*y):INT(x*y);
+      case "/":if(!dbl){if(y===0)throw new CppErr("run","Run-time error: division by zero","The program compiled and started, then attempted an illegal operation.");return INT(Math.trunc(x/y));}return DBL(x/y);
+      case "%":if(y===0)throw new CppErr("run","Run-time error: division by zero","The program compiled and started, then attempted an illegal operation.");return INT(x%y);
+      case "<":return BOOL(x<y);case ">":return BOOL(x>y);case "<=":return BOOL(x<=y);case ">=":return BOOL(x>=y);case "==":return BOOL(x===y);case "!=":return BOOL(x!==y);
+      case "<<":return INT(x<<y);case ">>":return INT(x>>y);
+    }
+    throw ce("Compile-time error","Unsupported operator "+op+".",line);
+  }
+  function readCell(c,ctx){if(c.v.u)warn.add("An uninitialised variable or member was read. In real C++ its value is indeterminate (garbage); here it shows as 0, so do not rely on it.");return c.v;}
+  function ev(n,ctx){
+    tick();
+    switch(n.k){
+      case "num":return n.f?DBL(n.v):INT(n.v);case "str":return STR(n.v);case "chr":return V("char",n.v.charCodeAt(0));case "bool":return BOOL(n.v);
+      case "this":if(!ctx.thisObj)throw ce("Compile-time error (static context)","'this' cannot be used in a static member function or outside a class.",n.line);return ctx.thisObj;
+      case "id":{
+        if(n.name==="cout"&&!lookupVar(ctx,"cout"))return V("stream",0);
+        if(n.name==="endl")return V("endl","\n");
+        if(n.name==="cin")throw ce("Compile-time error","cin is not available in this runner.",n.line);
+        return readCell(lval(n,ctx),ctx);}
+      case "qual":return readCell(lval(n,ctx),ctx);
+      case "mem":return readCell(lval(n,ctx),ctx);
+      case "un":{
+        if(n.op==="*"){return ev(n.e,ctx);}
+        const v=ev(n.e,ctx);if(n.op==="!")return BOOL(!num(v,n.line));if(n.op==="-")return v.t==="double"?DBL(-v.v):INT(-num(v,n.line));return v;}
+      case "bin":{
+        if(n.op==="&&"){const a=ev(n.l,ctx);return BOOL(num(a,n.line)&&num(ev(n.r,ctx),n.line));}
+        if(n.op==="||"){const a=ev(n.l,ctx);return BOOL(num(a,n.line)||num(ev(n.r,ctx),n.line));}
+        return binop(n.op,ev(n.l,ctx),ev(n.r,ctx),n.line);}
+      case "asg":{
+        const cell=lval(n.l,ctx);let v=ev(n.r,ctx);
+        if(n.op!=="=")v=binop(n.op.slice(0,-1),readCell(cell,ctx),v,n.line);
+        if(cell.type==="obj"){cell.v=v;return v;}
+        cell.v=coerce(cell.type,v,n.line);return cell.v;}
+      case "inc":{const c=lval(n.e,ctx);const old=c.v;const nv=(c.type==="double"||c.type==="float")?DBL(old.v+(n.op==="++"?1:-1)):INT(old.v+(n.op==="++"?1:-1));c.v=coerce(c.type,nv,n.line);return n.pre?c.v:old;}
+      case "idx":throw ce("Compile-time error","Array indexing is outside this lesson's runner.",n.line);
+      case "call":return callNode(n,ctx);
+    }
+    throw ce("Compile-time error","Unsupported expression.",n.line);
+  }
+  function callNode(n,ctx){
+    const f=n.f,line=n.line;
+    const args=n.args.map(a=>ev(a,ctx));
+    if(f.k==="mem"){
+      const o=ev(f.o,ctx);
+      if(o.t==="string"){if(f.name==="length"||f.name==="size")return INT(o.v.length);throw ce("Compile-time error","Unsupported string method "+f.name+".",line);}
+      if(o.t!=="obj")throw ce("Compile-time error","The left side of '.' is not an object.",line);
+      const c=o.cls,ms=c.methods[f.name];
+      if(!ms){if(c.fields.find(x=>x.name===f.name))throw ce("Compile-time error","'"+f.name+"' is a data member, not a function.",line);throw ce("Compile-time error (no such member)","Class "+c.name+" has no member function named '"+f.name+"'.",line);}
+      const m=pickFn(ms,args,f.name,line);checkAcc(c,m.spec,f.name,ctx,line);
+      return callFn(m,m.isStatic?null:o,args,line,c.name+"::"+f.name+"()");
+    }
+    if(f.k==="qual"){
+      const c=P.classes[f.cls];if(!c)throw ce("Compile-time error","'"+f.cls+"' is not a class.",line);
+      const ms=c.methods[f.name];if(!ms)throw ce("Compile-time error","'"+f.cls+"::"+f.name+"' is not a function.",line);
+      const m=pickFn(ms,args,f.name,line);checkAcc(c,m.spec,f.name,ctx,line);
+      if(!m.isStatic&&!(ctx.thisObj&&ctx.cls===c))throw ce("Compile-time error (static context)","'"+f.cls+"::"+f.name+"' is not a static member function, so it needs an object: call it as object."+f.name+"().",line);
+      return callFn(m,m.isStatic?null:ctx.thisObj,args,line,f.cls+"::"+f.name+"()");
+    }
+    if(f.k==="id"){
+      const nm=f.name;
+      if(nm==="strcpy"){const c=lval(n.args[0],ctx);c.v=STR(args[1].v);return V("void",0);}
+      if(ctx.cls&&ctx.cls.methods[nm]){const m=pickFn(ctx.cls.methods[nm],args,nm,line);if(!m.isStatic&&!ctx.thisObj)throw ce("Compile-time error (static context)","A static member function cannot call the non-static member function '"+nm+"' (there is no this pointer).",line);return callFn(m,m.isStatic?null:ctx.thisObj,args,line,ctx.cls.name+"::"+nm+"()");}
+      if(P.funcs[nm]){const m=pickFn(P.funcs[nm],args,nm,line);return callFn(m,null,args,line,nm+"()");}
+      throw ce("Compile-time error (undeclared name)","'"+nm+"' was not declared in this scope.",line);
+    }
+    throw ce("Compile-time error","That call is not supported.",line);
+  }
+  function declare(s,ctx){
+    s.ds.forEach(d=>{
+      const tn=d.arr?"chararr":s.ty.name,cl=P.classes[s.ty.name];
+      let cell;
+      if(cl){
+        if(d.init){const v=ev(d.init,ctx);if(v.t!=="obj"||v.cls!==cl)throw ce("Compile-time error (type)","Cannot initialise a "+cl.name+" from this value.",s.line);cell={v:copyObj(v),type:"obj"};}
+        else cell={v:makeObj(cl,(d.args||[]).map(a=>ev(a,ctx)),ctx,s.line),type:"obj"};
+      }else{
+        if(s.ty.name==="void")throw ce("Compile-time error","A variable cannot have type void.",s.line);
+        cell={v:zero(tn),type:tn};
+        if(d.init){cell.v=coerce(tn==="auto"?"auto":tn,ev(d.init,ctx),s.line);if(tn==="auto")cell.type=cell.v.t==="int"?"int":cell.v.t==="double"?"double":cell.v.t==="string"?"string":cell.v.t;}
+        else if(d.args&&d.args.length)cell.v=coerce(tn,ev(d.args[0],ctx),s.line);
+      }
+      ctx.sc[ctx.sc.length-1].set(d.name,cell);
+    });
+  }
+  function exec(s,ctx){
+    tick();
+    switch(s.k){
+      case "block":ctx.sc.push(new Map());try{s.b.forEach(x=>exec(x,ctx));}finally{ctx.sc.pop();}return;
+      case "decl":declare(s,ctx);return;
+      case "expr":ev(s.e,ctx);return;
+      case "if":if(num(ev(s.c,ctx),s.line))exec(s.a,ctx);else if(s.b)exec(s.b,ctx);return;
+      case "while":while(num(ev(s.c,ctx),s.line)){try{exec(s.body,ctx);}catch(e){if(e instanceof Brk)break;if(e instanceof Cnt)continue;throw e;}}return;
+      case "for":ctx.sc.push(new Map());try{if(s.init)(s.init.k==="decl"?declare(s.init,ctx):ev(s.init.e,ctx));while(!s.c||num(ev(s.c,ctx),s.line)){try{exec(s.body,ctx);}catch(e){if(e instanceof Brk)break;if(!(e instanceof Cnt))throw e;}if(s.st)ev(s.st,ctx);}}finally{ctx.sc.pop();}return;
+      case "ret":throw new Ret(s.e?ev(s.e,ctx):null);
+      case "brk":throw new Brk();case "cnt":throw new Cnt();
+    }
+  }
+  /* static data definitions and globals */
+  for(const k in P.classes){const c=P.classes[k];for(const s in c.statics){if(!c.sdef||!(s in c.sdef))throw new CppErr("link","Linker error: undefined reference","undefined reference to '"+k+"::"+s+"': a static data member is declared inside the class but must also be defined once outside it, e.g. int "+k+"::"+s+" = 0;");const d=c.sdef[s];if(d)c.sv[s].v=coerce(c.statics[s].type,ev(d,Gctx),0);else c.sv[s].v=zero(c.statics[s].type);c.sv[s].v.u=false;}}
+  for(const g in P.globals){const d=P.globals[g];globalsEnv[g]={v:d.init?coerce(d.type,ev(d.init,Gctx),0):zero(d.type),type:d.type};}
+  const mainF=P.funcs.main&&P.funcs.main[0];if(!mainF)throw new CppErr("link","Linker error: undefined reference to 'main'","Every program needs a function main().");
+  callFn(mainF,null,[],0,"main()");
+}
+function runOop(src){
+  const out=[],warn=new Set();
+  try{
+    const P=parseProg(lex(src.replace(/\r/g,"")));
+    execProg(P,out,warn);
+    return {ok:true,out:out.join(""),code:0,warn:[...warn]};
+  }catch(e){
+    if(e instanceof CppErr)return {ok:false,out:e.kind==="run"?out.join(""):"",cls:e.kind==="link"?"note":"bad",title:e.title,detail:e.detail,warn:[...warn]};
+    if(e instanceof RangeError)return {ok:false,out:out.join(""),cls:"bad",title:"Stopped: the program nested too deeply",detail:"Probably infinite recursion.",warn:[]};
+    return {ok:false,out:"",cls:"note",title:"The runner could not run this program",detail:String(e&&e.message||e).slice(0,200),warn:[]};
+  }
+}
+
+function runCpp(src,inp,off){return runOop(src);}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to execute the program. Output appears here.</p>';
+  let h="";
+  if(r.ok){h+='<pre class="outpre">'+(r.out?esc(r.out):'<span class="dim">(no output)</span>')+'</pre><div class="rs ok">Finished normally (exit code '+r.code+')</div>';}
+  else{if(r.out)h+='<pre class="outpre">'+esc(r.out)+'</pre>';h+='<div class="rs '+r.cls+'"><b>'+esc(r.title)+'.</b> '+esc(r.detail)+'</div>';}
+  return h;
+}
+/* ============ CODE WIDGET ============ */
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:(spec.c!==undefined?spec.c:spec.b);
+  const needIn=spec.inp!==undefined||/\bcin\b/.test(src);
+  const inp=CS.inp[id]!==undefined?CS.inp[id]:(spec.inp||"");
+  const rows=Math.min(20,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">'+(spec.wrap?"C++ snippet (runs inside main)":"C++ program")+'</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="C++ code editor">'+esc(src)+'</textarea>';
+  if(needIn)h+='<div class="cw-in"><label class="lab" for="in-'+id+'">Keyboard input for cin</label><input type="text" class="cin" id="in-'+id+'" data-iid="'+id+'" value="'+esc(inp)+'" autocomplete="off"></div>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id),ii=document.getElementById("in-"+id);
+  const src=ta?ta.value:(spec.c!==undefined?spec.c:spec.b);CS.src[id]=src;
+  const inp=ii?ii.value:(CS.inp[id]||spec.inp||"");CS.inp[id]=inp;
+  const r=spec.wrap?runCpp(wrapBody(src),inp,HDR_LINES):runCpp(src,inp,0);
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  const src=q.src;
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(src)+'</pre><label class="lab" for="pguess2">Your prediction (what the program prints)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected output: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to execute the code and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+/* ---- Fix the bug ---- */
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+/* ---- Pipeline ---- *//* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},ac:{sp:"private",cx:"outside"},ob:{n:0,sel:0},sd:{i:0,s:0,t:0,fb:""}};
+const LABTOOLS=[["run","Run code"],["pred","Predict the output"],["fix","Fix the bug"],["acc","Access checker"],["mem","Objects, this and static"],["sdr","Principles drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank program",spec:{c:"#include <iostream>\nusing namespace std;\n\nclass Demo {\npublic:\n    int v;\n};\n\nint main()\n{\n    Demo d;\n    d.v = 1;\n    cout << d.v << endl;\n    return 0;\n}",tr:"Write your own classes here."}});
+function labView(){
+  let h='<p class="hint">Classes are learned by running them. Run each listing, change one thing and predict the result first. The runner understands the C++ class subset used in this chapter: classes and structs, access specifiers, constructors, static members, this, and friends, and reports access and linker errors like a compiler.</p>';
+  h+='<div class="subnav" role="group" aria-label="Lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,acc:labAcc,mem:labMem,sdr:labSdr}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s programs</h3><label class="lab" for="exsel">Choose a listing</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+"</div>";
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+const FIX=[
+{t:"Missing semicolon after the class",kind:"Syntax error",goal:"The program should print: 5",exp:"5",hint:"Look at the closing brace of the class.",sol:"};  (after the class body)",why:"A class definition must end with a semicolon.",src:R`#include <iostream>
+using namespace std;
+
+class A {
+public:
+    int v;
+}
+
+int main()
+{
+    A a;
+    a.v = 5;
+    cout << a.v << endl;
+    return 0;
+}`},
+{t:"Private data accessed from main",kind:"Access violation",goal:"The program should print: 90",exp:"90",hint:"Which specifier do class members get by default?",sol:"Write public: before int marks;",why:"The default specifier of a class is private, so main may not use marks directly.",src:R`#include <iostream>
+using namespace std;
+
+class Student {
+    int marks;
+};
+
+int main()
+{
+    Student s;
+    s.marks = 90;
+    cout << s.marks << endl;
+    return 0;
+}`},
+{t:"Missing class name in an outside definition",kind:"Compile-time or linker error",goal:"The program should print: Roll 7",exp:"Roll 7",hint:"The definition after the class needs to say which class it belongs to.",sol:"void Student::show() { ... }",why:"Outside the class the scope resolution operator ClassName:: links the function to the class.",src:R`#include <iostream>
+using namespace std;
+
+class Student {
+    int rollNo;
+public:
+    Student(int r) { rollNo = r; }
+    void show();
+};
+
+void show() { cout << "Roll " << rollNo << endl; }
+
+int main()
+{
+    Student s(7);
+    s.show();
+    return 0;
+}`},
+{t:"Static member never defined",kind:"Linker error",goal:"The program should print: 2",exp:"2",hint:"A static data member is declared in the class but needs a definition outside it.",sol:"int Counter::n = 0;  (after the class)",why:"The declaration inside the class reserves no storage; one definition outside the class does.",src:R`#include <iostream>
+using namespace std;
+
+class Counter {
+public:
+    static int n;
+    Counter() { n++; }
+};
+
+int main()
+{
+    Counter a, b;
+    cout << Counter::n << endl;
+    return 0;
+}`},
+{t:"Parameter shadows the member",kind:"Logic error",goal:"The program should print: 3 4",exp:"3 4",hint:"Both the parameter and the member are called x. Which one does x = x change?",sol:"this->x = x; this->y = y;",why:"The parameter hides the member, so x = x assigns the parameter to itself; this-> names the member.",src:R`#include <iostream>
+using namespace std;
+
+class Point {
+public:
+    int x, y;
+    Point(int x, int y) {
+        x = x;
+        y = y;
+    }
+};
+
+int main()
+{
+    Point p(3, 4);
+    cout << p.x << " " << p.y << endl;
+    return 0;
+}`},
+{t:"Friend defined like a member",kind:"Compile-time error",goal:"The program should print: 1",exp:"1",hint:"A friend is not a member, so its definition has no class prefix.",sol:"bool isLarger(Box a, Box b) { ... }",why:"A friend function is defined like an ordinary function, without ClassName::.",src:R`#include <iostream>
+using namespace std;
+
+class Box {
+    int s;
+public:
+    Box(int v) { s = v; }
+    friend bool isLarger(Box a, Box b);
+};
+
+bool Box::isLarger(Box a, Box b) { return a.s > b.s; }
+
+int main()
+{
+    Box x(5), y(3);
+    cout << isLarger(x, y) << endl;
+    return 0;
+}`}
+];
+const ACCSP={public:{inside:1,outside:1,derived:1,friend:1},private:{inside:1,outside:0,derived:0,friend:1},protected:{inside:1,outside:0,derived:1,friend:1}};
+const ACCCX={inside:"A member function of the same class",outside:"Code outside the class, such as main, using an object",derived:"A member function of a derived class",friend:"A friend function or friend class"};
+function labAcc(){
+  const a=L.ac,ok=ACCSP[a.sp][a.cx];
+  let h='<div class="panel"><h3>Access checker</h3><p class="hint">Choose how a member is declared and who is trying to use it.</p>';
+  h+='<label class="lab" for="acsp">Member declared as</label><select id="acsp" data-lsel="acsp">'+["public","private","protected"].map(x=>'<option'+(x===a.sp?" selected":"")+">"+x+"</option>").join("")+"</select>";
+  h+='<label class="lab" for="accx">Accessed from</label><select id="accx" data-lsel="accx">'+Object.keys(ACCCX).map(x=>'<option value="'+x+'"'+(x===a.cx?" selected":"")+">"+esc(ACCCX[x])+"</option>").join("")+"</select>";
+  h+='<div class="rs '+(ok?"ok":"bad")+'"><b>'+(ok?"Allowed.":"Compile-time error (access violation).")+"</b> A "+a.sp+" member "+(ok?"can":"cannot")+" be reached from: "+esc(ACCCX[a.cx].toLowerCase())+".</div>";
+  h+='<table class="tbl"><thead><tr><th></th>'+Object.keys(ACCCX).map(x=>"<th>"+x+"</th>").join("")+"</tr></thead><tbody>"+["public","private","protected"].map(s=>"<tr><th>"+s+"</th>"+Object.keys(ACCCX).map(c=>"<td>"+(ACCSP[s][c]?"yes":"no")+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";
+  return h;
+}
+function labMem(){
+  const o=L.ob,n=o.n;
+  let h='<div class="panel"><h3>Objects, this and the static counter</h3><p class="hint">Class Student has a non-static member id and a static member count. Each press of Create runs the constructor: id = ++count.</p>';
+  h+='<div class="row"><button class="btn primary" data-act="omk">Create a Student object</button><button class="btn" data-act="orst">Reset</button></div>';
+  h+='<p><b>Shared (static)</b> Student::count = <code>'+n+"</code>  (stored once, in static storage)</p>";
+  if(!n)return h+'<p class="hint">No objects yet: Student::count still exists and equals 0.</p></div>';
+  h+='<table class="tbl"><thead><tr><th>Object</th><th>Own copy: id</th><th>Address (this)</th></tr></thead><tbody>';
+  for(let i=1;i<=n;i++)h+="<tr"+(i===o.sel?' style="font-weight:600"':"")+"><td>s"+i+"</td><td>"+i+"</td><td>0x"+(4096+16*(i-1)).toString(16)+"</td></tr>";
+  h+="</tbody></table>";
+  h+='<label class="lab" for="osel">Call s?.show() on object</label><select id="osel" data-lsel="osel">'+Array.from({length:n},(_,i)=>'<option value="'+(i+1)+'"'+(i+1===o.sel?" selected":"")+">s"+(i+1)+"</option>").join("")+"</select>";
+  if(o.sel)h+='<div class="rs ok">s'+o.sel+'.show() runs the one shared copy of show(), passing <code>this = 0x'+(4096+16*(o.sel-1)).toString(16)+"</code>, so id means this-&gt;id = "+o.sel+". Student::count is "+n+" for every object.</div>";
+  return h+"</div>";
+}
+const SDQ=[["A Stack class is used only through push() and pop(); the array inside is never seen.","Abstraction"],["acc.balance = -5 is rejected because balance is private.","Data hiding"],["Data and member functions are written together inside class Account.","Encapsulation"],["A Car class is created from a Vehicle class and adds extra features.","Inheritance"],["One function name area() computes the area of different shapes.","Polymorphism"],["acc.deposit(500) passes a request to the acc object.","Message passing"],["A derived class reuses the code of its base class.","Inheritance"],["A getter returns a private value without exposing the variable.","Data hiding"],["Function overloading is resolved at compile time.","Polymorphism"],["A user driving a car needs only the pedals and wheel, not the engine internals.","Abstraction"]];
+const SDOPT=["Encapsulation","Abstraction","Data hiding","Inheritance","Polymorphism","Message passing"];
+function labSdr(){
+  const d=L.sd,q=SDQ[d.i];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Which principle?</h3><span class="lab">Score '+d.s+" / "+d.t+'</span></div><p>'+esc(q[0])+'</p><div class="row" style="flex-wrap:wrap">'+SDOPT.map(o=>'<button class="btn" data-act="osd" data-v="'+o+'">'+o+"</button>").join("")+"</div>";
+  if(d.fb)h+='<div class="rs '+(d.right?"ok":"bad")+'">'+esc(d.fb)+"</div>";
+  return h+'<div class="row"><button class="btn" data-act="osn">Next statement</button></div></div>';
+}
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"",0);L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const r=runCpp(src,"",0);CS.out[id]=r;
+      const got=(r.out||"").replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "omk":L.ob.n++;L.ob.sel=L.ob.n;render();return true;
+    case "orst":L.ob={n:0,sel:0};render();return true;
+    case "osd":{const q=SDQ[L.sd.i],r=v===q[1];L.sd.t++;if(r)L.sd.s++;L.sd.right=r;L.sd.fb=(r?"Correct. ":"Not quite. ")+"This is "+q[1]+".";render();return true;}
+    case "osn":L.sd.i=(L.sd.i+1)%SDQ.length;L.sd.fb="";render();return true;
+  }
+  return false;
+}
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});}
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="acsp"){L.ac.sp=el.value;render();}
+  else if(k==="accx"){L.ac.cx=el.value;render();}
+  else if(k==="osel"){L.ob.sel=+el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
