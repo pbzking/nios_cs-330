@@ -1,7 +1,7 @@
 **NIOS Computer Science - CS 330**
 
 
-Module 1: Basic Computing (Lessons 1–7)
+-- Module 1: Basic Computing (Lessons 1–7)
 
 • Lesson 1: Computer Fundamentals
 
@@ -19,7 +19,7 @@ Module 1: Basic Computing (Lessons 1–7)
 
 
 
-Module 2: Office Automation (Lessons 8–11)
+-- Module 2: Office Automation (Lessons 8–11)
 
 • Lesson 8: Digital Documentation
 
@@ -31,7 +31,7 @@ Module 2: Office Automation (Lessons 8–11)
 
 
 
-Module 3: Programming in C++ (Lessons 12–21)
+-- Module 3: Programming in C++ (Lessons 12–21)
 
 • Lesson 12: Introduction to C++
 
@@ -55,7 +55,7 @@ Module 3: Programming in C++ (Lessons 12–21)
 
 
 
-Module 4: Database Concepts and Web Designing (Lessons 22–26)
+-- Module 4: Database Concepts and Web Designing (Lessons 22–26)
 
 • Lesson 22: Data Structures
 
@@ -69,7 +69,7 @@ Module 4: Database Concepts and Web Designing (Lessons 22–26)
 
 
 
-Module 5: Professional Skills (Lessons 27–29)
+-- Module 5: Professional Skills (Lessons 27–29)
 
 • Lesson 27: Project Management Skills
 
