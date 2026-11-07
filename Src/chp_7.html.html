@@ -1,0 +1,1351 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Email Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 1 · Basic Computing · Lesson 7</div>
+    <h1>Emailing</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and email lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,nocard:1,t:"Advantages and limitations of email",c:["Advantages","Limitations"],r:[
+["Speed: reaches the recipient within seconds at virtually zero marginal cost, and produces a permanent written record","Asynchronous: poorly suited to matters needing an immediate response (use a phone call or instant message)"],
+["Versatility: rich formatting, attachments of almost any type, embedded hyperlinks; one message to one or to thousands","Information overload: professionals receive hundreds of messages daily; spam adds to it"],
+["Automatic, persistent, searchable archive: an invaluable professional and legal record","A primary vector for cyberattacks: phishing and malicious attachments; unencrypted mail can be intercepted in transit"],
+["Accessible from almost any internet-connected device, through a client or a browser","Text conveys tone and intent poorly, so messages are often misread"]]},
+/*1*/{s:0,t:"Email compared with real-time communication",c:["Basis","Email (asynchronous)","Phone call, instant messaging, VoIP (real time)"],r:[
+["Presence","Sender and receiver need not be online together","Both parties are online at once"],
+["Reply timing","Receiver reads at their own convenience","Immediate"],
+["Suitability","Formal record-keeping","Urgent matters"],
+["Record","Automatic written record","Usually none (a call) or informal"]]},
+/*2*/{s:1,t:"Structure of an email address (ramesh.kumar@gmail.com)",c:["Part","Meaning","Example"],r:[
+["Local part","Identifies the specific mailbox within the provider; usually the account holder's username; letters, digits, periods, underscores, hyphens and plus signs; cannot begin or end with a period or contain two consecutive periods; case-insensitive in practice","ramesh.kumar"],
+["@ symbol","The separator between the local part and the domain part; chosen by Ray Tomlinson","@"],
+["Domain part","Identifies the hosting service or organisation, following the standard domain structure; for an organisation it typically matches its website domain","gmail.com"],
+["Uniqueness","The full address is globally unique; no two active mailboxes share it","priya.sharma@infosys.com"]]},
+/*3*/{s:1,t:"Parts of an email interface",c:["Part","Contents"],r:[
+["Navigation pane (usually left)","The folder structure: Inbox, Sent, Drafts, Spam, Trash and any custom folders or labels"],
+["Message list","Messages in the selected folder: sender, subject, body preview, timestamp, attachment and read/unread indicators"],
+["Reading pane","The full content of the selected message"],
+["Compose button","Opens a new message window"],
+["Search bar","Searches across all stored mail"]]},
+/*4*/{s:2,t:"SMTP, POP3 and IMAP compared",c:["Protocol","Purpose","Behaviour"],r:[
+["SMTP (Simple Mail Transfer Protocol)","Sending: push, server to server, toward the recipient's mailbox","Its job ends when the message is deposited in the recipient's mailbox; it plays no part in how the message is read"],
+["POP3 (Post Office Protocol version 3)","Retrieval: pull from the mailbox to one device","Downloads messages and by default removes them from the server; suited to single-device access"],
+["IMAP (Internet Message Access Protocol)","Retrieval: pull, synchronising client and mailbox","Messages, folders and read/unread status stay on the server and are mirrored across all devices; the default for webmail and mobile apps"]]},
+/*5*/{s:2,t:"The journey of an email, step by step",c:["Step","Stage","Protocol or mechanism"],r:[
+["1","Sender's client or webmail hands the message to the sender's outgoing mail server","SMTP"],
+["2","The sender's server looks up the recipient domain's mail server","DNS MX record query"],
+["3","The message is relayed to the recipient's mail server, often through several intermediate relays","SMTP (each hop)"],
+["4","The recipient's mail server accepts the message and places it in the mailbox","(stored)"],
+["5","The recipient's client retrieves the message","IMAP or POP3"]]},
+/*6*/{s:2,t:"MX record compared with an ordinary DNS (A) record",c:["Basis","A record","MX (Mail Exchange) record"],r:[
+["Translates","A domain name into the IP address of its web server","A domain name into the mail server(s) responsible for receiving its email"],
+["Used for","Web browsing","Mail delivery"],
+["Priority","Not used","A priority value; lower numbers are preferred"],
+["Machine","Very often a different machine from the mail server","Very often a different machine from the web server"]]},
+/*7*/{s:2,t:"Email headers",c:["Header","Function"],r:[
+["Headers (general)","Metadata recording the message's technical journey; normally hidden; shown by 'Show Original' or 'View Source'"],
+["Received","Added by each mail server the message passes through; read bottom to top it is a timestamped log of every hop"],
+["Message-ID","Uniquely identifies the message across the internet; lets a reply be threaded to its original"],
+["Return-Path","With the Received chain, reveals the actual sending server, to compare with the domain the message claims"],
+["From (displayed name)","Can be set to anything by the sender; not trustworthy evidence on its own"]]},
+/*8*/{s:3,t:"Major email service providers compared (Table 1.1)",c:["Provider","Launched","Free storage","Distinguishing strength"],r:[
+["Gmail","2004","15 GB","Scale, AI features, Google ecosystem"],
+["Outlook","1996/1997 (as Hotmail; Outlook.com 2013)","15 GB","Enterprise dominance, Exchange integration"],
+["Yahoo Mail","1997","1 TB","Highest free storage"],
+["iCloud Mail","2011","5 GB","Apple ecosystem integration"],
+["Proton Mail","2013","Limited (free tier)","End-to-end encryption"],
+["Zoho Mail","2008","Generous (free tier)","Ad-free, business-focused, Indian company"]]},
+/*9*/{s:3,t:"Matching a need to a provider",c:["Need","Provider"],r:[
+["Maximum free storage","Yahoo Mail"],
+["Enterprise calendar and scheduling","Outlook"],
+["Verified message privacy even against the provider itself","Proton Mail"],
+["An Indian business wanting a custom-domain address without advertising-driven data use","Zoho Mail"],
+["Seamless access to Docs, Sheets, Drive, Calendar and Meet; label-based organisation","Gmail"],
+["Simplicity and integration with iPhone, iPad and Mac","iCloud Mail"]]},
+/*10*/{s:4,t:"Information requested when creating an account",c:["Item","Purpose"],r:[
+["Desired username","Becomes the local part; must be unique, so common names are usually taken and alternatives are suggested"],
+["Password","Must meet the service's minimum security requirements"],
+["First and last name","Identifies the account holder"],
+["Date of birth","Age verification and recovery"],
+["Phone number or alternate email","Verification and recovery; a verification code is sent to confirm ownership"]]},
+/*11*/{s:4,t:"Signing out and password recovery",c:["Topic","Detail"],r:[
+["Stay signed in","Convenient only on personal, physically secured devices; never on shared, public or workplace computers"],
+["Signing out","Ends the authenticated session and removes stored credentials; essential on shared devices (lab, library, a friend's laptop)"],
+["Sign out of all devices","Ends every active session at once; valuable if a device is lost, stolen or suspected compromised"],
+["Reset link or code","The most common recovery method: sent by SMS to the recovery phone or to the recovery email"],
+["Weaker or manual methods","Security questions (weaker: answers can be guessed or found on social media), registration details, manual review by support"],
+["Prevention","Keep recovery phone and email current, use a password manager, enable 2FA"]]},
+/*12*/{s:5,t:"Standard email folders",c:["Folder","Purpose"],r:[
+["Inbox","Primary folder and default destination for incoming mail not filtered elsewhere; unread messages usually in bold"],
+["Sent","A copy of every successfully sent message; a permanent record of outgoing mail"],
+["Drafts","Composed but unsent messages, saved deliberately or auto-saved; most clients auto-save about every minute"],
+["Outbox","Client-side holding folder for messages not yet delivered to the outgoing server (for example offline); sent when connectivity returns; generally not visible in webmail"],
+["Spam (Junk)","Messages identified by the filter as unsolicited bulk or malicious mail; review periodically; 'Not Spam' returns a message to the Inbox; auto-cleared after about 30 days"],
+["Trash (Deleted Items)","Deleted messages, recoverable before permanent removal; auto-emptied after about 30 days; Shift+Delete or 'Delete forever' bypasses it"],
+["Archive","Moves a message out of the Inbox without deleting it; still searchable; underpins Gmail's 'Inbox Zero'"]]},
+/*13*/{s:5,t:"Archive compared with Trash",c:["Basis","Archive","Trash"],r:[
+["Intent","Keep indefinitely but out of the Inbox","Discard"],
+["Fate","Retained and searchable","Automatically removed permanently after about 30 days"],
+["Test","Will it ever be needed again? Yes: archive","Will it ever be needed again? No: delete"]]},
+/*14*/{s:6,t:"To, CC and BCC compared",c:["Field","Recipients","Visibility","Use"],r:[
+["To","Primary recipient(s)","Visible to all","Action or reply expected; each address must be exact; multiple separated by commas or semicolons"],
+["CC (Carbon Copy)","Secondary recipients","Fully visible to everyone in To and CC","Kept informed; no action or reply expected"],
+["BCC (Blind Carbon Copy)","Hidden recipients","Invisible to every other recipient, including other BCC recipients; each gets an individually addressed copy","Protects privacy for large groups (newsletters); discreetly keeping a third party informed"]]},
+/*15*/{s:6,t:"The subject line",c:["Quality","Detail"],r:[
+["Specific","'Meeting rescheduled to Thursday 3pm' rather than 'Meeting'"],
+["Concise","Typically 6 to 10 words"],
+["Accurate","A misleading subject erodes trust"],
+["Prefixes","ACTION REQUIRED:, FYI:, [EXTERNAL] flag nature or required action"],
+["Empty subject","Risky: many spam filters flag subject-less messages"]]},
+/*16*/{s:6,t:"Formatting, attachments, links, drafts and sending",c:["Feature","Detail"],r:[
+["Rich text","Bold, italic, fonts, colour, lists, tables; use with restraint"],
+["Attachments","Documents, spreadsheets, images, audio, video, archives, PDFs; capped at about 20 to 25 MB; larger files are better shared by a cloud storage link"],
+["PDF","The safest, most compatible format for documents to be read rather than edited"],
+["Hyperlinks","Clickable text or images that navigate to a URL, sparing long addresses"],
+["Draft","Saved with Save, or automatically on closing; reopened from Drafts"],
+["Send","Transmits the message by SMTP toward the recipient's mail server"],
+["Undo Send","A brief window (configurable up to about 30 seconds in Gmail) in which sending can be cancelled"]]},
+/*17*/{s:7,t:"Reply, Reply All and Forward",c:["Action","Recipients","Subject prefix","Use"],r:[
+["Reply","The original sender only; quoted copy of the original","Re: (Latin, regarding)","Response relevant only to the sender"],
+["Reply All","The sender and everyone in the original To and CC","Re:","Only when relevant to every recipient"],
+["Forward","A new recipient not in the original thread; includes content and attachments","Fwd:","Share information, redirect a message; consider the sender's consent for confidential content"]]},
+/*18*/{s:7,t:"Reading, deleting, archiving, marking, flagging and moving",c:["Action","Effect"],r:[
+["Reading","Opening a message marks it as read (bold becomes normal)"],
+["Delete","Moves to Trash; restorable within the retention period"],
+["Permanent delete","Removes irrecoverably"],
+["Archive","Moves out of the Inbox without deleting"],
+["Mark as unread","Restores the bold indicator as a reminder to return"],
+["Flag or star","A distinct marker for importance or action (star in Gmail, flag in Outlook); a view shows all flagged messages"],
+["Move","Manual organisation between folders"]]},
+/*19*/{s:7,t:"Common Gmail advanced search operators (Table 1.2)",c:["Operator","Finds"],r:[
+["from:","Messages from a specific sender or domain"],
+["to:","Messages sent to a specific recipient"],
+["subject:","Messages with a specific phrase in the subject line"],
+["has:attachment","Only messages carrying an attachment"],
+["after: / before:","Messages sent after or before a given date"]]},
+/*20*/{s:7,t:"Searching and sorting",c:["Feature","Detail"],r:[
+["Basic search","Keywords anywhere in subject, body, sender or recipient; fast when a distinctive word is remembered"],
+["Advanced search","Narrows by sender, recipient, subject phrase, keyword, date or range, or attachments, simultaneously"],
+["Combined query","from:priya@example.com has:attachment after:2024/01/01 finds every message from Priya after 1 January 2024 with an attachment"],
+["Default sort","By date, newest first"],
+["Other sorts","By sender, by subject, by size (to find storage hogs), by read/unread status"]]},
+/*21*/{s:7,t:"Filters, folders and labels",c:["Concept","Meaning"],r:[
+["Filter (rule in Outlook)","An automated rule applied to incoming mail by criteria, with no manual intervention; can move, label, mark as read, star or flag, forward or delete"],
+["Folder (Outlook, Yahoo)","Exclusive hierarchy: a message resides in only one folder at a time"],
+["Label (Gmail)","Non-exclusive: one message can carry several labels (Work, Important, Finance) and appears in every corresponding view without duplication"],
+["Filter example","If the sender contains @newsletter.com, skip the Inbox and apply the label Newsletters"]]},
+/*22*/{s:7,t:"Contacts and contact groups",c:["Term","Detail"],r:[
+["Contact (address book)","Stores a full name, email addresses, phone numbers, postal address, job title, organisation and notes; powers autocomplete"],
+["Creating a contact","Add contact, fill fields, save; or add directly from a received message"],
+["Contact group (distribution list in Outlook)","A named collection of contacts addressable as one unit in To, CC or BCC"],
+["Benefits of groups","Saves time on repeated entry and avoids accidentally omitting a member; membership editable at any time"]]},
+/*23*/{s:8,t:"A strong password",c:["Property","Requirement"],r:[
+["Long","At least 12 characters, ideally 16 or more"],
+["Complex","Uppercase, lowercase, digits and symbols such as @, # and $"],
+["Unique","Not reused on any other account"],
+["Unpredictable","Avoids name, birth date, pet's name and predictable substitutions (a to @, i to 1)"],
+["Password manager","Generates and securely stores strong, unique passwords"],
+["Why email matters most","Other sites' 'Forgot Password' sends a reset link to the email, so it is a foothold into many accounts"]]},
+/*24*/{s:8,t:"Forms of two-factor authentication (Table 1.3)",c:["Method","How it works","Security"],r:[
+["SMS code","A one-time code texted to the registered phone after the password","Convenient but vulnerable to SIM-swap attacks and network weaknesses (least secure)"],
+["Authenticator app","An app (Google Authenticator, Microsoft Authenticator, Authy) generates a TOTP changing about every 30 seconds","More secure than SMS: independent of the cellular network"],
+["Hardware security key","A physical USB or NFC device (such as a YubiKey) that must be present and activated","Most secure: cannot be phished or intercepted remotely"]]},
+/*25*/{s:8,t:"SPF, DKIM and DMARC",c:["Standard","What it does","Check"],r:[
+["SPF (Sender Policy Framework)","Publishes in DNS a list of mail servers authorised to send for the domain","Did the message come from an authorised server? Failure is strong evidence of spoofing"],
+["DKIM (DomainKeys Identified Mail)","The sending server attaches a cryptographic signature made with a private key; the receiver checks it with the public key in DNS","Was the content signed and unaltered in transit?"],
+["DMARC (Domain-based Message Authentication, Reporting and Conformance)","The domain publishes a policy for messages failing SPF or DKIM: quarantine, reject or monitor; plus reporting","What to do when either check fails"]]},
+/*26*/{s:8,t:"Phishing: warning signs and the safe response",c:["Sign or response","Detail"],r:[
+["Real sender address","A claimed Google message from support@gooogle-security.com is a clear indicator; check the address, not the displayed name"],
+["Requests for secrets","Legitimate organisations never ask for passwords, PINs or full financial details by email"],
+["Links","Hover (without clicking) to see if the destination matches the claimed domain"],
+["Urgency or fear","'Your account has been compromised'; 'Verify within 24 hours'"],
+["Spelling and grammar","A common though not universal sign"],
+["Safest response","Navigate to the organisation's website by typing the URL yourself, not through any link in the message"]]},
+/*27*/{s:8,t:"Suspicious attachments",c:["Topic","Detail"],r:[
+["Executable files","(.exe, .bat, .vbs, .js) most dangerous; no legitimate organisation sends them; treat as malicious and delete"],
+["Hidden malware","Office documents with malicious macros (run when macros are enabled); PDFs with embedded JavaScript or exploits"],
+["Unknown sender","Never open an attachment from an unexpected or unknown sender"],
+["Known sender, unexpected file","Verify through a separate channel (phone or in person), never by reply email, since their account may be compromised"],
+["Further protection","Up-to-date antivirus; open risky documents in a sandboxed or web-based viewer"]]},
+/*28*/{s:8,t:"The 2-P-S-H-A-U memory aid",c:["Letter","Habit"],r:[
+["2","Enable 2FA without exception"],
+["P","Use a strong, unique Password in a password manager"],
+["S","Be Skeptical of urgency and requests for sensitive data"],
+["H","Hover over links before clicking"],
+["A","Avoid unexpected attachments"],
+["U","keep software Updated and report spam"]]},
+/*29*/{s:9,t:"Matching greeting formality to context (Table 1.4)",c:["Context","Appropriate greeting"],r:[
+["First contact; senior official; very formal culture","Dear Mr./Ms./Dr. [Last Name],"],
+["Colleague; regular contact; moderately formal culture","Dear [First Name], or Hello [First Name],"],
+["Informal professional relationship","Hi [First Name],"],
+["Inappropriate in formal contexts","No greeting, or 'Hey!' or 'Yo'"]]},
+/*30*/{s:9,t:"Closings (sign-offs)",c:["Formality","Sign-off"],r:[
+["Highly formal","Yours sincerely, or Yours faithfully,"],
+["Standard professional","Best regards, or Kind regards,"],
+["Warmer professional","Best wishes,"],
+["Informal professional","Best, or Thanks,"],
+["Signature","Full name, job title, organisation and contact details"]]},
+/*31*/{s:9,t:"The etiquette checklist",c:["Element","Standard"],r:[
+["Writing style","Clear, concise, formal in proportion; complete grammatical sentences, proper capitalisation, no slang; short paragraphs, bullets or numbered lists for complex matters"],
+["Proofreading","Check spelling, grammar, accuracy and completeness; spell-check misses wrong word choice"],
+["Subject line","Specific, descriptive, 6 to 10 words, honest; never vague ('Question', 'Hi', 'Important'); update when the topic shifts"],
+["Tone","Courteous even when delivering bad news; never send a flame email; draft, wait several hours, review"],
+["Content","Stay on topic; separate emails for unrelated matters; BCC transparently; no confidential data on insecure channels"],
+["Response time","Within one to two business days; send a brief acknowledgement if a full reply is not yet possible"]]},
+/*32*/{s:7,nocard:1,t:"Reading the query from:priya@example.com has:attachment after:2024/01/01",c:["Token","Meaning"],r:[
+["from:priya@example.com","Only messages sent by Priya"],
+["has:attachment","Only messages that carry an attachment"],
+["after:2024/01/01","Only messages after 1 January 2024"],
+["All together","Operators combine (logical AND) into one precise search"]]}
+];
+
+const NOTES=[
+["1.1 Email basics","{{Email}} is the exchange of digital messages over a network. It is {{asynchronous}}: sender and receiver need not be online together. {{Ray Tomlinson}} sent the first network email in {{1971}} over ARPANET and chose the {{@}} symbol. Advantages: speed, versatility, a persistent searchable {{archive}} and wide accessibility. Limitations: unsuited to urgent matters, information overload, a vector for {{phishing}} and malware, and tone is hard to convey in text."],
+["1.1 Address and interface","An email address has a {{local part}} and a {{domain part}} separated by {{@}}, for example ramesh.kumar@gmail.com. The local part cannot begin or end with a {{period}} or contain two consecutive periods. The full address is globally {{unique}}. The interface has a {{navigation pane}}, a {{message list}}, a {{reading pane}}, a compose button and a search bar."],
+["1.2 How email works","{{SMTP}} is a {{push}} protocol that sends a message server to server. The sender's server finds the recipient's mail server through a DNS {{MX}} record (lower priority numbers are preferred), then relays by SMTP. {{POP3}} downloads mail to one device and by default removes it from the server; {{IMAP}} {{synchronises}} the mailbox across devices. Headers record the journey: each server adds a {{Received}} header and the {{Message-ID}} identifies the message. The displayed From name can be {{forged}}."],
+["1.3 Service providers","{{Gmail}} (2004, 15 GB, label-based), {{Outlook}} (enterprise, Exchange, 15 GB), {{Yahoo Mail}} (1997, 1 TB), {{iCloud Mail}} (Apple, 5 GB), {{Proton Mail}} (Swiss, 2013, {{end-to-end encryption}}) and {{Zoho Mail}} (Indian, ad-free, custom domains). Proton Mail's encryption means even its own servers cannot read messages, unlike standard encryption, which protects only {{in transit}}."],
+["1.4 Account management","Creating an account needs a unique {{username}}, a password, name, date of birth and a phone or alternate email for {{verification}}. {{Sign out}} on shared devices; 'sign out of all devices' ends every session. Recovery usually sends a reset code to the recovery {{phone}} or {{email}}; security questions are {{weaker}}. Keep recovery details {{current}}, use a password manager and enable {{2FA}}."],
+["1.5 Email folders","{{Inbox}} receives mail; {{Sent}} keeps copies of sent mail; {{Drafts}} holds unsent messages; the {{Outbox}} queues messages offline in a client; {{Spam}} holds filtered mail; {{Trash}} holds deleted mail, emptied after about {{30}} days; {{Archive}} keeps mail out of the Inbox without deleting it. Test: will it be needed again? If yes, {{archive}}; if no, delete."],
+["1.6 Composing emails","{{To}} holds primary recipients; {{CC}} sends a visible copy for information; {{BCC}} sends a hidden copy, invisible to every other recipient. A good subject line is {{specific}}, {{concise}} (6 to 10 words) and {{accurate}}. Attachments are capped at about {{20 to 25 MB}}; {{PDF}} is the safest format; larger files go by a cloud link. {{Undo Send}} gives up to about {{30 seconds}} in Gmail."],
+["1.7 to 1.9 Managing, searching and contacts","{{Reply}} answers the sender only (prefix {{Re:}}); {{Reply All}} answers everyone; {{Forward}} (prefix {{Fwd:}}) sends to a new recipient. Gmail operators: {{from:}}, {{to:}}, {{subject:}}, {{has:attachment}}, {{after:}} and {{before:}}. A {{filter}} automates sorting. A {{folder}} is exclusive; a {{label}} is non-exclusive. A {{contact group}} addresses many people by one name, saving time and avoiding omissions."],
+["1.10 Email security","A strong password is at least {{12}} characters, complex and {{unique}}. {{2FA}} adds a second factor: {{SMS}} (least secure), an {{authenticator app}} (TOTP, about every 30 seconds) and a {{hardware key}} (most secure). {{SPF}} lists authorised servers, {{DKIM}} signs messages, {{DMARC}} states what to do on failure. {{Spam}} is over {{45}} percent of email traffic. Phishing: check the real address, hover over links, never give a password by email. Executable attachments (.exe, .bat, .vbs, .js) are dangerous. Memory aid: {{2-P-S-H-A-U}}."],
+["1.11 Email etiquette","Use a clear, concise, formal style and {{proofread}}. Greet by name: {{Dear Mr./Ms./Dr.}} for very formal contexts, {{Hi}} for informal ones. Keep a courteous tone and never send a {{flame email}}. Close with {{Yours sincerely}} (formal), {{Best regards}} (standard) or {{Best}} (informal), then a signature. Reply within {{one to two}} business days."]
+];
+const DUMPS=[
+{t:"Email basics",p:["Email: digital messages over a network; asynchronous","Tomlinson 1971 on ARPANET; chose @","Advantages: speed, versatility, archive, accessibility","Limitations: not urgent, overload, attacks, tone is lost"]},
+{t:"Address and interface",p:["local part @ domain part","Local part: letters, digits, . _ - +; no leading, trailing or double periods","Globally unique","Navigation pane, message list, reading pane, compose, search"]},
+{t:"How email works",p:["SMTP pushes server to server","MX record found through DNS; lower priority is preferred","POP3 downloads and removes; IMAP synchronises","Journey: client, SMTP, sender's server, MX lookup, SMTP, recipient's server, IMAP or POP3, client","Headers: Received, Message-ID, Return-Path; From can be forged"]},
+{t:"Service providers",p:["Gmail 2004, 15 GB, labels, Google ecosystem","Outlook: enterprise, Exchange, calendar","Yahoo Mail 1997: 1 TB","iCloud: Apple, 5 GB","Proton: end-to-end encryption, Swiss","Zoho: Indian, ad-free, custom domain"]},
+{t:"Account management",p:["Username, password, name, date of birth, phone or alternate email","Verification code","Sign out on shared devices; sign out of all devices","Recovery: code by SMS or email; security questions weaker","Keep recovery details current"]},
+{t:"Email folders",p:["Inbox, Sent, Drafts","Outbox: offline client queue","Spam: review for false positives; Not Spam","Trash: about 30 days; Shift+Delete bypasses","Archive: keep without Inbox clutter"]},
+{t:"Composing emails",p:["To primary; CC visible, information only; BCC hidden from everyone","Subject: specific, concise (6 to 10 words), accurate; prefixes","Attachments 20 to 25 MB; PDF; cloud link for large files","Draft saves; Undo Send about 30 s"]},
+{t:"Managing, searching and contacts",p:["Reply: sender only (Re:); Reply All: everyone; Forward (Fwd:)","Delete, archive, mark unread, flag or star, move","Operators: from:, to:, subject:, has:attachment, after:, before:","Filters automate; folder exclusive, label non-exclusive","Contact groups save time and avoid omissions"]},
+{t:"Email security",p:["Password: 12+ characters, complex, unique, manager","2FA: SMS, authenticator app (TOTP), hardware key","Spam over 45 percent of traffic; ML filters","SPF: authorised servers; DKIM: signed and unaltered; DMARC: policy","Phishing signs and safe response","Executable and macro attachments; verify by another channel","2-P-S-H-A-U"]},
+{t:"Email etiquette",p:["Clear, concise, formal; proofread","Subject specific; never empty","Greeting by name matching formality","Courteous tone; no flame emails","Closing and signature","Reply in one to two business days"]}
+];
+
+const SECS=["Email basics","Address and interface","How email works","Service providers","Account management","Email folders","Composing emails","Managing, searching and contacts","Email security","Email etiquette"];
+const CORE=[
+[0,"Define email.","Electronic Mail: a method of exchanging digital messages between people over the internet or any computer network; messages can include formatted text, embedded images and attachments of virtually any type."],
+[0,"What does 'asynchronous' mean for email?","Sender and receiver need not be online simultaneously: the sender sends at any time and the receiver reads at their own convenience."],
+[0,"What follows from email being asynchronous?","Its suitability for formal record-keeping, its poor fit for urgent matters and its difference from real-time tools (phone calls, instant messaging, VoIP)."],
+[0,"Who sent the first network email, and when?","Ray Tomlinson, an engineer on ARPANET, in 1971, between two computers in the same room connected via ARPANET."],
+[0,"What was Tomlinson's most consequential decision?","Choosing the @ symbol to separate a user's name from the name of their host machine; it persists in every email address."],
+[0,"State the advantages of email.","Speed (seconds, almost zero cost, written record); versatility (formatting, attachments, links, one to thousands); a persistent searchable archive; accessibility from any connected device."],
+[0,"State the limitations of email.","Poor for urgent matters; information overload and spam; a vector for phishing and malicious attachments, and unencrypted mail can be intercepted; tone and intent are hard to convey."],
+[1,"Define an email address.","The unique identifier designating a specific mailbox and routing messages to the right recipient."],
+[1,"Name the two parts of an email address and the separator.","The local part (left) and the domain part (right), separated by the @ symbol."],
+[1,"What does the local part identify?","The specific mailbox within the provider, usually the account holder's chosen username."],
+[1,"State the rules for the local part.","May contain letters, digits, periods, underscores, hyphens and plus signs; cannot begin or end with a period or contain two consecutive periods; treated case-insensitively in practice."],
+[1,"What does the domain part identify?","The hosting service or organisation, following the standard domain structure; for an organisation it typically matches its website domain (priya.sharma@infosys.com)."],
+[1,"Identify the parts of ramesh.kumar@gmail.com.","Local part: ramesh.kumar; separator: @; domain part: gmail.com."],
+[1,"Is an email address unique?","Yes: the full combination is globally unique; no two active mailboxes share it."],
+[1,"Name the parts of an email interface.","Navigation pane (folders), message list, reading pane, compose button and search bar."],
+[1,"What does the message list show?","The messages in the selected folder: sender, subject, body preview, timestamp, and attachment and read/unread indicators."],
+[2,"Define SMTP and its role.","Simple Mail Transfer Protocol: a push protocol that delivers a message outward, server to server, until it reaches the recipient's mail server."],
+[2,"Describe the three steps of sending by SMTP.","1. The client hands the message to the sender's outgoing mail server. 2. That server finds the recipient domain's mail server by MX record and relays it by SMTP, often through intermediate relays. 3. The recipient's server places it in the mailbox."],
+[2,"When does SMTP's job end?","The moment the message is safely deposited in the recipient's mailbox; it plays no part in how the recipient reads it."],
+[2,"Define POP3.","Post Office Protocol version 3: downloads messages from the server to one device and by default removes them from the server."],
+[2,"Why is POP3 a poor fit for several devices?","A message downloaded on one device vanishes from the others."],
+[2,"Define IMAP.","Internet Message Access Protocol: synchronises the client with the mailbox on the server; messages, folders and read/unread status are mirrored across every device."],
+[2,"Why do modern webmail and mobile apps default to IMAP?","Reading mail on a phone and finding it already marked read on a laptop is IMAP's synchronisation at work."],
+[2,"How do you distinguish SMTP from POP3 and IMAP?","By direction and purpose: SMTP pushes a message forward, server to server, toward the recipient's mailbox; POP3 and IMAP pull it back from a mailbox to a viewing client."],
+[2,"Trace an email's journey in full.","Sender's client, SMTP, sender's mail server, DNS MX lookup, SMTP, recipient's mail server, IMAP or POP3, recipient's client."],
+[2,"Name the two commonest errors in tracing an email.","Omitting the DNS/MX step, and using POP3 or IMAP for the outgoing leg."],
+[2,"Define an MX record.","Mail Exchange record: a DNS record stating which mail server(s) are responsible for receiving email for a domain, with a priority value (lower numbers preferred)."],
+[2,"Why must a sending server query an MX record?","To discover which server handles mail for the recipient's domain before any of the message is transmitted."],
+[2,"How does an MX lookup differ from an ordinary DNS (A) lookup?","An A record gives the IP address of the web server; an MX lookup gives the mail server; the two are very often different machines."],
+[2,"What are email headers?","Metadata recording the message's technical journey, normally hidden but shown by 'Show Original' or 'View Source'."],
+[2,"What is the Received header?","A line added by each mail server the message passes through; read bottom to top it is a timestamped log of every hop."],
+[2,"What is the Message-ID header?","A header that uniquely identifies the message across the internet and lets a reply be threaded to its original."],
+[2,"Why is the displayed From name untrustworthy?","The sender can set it to anything. The Received chain and Return-Path reveal the actual sending server, to compare with the claimed domain."],
+[3,"Define an email service provider.","A company operating the servers, infrastructure and software to host email accounts: running SMTP and IMAP/POP3 servers, filtering spam and providing the interface (browser or client such as Outlook or Thunderbird)."],
+[3,"Describe Gmail.","Google's service, the most widely used (over 1.8 billion users); launched 2004 with 1 GB, now 15 GB shared with Drive and Photos; label-based; Smart Compose, Smart Reply, Priority Inbox, snooze, Confidential Mode."],
+[3,"Describe Microsoft Outlook.","A standalone client (Microsoft 365) and web service (Outlook.com, formerly Hotmail); 15 GB free; integrates OneDrive, Office Online, Teams; dominates corporate use with calendar, Exchange integration, rules and Focused Inbox."],
+[3,"Describe Yahoo Mail.","One of the oldest webmail services (1997); 1 TB free storage; disposable addresses; filtering; popular in the United States."],
+[3,"Describe iCloud Mail.","Apple's service for Apple ID holders (@icloud.com, @me.com, @mac.com); 5 GB free shared across iCloud; used through Apple's Mail app; valued for simplicity and privacy approach."],
+[3,"Describe Proton Mail.","A Swiss service founded in 2013 by scientists who met at CERN; end-to-end encryption, so not even its servers can read messages; valued by journalists and lawyers."],
+[3,"Explain end-to-end encryption against standard email encryption.","End-to-end: encrypted on the sender's device and decryptable only by the recipient. Standard encryption protects only in transit between servers, leaving messages readable by the server operators."],
+[3,"Describe Zoho Mail.","From Zoho Corporation, an Indian company in Chennai; ad-free, content not used for advertising, generous free tier, affordable business plans with custom-domain addresses."],
+[3,"Which provider suits: maximum free storage; enterprise calendar; privacy even from the provider; Indian business custom domain?","Yahoo Mail; Outlook; Proton Mail; Zoho Mail."],
+[4,"What is needed to create an email account?","A username (the local part), a password meeting requirements, first and last name, date of birth and a phone number or alternate email for verification and recovery."],
+[4,"Why are common usernames usually unavailable?","Addresses must be globally unique within a provider's domain; the service checks availability and suggests alternatives."],
+[4,"How is account creation confirmed?","A verification code is sent to the supplied phone or alternate address and entered to confirm ownership."],
+[4,"When should 'stay signed in' be avoided?","On shared, public or workplace computers; use it only on personal, physically secured devices."],
+[4,"What does signing out do, and why does it matter?","It ends the authenticated session and removes stored credentials, preventing later users of the device from accessing the account; essential on shared devices."],
+[4,"What is 'sign out of all devices'?","A remote feature ending every active session at once; valuable if a device is lost, stolen or suspected compromised."],
+[4,"Describe password recovery.","Initiated by 'Forgot password?'; the commonest method sends a reset link or code by SMS to the recovery phone or to the recovery email; some services use security questions, personal details or manual review."],
+[4,"Why are security questions weaker?","Their answers can often be guessed or found on social media."],
+[4,"How can permanent account lockout be prevented?","Keep recovery phone and email current and accessible, use a password manager and enable two-factor authentication."],
+[5,"Define the Inbox.","The primary folder and default destination for incoming mail not filtered elsewhere; unread messages are typically bold."],
+[5,"Define the Sent folder.","Stores a copy of every successfully sent message: a permanent record of outgoing mail."],
+[5,"Define the Drafts folder.","Stores composed but unsent messages, saved deliberately or auto-saved (about every minute); useful for later completion, review or templates."],
+[5,"Define the Outbox.","A temporary holding folder in client applications for messages not yet delivered to the outgoing server (for example offline); they send when connectivity returns and move to Sent. Webmail generally has none."],
+[5,"Define the Spam folder.","Holds mail the filter identified as unsolicited bulk or malicious; review it periodically for misclassified mail; 'Not Spam' moves it to the Inbox and trains the filter; auto-cleared after about 30 days."],
+[5,"Define the Trash folder.","Holds deleted messages as a safety net, auto-emptied after about 30 days; Shift+Delete or 'Delete forever' deletes permanently at once."],
+[5,"Define Archive.","Moves a message out of the Inbox to a designated location without deleting it; it stays searchable. It underpins Gmail's 'Inbox Zero'."],
+[5,"Distinguish Archive from Trash.","Trash holds messages to be discarded, removed automatically after about 30 days. Archive keeps messages indefinitely but out of the Inbox. Test: will it ever be needed again? Yes: archive; no: delete."],
+[6,"Describe the To field.","Specifies the primary recipient(s); each address must be exact; multiple recipients are separated by commas or semicolons."],
+[6,"Define CC.","Carbon Copy (from carbon paper): sends a copy to secondary recipients who should be kept informed; all recipients can see everyone in To and CC; no action or reply is expected."],
+[6,"Define BCC.","Blind Carbon Copy: BCC recipients are invisible to everyone else, including each other; each gets an individually addressed copy."],
+[6,"State the rule that distinguishes CC from BCC.","Visibility: CC recipients are visible to everyone; BCC recipients are invisible to everyone else, including other BCC recipients."],
+[6,"When is BCC used?","To protect privacy when messaging a large group who do not know each other (newsletter); to discreetly keep a third party informed."],
+[6,"What makes a good subject line?","Specific ('Meeting rescheduled to Thursday 3pm'), concise (6 to 10 words) and accurate."],
+[6,"Name common subject prefixes.","ACTION REQUIRED:, FYI: and [EXTERNAL]."],
+[6,"What is the attachment size limit and the best alternative?","About 20 to 25 MB per message; larger files are better shared by a cloud storage link."],
+[6,"Why is PDF the safest document format?","It is universally compatible (viewers are free on every platform) for documents to be read rather than edited."],
+[6,"What is Undo Send?","A brief window (up to about 30 seconds in Gmail) in which sending can be cancelled, useful for catching an error right after clicking Send."],
+[6,"How does a draft get saved?","By the Save button, or automatically when the composition window is closed; reopen it from Drafts."],
+[7,"Distinguish Reply from Reply All.","Reply goes to the original sender only, with a quoted copy and the subject prefixed Re:. Reply All goes to the sender and everyone in To and CC."],
+[7,"When is Reply All appropriate?","Only when the response is genuinely relevant to every recipient. Replying 'Thanks!' to an all-company announcement wastes many people's time."],
+[7,"What does 'Re:' mean?","From the Latin 'regarding': it groups related messages in a conversation thread."],
+[7,"Define forwarding.","Sends a copy of a message, with its content and attachments, to a new recipient not in the original thread; the subject is prefixed Fwd:."],
+[7,"What should be considered before forwarding?","Whether the original sender would consent; forwarding confidential content without permission can breach trust."],
+[7,"What happens when a message is deleted?","It moves to Trash, from which it can be restored within the retention period; permanent deletion is irrecoverable."],
+[7,"Why mark a message as unread?","It restores the bold indicator as a reminder to return to it."],
+[7,"What is flagging or starring?","A distinct visual marker for importance or action (star in Gmail, flag in Outlook), with a view showing all flagged messages."],
+[7,"Distinguish basic from advanced search.","Basic search takes keywords anywhere in the message. Advanced search narrows by sender, recipient, subject, keyword, date or range, and attachments."],
+[7,"Name the Gmail search operators.","from:, to:, subject:, has:attachment, and after: / before:."],
+[7,"Interpret: from:priya@example.com has:attachment after:2024/01/01.","Every message from Priya received after 1 January 2024 that carries an attachment."],
+[7,"List the ways the message list can be sorted.","By date (default, newest first), sender, subject, size (finds storage hogs) and read/unread status."],
+[7,"Define a filter.","An automated rule (called a rule in Outlook) applied to incoming mail by criteria, with no manual action: it can move, label, mark as read, star, forward or delete."],
+[7,"Distinguish a folder from a label.","A folder is exclusive: a message sits in only one. A label (Gmail) is non-exclusive: a message can carry several and appears in every corresponding view without duplication."],
+[7,"What does a contact record hold?","Full name, email addresses, phone numbers, postal address, job title and organisation, and notes; it powers autocomplete."],
+[7,"Define a contact group.","A named collection of contacts (a distribution list in Outlook) addressable as a single unit in To, CC or BCC."],
+[7,"Why are contact groups better than typing addresses?","They save time on repeated entry and reduce the risk of accidentally omitting a member."],
+[8,"Why is the email password so important?","Websites' 'Forgot Password' sends reset links to the email, so access to it can give control of many other accounts."],
+[8,"State the properties of a strong password.","At least 12 characters (ideally 16+), complex (upper, lower, digits, symbols), unique to the account, and free of personal information and predictable substitutions."],
+[8,"What is a password manager?","A tool that generates and securely stores strong, unique passwords for every account."],
+[8,"Define two-factor authentication.","Also two-step verification: requiring two separate forms of verification, typically something the user knows (password) and something the user has (a device or app)."],
+[8,"Name the three 2FA methods in increasing security.","SMS code, authenticator app (TOTP) and hardware security key."],
+[8,"Why is SMS 2FA the weakest?","It is vulnerable to SIM-swap attacks and cellular network weaknesses."],
+[8,"What is TOTP?","Time-based One-Time Password: a code generated by an authenticator app that changes about every 30 seconds, independent of the cellular network."],
+[8,"Why is a hardware security key the most secure?","It must be physically present and activated, so it cannot be phished or intercepted remotely (for example a YubiKey)."],
+[8,"Define spam.","Unsolicited bulk email sent in very large volumes without consent, for advertising, fraud or malware; over 45 percent of global email traffic."],
+[8,"How do spam filters work?","Machine learning models examine sender reputation, content, image-to-text ratio, authentication records (SPF, DKIM, DMARC) and patterns of mail others marked as spam."],
+[8,"How can users reduce spam?","Report spam, mark legitimate mail 'Not spam', avoid sharing a primary address publicly and use a secondary or disposable address for registrations."],
+[8,"Define SPF.","Sender Policy Framework: the domain publishes in DNS the servers authorised to send on its behalf; receivers check whether the message came from one; failure suggests spoofing."],
+[8,"Define DKIM.","DomainKeys Identified Mail: the sending server signs each message with a private key; the receiver verifies it with the public key in DNS, proving the content was signed and unaltered."],
+[8,"Define DMARC.","Domain-based Message Authentication, Reporting and Conformance: a published policy saying what to do with mail that fails SPF or DKIM (quarantine, reject or monitor), with reporting of spoofing."],
+[8,"Give one sentence for each of SPF, DKIM and DMARC.","SPF: did it come from an authorised server? DKIM: was it signed and unaltered? DMARC: what to do when either check fails."],
+[8,"Define spoofing.","Forging a message's sender address to appear as someone else."],
+[8,"Define phishing in email.","A fraudulent message impersonating a trusted entity (bank, government agency, delivery service, colleague) to deceive the recipient into clicking a malicious link or giving sensitive information; it manufactures urgency or fear."],
+[8,"List the warning signs of phishing.","A sender address that does not match the claimed organisation (support@gooogle-security.com); requests for passwords, PINs or financial details; link destinations that do not match; urgency or fear; spelling and grammar errors."],
+[8,"What is the safest response to a suspicious account-action email?","Navigate to the organisation's website by typing the URL yourself, rather than clicking any link in the message."],
+[8,"Why are executable attachments dangerous?","(.exe, .bat, .vbs, .js) no legitimate organisation sends them as ordinary attachments; treat as malicious and delete."],
+[8,"How can malware hide in ordinary files?","Office documents can carry malicious macros that run when macros are enabled; PDFs can contain embedded JavaScript or exploit reader vulnerabilities."],
+[8,"How should an unexpected attachment from a known sender be handled?","Verify by contacting the sender through a separate channel (phone or in person), never by reply email, since their account may be compromised."],
+[8,"Explain the memory aid 2-P-S-H-A-U.","2FA enabled; strong unique Password in a manager; Skeptical of urgency and sensitive requests; Hover over links; Avoid unexpected attachments; keep software Updated and report spam."],
+[9,"Define email etiquette.","Standards of professional, respectful and effective behaviour specific to email in formal contexts; communicating clearly in a way that respects the recipient's time."],
+[9,"What defines a professional writing style?","Clear, concise, formal in proportion: complete grammatical sentences, proper capitalisation, standard punctuation, no slang; short paragraphs, bullets or numbered lists for complex matters."],
+[9,"Why proofread, and what does spell-check miss?","Errors reflect poorly on the sender; spell-check catches misspellings but not wrong word choice or grammatical errors."],
+[9,"What makes a bad subject line?","Vague ('Question', 'Hi', 'Important'), misleading or empty; empty subjects may be flagged by spam filters and fail to reach the Inbox."],
+[9,"Give greetings for different contexts.","Dear Mr./Ms./Dr. [Last Name] for first contact or very formal; Dear or Hello [First Name] for colleagues; Hi [First Name] for informal professional. 'Hey!' or no greeting is inappropriate in formal contexts."],
+[9,"What is a flame email, and what should be done?","An email written in anger or frustration; never send it. Draft it, wait several hours, then decide to send, revise or discard; urgent sensitive matters are better handled by phone or in person."],
+[9,"What content rules apply?","Stay on topic (separate emails for unrelated matters), use BCC transparently and never send confidential information on an insecure channel."],
+[9,"Give closings by formality.","Yours sincerely or Yours faithfully (highly formal); Best regards or Kind regards (standard); Best wishes (warmer); Best or Thanks (informal); then a signature."],
+[9,"What does a signature contain?","Full name, job title, organisation and contact details."],
+[9,"State the response-time standard.","Within one to two business days; if a full reply is not yet possible, send a prompt brief acknowledgement."],
+[9,"How should a poorly written sample email be corrected?","Work through the checklist in order: subject line, greeting, tone and structure, closing and signature, naming each specific fault."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Search, header and classification problems",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and scenario",m:4}
+];
+const MCQ=[
+["Email is described as asynchronous because:",["It is sent by satellite","Sender and receiver need not be online together","It needs no internet","It is always encrypted"],1,"The receiver reads at their own convenience."],
+["Who sent the first network email?",["Tim Berners-Lee","Ray Tomlinson","Vint Cerf","Bob Kahn"],1,"Ray Tomlinson, in 1971 on ARPANET."],
+["Which symbol separates the local part from the domain part?",["#","&","@","%"],2,"Tomlinson chose @."],
+["In priya.sharma@infosys.com the local part is:",["infosys.com","priya.sharma","sharma@infosys","@infosys.com"],1,"The local part is left of @."],
+["Which local part is invalid?",["ramesh.kumar","ramesh_kumar","ramesh..kumar","ramesh+news"],2,"Two consecutive periods are not allowed."],
+["Which pane displays the full content of the selected message?",["Navigation pane","Message list","Reading pane","Compose window"],2,"The reading pane."],
+["Which protocol sends email from one server to the next?",["POP3","IMAP","SMTP","FTP"],2,"SMTP is the push protocol."],
+["Which protocol synchronises a mailbox across devices?",["SMTP","POP3","IMAP","DNS"],2,"IMAP mirrors folders and read status."],
+["By default POP3:",["Keeps mail on the server","Downloads and removes mail from the server","Sends mail","Encrypts mail"],1,"It suits single-device access."],
+["Which DNS record identifies a domain's mail server?",["A","MX","SPF","CNAME"],1,"The MX (Mail Exchange) record."],
+["In an MX record, a lower priority number means:",["Less preferred","More preferred","Disabled","Backup only after higher"],1,"Lower numbers are preferred."],
+["Which header uniquely identifies a message and helps thread replies?",["Received","Message-ID","Return-Path","Subject"],1,"Message-ID."],
+["Each server a message passes through adds a:",["Message-ID header","Received header","MX record","Signature"],1,"Received headers form a log of hops."],
+["The correct order of the email journey is:",["IMAP, SMTP, MX, SMTP","SMTP, MX lookup, SMTP, IMAP or POP3","MX, IMAP, SMTP, POP3","SMTP, POP3, MX, IMAP"],1,"Send by SMTP, find the server by MX, relay by SMTP, retrieve by IMAP or POP3."],
+["Which provider offers 1 TB of free storage?",["Gmail","Outlook","Yahoo Mail","iCloud Mail"],2,"Yahoo Mail."],
+["Which provider is known for end-to-end encryption?",["Gmail","Proton Mail","Zoho Mail","Yahoo Mail"],1,"Proton Mail."],
+["Which provider is an Indian company focused on business, ad-free?",["Zoho Mail","Outlook","iCloud Mail","Proton Mail"],0,"Zoho Mail, from Chennai."],
+["Which provider uses labels rather than folders?",["Gmail","Outlook","Yahoo Mail","Thunderbird"],0,"Gmail's labels are non-exclusive."],
+["Gmail was launched in:",["1997","2004","2008","2013"],1,"2004, with 1 GB."],
+["Which is a dedicated email client?",["Mozilla Thunderbird","Google Chrome","FileZilla","Zoom"],0,"Thunderbird (and Outlook)."],
+["A recovery phone number that is no longer active most likely leads to:",["Instant recovery","Possible permanent lockout needing manual support","Automatic password reset","No effect"],1,"Keep recovery details current."],
+["Which password recovery method is considered weaker?",["Reset code by SMS","Reset link by email","Security questions","Authenticator app"],2,"Answers can be guessed or found online."],
+["The folder holding messages queued while a client is offline is the:",["Drafts","Outbox","Sent","Archive"],1,"The Outbox."],
+["Deleted messages normally go to:",["Archive","Trash","Spam","Sent"],1,"Trash, auto-emptied after about 30 days."],
+["Which folder keeps mail without deleting it and out of the Inbox?",["Trash","Spam","Archive","Outbox"],2,"Archive."],
+["A message you will never need again should be:",["Archived","Deleted","Flagged","Forwarded"],1,"Archive if it may be needed; delete if not."],
+["Which field hides recipients from everyone else?",["To","CC","BCC","Subject"],2,"BCC."],
+["CC recipients are:",["Hidden from everyone","Visible to all recipients","Visible only to the sender","Not delivered"],1,"CC is fully visible."],
+["Newsletter subscribers who do not know each other should be addressed using:",["To","CC","BCC","Reply All"],2,"BCC protects privacy."],
+["A good subject line is typically about:",["1 word","6 to 10 words","30 words","It should be empty"],1,"Specific, concise and accurate."],
+["Typical attachment size caps are about:",["1 to 2 MB","20 to 25 MB","1 GB","No limit"],1,"Larger files go by cloud link."],
+["The safest format for a document that need not be edited is:",["DOCX","EXE","PDF","BAT"],2,"PDF is universally compatible."],
+["Gmail's Undo Send can be configured up to about:",["5 seconds","30 seconds","5 minutes","1 hour"],1,"About 30 seconds."],
+["Reply sends the response to:",["Everyone in To and CC","The original sender only","A new recipient","Only BCC recipients"],1,"Reply All is for everyone."],
+["The prefix automatically added when forwarding is:",["Re:","Fwd:","FW-:","CC:"],1,"Fwd:."],
+["The prefix 'Re:' comes from the Latin for:",["Return","Regarding","Reply","Resend"],1,"Re means regarding."],
+["Which Gmail operator finds only messages with attachments?",["from:","to:","has:attachment","subject:"],2,"has:attachment."],
+["The query 'after:2024/01/01' finds messages:",["Before 1 Jan 2024","After 1 Jan 2024","From 2024 only on that day","With attachments"],1,"after: is a date lower bound."],
+["A filter in Outlook is called a:",["Label","Rule","Folder","Contact"],1,"Filters are rules in Outlook."],
+["A message that can appear under several categories at once uses:",["Folders","Labels","Archive","Outbox"],1,"Labels are non-exclusive."],
+["A named collection of contacts is a:",["Label","Contact group","Filter","Folder"],1,"A distribution list in Outlook."],
+["A strong password has at least:",["4 characters","8 characters","12 characters","30 characters"],2,"12 minimum, ideally 16 or more."],
+["Which 2FA method is most secure?",["SMS code","Authenticator app","Hardware security key","Security question"],2,"It cannot be phished remotely."],
+["TOTP codes change about every:",["3 seconds","30 seconds","30 minutes","day"],1,"Time-based one-time password."],
+["SPF lists:",["Authorised sending servers","Spam words","Encryption keys","Recovery phones"],0,"Sender Policy Framework."],
+["DKIM verifies that a message:",["Was sent by a human","Was signed and not altered in transit","Has no attachments","Is from a known contact"],1,"A cryptographic signature."],
+["DMARC states:",["What to do when SPF or DKIM fails","Which password to use","How to compress files","Which folder to use"],0,"Quarantine, reject or monitor."],
+["Spam is estimated at over what share of email traffic?",["5 percent","15 percent","45 percent","95 percent"],2,"Over 45 percent."],
+["Which attachment type is the most obviously dangerous?",[".pdf",".txt",".exe",".png"],2,"Executables."],
+["For an unexpected attachment from a known sender you should:",["Open it at once","Verify by a separate channel such as phone","Reply by email asking","Forward it to friends"],1,"The sender's account may be compromised."],
+["The safest response to an urgent email asking you to click a link to a bank is to:",["Click quickly","Reply with details","Type the bank's URL yourself","Forward to friends"],2,"Never use the link."],
+["An angry, emotionally charged email is a:",["Spam","Flame email","Phish","Newsletter"],1,"It should never be sent."],
+["A very formal first contact should start with:",["Hey!","Hi John,","Dear Dr. Rao,","Yo,"],2,"Dear Mr./Ms./Dr. [Last Name]."],
+["The accepted response time for professional email is:",["Within an hour","One to two business days","One week","One month"],1,"With an acknowledgement if a full reply is delayed."],
+["Which sign-off is highly formal?",["Cheers","Thanks","Yours sincerely","Later"],2,"Yours sincerely or faithfully."]
+];
+const FILL=[
+["The first network email was sent in 1971 by Ray ___.",["Tomlinson"],"On ARPANET."],
+["An email address has a local part and a ___ part.",["domain"],"Separated by @."],
+["The protocol that pushes mail from server to server is ___.",["SMTP"],"Simple Mail Transfer Protocol."],
+["The DNS record that identifies a domain's mail server is the ___ record.",["MX"],"Mail Exchange."],
+["___ synchronises a mailbox across several devices, while POP3 downloads it.",["IMAP"],"Internet Message Access Protocol."],
+["Each server adds a ___ header to the message.",["Received"],"A log of hops."],
+["The email provider known for end-to-end encryption is ___ Mail.",["Proton"],"Swiss, founded 2013."],
+["A temporary folder in clients for unsent offline mail is the ___.",["outbox"],"It moves to Sent once delivered."],
+["Deleted mail normally sits in ___ for about 30 days.",["trash","deleted items"],"Then it is removed permanently."],
+["___ keeps a message but removes it from the Inbox.",["archive","archiving"],"It stays searchable."],
+["A ___ recipient is invisible to all other recipients.",["BCC","blind carbon copy"],"Hidden copy."],
+["Forwarded messages get the prefix ___.",["Fwd","Fwd:"],"Forward."],
+["The Gmail operator ___:attachment finds messages with files.",["has"],"has:attachment."],
+["A Gmail ___ is non-exclusive: one message can have several.",["label"],"Folders are exclusive."],
+["A named group of contacts is a contact ___.",["group"],"A distribution list in Outlook."],
+["A strong password should be at least ___ characters long.",["12"],"Ideally 16 or more."],
+["The ___ authenticator code changes about every 30 seconds.",["TOTP","time-based"],"Time-based One-Time Password."],
+["Forging a message's sender address is called ___.",["spoofing"],"SPF, DKIM and DMARC help detect it."],
+["Never open an attachment ending in .exe, .bat, .vbs or ___.",[".js","js"],"All are executables."],
+["An emotionally charged, aggressive email is called a ___ email.",["flame"],"Never send it."]
+];
+const TF=[
+["BCC recipients can see the addresses of other BCC recipients.",false,"False: BCC recipients are invisible to everyone, including each other."],
+["SMTP is used to retrieve email from a mailbox to a client.",false,"False: SMTP sends; IMAP and POP3 retrieve."],
+["IMAP removes messages from the server once downloaded.",false,"False: that describes POP3."],
+["An MX record is looked up before a message can be relayed to a domain's mail server.",true,"True."],
+["A message can carry multiple labels simultaneously in Gmail.",true,"True."],
+["Archiving a message permanently deletes it.",false,"False: it only removes it from the Inbox."],
+["Authenticator app codes (TOTP) are generally more secure than SMS codes for 2FA.",true,"True."],
+["DKIM verifies that a message's content was not altered in transit.",true,"True."],
+["Legitimate organisations routinely ask for passwords to be confirmed by email.",false,"False."],
+["Reply All should be used whenever more than two people are on the original thread.",false,"False: only when the response is relevant to everyone."],
+["Email is a synchronous form of communication.",false,"False: it is asynchronous."],
+["The local part of an email address may begin with a period.",false,"False: it cannot begin or end with a period."],
+["The displayed From name is reliable proof of the sender.",false,"False: it can be set to anything."],
+["Proton Mail's servers cannot read message content because of end-to-end encryption.",true,"True."],
+["The Outbox is normally visible in webmail.",false,"False: webmail submits immediately; Outbox is a client feature."],
+["Trash is auto-emptied after about 30 days.",true,"True."],
+["CC recipients are expected to act on the message.",false,"False: CC is for information only."],
+["Larger attachments are better shared through a cloud storage link.",true,"True."],
+["SMS-based 2FA is the most secure method.",false,"False: a hardware key is the most secure."],
+["SPF lists the mail servers authorised to send on a domain's behalf.",true,"True."],
+["An empty subject line can cause a spam filter to flag a message.",true,"True."],
+["Replying to the sender's own email is the best way to verify a suspicious attachment from them.",false,"False: use a separate channel, since their account may be compromised."]
+];
+const VSA=[
+["Who is credited with sending the first network email, and in what year?",["tomlinson","1971"],"Ray Tomlinson, 1971.",1],
+["Name the two parts of an email address and the symbol separating them.",["local","domain","@"],"Local part and domain part, separated by @.",1],
+["Which protocol is used to send an email to a recipient's mail server?",["smtp"],"SMTP.",0],
+["Which DNS record identifies the mail server responsible for a domain?",["mx"],"The MX record.",0],
+["State the difference between POP3 and IMAP in one sentence.",["download","synchron","remove"],"POP3 downloads and by default removes mail from the server; IMAP synchronises the mailbox across devices.",0],
+["Name the folder holding messages queued while a client is offline.",["outbox"],"The Outbox.",0],
+["Which field's recipients are invisible to all other recipients?",["bcc","blind"],"BCC.",0],
+["Expand: SPF, DKIM, DMARC.",["sender policy framework","domainkeys identified mail","domain-based message authentication"],"Sender Policy Framework; DomainKeys Identified Mail; Domain-based Message Authentication, Reporting and Conformance.",1],
+["Name the three general categories of two-factor authentication method.",["sms","authenticator","hardware"],"SMS code, authenticator app and hardware security key.",1],
+["What prefix is added to the subject when forwarding?",["fwd"],"Fwd:.",0],
+["State the professional standard for email response time.",["one to two","1 to 2","two business"],"Within one to two business days.",0],
+["Name the term for an angry email that should never be sent.",["flame"],"A flame email.",0],
+["Which header uniquely identifies a message?",["message-id","message id"],"Message-ID.",0],
+["Name two providers that offer 15 GB free storage.",["gmail","outlook"],"Gmail and Outlook.",1],
+["Which Gmail operator filters by sender?",["from"],"from:.",0],
+["Give one use of a hardware security key.",["2fa","two-factor","second factor","login"],"As the most secure second factor in two-factor authentication.",0]
+];
+const CALC=[
+{q:"Write a Gmail query finding messages from priya@example.com with an attachment.",alts:[["from:priya@example.com","has:attachment"]],ex:false,model:"from:priya@example.com has:attachment",e:"Operators combine in one query."},
+{q:"Write a Gmail query for messages sent after 1 January 2024 (use the date format 2024/01/01).",alts:[["after:2024/01/01"]],ex:false,model:"after:2024/01/01",e:"after: takes a date."},
+{q:"Which operator restricts a search to a phrase in the subject line?",alts:[["subject:"]],ex:false,model:"subject:",e:"subject: matches the subject line."},
+{q:"Which operator finds messages sent to a specific recipient?",alts:[["to:"]],ex:false,model:"to:",e:"to: restricts the recipient."},
+{q:"Name the local part of ramesh.kumar@gmail.com.",alts:[["ramesh.kumar"]],ex:true,model:"ramesh.kumar",e:"The local part is left of @."},
+{q:"Name the domain part of priya.sharma@infosys.com.",alts:[["infosys.com"]],ex:true,model:"infosys.com",e:"The domain part is right of @."},
+{q:"A teacher wants to send results to 30 students without any seeing another's address. Which field should hold the students' addresses?",alts:[["bcc"]],ex:false,model:"BCC",e:"BCC hides recipients from each other."},
+{q:"An employee wants to keep a manager informed secretly of an email to a client. Which field should hold the manager?",alts:[["bcc"]],ex:false,model:"BCC",e:"CC would reveal the manager."},
+{q:"Which 2FA method is secure and generates a code every 30 seconds without the cellular network? (SMS, authenticator or hardware)",alts:[["authenticator"]],ex:false,model:"Authenticator app (TOTP)",e:"It is independent of the cellular network."},
+{q:"Which authentication standard publishes the list of servers authorised to send for a domain? (SPF, DKIM or DMARC)",alts:[["spf"]],ex:false,model:"SPF",e:"Sender Policy Framework."},
+{q:"Which standard attaches a cryptographic signature to each message? (SPF, DKIM or DMARC)",alts:[["dkim"]],ex:false,model:"DKIM",e:"DomainKeys Identified Mail."},
+{q:"Which standard tells a receiver to reject or quarantine failing mail? (SPF, DKIM or DMARC)",alts:[["dmarc"]],ex:false,model:"DMARC",e:"A policy plus reporting."},
+{q:"Which folder should hold a message you want to keep but remove from the Inbox? (Trash, Archive or Spam)",alts:[["archive"]],ex:false,model:"Archive",e:"Archive keeps it searchable."},
+{q:"A sender called 'Google Support' writes from support@gooogle-security.com. Name the technique.",alts:[["phishing"]],ex:false,model:"Phishing",e:"Impersonation using a look-alike domain."},
+{q:"Which protocol would you choose to read the same mailbox on a phone and a laptop? (POP3 or IMAP)",alts:[["imap"]],ex:false,model:"IMAP",e:"It synchronises across devices."},
+{q:"An email must reach someone@yourcompany.com. Which DNS record does the sending server query first?",alts:[["mx"]],ex:false,model:"MX",e:"It names the mail server for the domain."}
+];
+const SHORT=[
+["Distinguish between CC and BCC.","CC sends a visible copy to secondary recipients for information; everyone in To and CC can see them and no action is expected. BCC sends a hidden copy: BCC recipients are invisible to all other recipients, including each other. BCC protects privacy for large groups or discreetly informs a third party.",["CC visible to all","BCC invisible to all others","Use of CC (information)","Use of BCC (privacy)"]],
+["Trace the path of an email from the sender's client to the recipient's client, naming every protocol.","The client hands the message to the sender's mail server by SMTP; the server queries DNS for the recipient domain's MX record; it relays the message by SMTP to the recipient's mail server, possibly through relays; the server stores it in the mailbox; the recipient's client retrieves it by IMAP or POP3.",["SMTP to sender's server","MX lookup","SMTP relay","Recipient's server mailbox","IMAP or POP3 retrieval"]],
+["Distinguish between the Archive and Trash folders.","Trash holds deleted messages to be discarded and removed permanently after about 30 days. Archive moves messages out of the Inbox without deleting them; they stay searchable. Archive anything that might be needed again; delete the rest.",["Trash discards","Archive keeps","30 days or searchable","Deciding test"]],
+["Distinguish between Reply and Reply All, and explain when Reply All is inappropriate.","Reply sends only to the original sender; Reply All sends to the sender and all recipients in To and CC. Reply All is inappropriate when the response is not relevant to everyone, such as 'Thanks!' to a large announcement, which wastes time and inbox space.",["Reply: sender only","Reply All: everyone","Inappropriate when not relevant","Example"]],
+["What is an MX record, and why does a sending mail server need to query one?","An MX (Mail Exchange) record is a DNS record stating which mail server(s) receive email for a domain, with priority values (lower preferred). The sender queries it to find where to deliver the message before transmitting it, since the mail server differs from the web server.",["DNS record for mail server","Priority","Needed to locate the server"]],
+["Distinguish between a folder and a label as organisational systems.","A folder is exclusive: a message sits in only one. A label is non-exclusive: a message can carry several and appears in each label view without duplication. Outlook and Yahoo use folders; Gmail uses labels.",["Folder exclusive","Label non-exclusive","Appears in every label view","Examples"]],
+["Explain what SPF checks and what DKIM checks, and how they differ.","SPF checks that the message came from a server the domain has authorised in DNS. DKIM checks a cryptographic signature to show the message was signed by the domain's server and not altered in transit. SPF concerns the sending server, DKIM the message integrity.",["SPF: authorised server","DKIM: signature and integrity","Difference"]],
+["Distinguish between SMS-based 2FA and an authenticator app, stating which is more secure and why.","SMS sends a one-time code by text; it is convenient but vulnerable to SIM-swap attacks and cellular weaknesses. An authenticator app generates a TOTP about every 30 seconds on the device, independent of the cellular network, so it is more secure.",["SMS described","Authenticator described","Authenticator more secure","Reason (SIM-swap or network independence)"]],
+["List three warning signs that an email may be a phishing attempt.","A sender address that does not match the claimed organisation; requests for passwords, PINs or financial details; link destinations that do not match the claimed domain on hovering; urgency or fear; spelling and grammar errors.",["Sign 1","Sign 2","Sign 3"]],
+["Why should an executable file attachment always be treated with suspicion?","No legitimate organisation sends executables (.exe, .bat, .vbs, .js) as ordinary business attachments; they run code directly and are a main malware delivery mechanism, so they should be treated as malicious and deleted.",["Not sent legitimately","Run code","Treat as malicious"]],
+["Explain why contact groups are preferable to typing each address separately.","A group is addressed by one name, saving time on repeated entry, and it ensures no member is accidentally omitted. Membership can be edited as the group changes.",["Time saved","Avoids omissions","Editable"]],
+["Explain why an empty subject line can prevent a message from reaching the Inbox.","Many spam filters flag subject-less messages as suspicious, so the message may be sent to Spam or blocked. A specific subject line also helps the recipient decide to open it.",["Filters flag empty subjects","Goes to Spam","Subject helps the reader"]],
+["Distinguish between POP3 and IMAP.","POP3 downloads messages to one device and by default removes them from the server, so they vanish from other devices. IMAP synchronises the mailbox, folders and read status across all devices, which is why webmail and mobile apps use it.",["POP3 downloads and removes","IMAP synchronises","Multi-device implication"]],
+["State the attachment guidelines for email.","Attachments are capped at about 20 to 25 MB, so larger files should be shared by a cloud storage link. PDF is the safest format for documents to be read. Unexpected attachments should not be opened without verification.",["Size cap","Cloud link","PDF","Caution"]]
+];
+const LONG=[
+["Explain, step by step, how an email travels from the moment it is sent to the moment it is read, naming SMTP, MX records and IMAP/POP3 at the correct points.","The sender composes and clicks Send; the client or webmail hands the message to the sender's outgoing mail server by SMTP. That server queries DNS for the MX record of the recipient's domain, which names the responsible mail server and its priority. It relays the message to that server by SMTP, often through intermediate relays, each adding a Received header. The recipient's server accepts the message and places it in the mailbox, where SMTP's job ends. Later the recipient's client retrieves it by IMAP (synchronised across devices) or POP3 (downloaded, usually removed from the server). Then the message is read.",["Client to sender's server by SMTP","MX lookup via DNS","SMTP relay and Received headers","Delivery to the recipient's mailbox","Retrieval by IMAP or POP3","Distinction of push and pull"]],
+["Compare any three major email service providers on storage, distinguishing features and typical user base.","Gmail: 15 GB shared with Drive and Photos; label-based organisation, Smart Compose, Confidential Mode; the largest user base, tied to the Google ecosystem. Outlook: 15 GB; calendar, Exchange integration, rules and Focused Inbox; dominates corporate environments. Yahoo Mail: 1 TB free, disposable addresses; popular in the United States. Proton Mail: end-to-end encryption, Swiss privacy law; journalists, lawyers and privacy-conscious users. Zoho Mail: ad-free, custom domains; Indian businesses.",["Provider 1 storage and feature","Provider 2 storage and feature","Provider 3 storage and feature","User base for each"]],
+["Explain the purpose of each standard email folder (Inbox, Sent, Drafts, Outbox, Spam, Trash, Archive).","Inbox receives incoming mail not filtered elsewhere. Sent keeps copies of sent messages as a record. Drafts holds unsent messages, saved or auto-saved. Outbox queues messages not yet delivered to the outgoing server, for example offline, in client applications. Spam holds filtered unsolicited or malicious mail, to be reviewed for false positives. Trash holds deleted messages for recovery for about 30 days. Archive stores messages out of the Inbox without deleting them.",["Inbox","Sent and Drafts","Outbox","Spam","Trash","Archive"]],
+["Explain SPF, DKIM and DMARC together, describing how they combine to let a receiving server assess whether a message is genuine.","The From address can be forged because SMTP does not prevent it. SPF: the domain publishes in DNS the servers authorised to send its mail, and the receiver checks the message came from one; failure suggests spoofing. DKIM: the sending server signs each message with a private key; the receiver checks it with the public key in DNS, proving the message came through a legitimate server and was not altered. DMARC builds on both: the domain publishes a policy (quarantine, reject or monitor) for failures and receives reports of spoofing. Together they let a filter detect forgery at protocol level before a human reads the message.",["Why needed (From forged)","SPF","DKIM","DMARC","How they combine"]],
+["Describe the warning signs of a phishing email and the recommended response when one is suspected.","Phishing impersonates a trusted entity and manufactures urgency or fear. Signs: a sender address that does not match the claimed organisation (support@gooogle-security.com); requests for passwords, PINs or financial details, which legitimate organisations never make by email; link destinations (seen by hovering) that do not match the claimed domain; urgency or fear; spelling and grammar errors. The safe response: do not click; navigate to the organisation's website by typing the URL; report the message.",["Real sender address","Requests for secrets","Hover over links","Urgency or fear","Spelling errors","Type the URL yourself"]],
+["Explain the components of a professional email (greeting, tone, structure, closing, signature) with the reasoning behind each convention.","A greeting by name, matched to formality (Dear Dr. Rao; Hi Asha), shows respect. Tone stays courteous even for bad news; flame emails damage relationships, so draft and wait. Structure: clear, concise, grammatical, with short paragraphs and lists, one topic per email, proofread, specific subject line, so the reader's time is respected. The closing (Yours sincerely, Best regards, Best) matches formality. The signature (name, title, organisation, contact details) identifies the sender and gives other ways to reach them.",["Subject and greeting","Tone","Structure and proofreading","Closing","Signature"]],
+["Explain two-factor authentication, describing the three common methods and ranking them by security.","2FA requires two forms of verification, typically something known (password) and something owned (device), so a stolen password alone is useless. Methods: SMS code, a one-time code by text, convenient but vulnerable to SIM-swap attacks and network weaknesses (least secure); authenticator app, generating a TOTP about every 30 seconds independent of the cellular network (more secure); hardware security key, a USB or NFC device that must be present and cannot be phished remotely (most secure).",["Definition and reason","SMS","Authenticator app","Hardware key","Ranking"]],
+["Describe the To, CC and BCC fields, explaining the visibility rules and an appropriate use case for each.","To holds the primary recipients, visible to all, expected to act or reply. CC sends a visible copy to people who should be informed; everyone sees To and CC; no action expected (copying a supervisor on a report). BCC sends a hidden copy: invisible to all other recipients and to other BCC recipients; used for newsletters to protect privacy or to discreetly inform a third party.",["To","CC and visibility","BCC and visibility","Use case for each"]]
+];
+const APP=[
+["A user receives an email that appears to be from their bank, urgently requesting they click a link and confirm their account details within one hour. List three specific checks they should perform before acting, and state the safest overall response.","Check the sender's actual address against the bank's real domain; hover over the link without clicking to see its real destination; notice that banks never ask for passwords or full details by email, and the urgency is a pressure tactic. The safest response is not to click, to type the bank's URL yourself or phone the bank, and to report the message as phishing.",["Check sender address","Hover over the link","Banks do not ask by email","Type the URL or phone; report"]],
+["A teacher wants to send exam results to 30 students individually, without any student seeing another's address. Identify the correct field and explain why CC would be inappropriate.","Use BCC (sending separate individually addressed messages is even safer for personal results). CC would show every address to all recipients and expose personal information; BCC hides recipients from each other.",["BCC","CC exposes addresses","Privacy"]],
+["An employee wants to keep their manager informally aware of a sensitive email exchange with a client, without the client knowing the manager has been included. Identify the correct field and explain why.","BCC. The manager receives a copy, but BCC recipients are invisible to the client. CC would let the client see the manager, defeating the purpose. Etiquette notes BCC should be used transparently and not deceptively.",["BCC","Invisible to the client","CC defeats the purpose"]],
+["A message is accidentally sent to the wrong recipient, and it is inside Gmail's 30-second Undo Send window. Explain what this feature does and why it exists.","Undo Send holds the message briefly before actual transmission, so clicking Undo cancels the sending and returns it to the composition window. It exists to let a user catch an error (wrong recipient, missing attachment, typo) in the moment just after clicking Send.",["Delays sending","Cancels and reopens","Purpose: catch errors"]],
+["A student's email account is locked because they forgot their password and their registered recovery phone number is no longer active. Explain what is likely to happen next and what habit would have prevented this.","The reset code cannot be delivered, so automatic recovery fails; the student must try the recovery email or other methods, or go through manual review by customer support, and may face permanent lockout. Keeping the recovery phone and email current, using a password manager and enabling 2FA would have prevented it.",["Recovery code undeliverable","Manual support or lockout","Keep recovery details current","Password manager and 2FA"]],
+["A domain's DMARC policy is set to 'reject' and a phishing email impersonating that domain fails its DKIM check. Explain what happens to the message and why.","The receiving server checks DKIM, finds the signature missing or invalid, consults the domain's DMARC policy and rejects the message, so it never reaches the inbox. The domain owner also receives a report that spoofing was attempted. This works because DMARC states what to do on SPF or DKIM failure.",["DKIM check fails","DMARC policy consulted","Message rejected","Reporting"]],
+["A manager receives an unexpected invoice.pdf.exe attachment from a known supplier. Advise what to do and explain why.","Do not open it. The .exe extension means it is an executable, which legitimate organisations do not send, and the supplier's account may be compromised. Verify through a separate channel such as a phone call, not reply email, scan with antivirus, and report or delete it.",["Do not open","Executable danger","Verify by phone","Antivirus and delete"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson7-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Email lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Email basics",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"What is email?",d:"Email (Electronic Mail) is a method of exchanging digital messages between people over the internet or any computer network.",p:["It is one of the oldest internet services in continuous use, predating the World Wide Web by almost two decades. A message consists of text and can include formatted content, embedded images and attached files of virtually any type.","Email operates on an asynchronous model: sender and receiver need not be online simultaneously. The sender composes and sends at any time; the receiver reads at their own convenience. From this one fact follow email's suitability for formal record-keeping, its poor fit for urgent matters and its difference from real-time tools (phone calls, instant messaging, VoIP)."],t:T[1]},
+ {h:"Ray Tomlinson and the first email",p:["In 1971 Ray Tomlinson, an engineer working on ARPANET, sent what is generally recognised as the first network email, between two computers in the same room connected only through ARPANET. His most consequential decision was to use the @ symbol to separate a user's name from the name of the host machine; it persists in every email address today. He reportedly recalled the test message as something forgettable such as 'QWERTYUIOP'."]},
+ {h:"Advantages and limitations",p:["Advantages: speed (within seconds, at almost zero cost, with a permanent written record); versatility; an automatic searchable archive; accessibility from any connected device. Limitations: poor for urgent matters; information overload and spam; a primary vector for phishing and malicious attachments, with interception possible if unencrypted; and the difficulty of conveying tone in text."],t:T[0]}
+]},
+{t:"Email address and interface",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Email address",d:"An email address is the unique identifier designating a specific mailbox and routing messages to the correct recipient. Every address has a local part to the left of the @ symbol and a domain part to the right.",p:["Example: ramesh.kumar@gmail.com. The full combination is globally unique."],t:T[2]},
+ {h:"Email interface",p:["Despite variation between providers, modern interfaces share a layout."],t:T[3]},
+ {h:"Examination notes",l:["'Explain the structure of an email address': name the @ symbol as the separator, identify both parts by name and give one worked example."]}
+]},
+{t:"How email works",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Sending and retrieving are different problems",p:["Sending a message and retrieving one are handled by different protocols: one is a hand-off between mail servers, the other is a client asking a mailbox for its contents. SMTP is a push protocol; POP3 and IMAP pull messages from a mailbox to a client."],t:T[4]},
+ {h:"The journey of one message",p:["A single email uses SMTP for every hop until it reaches the recipient's mailbox, and only then POP3 or IMAP for the final step of being read."],t:T[5]},
+ {h:"MX records",d:"An MX (Mail Exchange) record, published in a domain's DNS entry, states which mail server(s) are responsible for receiving email for that domain and in what order of preference.",p:["The sending server queries DNS for the recipient domain's MX records before a single byte of the message is transmitted."],t:T[6]},
+ {h:"Email headers",d:"Headers are metadata recording the message's technical journey, normally hidden but accessible through 'Show Original' or 'View Source'.",p:["The visible From name can be set to anything and is not trustworthy on its own. Examining the Received chain and Return-Path is the check of the real sender taken one level deeper, and is what SPF, DKIM and DMARC verify automatically."],t:T[7]},
+ {h:"Examination notes",l:["The correct journey: sender's client, SMTP, sender's mail server, DNS MX lookup, SMTP, recipient's mail server, IMAP or POP3, recipient's client.","The two commonest errors: omitting the DNS/MX step, and using POP3 or IMAP for the outgoing leg."]}
+]},
+{t:"Email service providers",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Email service provider",d:"An email service provider is a company operating the servers, infrastructure and software necessary to host email accounts.",p:["Providers run the SMTP and IMAP/POP3 servers, filter spam and provide the interface, either through a browser or through a dedicated client application such as Microsoft Outlook or Mozilla Thunderbird configured with the account's credentials and server settings."]},
+ {h:"The major providers",p:["Gmail: Google's service and the world's most used (over 1.8 billion active users); launched in 2004 with 1 GB; now 15 GB shared with Drive and Photos; a Gmail account is a Google account (Docs, Sheets, Drive, Calendar, Meet); label-based; Smart Compose, Smart Reply, Priority Inbox, snooze and Confidential Mode.","Microsoft Outlook: a standalone client (with Microsoft 365) and a web service (Outlook.com, formerly Hotmail); 15 GB free; integrated with OneDrive, Office Online and Teams; dominates corporate use for calendar and scheduling, Exchange Server integration, rules and Focused Inbox.","Yahoo Mail: launched in 1997; 1 TB free; disposable addresses; powerful filtering; popular in the United States.","iCloud Mail: for Apple ID holders (@icloud.com, @me.com, @mac.com); 5 GB shared across iCloud; used through Apple's Mail app.","Proton Mail: Swiss, founded in 2013 by scientists who met at CERN; end-to-end encryption, so not even its servers can read messages, unlike standard encryption, which protects messages only in transit; valued by journalists, lawyers and privacy-conscious users.","Zoho Mail: from Zoho Corporation, an Indian company based in Chennai; ad-free; content not used for advertising; generous free tier; business plans with custom-domain addresses."],t:T[8]},
+ {h:"Choosing a provider",t:T[9]},
+ {h:"Examination notes",l:["Match the scenario to the one genuinely distinguishing feature of the provider."]}
+]},
+{t:"Email account management",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Creating an account",p:["Creation begins at the provider's registration page. The service checks that the username is available, because addresses must be globally unique within the provider's domain; it suggests alternatives when needed. A verification code is usually sent to confirm ownership, after which the user reaches a new empty inbox."],t:T[10]},
+ {h:"Signing in, signing out and password recovery",p:["Signing in requires the address and password. Signing out terminates the session and removes stored credentials. Recovery is started by a 'Forgot password?' link and an identity verification process."],t:T[11]},
+ {h:"Examination notes",l:["Scenario: a student forgot the password and no longer has the recovery phone. The answer names the specific failure (recovery channel inaccessible, probably needing manual support) and the specific preventive habit (keeping recovery details current)."]}
+]},
+{t:"Email folders",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Folders",d:"Email folders (called labels in Gmail, functioning similarly) are organisational containers grouping messages by status, content or any criterion the user chooses.",p:["Every account has standard system folders and most providers allow custom folders."],t:T[12]},
+ {h:"Archive and Trash",t:T[13]},
+ {h:"Examination notes",l:["Archive versus Trash: Trash is for messages to be discarded; Archive for messages to keep but remove from the Inbox. The deciding test is whether the message will ever be needed again."]}
+]},
+{t:"Composing emails",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"To, CC and BCC",d:"Composing is the process of creating a new message; the composition window has fields and tools to build it.",p:["CC (Carbon Copy) is borrowed from carbon paper: the original went to the primary recipient and a carbon copy to secondary recipients for information. BCC recipients are completely invisible to every other recipient, and cannot see each other either. Using CC to inform a third party discreetly would defeat the point, since the primary recipient would see who was copied."],t:T[14]},
+ {h:"Subject line",d:"The subject line is a brief, descriptive summary of the message's content; it is the primary basis on which the recipient decides whether and how urgently to open it.",p:[],t:T[15]},
+ {h:"Formatting, attachments, drafts and sending",t:T[16]},
+ {h:"Examination notes",l:["'Distinguish between CC and BCC' is asked in almost every examination. State the visibility rule first: CC recipients are visible to everyone; BCC recipients are invisible to everyone else, including other BCC recipients."]}
+]},
+{t:"Managing, searching and contacts",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Reply, Reply All and Forward",p:["Reply opens a new window with the original sender in To and a quoted copy (indented or prefixed with >). Reply All sends to the original sender and everyone in To and CC; it is appropriate only when the response is relevant to everyone. Replying 'Thanks!' to an all-company announcement with Reply All is a notorious source of unnecessary email volume. Forwarding sends a copy, with attachments, to a new recipient."],t:T[17]},
+ {h:"Deleting, archiving, marking, flagging and moving",t:T[18]},
+ {h:"Searching",p:["Basic search accepts keywords; advanced search narrows by several criteria at once, usually through a dropdown on the search bar. In Gmail, operators can be combined in a single query."],t:T[19]},
+ {h:"Search query and sorting",t:T[20]},
+ {h:"Reading a combined query",t:T[32]},
+ {h:"Filters, folders and labels",t:T[21]},
+ {h:"Contacts and contact groups",p:["Keeping contact details current matters: an outdated address causes failed deliveries."],t:T[22]},
+ {h:"Examination notes",l:["Reply or Reply All: decide whether the response is relevant to every original recipient or only the sender, and state the reasoning.","Folders versus labels: state the exclusivity difference, not just examples."]}
+]},
+{t:"Email security",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Strong passwords",p:["Email account security begins with the password, because an email account authenticates other services; access to it can give a foothold in many accounts."],t:T[23]},
+ {h:"Two-factor authentication",d:"Two-factor authentication (2FA), also called two-step verification, requires two separate forms of identity verification, typically something the user knows (the password) and something the user has (a device or application).",p:["Even an attacker holding the correct password cannot get in without the second factor. All major providers offer 2FA; enabling it is one of the most impactful steps a user can take."],t:T[24]},
+ {h:"Spam",d:"Spam is unsolicited bulk email sent in very large volumes without recipient consent, typically for advertising, fraud or malware distribution.",p:["Spam is estimated at over 45 percent of global email traffic. Modern filters use machine learning models trained on billions of examples, examining sender domain and IP reputation, message content, the image-to-text ratio, authentication records and patterns shared with mail already marked as spam. Users help by reporting spam and marking legitimate mail 'Not spam', and by using a secondary or disposable address for registrations."]},
+ {h:"Verifying a sender: SPF, DKIM and DMARC",p:["The displayed From address is just a header field and nothing in SMTP prevents a sender from lying about it. Three DNS-based standards, published as DNS records alongside the MX record, let a receiving server verify that a message claiming to come from a domain really originated from a server authorised to send for it. Together they let a filter detect a phishing email even when its content looks convincing."],t:T[25]},
+ {h:"Phishing",d:"Phishing is a fraudulent message impersonating a trusted entity (a bank, a government agency, a technology company, a delivery service, a colleague) to deceive the recipient into an action that compromises security, usually clicking a malicious link or supplying sensitive information.",p:["Phishing messages mimic the logos, colours and language of the genuine organisation and manufacture urgency or fear. The link leads to a fake site that captures any credentials entered."],t:T[26]},
+ {h:"Suspicious attachments",t:T[27]},
+ {h:"Safe email practices: summary",t:T[28]},
+ {h:"Examination notes",l:["One sentence per term: SPF checks whether the message came from an authorised server; DKIM checks whether the content was signed and unaltered; DMARC states what to do when either check fails."]}
+]},
+{t:"Email etiquette",sec:[9],notes:[9],dump:[9],blocks:[
+ {h:"Etiquette overview",d:"Email etiquette refers to the standards of professional, respectful and effective behaviour specific to email in formal contexts.",p:["Unlike casual instant messaging, email in academic and business settings carries expectations of formality, clarity and respect. Good etiquette is not merely politeness: it is communicating clearly in a way that respects the recipient's time."],t:T[31]},
+ {h:"Greetings",t:T[29]},
+ {h:"Closing and signature",t:T[30]},
+ {h:"Examination notes",l:["Given a poorly written sample email, work through the checklist in order: subject line, greeting, tone and structure, closing and signature, naming each specific fault rather than writing 'this is unprofessional'."]}
+]}
+];
+
+/* ============ LAB (Lesson 7): address, journey, visibility, search, filters, authentication, password, phishing, etiquette, sorting ============ */
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+const L={tool:"addr",sd:{dim:0,item:null,fb:"",right:null,s:0,t:0},
+  ea:"ramesh.kumar@gmail.com",
+  jr:"asha@school.edu.in",jp:"imap",js:0,
+  vt:"teacher@school.in",vc:"head@school.in",vb:"anil@mail.com, sara@mail.com",
+  sq:"from:priya has:attachment after:2024/01/01",
+  fr:"@newsletter.com",fa:"label",
+  au1:"pass",au2:"pass",au3:"reject",
+  pw:"Tr0ub4dor&3xK!mQ9v",
+  ph:0,pa:{},ps:0,
+  et:{}};
+const LABTOOLS=[["addr","Address checker"],["jour","Email journey"],["vis","To, CC, BCC"],["search","Search query"],["filter","Filter rule"],["auth","SPF, DKIM, DMARC"],["pwd","Password strength"],["phish","Spot the phishing"],["etiq","Fix the email"],["sort","Sorting drill"]];
+const note=t=>'<div class="rs note">'+t+"</div>";
+const okb=t=>'<div class="rs ok">'+t+"</div>";
+const badb=t=>'<div class="rs bad">'+t+"</div>";
+const inp=(id,lab,w,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><input type="text" id="'+id+'" data-lin="'+t+'" class="mono" value="'+esc(L[id])+'" autocomplete="off" spellcheck="false" style="max-width:'+(w||10)+'rem"></div>';
+const sel=(id,lab,opts,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><select id="'+id+'" data-lin="'+t+'" style="width:auto">'+opts.map(o=>'<option value="'+esc(o[0])+'"'+(String(L[id])===String(o[0])?" selected":"")+">"+esc(o[1])+"</option>").join("")+"</select></div>";
+function labView(){
+  let h='<p class="hint">Try the procedural parts of the chapter: check an address, follow a message through SMTP, MX and IMAP, see who can see whom in To, CC and BCC, write Gmail search queries, test a filter, work out SPF, DKIM and DMARC outcomes, test a password and practise spotting phishing and fixing a poor email.</p>';
+  h+='<div class="subnav" role="group" aria-label="Lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  return '<div class="labwrap">'+h+TOOLS[L.tool].v()+"</div>";
+}
+/* ---------- address ---------- */
+function addrRes(){
+  const s=String(L.ea||"").trim(),at=s.split("@");
+  if(at.length!==2||!at[0]||!at[1])return {eares:badb("An address needs exactly one @ with a local part before it and a domain part after it.")};
+  const lp=at[0],dp=at[1],prob=[];
+  if(/[^A-Za-z0-9._+\-]/.test(lp))prob.push("The local part may contain only letters, digits, periods, underscores, hyphens and plus signs.");
+  if(lp[0]==="."||lp[lp.length-1]===".")prob.push("The local part cannot begin or end with a period.");
+  if(/\.\./.test(lp))prob.push("The local part cannot contain two consecutive periods.");
+  if(!/^[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)+$/.test(dp))prob.push("The domain part must be a valid domain name such as gmail.com (at least two labels separated by dots).");
+  let h='<div class="tbl"><table><thead><tr><th>Part</th><th>Value</th></tr></thead><tbody><tr><th>Local part</th><td class="mono">'+esc(lp)+'</td></tr><tr><th>Separator</th><td class="mono">@</td></tr><tr><th>Domain part</th><td class="mono">'+esc(dp)+"</td></tr></tbody></table></div>";
+  h+=prob.length?badb("<b>Invalid.</b><br>"+prob.map(esc).join("<br>")):okb("<b>Valid structure.</b> The local part names the mailbox; the domain part names the host. The local part is treated case-insensitively in practice.");
+  return {eares:h};
+}
+function viewAddr(){return '<div class="panel"><h3>Email address checker</h3><div class="row">'+inp("ea","Email address",26,"addr")+'</div><div id="eares">'+addrRes().eares+"</div></div>";}
+/* ---------- journey ---------- */
+function jourSteps(){
+  const a=String(L.jr||"").trim(),dom=a.includes("@")?a.split("@").pop():"example.com",pr=L.jp==="pop"?"POP3":"IMAP";
+  return [["Compose and Send","The sender clicks Send in the client or webmail."],["SMTP: client to sender's server","The client hands the message to the sender's outgoing mail server using SMTP."],["DNS MX lookup","The sender's server queries DNS for the MX record(s) of "+dom+" to learn which server receives its mail (lowest priority number first)."],["SMTP relay","The message is relayed to the mail server named in the MX record by SMTP, possibly through intermediate relays; each adds a Received header."],["Delivered to the mailbox","The recipient's mail server accepts the message and stores it in the mailbox. SMTP's job ends here."],[pr+" retrieval",pr==="IMAP"?"The recipient's client synchronises with the mailbox: the message stays on the server and the read status will be mirrored on every device.":"The recipient's client downloads the message and, by default, removes it from the server, so other devices will not see it."]];
+}
+function jourRes(){const S=jourSteps(),i=Math.min(L.js,S.length-1);return {jres:"<ol>"+S.map((s,j)=>"<li"+(j===i?' style="font-weight:600"':"")+">"+esc(s[0])+"</li>").join("")+"</ol>"+note("<b>Step "+(i+1)+" of "+S.length+": "+esc(S[i][0])+".</b> "+esc(S[i][1]))};}
+function viewJour(){
+  const S=jourSteps(),i=Math.min(L.js,S.length-1);
+  let h='<div class="panel"><h3>The journey of an email</h3><div class="row">'+inp("jr","Recipient address",22,"jour")+sel("jp","Retrieval protocol",[["imap","IMAP"],["pop","POP3"]],"jour")+'</div><div id="jres">'+jourRes().jres+'</div><div class="row"><button class="btn" data-act="jback">Back</button><button class="btn primary" data-act="jnext">Next</button><button class="btn" data-act="jreset">Restart</button></div></div>';
+  return h;
+}
+/* ---------- visibility ---------- */
+const parseL=s=>String(s||"").split(/[,;]/).map(x=>x.trim()).filter(Boolean);
+function visRes(){
+  const to=parseL(L.vt),cc=parseL(L.vc),bc=parseL(L.vb);
+  if(!to.length)return {vres:badb("Enter at least one address in To.")};
+  const pub=to.concat(cc);
+  const row=(who,role,sees)=>"<tr><th>"+esc(who)+"</th><td>"+role+"</td><td>"+(sees.length?esc(sees.join(", ")):"nobody else")+"</td></tr>";
+  let rows=to.map(x=>row(x,"To",pub.filter(y=>y!==x)))+"";
+  rows=to.map(x=>row(x,"To",pub.filter(y=>y!==x))).join("")+cc.map(x=>row(x,"CC",pub.filter(y=>y!==x))).join("")+bc.map(x=>row(x,"BCC",pub)).join("");
+  let h='<div class="tbl"><table><thead><tr><th>Recipient</th><th>Field</th><th>Addresses this recipient can see</th></tr></thead><tbody>'+rows+"</tbody></table></div>";
+  h+=note("To and CC recipients see only the To and CC lists. A BCC recipient sees To and CC but never the other BCC recipients; nobody sees the BCC recipients. "+(bc.length?bc.length+" BCC recipient(s) stay hidden.":"No BCC recipients in this message."));
+  return {vres:h};
+}
+function viewVis(){return '<div class="panel"><h3>To, CC and BCC visibility</h3><p class="hint">Separate addresses with commas.</p><div class="row">'+inp("vt","To",20,"vis")+inp("vc","CC",20,"vis")+inp("vb","BCC",26,"vis")+'</div><div id="vres">'+visRes().vres+"</div></div>";}
+/* ---------- search ---------- */
+const INBOX=[
+{f:"priya@example.com",to:"me@mail.com",s:"Project report",a:true,d:"2024/03/10",b:"Report attached"},
+{f:"priya@example.com",to:"me@mail.com",s:"Lunch tomorrow",a:false,d:"2024/03/12",b:"Are you free"},
+{f:"priya@example.com",to:"me@mail.com",s:"Old photos",a:true,d:"2023/11/05",b:"Photos from the trip"},
+{f:"rahul@school.in",to:"me@mail.com",s:"Exam timetable",a:true,d:"2024/02/01",b:"Timetable attached"},
+{f:"news@newsletter.com",to:"me@mail.com",s:"Weekly digest",a:false,d:"2024/03/15",b:"Top stories"},
+{f:"bank@securebank.com",to:"me@mail.com",s:"Statement ready",a:true,d:"2024/03/01",b:"Your statement"},
+{f:"me@mail.com",to:"asha@school.in",s:"Project report",a:true,d:"2024/03/11",b:"Please review"},
+{f:"asha@school.in",to:"me@mail.com",s:"Meeting rescheduled to Thursday 3pm",a:false,d:"2024/03/14",b:"New time"},
+{f:"support@shop.com",to:"me@mail.com",s:"Your order has shipped",a:false,d:"2023/12/20",b:"Tracking inside"},
+{f:"rahul@school.in",to:"me@mail.com",s:"Holiday homework",a:false,d:"2024/01/15",b:"Please see below"}
+];
+function searchRes(){
+  const q=String(L.sq||"").trim(),toks=q.match(/"[^"]*"|\S+/g)||[];
+  const crit=[],kw=[];
+  toks.forEach(t=>{let m;
+    if((m=t.match(/^from:(.+)$/i)))crit.push(["from",m[1].toLowerCase()]);
+    else if((m=t.match(/^to:(.+)$/i)))crit.push(["to",m[1].toLowerCase()]);
+    else if((m=t.match(/^subject:(.+)$/i)))crit.push(["subject",m[1].replace(/"/g,"").toLowerCase()]);
+    else if(/^has:attachment$/i.test(t))crit.push(["att",""]);
+    else if((m=t.match(/^after:(\d{4}\/\d{2}\/\d{2})$/i)))crit.push(["after",m[1]]);
+    else if((m=t.match(/^before:(\d{4}\/\d{2}\/\d{2})$/i)))crit.push(["before",m[1]]);
+    else kw.push(t.replace(/"/g,"").toLowerCase());});
+  const hit=INBOX.filter(x=>crit.every(c=>c[0]==="from"?x.f.includes(c[1]):c[0]==="to"?x.to.includes(c[1]):c[0]==="subject"?x.s.toLowerCase().includes(c[1]):c[0]==="att"?x.a:c[0]==="after"?x.d>c[1]:x.d<c[1])&&kw.every(k=>(x.f+" "+x.to+" "+x.s+" "+x.b).toLowerCase().includes(k)));
+  let h='<div class="tbl"><table><thead><tr><th>From</th><th>Subject</th><th>Attachment</th><th>Date</th></tr></thead><tbody>'+(hit.length?hit.map(x=>"<tr><td>"+esc(x.f)+"</td><td>"+esc(x.s)+"</td><td>"+(x.a?"yes":"")+"</td><td>"+x.d+"</td></tr>").join(""):'<tr><td colspan="4">No messages match.</td></tr>')+"</tbody></table></div>";
+  h+=note("<b>"+hit.length+" of "+INBOX.length+" messages match.</b> Criteria read: "+(crit.concat(kw.map(k=>["keyword",k])).map(c=>c[0]+(c[1]?" = "+esc(c[1]):"")).join("; ")||"none (all messages)")+". Operators combine: every one must be true.");
+  return {sres:h};
+}
+function viewSearch(){return '<div class="panel"><h3>Gmail-style search</h3><p class="hint">Operators: from:, to:, subject:, has:attachment, after:YYYY/MM/DD, before:YYYY/MM/DD, and plain keywords. The sample inbox has 10 messages.</p><div class="row">'+inp("sq","Search query",30,"search")+'</div><div id="sres">'+searchRes().sres+'</div><details><summary>Show the sample inbox</summary><div class="tbl"><table><thead><tr><th>From</th><th>To</th><th>Subject</th><th>Att.</th><th>Date</th></tr></thead><tbody>'+INBOX.map(x=>"<tr><td>"+esc(x.f)+"</td><td>"+esc(x.to)+"</td><td>"+esc(x.s)+"</td><td>"+(x.a?"yes":"")+"</td><td>"+x.d+"</td></tr>").join("")+"</tbody></table></div></details></div>";}
+/* ---------- filter ---------- */
+function filterRes(){
+  const r=String(L.fr||"").trim().toLowerCase();
+  if(!r)return {fres:note("Enter text the sender's address must contain, for example @newsletter.com.")};
+  const hit=INBOX.filter(x=>x.f.toLowerCase().includes(r));
+  const act={label:"skip the Inbox and apply the label 'Filtered'",read:"mark as read",star:"star the message",del:"delete the message"}[L.fa];
+  let h=okb("<b>Rule:</b> if the sender contains <span class=\"mono\">"+esc(r)+"</span>, then "+act+". <b>"+hit.length+"</b> of "+INBOX.length+" incoming messages match.");
+  h+='<div class="tbl"><table><thead><tr><th>From</th><th>Subject</th><th>Result</th></tr></thead><tbody>'+INBOX.map(x=>{const m=x.f.toLowerCase().includes(r);return "<tr><td>"+esc(x.f)+"</td><td>"+esc(x.s)+"</td><td>"+(m?"<b>"+({label:"Labelled, skips Inbox",read:"Marked read",star:"Starred",del:"Deleted"}[L.fa])+"</b>":"Stays in Inbox")+"</td></tr>";}).join("")+"</tbody></table></div>";
+  h+='<p class="hint">A filter (a rule in Outlook) runs automatically on incoming mail. A label is non-exclusive, so a filtered message can carry several labels; a folder holds a message in one place only.</p>';
+  return {fres:h};
+}
+function viewFilter(){return '<div class="panel"><h3>Filter rule tester</h3><div class="row">'+inp("fr","Sender contains",18,"filter")+sel("fa","Action",[["label","Apply label and skip Inbox"],["read","Mark as read"],["star","Star"],["del","Delete"]],"filter")+'</div><div id="fres">'+filterRes().fres+"</div></div>";}
+/* ---------- authentication ---------- */
+function authRes(){
+  const spf=L.au1==="pass",dkim=L.au2==="pass",pol=L.au3,fail=!spf||!dkim;
+  let h='<div class="tbl"><table><thead><tr><th>Check</th><th>Question</th><th>Result</th></tr></thead><tbody><tr><th>SPF</th><td>Did it come from a server the domain authorised?</td><td><b>'+(spf?"Pass":"Fail")+'</b></td></tr><tr><th>DKIM</th><td>Is the signature valid, so the content was signed and unaltered?</td><td><b>'+(dkim?"Pass":"Fail")+'</b></td></tr><tr><th>DMARC policy</th><td>What does the domain say to do on failure?</td><td><b>'+esc(pol)+"</b></td></tr></tbody></table></div>";
+  if(!fail)h+=okb("<b>Delivered normally.</b> Both checks pass, so the message is treated as authentic (other spam checks still apply).");
+  else if(pol==="reject")h+=badb("<b>Rejected.</b> A check failed and the domain's DMARC policy is reject, so the message never reaches the mailbox. The domain owner receives a report.");
+  else if(pol==="quarantine")h+=badb("<b>Quarantined.</b> A check failed and the DMARC policy is quarantine, so the message goes to Spam or quarantine.");
+  else h+=note("<b>Delivered, failure reported.</b> A check failed but the policy is only to monitor, so the message is delivered while the failure is reported to the domain owner.");
+  h+='<p class="hint">The textbook model: DMARC acts when SPF or DKIM fails. SPF checks the server; DKIM checks the signature and integrity.</p>';
+  return {aures:h};
+}
+function viewAuth(){return '<div class="panel"><h3>SPF, DKIM and DMARC</h3><div class="row">'+sel("au1","SPF",[["pass","Pass"],["fail","Fail"]],"auth")+sel("au2","DKIM",[["pass","Pass"],["fail","Fail"]],"auth")+sel("au3","DMARC policy",[["reject","reject"],["quarantine","quarantine"],["none","monitor only"]],"auth")+'</div><div id="aures">'+authRes().aures+"</div></div>";}
+/* ---------- password ---------- */
+function pwdRes(){
+  const p=String(L.pw||"");
+  if(!p)return {pwres:note("Type a password to test. It is checked only in this page and is not sent anywhere.")};
+  const chk=[["At least 12 characters",p.length>=12],["16 or more characters (ideal)",p.length>=16],["Contains uppercase",/[A-Z]/.test(p)],["Contains lowercase",/[a-z]/.test(p)],["Contains digits",/\d/.test(p)],["Contains symbols such as @, # or $",/[^A-Za-z0-9]/.test(p)],["Not a common word or pattern",!/^(password|qwerty|letmein|admin|welcome|iloveyou|12345|abc123)/i.test(p)&&!/(1234|qwer|password)/i.test(p)]];
+  const sc=chk.filter(c=>c[1]).length;
+  let h='<ul class="mono" style="list-style:none;padding-left:0">'+chk.map(c=>"<li>"+(c[1]?"[x] ":"[ ] ")+esc(c[0])+"</li>").join("")+"</ul>";
+  h+=sc>=6?okb("<b>Strong ("+sc+" of 7).</b> It must also be unique: never reuse it on another account."):sc>=4?note("<b>Fair ("+sc+" of 7).</b> Lengthen it and add the missing character types."):badb("<b>Weak ("+sc+" of 7).</b> Use at least 12 characters mixing character types, with no personal information.");
+  h+='<p class="hint">Avoid names, birth dates and predictable substitutions (a to @, i to 1). A password manager can generate and store a unique password for every account.</p>';
+  return {pwres:h};
+}
+function viewPwd(){return '<div class="panel"><h3>Password strength</h3><p class="hint">Do not enter a password you really use.</p><div class="row">'+inp("pw","Password to test",24,"pwd")+'</div><div id="pwres">'+pwdRes().pwres+"</div></div>";}
+/* ---------- phishing ---------- */
+const MSGS=[
+{from:"Google Security <support@gooogle-security.com>",link:"http://gooogle-security.com/verify",t:"Your account has been compromised. Verify your password within 24 hours or it will be suspended.",p:true,w:"Phishing: the real sender address is a look-alike domain (gooogle-security.com), it requests a password, creates urgency and the link domain does not match."},
+{from:"Asha Mehta <asha@school.in>",link:"",t:"Hi, the meeting has moved to Thursday at 3 pm. The agenda is in the shared folder you already use.",p:false,w:"Not phishing: a known sender, no urgency, no request for credentials and no suspicious link."},
+{from:"Delivery Team <track@fast-parcel-help.net>",link:"http://fast-parcel-help.net/pay",t:"Your parcel is held. Pay a small fee and enter your card PIN now to release it.",p:true,w:"Phishing: a delivery-service impersonation asking for a PIN and payment, with a link to an unrelated domain."},
+{from:"Library <desk@school.in>",link:"",t:"Your book is due on Friday. You can renew it at the library desk.",p:false,w:"Not phishing: informational, no link and no request for secrets."},
+{from:"HR <hr@c0mpany-payroll.com>",link:"http://c0mpany-payroll.com/login",t:"Download the attached salary_update.exe immediately to see your new salary. Reply with your password to confirm.",p:true,w:"Phishing: a look-alike domain, an executable attachment, a request for a password and urgency."}
+];
+function viewPhish(){
+  const m=MSGS[L.ph],a=L.pa[L.ph];
+  let h='<div class="panel"><h3>Spot the phishing</h3><p class="hint">Message '+(L.ph+1)+" of "+MSGS.length+". Score: "+L.ps+'.</p><div class="tbl"><table><tbody><tr><th>From</th><td class="mono">'+esc(m.from)+"</td></tr><tr><th>Link (on hover)</th><td class=\"mono\">"+(m.link?esc(m.link):"none")+'</td></tr><tr><th>Body</th><td>'+esc(m.t)+'</td></tr></tbody></table></div><div class="row"><button class="btn" data-act="pans" data-v="1"'+(a!==undefined?" disabled":"")+'>Phishing</button><button class="btn" data-act="pans" data-v="0"'+(a!==undefined?" disabled":"")+">Legitimate</button></div>";
+  if(a!==undefined)h+='<div class="rs '+(a===m.p?"ok":"bad")+'"><b>'+(a===m.p?"Correct.":"Not quite.")+"</b> "+esc(m.w)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="pprev"'+(L.ph?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext"'+(L.ph+1<MSGS.length?"":" disabled")+">Next message</button></div></div>";
+  return h;
+}
+/* ---------- etiquette ---------- */
+const ETX="Subject: Question\n\nhey, i need the report NOW!!! why is it not ready??? you people never do anything on time. send it today\n\nCC all staff, BCC the manager";
+const FAULTS=[["subj","The subject line is vague ('Question')"],["greet","No greeting and an overly casual opener"],["caps","Capital letters and repeated punctuation read as shouting"],["tone","An angry, accusatory tone (a flame email)"],["struct","Poor grammar, capitalisation and structure; no proofreading"],["bcc","BCC used deceptively; copying all staff is unnecessary"],["close","No sign-off or signature"],["ok","The subject line is specific and the greeting is formal"]];
+function viewEtiq(){
+  const t=L.et;
+  let h='<div class="panel"><h3>Fix the email</h3><p class="hint">Select every genuine fault, then press Check. Work through the checklist: subject line, greeting, tone and structure, closing and signature.</p><pre class="codeview" style="white-space:pre-wrap">'+esc(ETX)+'</pre><div class="subnav">'+FAULTS.map(f=>'<button class="chip" data-act="etog" data-v="'+f[0]+'" aria-pressed="'+!!t[f[0]]+'">'+esc(f[1])+"</button>").join("")+'</div><div class="row"><button class="btn primary" data-act="echk">Check</button></div>';
+  if(t.done){const bad=FAULTS.filter(f=>f[0]!=="ok"&&!t[f[0]]).map(f=>f[1]),wrong=t.ok;h+=(bad.length||wrong?badb("<b>Not complete.</b> "+(bad.length?"Missed: "+bad.map(esc).join("; ")+". ":"")+(wrong?"The last option is not a fault of this email.":"")):okb("<b>All faults found.</b> A model rewrite: Subject: Request for the quarterly report by Friday. Dear Mr. Rao, I would be grateful if you could send the quarterly report by Friday. Kind regards, Asha Mehta, Accounts Officer."));}
+  return h+"</div>";
+}
+/* ---------- sorting drill ---------- */
+const DIMS=[
+{n:"SMTP, POP3 or IMAP",o:["SMTP","POP3","IMAP"],it:[["Push protocol that sends mail server to server",0],["Downloads mail and by default removes it from the server",1],["Synchronises the mailbox across devices",2],["Default for webmail and phone apps",2],["Used for every hop until the mailbox",0],["Suited to single-device access",1]]},
+{n:"To, CC or BCC",o:["To","CC","BCC"],it:[["Primary recipient who is expected to act",0],["Visible copy for information only",1],["Hidden from everyone else, including other BCC recipients",2],["Best for a newsletter to strangers",2],["Borrowed from the era of carbon paper",1],["Would reveal a manager's inclusion to the client",1]]},
+{n:"Folder",o:["Inbox","Sent","Drafts","Outbox","Spam","Trash","Archive"],it:[["Stores copies of messages successfully sent",1],["Holds unsent messages",2],["Queues messages while a client is offline",3],["Holds filtered unsolicited mail",4],["Emptied automatically after about 30 days",5],["Keeps mail without clutter and without deleting",6],["Default destination for incoming mail",0]]},
+{n:"2FA method",o:["SMS code","Authenticator app","Hardware key"],it:[["Vulnerable to SIM-swap attacks",0],["Generates a TOTP about every 30 seconds",1],["Cannot be phished remotely",2],["Convenient but least secure",0],["Independent of the cellular network, but a code is typed",1],["A YubiKey",2]]},
+{n:"SPF, DKIM or DMARC",o:["SPF","DKIM","DMARC"],it:[["Lists authorised sending servers",0],["Cryptographic signature on each message",1],["Policy for failures: quarantine, reject or monitor",2],["Proves content was not altered in transit",1],["Includes reporting of spoofing",2],["Checks the message came from an authorised server",0]]},
+{n:"Provider",o:["Gmail","Outlook","Yahoo Mail","iCloud Mail","Proton Mail","Zoho Mail"],it:[["1 TB free storage",2],["End-to-end encryption",4],["Indian company, ad-free",5],["Labels and Smart Compose",0],["Enterprise dominance, Exchange",1],["Apple ecosystem",3]]},
+{n:"Folder or label",o:["Folder (exclusive)","Label (non-exclusive)"],it:[["A message sits in only one place",0],["One message can appear under Work and Finance",1],["Used by Gmail",1],["Used by Outlook and Yahoo",0]]}
+];
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function viewSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="sdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="sdans" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="sdnext">Next item</button></div>';
+  return h+"</div>";
+}
+/* ---------- registry and events ---------- */
+const TOOLS={addr:{v:viewAddr,r:addrRes},jour:{v:viewJour,r:jourRes},vis:{v:viewVis,r:visRes},search:{v:viewSearch,r:searchRes},filter:{v:viewFilter,r:filterRes},auth:{v:viewAuth,r:authRes},pwd:{v:viewPwd,r:pwdRes},phish:{v:viewPhish,r:()=>({})},etiq:{v:viewEtiq,r:()=>({})},sort:{v:viewSort,r:()=>({})}};
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "jnext":if(L.js<5)L.js++;render();return true;
+    case "jback":if(L.js>0)L.js--;render();return true;
+    case "jreset":L.js=0;render();return true;
+    case "pans":{const ok=(+v===1)===MSGS[L.ph].p;L.pa[L.ph]=(+v===1);if(ok)L.ps++;render();return true;}
+    case "pnext":if(L.ph+1<MSGS.length)L.ph++;render();return true;
+    case "pprev":if(L.ph>0)L.ph--;render();return true;
+    case "etog":L.et[v]=!L.et[v];L.et.done=false;render();return true;
+    case "echk":L.et.done=true;render();return true;
+    case "sdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "sdnext":sdNew();render();return true;
+    case "sdans":{const s=L.sd,d=DIMS[s.dim],it=d.it[s.item],ok=(+v===it[1]);s.t++;if(ok)s.s++;s.right=ok;s.fb=(ok?"Correct. ":"Not quite. ")+"“"+it[0]+"” is "+d.o[it[1]]+".";render();return true;}
+  }
+  return false;
+}
+function labInput(el){
+  if(el.id in L&&typeof L[el.id]==="string")L[el.id]=el.value;
+  const R=TOOLS[L.tool].r();
+  Object.keys(R).forEach(k=>{const e=document.getElementById(k);if(e)e.innerHTML=R[k];});
+  return true;
+}
+function labSelect(el){return false;}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes, then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

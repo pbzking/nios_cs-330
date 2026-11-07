@@ -1,0 +1,1368 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Internet Communications Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 1 · Basic Computing · Lesson 6</div>
+    <h1>Communications on Internet</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and internet lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Circuit switching compared with packet switching (Table 1.1)",c:["Feature","Circuit switching","Packet switching"],r:[
+["Path","One dedicated path for the whole session","Each packet may take a different path"],
+["Resource use","Reserved exclusively, even when idle","Shared efficiently among many users"],
+["Fault tolerance","A break in the path ends the call","Packets reroute around a failure"],
+["Delivery order","Guaranteed by the fixed path","Must be reassembled in order on arrival"],
+["Example","Traditional telephone network (PSTN)","The internet"]]},
+/*1*/{s:0,t:"Milestones in the history of the internet",c:["Date","Milestone"],r:[
+["1969","ARPANET established by the US Department of Defense; initially connected four universities (UCLA, Stanford Research Institute, UC Santa Barbara, University of Utah)"],
+["1970s","Vint Cerf and Bob Kahn, the 'fathers of the internet', develop the TCP/IP protocol suite"],
+["1983","ARPANET formally adopts TCP/IP; often considered the formal birth of the modern internet"],
+["1989","Tim Berners-Lee develops the World Wide Web at CERN"],
+["1991","The Web becomes publicly available (August); ARPANET is decommissioned"],
+["Today","Over five billion users and hundreds of billions of connected devices"]]},
+/*2*/{s:1,t:"The internet compared with the World Wide Web",c:["Basis","Internet","World Wide Web"],r:[
+["Nature","The global infrastructure: physical cables, routers, servers and protocols","One service that runs on top of that infrastructure"],
+["Composition","A network of interconnected networks using TCP/IP","A system of interlinked pages and resources"],
+["Accessed with","Many kinds of application","Browsers, using HTTP/HTTPS and URLs"],
+["Invented","ARPANET 1969; TCP/IP adopted 1983","Tim Berners-Lee, 1989"],
+["Relationship","The infrastructure","A service built on the infrastructure"],
+["Other services on the internet","Email, FTP, VoIP and video streaming run on the internet without being part of the Web","These services are not part of the Web"]]},
+/*3*/{s:1,t:"The three foundational technologies of the Web",c:["Technology","Expansion","Purpose"],r:[
+["HTML","HyperText Markup Language","Creating and formatting web pages"],
+["HTTP","HyperText Transfer Protocol","Requesting and transmitting pages over the internet"],
+["URL","Uniform Resource Locator","Identifying and locating resources"]]},
+/*4*/{s:1,t:"How ISPs provide connectivity",c:["Connection type","Infrastructure used"],r:[
+["DSL","Copper telephone lines"],
+["Cable internet","Coaxial television infrastructure"],
+["Fibre optic internet","Optical fibre"],
+["Satellite internet","Satellite links"],
+["Mobile broadband","3G, 4G and 5G mobile networks"]]},
+/*5*/{s:1,t:"Net neutrality: the two positions",c:["Position","Argument"],r:[
+["Principle","An ISP should treat all data on its network equally: not blocking, slowing or charging differently for particular websites, applications or types of content"],
+["Proponents (for)","It preserves a level playing field where a small start-up's website loads as fast as a large corporation's, and the internet's capacity for innovation has depended on this even-handedness"],
+["Opponents (against)","ISPs should be free to manage network capacity and offer differentiated pricing tiers, as other utilities do"],
+["In India","The Telecom Regulatory Authority of India (TRAI) has issued rules broadly supporting the principle"]]},
+/*6*/{s:2,t:"Internal components of a modern web browser",c:["Component","Function"],r:[
+["Rendering engine","Interprets HTML and CSS to lay out the page visually"],
+["JavaScript engine","Executes interactive code"],
+["Networking stack","Handles HTTP/HTTPS communication"],
+["Security layer","Enforces same-origin policies and blocks malicious content"]]},
+/*7*/{s:2,t:"The three parts of a search engine",c:["Part","Function"],r:[
+["Web crawler (spider)","An automated program that continuously browses the web, following hyperlinks and downloading page content for analysis"],
+["Indexer","Processes crawled content, extracting words and building an inverted index"],
+["Ranking algorithm","Determines relevance using hundreds of signals: term frequency and position, quality and quantity of incoming links (PageRank), page load speed, mobile-friendliness"]]},
+/*8*/{s:2,t:"Cookies and sessions",c:["Term","Meaning"],r:[
+["Stateless protocol","HTTP treats every request independently, with no built-in memory of previous requests"],
+["Cookie","A small piece of data the server asks the browser to store and to send back automatically with every later request to that site"],
+["Session cookie","Typically holds nothing more than a random session ID"],
+["Server-side state","The server keeps the meaningful state (who you are, what is in your cart) on its own side, indexed by the session ID"],
+["Third-party cookies","Underlie much web advertising tracking, so browsers offer controls to block or limit them"]]},
+/*9*/{s:3,t:"The anatomy of a URL (Table 1.2)",c:["Component","Meaning","In https://www.example.com:443/path/to/page.html?query=value#section"],r:[
+["Scheme","The protocol identifier: https (secure web), http (unsecured), ftp (file transfer), mailto (email link)","https"],
+["Host","The domain name or IP address identifying the server, after //","www.example.com"],
+["Port","Optional; the network port to connect to (HTTPS defaults to 443, usually omitted)","443"],
+["Path","The location of the specific resource within the server's file hierarchy","/path/to/page.html"],
+["Query","Optional parameters after ?, providing additional data to the server","query=value"],
+["Fragment","Optional, after #; jumps the browser to a specific section within the page","section"]]},
+/*10*/{s:3,t:"The structure of a domain name (read from right to left)",c:["Level","Meaning","Example"],r:[
+["Top Level Domain (TLD)","The rightmost part; generic TLDs include .com (commercial), .org (non-profit), .net, .edu and .gov","com in google.com"],
+["Country code TLD (ccTLD)","A two-letter country code","in (India), uk, jp"],
+["Second-level domain","The name registered by an organisation","google in google.com"],
+["Subdomain","Further left of the second-level domain","www, mail"],
+["Registration and governance","Registered through accredited registrars and governed globally by ICANN (Internet Corporation for Assigned Names and Numbers)","Applies to the whole domain name"]]},
+/*11*/{s:4,t:"The DNS resolution sequence",c:["Step","Server or store consulted","Action"],r:[
+["1","Local DNS cache","The browser first checks its local cache for a stored answer"],
+["2","DNS resolver","If not cached, it queries the configured resolver (from the ISP, or public: Google 8.8.8.8, Cloudflare 1.1.1.1)"],
+["3","Root DNS server","The resolver contacts a root server, which directs it to the TLD nameserver"],
+["4","TLD nameserver","It directs the resolver to the authoritative nameserver for the domain"],
+["5","Authoritative nameserver","It finally supplies the IP address"],
+["6","Resolver and browser","The resolver caches the result and returns it to the browser, which connects to the web server (a few milliseconds in all)"]]},
+/*12*/{s:4,t:"Web page compared with website",c:["Basis","Web page","Website"],r:[
+["Definition","A single document accessible on the Web","A collection of related pages and associated content hosted on the same server"],
+["Written in","HTML, with CSS for styling and JavaScript for behaviour","Made up of many such pages"],
+["Identity","Identified by its own URL","Shares a common domain name and navigational structure"],
+["Home page","Not applicable to a single page","The default (index) page served when the site's root URL is requested without a path"]]},
+/*13*/{s:4,t:"Hyperlink terms",c:["Term","Meaning"],r:[
+["Hyperlink","A clickable reference embedded in a page that navigates the browser to another resource"],
+["Anchor tag","The HTML tag that creates a hyperlink; its href attribute gives the URL of the target"],
+["Anchor text","The visible, clickable text of the link"],
+["Browsing","Following hyperlinks to explore related content through connections rather than a fixed linear sequence"]]},
+/*14*/{s:5,t:"IPv4 compared with IPv6 (Table 1.3)",c:["Feature","IPv4","IPv6"],r:[
+["Address size","32 bits","128 bits"],
+["Total addresses","about 4.3 billion (2^32)","about 340 undecillion (2^128)"],
+["Notation","Dotted decimal (192.168.1.1)","Hexadecimal with colons (2001:db8::1)"],
+["Address exhaustion","Yes, exhausted about 2011","No, virtually inexhaustible"],
+["NAT required","Yes, due to shortage","No"],
+["Built-in encryption","No","Yes (IPsec built in)"]]},
+/*15*/{s:5,t:"Reading the IPv4 address 192.168.1.1",c:["Octet","Binary","Decimal"],r:[
+["1st","11000000","192"],["2nd","10101000","168"],["3rd","00000001","1"],["4th","00000001","1"]]},
+/*16*/{s:5,t:"Network Address Translation (NAT)",c:["Point","Detail"],r:[
+["Definition","A technique letting multiple devices on a private local network share a single public IPv4 address"],
+["Private addresses","Household devices receive addresses from a reserved range (192.168.x.x or 10.x.x.x), not routable on the public internet"],
+["Operation","The router presents all devices to the outside world with its single public IP address, tracking internally which device each connection belongs to"],
+["Status","A workaround, not a permanent solution; it extends IPv4's useful life"],
+["Drawback","A device behind NAT is not directly reachable from outside, so VoIP and peer-to-peer applications sometimes need additional configuration"]]},
+/*17*/{s:5,t:"IPv4 and IPv6 address space",c:["Quantity","Value"],r:[
+["IPv4 addresses","2^32, about 4.3 x 10^9"],
+["IPv6 addresses","2^128 = (2^32)^4, about 3.4 x 10^38"],
+["How many times larger","2^96, roughly 8 x 10^28"],
+["IPv4 exhaustion","About 2011, when IANA allocated its last address blocks to regional registries"],
+["IPv6 standardised","1998; adoption gradual; IPv4 and IPv6 run in parallel by dual-stack"]]},
+/*18*/{s:5,nocard:1,t:"Shortening an IPv6 address",c:["Form","Address"],r:[
+["Full (eight groups of four hex digits)","2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+["Rule 1: omit leading zeros in each group","2001:db8:85a3:0:0:8a2e:370:7334"],
+["Rule 2: replace one run of all-zero groups with ::","2001:db8:85a3::8a2e:370:7334"]]},
+/*19*/{s:6,t:"Downloading, uploading and connection symmetry",c:["Term","Meaning"],r:[
+["Downloading","Transferring data from a remote server to the user's local device (watching a video, reading a page, installing software)"],
+["Uploading","Transferring data from the local device to a remote server (posting a photo, email attachment, cloud backup)"],
+["Asymmetric connection","Download speed markedly faster than upload speed; typical of home broadband, since residential use is mostly downloading"],
+["Symmetric connection","Equal speeds in both directions; more common for business and fibre-to-the-home, which upload large files, run servers or hold video conferences"]]},
+/*20*/{s:6,t:"Content Delivery Network (CDN)",c:["Term","Meaning"],r:[
+["CDN","A network maintaining copies of frequently requested content on servers distributed across many geographic locations"],
+["Edge server","A CDN server near the user that serves the request instead of the distant origin server"],
+["Origin server","The original source server holding the content"],
+["Benefit","Reduces latency (the distance data must travel) and the load on the origin server"],
+["Providers","Cloudflare, Akamai, Amazon CloudFront"]]},
+/*21*/{s:6,t:"FTP servers",c:["Type","Features"],r:[
+["Public (anonymous) FTP","Open to anyone without authentication, conventionally with the username 'anonymous'; used for software distributions, academic datasets and public domain documents"],
+["Private FTP","Requires valid credentials; used by organisations for secure file sharing with partners and by web developers uploading files to hosting servers"],
+["FTP client","Software such as FileZilla giving a graphical interface to browse a server's directories and transfer files"]]},
+/*22*/{s:6,t:"How VoIP carries a voice call",c:["Stage","Action"],r:[
+["1. Capture","The microphone captures the caller's voice"],
+["2. Digitise","The voice is converted into digital data"],
+["3. Compress","An audio codec compresses it"],
+["4. Packetise","It is broken into small packets"],
+["5. Transmit","Packets are sent over the internet using UDP (lower latency than TCP, critical for real-time voice)"],
+["6. Reassemble","At the receiving end the packets are reassembled"],
+["7. Decompress","The data is decompressed"],
+["8. Convert","It is converted back to analog audio for the listener"]]},
+/*23*/{s:6,t:"Technical challenges of VoIP",c:["Challenge","Effect","Remedy"],r:[
+["Latency","Delays causing unnatural conversation","QoS configuration prioritising time-sensitive voice traffic"],
+["Jitter","Variation in packet arrival times, causing choppy audio","Jitter buffer algorithms that briefly hold and smoothly reorder arriving packets before playback"],
+["Packet loss","Gaps in the audio","QoS (Quality of Service) configuration"]]},
+/*24*/{s:6,t:"VoIP compared with video conferencing",c:["Basis","VoIP","Video conferencing"],r:[
+["Content","Voice only","Synchronised audio and video"],
+["Relationship","The base technology","VoIP plus synchronised video, not an unrelated technology"],
+["Extra technology","Audio codec","Also HD cameras and video codecs (H.264, H.265/HEVC)"],
+["Typical features","Calls","Virtual backgrounds, screen sharing, recording, breakout rooms"],
+["Examples","WhatsApp calls, Google Voice, Facebook Messenger calls, Discord, Skype","Zoom, Microsoft Teams, Google Meet, Cisco Webex"]]},
+/*25*/{s:6,t:"Categories of online collaboration tools",c:["Category","Function","Examples"],r:[
+["Collaborative document editing","Several users edit one document simultaneously; changes instantly visible, colour-coded cursors, automatic saving, version history","Google Docs, Microsoft 365"],
+["Project management","Teams organise tasks and track progress transparently","Trello, Asana, Jira, Notion"],
+["Team messaging","Persistent group chat by channel, direct messaging, integration with other tools","Slack, Microsoft Teams"]]},
+/*26*/{s:6,nocard:1,t:"Worked example: average download rate",c:["Step","Working"],r:[
+["Given","200 MB downloaded in 40 seconds"],
+["Convert bytes to bits (1 byte = 8 bits)","200 MB x 8 = 1600 megabits"],
+["Divide by time","1600 Mb / 40 s = 40 Mbps"]]},
+/*27*/{s:7,t:"Cloud storage",c:["Feature","Detail"],r:[
+["Definition","Storing files on remote servers rather than solely on local storage, accessible from any internet-connected device"],
+["Synchronisation","A change on one device is reflected on all others connected to the same account"],
+["Off-site backup","If a device is lost, stolen or damaged, cloud-stored files remain safe and can be restored to a new device"],
+["Services","Google Drive, Dropbox, Microsoft OneDrive, Apple iCloud, Amazon Drive"]]},
+/*28*/{s:7,t:"The three cloud service models",c:["Model","Provider manages","Customer manages","Examples","Suits"],r:[
+["IaaS (Infrastructure as a Service)","Virtualised hardware: servers, storage, networking","Operating system, runtime and application","AWS EC2, Microsoft Azure Virtual Machines, Google Compute Engine","IT professionals needing maximum flexibility and control"],
+["PaaS (Platform as a Service)","Servers, storage, operating system, runtimes and middleware","Only the application (code)","Google App Engine, Microsoft Azure App Service, Heroku","Developers who want to write and deploy code without managing infrastructure"],
+["SaaS (Software as a Service)","Everything: hosting, maintenance, updates and security","Nothing beyond their own data and configuration","Gmail, Google Workspace, Microsoft 365, Salesforce, Zoom, Dropbox, Netflix","Ordinary users; nothing to install or update"]]},
+/*29*/{s:7,nocard:1,t:"Advantages and challenges of cloud computing",c:["Advantages","Challenges"],r:[
+["Shift from capital expenditure to operational expenditure (pay for what is used)","Internet dependency: inaccessible without a connection"],
+["Resources provisioned in minutes and released when finished","Data privacy and security concerns on third-party servers (compliance with India's Digital Personal Data Protection Act, Europe's GDPR)"],
+["Scales almost instantly to fluctuating demand","Vendor lock-in: dependence on one provider's proprietary services makes migration difficult and expensive"],
+["Security, reliability and investment beyond most organisations","Subscription costs can accumulate and exceed owned hardware over years of heavy use"],
+["Geographic distribution gives high availability and disaster recovery","—"]]},
+/*30*/{s:8,t:"Fundamental principles of netiquette",c:["Principle","Reason"],r:[
+["Treat others with the same respect as in person","There is a real human being with real feelings at the other end"],
+["Avoid writing in ALL CAPITAL LETTERS","It is universally understood online as shouting"],
+["Read and understand the context of a forum before posting","Ensures contributions are relevant and appropriate"],
+["Use sarcasm and irony carefully","Without vocal tone and facial expression they are easily misunderstood and cause offence"],
+["Verify information before forwarding it","The rapid spread of misinformation is one of the most serious challenges of the digital age"],
+["Assume good faith; argue with reason, not personal attacks","Prevents unnecessary conflicts"]]},
+/*31*/{s:8,t:"Responsible internet usage: risk and responsible behaviour",c:["Topic","Risk or definition","Responsible behaviour"],r:[
+["Privacy","Personal information (name, address, phone, date of birth, financial data, location) can be misused","Share only where necessary and with a stated privacy policy; review social media privacy settings"],
+["Phishing","Fraudulent emails, messages or websites impersonating legitimate organisations to obtain credentials or personal data; creates urgency or fear","Be alert; check carefully before acting"],
+["Misinformation","Content of wildly varying accuracy looks the same as reliable sources","Check the source, find independent corroboration, check the date, consider bias, use fact-checking resources"],
+["Intellectual property","Digital content is copyrighted; unauthorised copying or distribution is illegal","Obtain permission; use Creative Commons licensed work under its terms"],
+["Cyberbullying","Using digital tools to harass, threaten, humiliate or bully; follows victims everywhere and spreads instantly","Refrain, do not amplify, report to moderators or authorities"],
+["Digital footprint","The permanent trail of data left by online activity, often impossible to erase","Be thoughtful about what is shared"],
+["Screen time","Excess use linked to poor sleep, inactivity, isolation, anxiety, reduced focus","Set limits, use devices intentionally, prioritise face-to-face interaction and physical activity"]]},
+/*32*/{s:8,t:"Critical evaluation of information: the five checks",c:["Check","Question to ask"],r:[
+["Source","Who published it, and is it authoritative?"],
+["Corroboration","Do independent sources report the same thing?"],
+["Date","When was it published; is it current?"],
+["Bias","What potential bias or motivation does the publisher have?"],
+["Fact-checking","Has a fact-checking resource assessed it (especially for health, science and political claims)?"]]},
+/*33*/{s:8,t:"Recognising phishing",c:["Feature","Why it signals phishing"],r:[
+["Impersonation","The message pretends to come from a legitimate organisation such as a bank"],
+["Urgency or fear","A threat (for example, an account will be frozen) pressures hasty action without careful checking"],
+["Short deadline","'Within one hour' leaves no time to verify"],
+["Request for credentials","A link asks the user to enter a password or personal data"]]}
+];
+
+const NOTES=[
+["1.1 The internet and its history","The internet is the world's largest {{Wide Area Network}}, a decentralised network of networks built on the {{TCP/IP}} suite and owned by no single body. Its origin is {{ARPANET}}, a US Department of Defense project of {{1969}}, which first connected {{four}} universities. {{Vint Cerf}} and {{Bob Kahn}} developed TCP/IP; ARPANET adopted it in {{1983}}; ARPANET was decommissioned in {{1991}}. The defining innovation was {{packet switching}}: data is broken into independently addressed {{packets}} that may take different routes and are {{reassembled}} at the destination. {{Circuit switching}}, used by the telephone network (PSTN), reserves one dedicated path for the whole session even when idle. Packet switching shares links efficiently and {{reroutes}} around failures, but packets may arrive out of {{order}}."],
+["1.1 The Web, the internet and ISPs","The {{World Wide Web}} was invented by {{Tim Berners-Lee}} in {{1989}} at {{CERN}}, using three technologies: {{HTML}}, {{HTTP}} and {{URLs}}. The Web is only one {{service}} running on the internet, which is the {{infrastructure}}; email, FTP and VoIP use the internet without being part of the Web. An {{ISP}} provides access to the internet {{backbone}}, reached through {{Internet Exchange Points}}, using DSL, cable, fibre, satellite or mobile broadband. {{Net neutrality}} is the principle that an ISP must treat all data {{equally}}; in India {{TRAI}} has issued rules broadly supporting it."],
+["1.2 Browsers, cookies and search engines","A {{web browser}} sends HTTP or HTTPS requests and {{renders}} the HTML, CSS and JavaScript it receives; it contains a rendering engine, a {{JavaScript engine}}, a networking stack and a security layer. HTTP is {{stateless}}; a {{cookie}} (usually a random {{session ID}}) lets the server look up stored state on every request. A {{search engine}} searches a pre-built {{index}}, not the live web. A {{crawler}} downloads pages, the {{indexer}} builds an {{inverted index}}, and the ranking algorithm (Google's {{PageRank}} counts incoming links) orders the results."],
+["1.2 URLs and domain names","A {{URL}} has a {{scheme}}, a {{host}}, an optional {{port}} (HTTPS defaults to {{443}}), a {{path}}, a {{query}} after {{?}} and a {{fragment}} after {{#}}. A domain name is read from {{right to left}}: the {{TLD}} (.com, .org, .net, .edu, .gov), the second-level domain, then subdomains such as www. A {{ccTLD}} is a two-letter country code, such as {{.in}} for India. Domain names are registered through accredited registrars and governed globally by {{ICANN}}."],
+["1.2 DNS, web pages and hyperlinks","{{DNS}} translates domain names into IP addresses. The browser checks its {{cache}}, then asks the {{resolver}}; the resolver contacts a {{root}} server, then the {{TLD}} nameserver, then the {{authoritative}} nameserver, which supplies the IP address; the resolver caches and returns it. A {{web page}} is one HTML document; a {{website}} is a collection of related pages sharing a domain, whose default page is the {{home page}}. A {{hyperlink}} is created with the {{anchor}} tag and its {{href}} attribute; the visible clickable text is the {{anchor text}}."],
+["1.3 Internet addressing","An {{IP address}} uniquely identifies a device. {{IPv4}} uses {{32}} bits in {{dotted decimal}} notation: four {{octets}} of 8 bits, each 0 to {{255}}; it gives 2^32, about {{4.3 billion}} addresses, exhausted around {{2011}}. {{NAT}} lets many devices on a private network (192.168.x.x or 10.x.x.x) share one {{public}} address. {{IPv6}} uses {{128}} bits in {{hexadecimal}}, eight groups of four digits separated by colons, giving about {{340 undecillion}} addresses, needs no NAT and has built-in {{IPsec}}. Leading zeros may be omitted and one run of zero groups replaced by {{::}}. IPv4 and IPv6 run in parallel by {{dual-stack}}."],
+["1.4 Internet services","{{Downloading}} moves data from a server to the device; {{uploading}} is the reverse. Home connections are {{asymmetric}}; business and fibre connections are {{symmetric}}. A {{CDN}} keeps copies on {{edge servers}} near users, reducing {{latency}} and origin-server load. {{FTP}} transfers files; public servers use the username {{anonymous}}. {{VoIP}} digitises and compresses voice, packetises it and sends it over {{UDP}} for low latency; its challenges are {{latency}}, {{jitter}} and {{packet loss}}, managed by {{QoS}} and a {{jitter buffer}}. {{Video conferencing}} is VoIP plus synchronised video. Online collaboration includes shared document editing, project management and team messaging."],
+["1.5 Cloud computing","{{Cloud computing}} is the on-demand, {{pay-as-you-go}} delivery of computing services over the internet. {{Cloud storage}} keeps files on remote servers, synchronised across devices and acting as an off-site {{backup}}. In {{IaaS}} the customer manages the operating system, runtime and application (AWS EC2). In {{PaaS}} the customer manages only the {{application}} (Heroku, Google App Engine). In {{SaaS}} the provider manages everything (Gmail, Zoom). Advantages: capital expenditure becomes {{operational}} expenditure, rapid {{scalability}}, high availability. Challenges: internet dependency, data privacy and security, {{vendor lock-in}} and accumulating subscription costs."],
+["1.6 Digital citizenship","{{Digital citizenship}} is the responsible, ethical and thoughtful use of technology and the internet. {{Netiquette}} means polite online behaviour: no {{ALL CAPITAL LETTERS}}, care with {{sarcasm}}, verify before forwarding, assume {{good faith}}. {{Phishing}} impersonates a legitimate organisation and creates urgency or fear. Evaluate information by {{source}}, corroboration, date and bias. Digital content is {{copyrighted}}; {{Creative Commons}} licences state the terms of free use. {{Cyberbullying}} is harassment through digital tools. A {{digital footprint}} is the permanent trail of online data. Excess screen time harms sleep, activity and focus."]
+];
+const DUMPS=[
+{t:"The internet and its history",p:["Internet: world's largest WAN; network of networks on TCP/IP; no single owner","ARPANET 1969; four universities (UCLA, SRI, UC Santa Barbara, Utah)","Cerf and Kahn: TCP/IP in the 1970s; adopted by ARPANET 1983","Web invented 1989; ARPANET decommissioned 1991","Packet switching: independent packets, different routes, reassembled","Circuit switching: dedicated path, reserved even when idle (PSTN)","Table: path, resource use, fault tolerance, delivery order, example"]},
+{t:"The Web, the internet and ISPs",p:["WWW: Tim Berners-Lee, 1989, CERN; public August 1991","HTML, HTTP, URL: the three technologies","Internet = infrastructure; Web = one service on it","Email, FTP, VoIP, streaming are not part of the Web","ISP: access to the backbone via IXPs; DSL, cable, fibre, satellite, mobile","Net neutrality: equal treatment of all data; arguments for and against; TRAI"]},
+{t:"Browsers, cookies and search engines",p:["Browser: request, receive, render","Components: rendering engine, JavaScript engine, networking stack, security layer","HTTP stateless; cookie holds a session ID; server keeps the state","Search engine searches a pre-built index","Crawler, indexer (inverted index), ranking algorithm (PageRank)","Google, Bing, Yahoo, Baidu, DuckDuckGo"]},
+{t:"URLs and domain names",p:["URL: scheme, host, port, path, query (?), fragment (#)","HTTPS default port 443","Domain name read right to left","TLD: gTLD and ccTLD (.in, .uk, .jp)","Second-level domain, subdomain (www, mail)","Registrars; ICANN governs globally"]},
+{t:"DNS, web pages and hyperlinks",p:["DNS: the internet's phone book; distributed hierarchical database","Sequence: cache, resolver, root, TLD, authoritative, resolver caches and returns","Public resolvers 8.8.8.8 and 1.1.1.1","Web page versus website; home page","Hyperlink: anchor tag, href attribute, anchor text"]},
+{t:"Internet addressing",p:["IPv4: 32 bits, four octets, 0 to 255, about 4.3 billion; exhausted about 2011","192.168.1.1 = 11000000.10101000.00000001.00000001","NAT: private addresses share one public address; a workaround","IPv6: 128 bits, hex, eight groups, about 340 undecillion","Shortening: drop leading zeros; one :: for a zero run","IPv6: no NAT needed, built-in IPsec; dual-stack transition"]},
+{t:"Internet services",p:["Download versus upload; asymmetric versus symmetric","CDN: edge servers near users; lower latency and origin load","FTP: anonymous public servers and private servers; FileZilla","VoIP steps: capture, digitise, compress, packetise, UDP, reassemble, decompress, convert","Challenges: latency, jitter, packet loss; QoS and jitter buffer","Video conferencing = VoIP plus video; H.264 and H.265","Collaboration: documents, project management, team messaging"]},
+{t:"Cloud computing",p:["Cloud: on-demand, pay-as-you-go, over the internet","Cloud storage: sync, off-site backup","IaaS: customer manages OS, runtime, app (EC2)","PaaS: customer manages the application only (Heroku)","SaaS: provider manages everything (Gmail)","Advantages: capex to opex, scalability, availability","Challenges: internet dependency, privacy, vendor lock-in, accumulating cost"]},
+{t:"Digital citizenship",p:["Digital citizenship: responsible, ethical, thoughtful use","Netiquette: respect, no all caps, care with sarcasm, verify, good faith","Privacy, phishing, misinformation, intellectual property","Cyberbullying, digital footprint, screen time","Name the specific risk and pair it with a specific behaviour","Five checks: source, corroboration, date, bias, fact-checking"]}
+];
+
+const SECS=["The internet and its history","The Web, the internet and ISPs","Browsers, cookies and search engines","URLs and domain names","DNS, web pages and hyperlinks","Internet addressing","Internet services","Cloud computing","Digital citizenship"];
+const CORE=[
+[0,"Define the internet.","The world's largest Wide Area Network: a massive, global, decentralised system of interconnected computer networks, owned by no single government, organisation or company, built on shared open standards, most fundamentally the TCP/IP protocol suite."],
+[0,"What does 'internet' mean as a word?","It comes from 'internetwork': a network of networks, formed by the voluntary interconnection of hundreds of thousands of corporate, university, government and ISP networks that exchange traffic using TCP/IP."],
+[0,"What is ARPANET?","The Advanced Research Projects Agency Network: a US Department of Defense research project established in 1969, from which the internet originated."],
+[0,"What was ARPANET designed to achieve?","A communication network able to survive a nuclear attack by routing around damaged nodes, in contrast with centralised switching systems that were single points of failure."],
+[0,"Which four universities did ARPANET first connect?","UCLA, Stanford Research Institute, UC Santa Barbara and the University of Utah."],
+[0,"Who are called the 'fathers of the internet', and why?","Vint Cerf and Bob Kahn, who developed the TCP/IP protocol suite in the 1970s, giving different networks a common language."],
+[0,"Why is 1983 significant in internet history?","ARPANET formally adopted TCP/IP in 1983, a date often considered the formal birth of the modern internet."],
+[0,"When was ARPANET decommissioned?","In 1991, having been superseded by the modern internet infrastructure it had made possible."],
+[0,"Define packet switching.","Data is broken into small, independently addressed packets, each of which may travel by a different route and which are reassembled into the original message only on arrival at the destination."],
+[0,"Define circuit switching.","A single dedicated physical path is established and reserved for the entire duration of a call before any data flows, and held exclusively for that conversation even during silence (the traditional telephone network, PSTN)."],
+[0,"State two advantages of packet switching over circuit switching.","Efficiency: many communications share the same links at once, so capacity is not wasted on idle circuits. Resilience: each packet finds its own route, so packets reroute around failed links or routers."],
+[0,"What is the cost of packet switching?","Packets can arrive out of order or be delayed unpredictably; TCP sequencing and reassembly, and VoIP jitter handling, exist to manage this."],
+[1,"Define the World Wide Web.","A vast system of interlinked documents and resources (web pages, images, videos, files) accessible over the internet."],
+[1,"Who invented the Web, where and when?","Sir Tim Berners-Lee, in 1989, while working at CERN, the physics research laboratory in Switzerland."],
+[1,"Name the three technologies Berners-Lee developed for the Web.","HTML (HyperText Markup Language) for creating and formatting pages; HTTP (HyperText Transfer Protocol) for requesting and transmitting pages; URLs (Uniform Resource Locators) for identifying and locating resources."],
+[1,"When did the Web become publicly available?","August 1991."],
+[1,"Distinguish the internet from the World Wide Web.","The internet is the underlying global infrastructure: the cables, routers, servers and protocols. The Web is one service running on top of it: the system of interlinked pages accessed through browsers using HTTP/HTTPS and URLs. Email, FTP, VoIP and video streaming use the internet without being part of the Web."],
+[1,"Give three internet services that are not part of the Web.","Email, FTP, VoIP (and video streaming)."],
+[1,"What is the commonest misconception in this chapter?","Treating the internet and the Web as synonyms. The strongest answer states the relationship (infrastructure versus one service running on it) and names another service such as email, FTP or VoIP."],
+[1,"Define an ISP.","An Internet Service Provider: a company providing individuals, businesses and organisations with access to the internet."],
+[1,"What does an ISP own and operate?","The infrastructure that physically connects customers to the internet backbone, the high-capacity core network carrying most global traffic."],
+[1,"What is an Internet Exchange Point (IXP)?","A large interconnection point where multiple ISPs and network operators physically exchange traffic with one another."],
+[1,"List the ways an ISP can provide connectivity.","DSL (copper telephone lines), cable internet (coaxial TV infrastructure), fibre optic, satellite and mobile broadband (3G, 4G, 5G)."],
+[1,"What services do ISPs commonly provide besides connectivity?","They assign IP addresses, provide DNS resolution and often bundle email and web hosting."],
+[1,"Name some major ISPs in India.","Jio, Airtel, BSNL, Vodafone Idea and ACT Fibernet."],
+[1,"Define net neutrality.","The principle that an ISP should treat all data on its network equally, not blocking, slowing or charging differently for particular websites, applications or types of content."],
+[1,"Give one argument for and one against net neutrality.","For: it keeps a level playing field, so a start-up's site loads as fast as a corporation's, protecting innovation. Against: ISPs should be free to manage capacity and offer differentiated pricing tiers, as other utilities do."],
+[1,"Which Indian authority issued rules broadly supporting net neutrality?","The Telecom Regulatory Authority of India (TRAI)."],
+[2,"Define a web browser.","A software application that enables users to access, retrieve and display content from the World Wide Web: it sends HTTP or HTTPS requests, receives HTML, CSS, JavaScript and media, and renders the page."],
+[2,"What does 'render' mean?","To interpret and visually display content as the page the user sees."],
+[2,"Name the internal components of a modern browser.","A rendering engine (HTML and CSS layout), a JavaScript engine, a networking stack (HTTP/HTTPS) and a security layer (same-origin policy, blocking malicious content)."],
+[2,"Name five widely used browsers.","Google Chrome (market leader), Mozilla Firefox, Microsoft Edge (Chromium engine), Apple Safari and Opera."],
+[2,"What does it mean that HTTP is stateless?","Each request is treated independently, with no built-in memory of previous requests."],
+[2,"Define a cookie.","A small piece of data the server asks the browser to store and to send back automatically with every subsequent request to the same site."],
+[2,"How does a cookie let a website remember that you are logged in?","A session cookie holds only a random session ID. The server keeps the meaningful state (who you are, your cart) on its side, indexed by that ID, and looks it up on every request the cookie accompanies."],
+[2,"Why do browsers offer controls over third-party cookies?","Cookies underlie much web advertising tracking, so browsers let users block or limit them."],
+[2,"Define a search engine.","A web-based service that finds pages relevant to a query by maintaining a massive, continuously updated index of billions of pages and a fast, relevance-ranked interface to it."],
+[2,"Does a search query search the live web?","No. It searches a pre-built index, not the live web in real time."],
+[2,"What is a web crawler?","Also called a spider: an automated program that continuously browses the web, following hyperlinks and downloading page content for analysis."],
+[2,"What does the indexer do?","Processes crawled content, extracting words and building an inverted index."],
+[2,"What is PageRank?","Google's foundational ranking algorithm, which considers the quality and quantity of incoming links to a page."],
+[2,"Name the main search engines.","Google (dominant globally), Microsoft Bing, Yahoo, Baidu (dominant in China) and DuckDuckGo (emphasises privacy)."],
+[3,"Define a URL.","Uniform Resource Locator: the complete, standardised address identifying and locating a specific resource on the internet."],
+[3,"Name the components of a URL.","Scheme, host, port, path, query and fragment."],
+[3,"Identify the components of https://www.example.com:443/path/to/page.html?query=value#section","Scheme https; host www.example.com; port 443; path /path/to/page.html; query query=value; fragment section."],
+[3,"What is the default port for HTTPS?","443 (usually omitted from the URL)."],
+[3,"What does the fragment of a URL do?","Written after #, it jumps the browser to a specific section within the page."],
+[3,"What does the query of a URL do?","Written after ?, it provides additional parameters (data) to the server."],
+[3,"Define a domain name.","The human-readable name identifying a website, such as google.com or mygov.in; computers use numerical IP addresses, so domain names supply a usability layer with automatic translation underneath."],
+[3,"In which direction is a domain name read?","From right to left: the top level domain, then the second-level domain, then any subdomains."],
+[3,"What is a TLD? Give examples.","Top Level Domain, the rightmost part. Generic TLDs: .com (commercial), .org (non-profit), .net, .edu, .gov."],
+[3,"What is a ccTLD?","Country Code Top Level Domain: a two-letter country code such as .in (India), .uk and .jp."],
+[3,"Identify the parts of mail.google.com.","TLD: com; second-level domain: google; subdomain: mail."],
+[3,"Who governs domain names globally?","ICANN (Internet Corporation for Assigned Names and Numbers); names are registered through accredited registrars."],
+[4,"Define DNS.","The Domain Name System: the internet's 'phone book' that translates human-readable domain names into numerical IP addresses; a massive, globally distributed, hierarchical database across thousands of servers."],
+[4,"State the DNS resolution sequence in order.","Local cache; configured DNS resolver; root DNS server; TLD nameserver; authoritative nameserver (supplies the IP address); the resolver caches the result and returns it to the browser."],
+[4,"What is a DNS resolver, and who provides it?","The server the browser queries when the answer is not cached; typically provided by the ISP or a public service such as Google 8.8.8.8 or Cloudflare 1.1.1.1."],
+[4,"What does a root DNS server do?","It is the top of the DNS hierarchy; it directs the resolver to the appropriate TLD nameserver."],
+[4,"What does a TLD nameserver do?","It directs the resolver to the authoritative nameserver for the specific domain."],
+[4,"What does the authoritative nameserver do?","It finally supplies the IP address of the domain."],
+[4,"Define a web page.","A single document accessible on the Web, written in HTML, typically using CSS for styling and JavaScript for interactive behaviour."],
+[4,"Define a website.","A collection of related pages and associated content hosted on the same server, sharing a common domain name and navigational structure."],
+[4,"What is a home page?","The default (index) page served when a user navigates to a site's root URL without specifying a path."],
+[4,"Define a hyperlink.","A clickable reference embedded in a page that, when clicked, navigates the browser to another resource; it creates the connections that make the Web a 'web'."],
+[4,"How is a hyperlink created in HTML?","With the anchor tag, using its href attribute to give the URL of the target; the visible clickable text is the anchor text."],
+[5,"What is an IP address?","A unique numerical address identifying a device communicating on the internet so data can be routed from source to destination."],
+[5,"Describe the IPv4 address format.","A 32-bit binary number written in dotted decimal notation: four 8-bit groups (octets), each converted to decimal (0 to 255) and separated by dots."],
+[5,"Convert 192.168.1.1 to binary.","11000000.10101000.00000001.00000001."],
+[5,"How many addresses does IPv4 provide?","2^32, about 4.3 billion."],
+[5,"Why was IPv4 exhausted?","Billions of people each own multiple devices, besides billions of servers, routers and IoT devices; IANA allocated its last address blocks to regional registries around 2011."],
+[5,"Define NAT.","Network Address Translation: a technique letting multiple devices on a private network share a single public IPv4 address."],
+[5,"Explain how NAT works in a home router.","Devices receive private addresses (192.168.x.x or 10.x.x.x) not routable on the public internet; the router presents all of them with its single public address and tracks internally which device each connection belongs to."],
+[5,"What are the drawbacks of NAT?","It is a workaround, not a permanent solution; a device behind NAT is not directly reachable from outside, so VoIP and peer-to-peer applications may need extra configuration."],
+[5,"Describe the IPv6 address format.","128 bits in hexadecimal: eight groups of four hex digits separated by colons, for example 2001:0db8:85a3:0000:0000:8a2e:0370:7334."],
+[5,"How many addresses does IPv6 provide?","2^128, about 340 undecillion (340 followed by 36 zeros)."],
+[5,"State the two rules for shortening an IPv6 address.","Leading zeros within a group may be omitted; one contiguous run of all-zero groups may be replaced with a double colon (::)."],
+[5,"Shorten 2001:0db8:85a3:0000:0000:8a2e:0370:7334.","2001:db8:85a3::8a2e:370:7334."],
+[5,"List the improvements IPv6 brings besides a larger address space.","Built-in IPsec encryption and authentication, a more efficient packet header, better multicast support, and no need for NAT."],
+[5,"Why has IPv6 adoption been gradual?","Standardised in 1998, it requires a large-scale infrastructure upgrade; IPv4 and IPv6 therefore run in parallel by dual-stack."],
+[5,"Why does NAT exist for IPv4 but not for IPv6?","IPv4 ran short of unique addresses and NAT lets many devices share one; IPv6 has so many addresses that every device can have its own, making NAT unnecessary."],
+[5,"How many times larger is the IPv6 address space than IPv4?","2^128 / 2^32 = 2^96, about 8 x 10^28."],
+[6,"Define downloading and uploading.","Downloading: transferring data from a remote server to the local device. Uploading: the reverse."],
+[6,"Distinguish asymmetric from symmetric connections.","Asymmetric: download speed markedly faster than upload (typical of home broadband). Symmetric: equal speeds both ways (business and fibre-to-the-home)."],
+[6,"Why are home connections asymmetric?","Residential usage involves far more downloading (streaming, browsing) than uploading."],
+[6,"Why are business connections often symmetric?","Businesses frequently upload large files, run servers or hold video conferences needing substantial upstream bandwidth."],
+[6,"Define a CDN.","Content Delivery Network: servers distributed across many geographic locations holding copies of frequently requested content, so requests are served from a nearby edge server rather than a distant origin server."],
+[6,"What are the benefits of a CDN?","It reduces latency (the distance data must travel) and the load on the origin server, so streaming and calls perform similarly well in different places."],
+[6,"Name major CDN providers.","Cloudflare, Akamai and Amazon CloudFront."],
+[6,"Define FTP and say what it does.","File Transfer Protocol: a dedicated protocol for transferring files between computers; users connect to remote servers to download or upload files."],
+[6,"Distinguish public (anonymous) from private FTP servers.","Public servers let anyone access public files without authentication, conventionally with the username 'anonymous'. Private servers require valid credentials and are used for secure file sharing and for uploading website files."],
+[6,"Name an FTP client.","FileZilla, giving a graphical interface for browsing a server's directories and transferring files."],
+[6,"Define VoIP.","Voice over Internet Protocol: voice calls carried over the internet or any IP network instead of the PSTN."],
+[6,"Describe how VoIP carries a call.","The microphone captures the voice, which is digitised, compressed by a codec, broken into packets and sent over UDP; at the receiver the packets are reassembled, decompressed and converted back to analog audio."],
+[6,"Why does VoIP use UDP rather than TCP?","UDP has lower latency, which is critical for real-time voice (the reliability-versus-speed trade-off of Lesson 5)."],
+[6,"Why is VoIP cheap for long-distance calls?","Voice travels over the same infrastructure as other traffic, which removes distance-dependent charges."],
+[6,"Name popular VoIP applications.","WhatsApp calls, Google Voice, Facebook Messenger calls, Discord and Skype."],
+[6,"Define latency, jitter and packet loss in VoIP.","Latency: delays causing unnatural conversation. Jitter: variation in packet arrival times causing choppy audio. Packet loss: causes gaps in the audio."],
+[6,"How are VoIP problems managed?","QoS (Quality of Service) configuration prioritises time-sensitive voice traffic; jitter buffer algorithms briefly hold and smoothly reorder arriving packets before playback."],
+[6,"Define video conferencing.","Real-time, interactive audio and video communication between participants in different locations; it is VoIP plus synchronised video."],
+[6,"Name the technologies combined in video conferencing.","HD cameras and microphones, video codecs (H.264, H.265/HEVC), internet infrastructure and client software."],
+[6,"Name video conferencing platforms.","Zoom, Microsoft Teams, Google Meet and Cisco Webex."],
+[6,"Define online collaboration tools.","Tools letting people in different locations work together on shared documents, projects and tasks in real time or asynchronously."],
+[6,"Give the three categories of collaboration tools with examples.","Collaborative document editing (Google Docs, Microsoft 365); project management (Trello, Asana, Jira, Notion); team messaging (Slack, Microsoft Teams)."],
+[7,"Define cloud computing.","The delivery of computing services (servers, storage, databases, networking, software, analytics) over the internet on an on-demand, pay-as-you-go basis from data centres operated by cloud providers."],
+[7,"Why is it called the 'cloud'?","A metaphor from network diagrams that depicted the internet as a cloud-shaped symbol representing complex infrastructure."],
+[7,"Define cloud storage and name its benefits.","Storing files on remote servers, accessible from any connected device. It synchronises files across devices and gives off-site backup."],
+[7,"Name cloud storage services.","Google Drive, Dropbox, Microsoft OneDrive, Apple iCloud and Amazon Drive."],
+[7,"Define IaaS.","Infrastructure as a Service: the provider offers virtualised servers, storage and networking; the customer controls the operating system and applications. Maximum flexibility; AWS EC2, Azure Virtual Machines, Google Compute Engine."],
+[7,"Define PaaS.","Platform as a Service: a managed environment for building, deploying and running applications; the provider handles servers, storage, OS, runtimes and middleware. Google App Engine, Azure App Service, Heroku."],
+[7,"Define SaaS.","Software as a Service: a fully functional application delivered over the internet through a browser, with nothing to install; the provider hosts, maintains, updates and secures it. Gmail, Microsoft 365, Salesforce, Zoom, Dropbox, Netflix."],
+[7,"State who manages what in IaaS, PaaS and SaaS.","IaaS: the customer manages the OS, runtime and application. PaaS: the customer manages only the application. SaaS: the customer manages nothing beyond their own data and configuration."],
+[7,"State the advantages of cloud computing.","Operational instead of capital expenditure; provisioning in minutes; almost instant scaling; security and reliability beyond most organisations; high availability and disaster recovery through geographically distributed data centres."],
+[7,"State the challenges of cloud computing.","Internet dependency; privacy and security of data on third-party servers (DPDP Act, GDPR); vendor lock-in; accumulating subscription costs over years."],
+[7,"Define vendor lock-in.","Dependency on one cloud provider's proprietary services, making migration difficult and expensive."],
+[8,"Define digital citizenship.","The responsible, ethical and thoughtful use of technology and the internet, covering netiquette, responsible usage, privacy awareness, critical evaluation of information and the legal and ethical dimensions of online activity."],
+[8,"Define netiquette.","Internet etiquette: the informal but widely recognised standards of polite, respectful and constructive behaviour in online communication."],
+[8,"Why did netiquette norms develop?","Online, non-verbal cues (expression, body language, tone) are absent, and written messages are permanent and widely shared."],
+[8,"State the principles of netiquette.","Respect others as in person; avoid ALL CAPITALS (shouting); understand a forum's context before posting; use sarcasm carefully; verify before forwarding; assume good faith and argue with reason, not personal attacks."],
+[8,"Define phishing.","Fraudulent emails, messages or websites impersonating legitimate organisations to trick users into revealing credentials or personal data, typically creating urgency or fear."],
+[8,"How can a user recognise and respond to phishing?","Look for impersonation, urgency or fear, short deadlines and requests for credentials; do not act hastily; check the message carefully first."],
+[8,"What personal information should be shared online only where necessary?","Full name, home address, phone number, date of birth, financial information and location data."],
+[8,"How should information online be evaluated critically?","Check the source, look for independent corroboration, check the publication date, consider bias or motivation, and use fact-checking resources, particularly for health, science and political claims."],
+[8,"What is misinformation, and what is the responsible response?","False or inaccurate content that spreads rapidly; verify accuracy before forwarding it."],
+[8,"What is the position on copyright for digital content?","Digital content is copyrighted like physical books and films; copying or distributing it without permission is illegal however easy it is technically."],
+[8,"What are Creative Commons licences?","Licences letting creators specify the terms under which their work may be freely used: a middle ground."],
+[8,"Define cyberbullying and the responsible response.","Using digital communication tools to harass, threaten, humiliate or bully. Unlike traditional bullying it can follow victims anywhere at any hour and spread to thousands instantly. Refrain, do not amplify, and report to moderators or authorities."],
+[8,"Define digital footprint.","The permanent trail of data a person leaves through online activities (sites visited, searches, posts, comments, photos, purchases), often impossible to erase fully."],
+[8,"Why must a user be thoughtful about their digital footprint?","Posted information can be copied, shared and archived indefinitely, with long-lasting implications for reputation, relationships, education and employment."],
+[8,"What are the effects of excessive screen time?","Reduced sleep quality, reduced physical activity, social isolation, anxiety and diminished ability to focus."],
+[8,"How should a digital citizenship answer be structured?","Name the specific risk (phishing, cyberbullying, misinformation, unmanaged digital footprint) and pair it with a specific responsible behaviour, rather than answering in generalities."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Numerical and classification problems",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["The internet is best described as:",["A single company's network","A network of interconnected networks","Another name for the Web","A type of browser"],1,"It is formed by interconnecting hundreds of thousands of networks using TCP/IP."],
+["ARPANET was established in:",["1959","1969","1983","1991"],1,"ARPANET began in 1969 as a US Department of Defense project."],
+["ARPANET formally adopted TCP/IP in:",["1969","1975","1983","1991"],2,"1983 is often considered the formal birth of the modern internet."],
+["The 'fathers of the internet' are:",["Tim Berners-Lee and Vint Cerf","Vint Cerf and Bob Kahn","Bob Kahn and Larry Page","Tim Berners-Lee and Bob Kahn"],1,"Cerf and Kahn developed TCP/IP."],
+["Which technique does the internet use to move data?",["Circuit switching","Packet switching","Message broadcasting","Dedicated lines"],1,"Data is broken into independently routed packets."],
+["Which network reserves a dedicated path for the whole call?",["The internet","PSTN (circuit switching)","Packet network","A CDN"],1,"The traditional telephone network uses circuit switching."],
+["An advantage of packet switching is that:",["Packets always arrive in order","Packets reroute around failures","A path is reserved for every user","No reassembly is needed"],1,"Each packet finds its own route, giving fault tolerance."],
+["Who invented the World Wide Web?",["Vint Cerf","Bob Kahn","Tim Berners-Lee","Larry Page"],2,"Sir Tim Berners-Lee, at CERN, in 1989."],
+["Which is NOT one of the three technologies of the Web?",["HTML","HTTP","URL","TCP"],3,"The three are HTML, HTTP and URLs; TCP belongs to the internet protocol suite."],
+["Which of these is NOT part of the Web?",["A web page","A hyperlink","An email service","A browser request using HTTP"],2,"Email is an internet service that is not part of the Web."],
+["The relationship between the internet and the Web is:",["They are identical","The Web is one service running on the internet","The internet runs on the Web","They are unrelated"],1,"The internet is the infrastructure; the Web is one service on it."],
+["An ISP:",["Writes web pages","Provides access to the internet","Registers domain names globally","Ranks search results"],1,"An Internet Service Provider connects users to the internet."],
+["Internet Exchange Points are where:",["ISPs exchange traffic","Browsers render pages","Cookies are stored","Domain names are registered"],0,"Multiple ISPs and operators physically exchange traffic there."],
+["Net neutrality means an ISP should:",["Block unwanted sites","Charge more for video","Treat all data equally","Store all user data"],2,"No blocking, slowing or differential charging."],
+["Which Indian body issued rules broadly supporting net neutrality?",["ICANN","TRAI","IANA","CERN"],1,"The Telecom Regulatory Authority of India."],
+["Which component of a browser interprets HTML and CSS to lay out a page?",["Rendering engine","JavaScript engine","Networking stack","Security layer"],0,"The rendering engine lays out the page visually."],
+["HTTP is described as stateless because:",["It is insecure","Each request is treated independently","It uses UDP","It has no port"],1,"It has no built-in memory of previous requests."],
+["A session cookie typically contains:",["The user's password","A random session ID","The shopping cart","The credit card number"],1,"The server keeps the real state, indexed by the ID."],
+["A search query searches:",["The live web in real time","A pre-built index","Only the user's browser","The DNS servers"],1,"Search engines query an index built beforehand."],
+["The program that browses the web and downloads pages for a search engine is the:",["Indexer","Crawler","Resolver","Renderer"],1,"A crawler (spider) follows hyperlinks."],
+["PageRank ranks pages mainly by:",["Page colour","Quality and quantity of incoming links","Domain age only","Page length"],1,"Incoming links are Google's foundational signal."],
+["In the URL https://www.example.com:443/a/b.html?id=5#top, the fragment is:",["id=5","top","/a/b.html","443"],1,"The fragment follows #."],
+["In the same URL the query is:",["id=5","top","www.example.com","https"],0,"The query follows ?."],
+["The default port for HTTPS is:",["21","80","443","8080"],2,"HTTPS defaults to 443."],
+["In www.google.com the top level domain is:",["www","google","com","www.google"],2,"The TLD is the rightmost part."],
+["Which is a country code TLD?",[".com",".edu",".in",".org"],2,".in is India's ccTLD."],
+["Which body governs domain names globally?",["IANA","ICANN","TRAI","ISO"],1,"ICANN, the Internet Corporation for Assigned Names and Numbers."],
+["DNS translates:",["IP addresses into MAC addresses","Domain names into IP addresses","URLs into HTML","Packets into frames"],1,"It is the internet's phone book."],
+["Which is the correct DNS resolution order?",["Root, TLD, authoritative, cache","Cache, resolver, root, TLD, authoritative","Resolver, cache, TLD, root, authoritative","Authoritative, TLD, root, resolver"],1,"The browser checks its cache, then the resolver, root, TLD and authoritative servers."],
+["Which server finally supplies the IP address in DNS resolution?",["Root server","TLD nameserver","Authoritative nameserver","Browser cache"],2,"The authoritative nameserver holds the record."],
+["A collection of related pages sharing a domain is a:",["Web page","Website","Hyperlink","Browser"],1,"A website; its default page is the home page."],
+["The visible clickable text of a hyperlink is the:",["Anchor text","href","Fragment","Query"],0,"The href attribute holds the target URL."],
+["An IPv4 address has:",["16 bits","32 bits","64 bits","128 bits"],1,"Four octets of 8 bits."],
+["The largest value of one IPv4 octet is:",["99","128","255","256"],2,"8 bits give 0 to 255."],
+["192.168.1.1 in binary is:",["11000000.10101000.00000001.00000001","10101000.11000000.00000001.00000001","11000000.10101000.00000010.00000001","11000001.10101000.00000001.00000001"],0,"192 = 11000000, 168 = 10101000, 1 = 00000001."],
+["IPv6 uses:",["32 bits","64 bits","128 bits","256 bits"],2,"128-bit addresses in hexadecimal."],
+["NAT allows:",["Many private devices to share one public IPv4 address","Domain names to be resolved","Faster video","Encryption of email"],0,"It extends IPv4's useful life."],
+["Which address range is private?",["8.8.8.8","192.168.x.x","1.1.1.1","203.0.113.5"],1,"192.168.x.x and 10.x.x.x are reserved private ranges."],
+["Replacing a run of zero groups in an IPv6 address uses:",["A single colon","A double colon (::)","A dot","A slash"],1,"It may be used once per address."],
+["Running IPv4 and IPv6 together is called:",["Dual-stack","Tunnelling only","NAT","Multicast"],0,"Dual-stack is the transition approach."],
+["Home broadband is typically:",["Symmetric","Asymmetric","Circuit-switched","Unmetered"],1,"Download is faster than upload."],
+["A CDN reduces latency by:",["Compressing packets","Serving content from a nearby edge server","Using circuit switching","Hiding IP addresses"],1,"Copies are cached at many locations."],
+["Anonymous FTP uses the username:",["guest","anonymous","root","public"],1,"Conventionally 'anonymous'."],
+["VoIP typically uses:",["TCP for reliability","UDP for low latency","FTP","SMTP"],1,"Real-time voice favours speed over reliability."],
+["Variation in packet arrival times is called:",["Latency","Jitter","Packet loss","Bandwidth"],1,"Jitter causes choppy audio."],
+["A jitter buffer:",["Compresses voice","Holds and reorders arriving packets before playback","Encrypts calls","Assigns IP addresses"],1,"It smooths playback."],
+["Video conferencing is best described as:",["VoIP plus synchronised video","An unrelated technology","Email with video","FTP with audio"],0,"It extends VoIP with video."],
+["Which is a project management tool?",["Trello","Zoom","FileZilla","Skype"],0,"Trello, Asana, Jira and Notion."],
+["Which cloud model gives the customer control of the operating system?",["SaaS","PaaS","IaaS","None"],2,"IaaS customers manage the OS, runtime and application."],
+["Heroku is an example of:",["IaaS","PaaS","SaaS","CDN"],1,"A platform for deploying applications."],
+["Gmail is an example of:",["IaaS","PaaS","SaaS","DaaS"],2,"A complete application delivered through a browser."],
+["Dependence on one provider's proprietary services is called:",["Vendor lock-in","Scalability","Jitter","Dual-stack"],0,"It makes migration difficult and expensive."],
+["Cloud computing shifts spending from:",["Operational to capital","Capital to operational","Both to zero","Hardware to hardware"],1,"Pay-as-you-go replaces up-front hardware purchase."],
+["Writing in ALL CAPITAL LETTERS online is read as:",["Politeness","Shouting","Formality","A code"],1,"It should be avoided."],
+["Phishing typically:",["Creates urgency or fear to pressure action","Encrypts files","Speeds up a connection","Blocks advertisements"],0,"It impersonates a trusted organisation."],
+["A digital footprint is:",["A browser setting","The permanent trail of data left by online activity","A type of cookie","A router log"],1,"It is often impossible to erase fully."],
+["Creative Commons licences:",["Forbid copying","Let creators specify terms of free use","Replace copyright","Apply only to software"],1,"They provide a middle ground."]
+];
+const FILL=[
+["The internet originated from ___, a US Defense project of 1969.",["ARPANET"],"ARPANET."],
+["The technique of breaking data into independently routed pieces is called ___ switching.",["packet"],"Packet switching."],
+["The telephone network uses ___ switching.",["circuit"],"Circuit switching reserves a path."],
+["The Web was invented by Tim Berners-Lee at ___.",["CERN"],"CERN, Switzerland."],
+["HTML, HTTP and ___ are the three technologies of the Web.",["URL","URLs"],"URLs locate resources."],
+["The principle that an ISP must treat all data equally is called ___ neutrality.",["net"],"Net neutrality."],
+["A small piece of data a server asks the browser to store is a ___.",["cookie"],"A cookie."],
+["An automated program that follows hyperlinks for a search engine is a web ___.",["crawler","spider"],"Crawler or spider."],
+["In a URL, the part after # is the ___.",["fragment"],"The fragment."],
+["A domain name is read from ___ to left.",["right"],"The TLD is rightmost."],
+["DNS resolution begins with the browser's local ___.",["cache"],"Then the resolver."],
+["An IPv4 address consists of four ___ of 8 bits each.",["octets"],"Octets."],
+["IPv4 provides about 4.3 ___ addresses.",["billion"],"2^32."],
+["The technique letting many devices share one public IPv4 address is ___.",["NAT"],"Network Address Translation."],
+["IPv6 addresses are written in ___ notation.",["hexadecimal","hex"],"Eight groups of four hex digits."],
+["A ___ keeps copies of content on edge servers near users.",["CDN"],"Content Delivery Network."],
+["VoIP sends packets using ___ for low latency.",["UDP"],"Rather than TCP."],
+["Video conferencing is VoIP plus synchronised ___.",["video"],"Video streams."],
+["In ___ the provider manages everything and the customer just uses the application.",["SaaS"],"Software as a Service."],
+["A session cookie typically holds only a random ___ ID.",["session"],"The server keeps the real state."]
+];
+const TF=[
+["The internet and the World Wide Web are the same thing.",false,"False: the Web is one service on the internet."],
+["Packet switching reserves one dedicated path for an entire conversation.",false,"False: that is circuit switching."],
+["IPv6 requires NAT because of its limited address space.",false,"False: IPv6 has a vast address space and needs no NAT."],
+["DNS translates domain names into IP addresses.",true,"True."],
+["VoIP typically uses TCP rather than UDP, prioritising reliability over speed.",false,"False: VoIP uses UDP for lower latency."],
+["In SaaS, the customer manages the operating system and runtime.",false,"False: the provider manages everything below the application."],
+["A CDN serves content from a server geographically close to the user.",true,"True: an edge server."],
+["Writing in all capital letters online is considered polite emphasis.",false,"False: it is read as shouting."],
+["A digital footprint can always be completely erased on request.",false,"False: it is often impossible to erase fully."],
+["Business internet connections are typically symmetric.",true,"True."],
+["ARPANET was established in 1969.",true,"True."],
+["Email is part of the World Wide Web.",false,"False: email uses the internet but is not part of the Web."],
+["A search query searches the live web in real time.",false,"False: it searches a pre-built index."],
+["HTTP keeps a built-in memory of earlier requests.",false,"False: HTTP is stateless; cookies supply the memory."],
+["The default port for HTTPS is 443.",true,"True."],
+["The rightmost part of a domain name is the top level domain.",true,"True."],
+["Each IPv4 octet can take values from 0 to 255.",true,"True."],
+["IPv4 addresses ran out entirely and the internet stopped working in 2011.",false,"False: NAT and other techniques kept it working; blocks were allocated to registries."],
+["A jitter buffer holds and reorders arriving packets before playback.",true,"True."],
+["Video conferencing is an unrelated technology to VoIP.",false,"False: it is VoIP plus synchronised video."],
+["Vendor lock-in is a challenge of cloud computing.",true,"True."],
+["Creative Commons licences let creators specify terms under which work may be freely used.",true,"True."]
+];
+const VSA=[
+["In what year was ARPANET established?",["1969"],"1969.",0],
+["Who invented the World Wide Web?",["berners","tim"],"Sir Tim Berners-Lee.",0],
+["Expand: ISP, URL, DNS, TLD, CDN.",["internet service provider","uniform resource locator","domain name system","top level domain","content delivery network"],"Internet Service Provider; Uniform Resource Locator; Domain Name System; Top Level Domain; Content Delivery Network.",1],
+["Name the switching technique used by the internet.",["packet"],"Packet switching.",0],
+["State the size in bits of an IPv4 and an IPv6 address.",["32","128"],"32 bits and 128 bits.",1],
+["Which transport protocol does VoIP typically use, and why?",["udp","latency","speed"],"UDP, for its lower latency.",0],
+["Name the three cloud service models.",["iaas","paas","saas"],"IaaS, PaaS and SaaS.",1],
+["What does SaaS stand for? Give one example.",["software as a service"],"Software as a Service; for example Gmail.",0],
+["Which body oversees global domain name registration?",["icann"],"ICANN.",0],
+["Define netiquette in one sentence.",["etiquette","polite","behaviour","behavior"],"Informal standards of polite, respectful online behaviour (internet etiquette).",0],
+["Name the technique letting several devices share one public IPv4 address.",["nat","network address translation"],"NAT.",0],
+["Define digital footprint.",["trail","permanent","data"],"The permanent trail of data left by online activities.",0],
+["Which program downloads pages for a search engine?",["crawler","spider"],"The web crawler.",0],
+["Which DNS server is consulted just before the authoritative server?",["tld"],"The TLD nameserver.",0],
+["Name two public DNS resolvers.",["8.8.8.8","1.1.1.1"],"Google 8.8.8.8 and Cloudflare 1.1.1.1.",1],
+["Name the two kinds of FTP server.",["anonymous","private","public"],"Public (anonymous) and private.",0]
+];
+const CALC=[
+{q:"Convert the IPv4 address 172.16.254.1 into its 32-bit binary form (dotted).",alts:[["10101100.00010000.11111110.00000001"]],ex:true,model:"10101100.00010000.11111110.00000001",e:"172 = 10101100, 16 = 00010000, 254 = 11111110, 1 = 00000001."},
+{q:"Convert 10.0.0.1 into binary (dotted).",alts:[["00001010.00000000.00000000.00000001"]],ex:true,model:"00001010.00000000.00000000.00000001",e:"10 = 00001010, 0 = 00000000, 1 = 00000001."},
+{q:"Convert 192.168.0.255 into binary (dotted).",alts:[["11000000.10101000.00000000.11111111"]],ex:true,model:"11000000.10101000.00000000.11111111",e:"255 = 11111111."},
+{q:"Convert 11000000.10101000.00000001.00000001 to dotted decimal.",alts:[["192.168.1.1"]],ex:true,model:"192.168.1.1",e:"11000000 = 192, 10101000 = 168."},
+{q:"How many unique IPv4 addresses exist in total? Answer as a power of 2.",alts:[["2^32"],["232"]],ex:false,model:"2^32 (about 4.3 billion)",e:"32 bits give 2^32 combinations."},
+{q:"A user downloads a 200 MB file in 40 seconds. Calculate the average rate in Mbps.",alts:[["40"]],ex:false,model:"40 Mbps",e:"200 MB x 8 = 1600 Mb; 1600 / 40 = 40 Mbps."},
+{q:"A 120 MB file is downloaded in 16 seconds. Find the rate in Mbps.",alts:[["60"]],ex:false,model:"60 Mbps",e:"120 x 8 = 960 Mb; 960 / 16 = 60 Mbps."},
+{q:"A 50 MB file is downloaded in 8 seconds. Find the rate in Mbps.",alts:[["50"]],ex:false,model:"50 Mbps",e:"50 x 8 = 400 Mb; 400 / 8 = 50 Mbps."},
+{q:"In https://www.example.com:443/products/item.html?id=42#reviews give the fragment.",alts:[["reviews"]],ex:false,model:"reviews",e:"The fragment follows #."},
+{q:"In https://www.example.com:443/products/item.html?id=42#reviews give the path.",alts:[["products/item.html"]],ex:false,model:"/products/item.html",e:"The path is after the port and before ?."},
+{q:"In https://www.example.com:443/products/item.html?id=42#reviews give the query.",alts:[["id=42"]],ex:false,model:"id=42",e:"The query follows ?."},
+{q:"Classify Gmail as IaaS, PaaS or SaaS.",alts:[["saas"]],ex:false,model:"SaaS",e:"A complete application delivered through a browser."},
+{q:"Classify AWS EC2 as IaaS, PaaS or SaaS.",alts:[["iaas"]],ex:false,model:"IaaS",e:"Virtual servers."},
+{q:"Classify Heroku as IaaS, PaaS or SaaS.",alts:[["paas"]],ex:false,model:"PaaS",e:"A platform for deploying code."},
+{q:"A student gets an email saying their bank account will be frozen unless they click a link and enter their password within one hour. Name the technique.",alts:[["phishing"]],ex:false,model:"Phishing",e:"Impersonation plus urgency and a request for credentials."},
+{q:"Shorten the IPv6 address 2001:0db8:0000:0000:0000:0000:0000:0001 using ::.",alts:[["2001:db8::1"]],ex:true,model:"2001:db8::1",e:"Drop leading zeros and replace the zero run with ::."}
+];
+const SHORT=[
+["Distinguish between the internet and the World Wide Web.","The internet is the global infrastructure of cables, routers, servers and protocols (TCP/IP). The World Wide Web is one service running on it: interlinked pages accessed through browsers using HTTP/HTTPS and URLs. Email, FTP and VoIP use the internet without being part of the Web.",["Internet = infrastructure","Web = one service on it","Web uses browsers, HTTP and URLs","Example of a non-Web service (email, FTP, VoIP)"]],
+["Distinguish between packet switching and circuit switching.","Circuit switching reserves one dedicated path for the whole session, even when idle; a break ends the call; example PSTN. Packet switching breaks data into packets that may take different routes, shares links efficiently, reroutes around failures and reassembles packets on arrival; example the internet.",["Circuit: dedicated path","Packet: independent routes","Resource use or fault tolerance compared","Examples PSTN and internet"]],
+["Explain how a cookie allows a website to remember a logged-in user.","HTTP is stateless. The server asks the browser to store a cookie, usually a random session ID, which the browser sends with every later request. The server keeps the real state on its side, indexed by the ID, and looks it up each time.",["HTTP is stateless","Cookie holds a session ID","Sent automatically with each request","Server looks up state by the ID"]],
+["Describe the steps of DNS resolution in order.","The browser checks its local cache; if absent it queries the resolver (ISP or public); the resolver contacts a root server, which directs it to the TLD nameserver; this directs it to the authoritative nameserver, which supplies the IP address; the resolver caches and returns it to the browser.",["Cache","Resolver","Root then TLD","Authoritative gives the IP; result cached and returned"]],
+["Distinguish between IPv4 and IPv6 on any three points.","Size: 32 bits against 128 bits. Addresses: about 4.3 billion against about 340 undecillion. Notation: dotted decimal against hexadecimal with colons. IPv4 is exhausted and needs NAT; IPv6 does not. IPv6 has built-in IPsec.",["Address size","Number of addresses","Notation","NAT or exhaustion or encryption"]],
+["Why is NAT necessary for IPv4 but not for IPv6?","IPv4 ran short of unique addresses, so NAT lets many private devices share one public address. IPv6 has so many addresses that every device can have its own globally unique address, making NAT unnecessary.",["IPv4 shortage","NAT shares one public address","IPv6 enormous space","Each device own address"]],
+["Distinguish between symmetric and asymmetric internet connections.","Asymmetric connections have download speeds markedly faster than upload, typical of home broadband because residential use is mostly downloading. Symmetric connections give equal speeds both ways and suit businesses and fibre-to-the-home that upload large files, run servers or hold video conferences.",["Asymmetric defined","Symmetric defined","Why home is asymmetric","Why business is symmetric"]],
+["Explain the purpose of a Content Delivery Network.","A CDN keeps copies of frequently requested content on edge servers across many locations, so a request is served from a nearby copy rather than a distant origin server. This reduces latency and origin load, and lets streaming perform well anywhere.",["Copies on edge servers","Served from nearby","Reduces latency","Reduces origin server load"]],
+["Distinguish between VoIP and video conferencing.","VoIP carries voice calls over IP networks. Video conferencing is VoIP plus synchronised video: it adds cameras, video codecs and features such as screen sharing and breakout rooms, so it is not an unrelated technology.",["VoIP is voice","Video conferencing = VoIP plus video","Extra components or features"]],
+["Explain the difference between IaaS, PaaS and SaaS in terms of who manages what.","In IaaS the provider supplies virtualised hardware and the customer manages the OS, runtime and application. In PaaS the provider also manages OS and runtime and the customer manages only the application. In SaaS the provider manages everything and the customer manages only their data and settings.",["IaaS: customer manages OS to app","PaaS: customer manages application only","SaaS: customer manages nothing","Examples EC2, Heroku, Gmail"]],
+["State two advantages and two challenges of cloud computing.","Advantages: pay-as-you-go operational expenditure; rapid scalability; high availability and disaster recovery. Challenges: internet dependency; data privacy and security concerns; vendor lock-in; accumulating subscription costs.",["Two advantages","Two challenges"]],
+["What is phishing, and how can a user typically recognise it?","Phishing is fraudulent emails, messages or websites impersonating legitimate organisations to trick users into revealing credentials or personal data. Signs include impersonation, urgency or fear, a short deadline and a request for passwords or personal data.",["Definition","Impersonation","Urgency or fear","Request for credentials"]],
+["Distinguish between a web page and a website.","A web page is a single HTML document, styled with CSS and made interactive with JavaScript. A website is a collection of related pages hosted on the same server under a common domain name, with a home page as its default page.",["Page = single document","Site = collection under one domain","Home page"]],
+["Explain net neutrality and state one argument for and one against it.","Net neutrality is the principle that an ISP should treat all data equally, not blocking, slowing or charging differently. For: it keeps a level playing field and protects innovation. Against: ISPs should be able to manage capacity and offer pricing tiers like other utilities.",["Definition","Argument for","Argument against"]]
+];
+const LONG=[
+["Trace the history of the internet from ARPANET to the modern internet, naming the key milestones and people involved.","ARPANET was established in 1969 by the US Department of Defense to create a network that could survive attack by routing around damaged nodes, an advance on centralised switching. It first linked four universities: UCLA, Stanford Research Institute, UC Santa Barbara and the University of Utah. In the 1970s Vint Cerf and Bob Kahn developed TCP/IP, giving different networks a common language. In 1983 ARPANET adopted TCP/IP, regarded as the birth of the modern internet. In 1989 Tim Berners-Lee developed the World Wide Web at CERN, with HTML, HTTP and URLs; it became public in August 1991, and the same year ARPANET was decommissioned. The internet has grown to over five billion users.",["1969 ARPANET and its purpose","Four universities","Cerf and Kahn, TCP/IP","1983 adoption of TCP/IP","1989 Web by Berners-Lee","1991 Web public and ARPANET decommissioned"]],
+["Explain the structure of a URL, labelling and describing each component.","A URL identifies and locates a resource, e.g. https://www.example.com:443/path/to/page.html?query=value#section. The scheme (https) identifies the protocol: http, https, ftp, mailto. The host (www.example.com) is the domain name or IP address of the server. The port (443) is optional; HTTPS defaults to 443. The path (/path/to/page.html) locates the resource in the server's file hierarchy. The query (query=value), after ?, passes parameters to the server. The fragment (section), after #, jumps to a section within the page.",["Scheme","Host","Port","Path","Query","Fragment"]],
+["Explain packet switching and circuit switching, comparing them on path, resource use and fault tolerance.","In circuit switching a single dedicated path is established before data flows and reserved for the whole call, as on the PSTN. Resources are held exclusively even in silence, and a break in the path ends the call; order is guaranteed. In packet switching data is broken into independently addressed packets that may travel different routes and are reassembled at the destination. Links are shared by many users, so capacity is used efficiently, and packets reroute around failed links, which was the resilience ARPANET sought. The cost is that packets may arrive out of order or delayed, which TCP sequencing and VoIP jitter handling manage.",["Circuit path dedicated","Packet routes independent","Resource use compared","Fault tolerance compared","Order and reassembly","Examples"]],
+["Describe the DNS resolution process in full, from a browser's cache check to receiving the final IP address.","DNS translates domain names into IP addresses using a distributed hierarchical database. The browser first checks its local DNS cache. If the answer is not cached it queries the configured resolver, typically from the ISP or a public service such as 8.8.8.8 or 1.1.1.1. The resolver contacts a root DNS server, which directs it to the appropriate TLD nameserver. The TLD nameserver directs it to the authoritative nameserver for the domain, which supplies the IP address. The resolver caches the result and returns it to the browser, which connects to the web server. The whole process takes a few milliseconds.",["Local cache","Resolver","Root server","TLD nameserver","Authoritative nameserver","Caching and return"]],
+["Compare IPv4 and IPv6 comprehensively, explaining why the transition has been necessary and gradual.","IPv4 uses 32-bit dotted-decimal addresses giving about 4.3 billion, IPv6 uses 128-bit hexadecimal addresses giving about 340 undecillion. IPv4 was exhausted around 2011 and relies on NAT; IPv6 needs no NAT because every device can have a unique address. IPv6 adds built-in IPsec, an efficient header and better multicast. The transition is necessary because growth in devices exhausted IPv4. It has been gradual because it requires a large infrastructure upgrade; IPv6 was standardised in 1998, and the internet runs both in parallel by dual-stack.",["Size and number of addresses","Notation","Exhaustion and NAT","IPv6 improvements","Why necessary","Why gradual and dual-stack"]],
+["Explain VoIP's working process from a spoken word to the listener hearing it, and describe its main technical challenges.","The microphone captures the voice, which is digitised and compressed by an audio codec, then broken into small packets and sent over the internet using UDP for low latency. At the receiver the packets are reassembled, decompressed and converted back to analog audio. Challenges: latency, which causes unnatural conversation; jitter, variation in arrival time causing choppy audio; and packet loss, causing gaps. They are managed by QoS, which prioritises voice traffic, and by jitter buffers, which hold and reorder packets before playback.",["Capture and digitise","Compress and packetise","UDP and why","Reassemble and convert","Latency, jitter, packet loss","QoS and jitter buffer"]],
+["Describe the three cloud service models with one example provider for each, and explain the trade-off in management responsibility between them.","IaaS offers virtualised servers, storage and networking; the customer installs the OS and applications; example AWS EC2. It gives maximum control but most responsibility. PaaS offers a platform where the provider manages servers, OS, runtimes and middleware and the developer manages only the application code; example Heroku. SaaS delivers a complete application through a browser, with the provider managing everything; example Gmail. Moving from IaaS to SaaS, responsibility shifts progressively to the provider, trading control and flexibility for convenience.",["IaaS defined with example","PaaS defined with example","SaaS defined with example","Responsibility spectrum","Control against convenience"]],
+["Explain digital citizenship, covering netiquette, privacy, intellectual property and cyberbullying.","Digital citizenship is the responsible, ethical and thoughtful use of the internet. Netiquette: respect others, avoid ALL CAPS, use sarcasm carefully, verify before forwarding and assume good faith. Privacy: share personal information only when necessary, with a stated privacy policy, set social media privacy and beware of phishing. Intellectual property: digital content is copyrighted and unauthorised copying is illegal; Creative Commons licences state terms of free use. Cyberbullying: harassment through digital tools that follows victims anywhere and spreads instantly; citizens should refrain, not amplify and report it.",["Definition","Netiquette","Privacy and phishing","Intellectual property","Cyberbullying"]],
+["Explain the advantages and challenges of cloud computing for a growing business.","Advantages: capital expenditure becomes operational expenditure; resources are provisioned in minutes and released when finished; scaling is almost instant; providers offer security and reliability beyond most firms; distributed data centres give availability and disaster recovery. Challenges: internet dependency; privacy and security of data on third-party servers and compliance with the DPDP Act or GDPR; vendor lock-in; and subscription costs that can exceed owned hardware over years. A growing business benefits from flexibility early and must plan for lock-in and cost.",["Capex to opex","Rapid provisioning and scaling","Availability and disaster recovery","Internet dependency","Privacy and compliance","Vendor lock-in and cost"]],
+["Distinguish the internet from the World Wide Web using the roads-and-services analogy, and name three other internet services that are not part of the Web.","The internet is the infrastructure, like the road system of cables, routers, servers and protocols. The Web is one service using it, like the postal service delivering one type of content, web pages, accessed through browsers using HTTP/HTTPS and URLs. The same roads carry other services: email, FTP and VoIP (also video streaming) run on the internet without being part of the Web.",["Internet is infrastructure","Web is one service","Browsers, HTTP, URLs","Email","FTP","VoIP"]]
+];
+const APP=[
+["A start-up wants to launch a new web application quickly without hiring staff to manage servers or operating systems, but still wants to write custom application code. Recommend IaaS, PaaS or SaaS, and justify.","PaaS. The provider manages the servers, operating system, runtimes and middleware, so no staff are needed for them, while the developers still write and deploy their own application code. PaaS also scales infrastructure automatically. IaaS would require managing the OS; SaaS offers a finished application and no custom code.",["PaaS","Provider manages servers and OS","Developers write code","Why not IaaS or SaaS"]],
+["Explain why a video call can suffer from choppy audio even on a connection with generously high bandwidth, using latency and jitter.","Bandwidth is only how much data can move per second. Choppy audio is caused by timing problems: high latency delays packets, and jitter, variation in arrival time, means packets arrive unevenly. Real-time audio cannot wait, so late packets are lost or the sound breaks up, whatever the bandwidth. QoS and a jitter buffer help.",["Bandwidth is not timing","Latency","Jitter","QoS or jitter buffer"]],
+["A friend forwards a dramatic news story to a group chat without checking whether it is true. Explain which digital citizenship principle applies and what the group members should do.","The principle is verifying information before forwarding, to avoid spreading misinformation. Members should check the source, look for independent corroboration, check the date, consider bias and use fact-checking resources, and politely say so; they should not forward it further until verified.",["Misinformation named","Verify before forwarding","Source and corroboration","Date, bias, fact-checking"]],
+["An e-commerce company operating globally wants pages to load quickly for customers on every continent. Recommend a technology and explain how it achieves this.","A Content Delivery Network. It keeps copies of frequently requested content on edge servers in many locations, so each customer is served from a nearby server rather than the distant origin. This reduces latency and origin load. Providers include Cloudflare, Akamai and CloudFront.",["CDN","Edge servers near users","Reduces latency","Reduces origin load"]],
+["Explain why the exhaustion of IPv4 addresses in 2011 did not immediately break the internet, and what two techniques have allowed IPv4 to remain usable since then.","Exhaustion meant that IANA had allocated its last blocks to regional registries, not that existing addresses stopped working. IPv4 has remained usable through NAT, which lets many private devices share one public address, and through the gradual adoption of IPv6 run in parallel with IPv4 (dual-stack).",["Existing addresses kept working","NAT","IPv6 adoption and dual-stack"]],
+["A user is offered a proprietary all-in-one cloud platform that is significantly cheaper than competitors but only works with that provider's tools. Identify the risk involved and explain how it could affect the organisation later.","The risk is vendor lock-in. Because the organisation's infrastructure would depend on one provider's proprietary services, moving to another provider later would be difficult and expensive. The provider could raise prices or change terms, and the organisation would have little bargaining power.",["Vendor lock-in","Dependence on proprietary services","Migration difficult and expensive","Later cost or pricing consequences"]],
+["A student receives an email claiming their bank account will be frozen unless they click a link and enter their password within one hour. Identify the technique and list two warning signs.","The technique is phishing. Warning signs: impersonation of a bank; urgency or fear (the threat of freezing the account); a short deadline of one hour; a request to enter a password through a link. The student should not click, and should contact the bank directly.",["Phishing","Urgency or fear","Deadline or credentials request","Correct response"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson6-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Internet lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"The internet and its history",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"The internet",d:"The internet is the world's largest and most extensive Wide Area Network: a massive, global system of interconnected computer networks linking billions of devices across every country.",p:["It is not owned or controlled by any single government, organisation or company. It is a decentralised, cooperative infrastructure built on shared open standards, most fundamentally the TCP/IP protocol suite introduced in Lesson 5.","It connects computers, smartphones, servers and embedded devices through physical infrastructure (optical fibre cables under oceans and across continents, satellite links, wireless towers and last-mile connections into homes) and the software protocols that let these diverse devices communicate."]},
+ {h:"Meaning of the word",d:"The word 'internet' comes from 'internetwork': a network of networks.",p:["It is formed by the voluntary interconnection of hundreds of thousands of individual corporate, university, government and ISP networks that agree to exchange traffic using TCP/IP. No single network spans the globe; data hops through a chain of routers, each forwarding it closer to its destination."]},
+ {h:"A brief history",p:["The internet originated in ARPANET (Advanced Research Projects Agency Network), a US Department of Defense research project established in 1969. It was designed to create a network able to survive a nuclear attack by routing around damaged nodes, at a time when networks used centralised switching systems that were single points of failure.","In the 1970s Vint Cerf and Bob Kahn developed the TCP/IP protocol suite. ARPANET adopted TCP/IP in 1983. Tim Berners-Lee's World Wide Web (1989) turned the internet from an academic tool into a mass medium. ARPANET was decommissioned in 1991. The internet has grown from a few thousand computers in 1990 to over five billion users."],t:T[1]},
+ {h:"Packet switching",d:"Packet switching is a method in which data is broken into small, independently addressed packets, each of which may travel by a different route and which are reassembled into the original message only on arrival at the destination.",p:["It was ARPANET's defining technical innovation. Because no path is reserved for one conversation, many communications share the same links simultaneously, using capacity far more efficiently. Because each packet finds its own route, the network tolerates the failure of links or routers: packets are rerouted around the damage.","The cost is that packets can arrive out of order or be delayed unpredictably. TCP (sequencing and reassembly) and VoIP jitter handling exist to manage this."]},
+ {h:"Circuit switching",d:"Circuit switching establishes a single dedicated physical path for the entire duration of a call before any data flows, and holds it exclusively for that conversation even during silence.",p:["It is used by the traditional telephone network, the Public Switched Telephone Network (PSTN)."],t:T[0]},
+ {h:"Examination notes",l:["Compare switching techniques on path, resource use and fault tolerance, and name an example of each (PSTN and the internet).","Remember the dates: ARPANET 1969, TCP/IP adopted 1983, Web 1989, ARPANET decommissioned 1991."]}
+]},
+{t:"The Web, the internet and ISPs",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"The World Wide Web",d:"The World Wide Web (the Web, WWW) is a vast system of interlinked documents and resources (web pages, images, videos, files) accessible over the internet.",p:["It was invented by Sir Tim Berners-Lee in 1989 while working at CERN, the physics laboratory in Switzerland, so that scientists anywhere could share information by linking documents through clickable hyperlinks. He also built the first web server and the first web browser. The Web became publicly available in August 1991."],t:T[3]},
+ {h:"Internet versus World Wide Web",p:["Treating the two as synonyms is the single most common misconception in this chapter. The internet is the underlying global infrastructure: the physical cables, routers, servers and protocols. The World Wide Web is only one of many services running on that infrastructure: the system of interlinked pages accessed through browsers using HTTP/HTTPS and URLs.","Email, FTP, VoIP and video streaming run on the internet without being part of the Web."],t:T[2]},
+ {h:"ISP: Internet Service Provider",d:"An Internet Service Provider (ISP) is a company providing individuals, businesses and organisations with access to the internet.",p:["Without an ISP a computer can reach only devices on its own local network. The ISP owns and operates the infrastructure that connects customers to the internet backbone, the high-capacity core network carrying the bulk of global traffic, typically reached through Internet Exchange Points (IXPs), where several ISPs and network operators physically exchange traffic.","ISPs assign IP addresses, provide DNS resolution and often bundle email and web hosting. India's major ISPs include Jio, Airtel, BSNL, Vodafone Idea and ACT Fibernet."],t:T[4]},
+ {h:"Net neutrality",d:"Net neutrality is the principle that an ISP should treat all data on its network equally, not blocking, slowing or charging differently for particular websites, applications or types of content.",p:["It has been a contested regulatory question in many countries, including India, where TRAI has issued rules broadly supporting the principle."],t:T[5]},
+ {h:"Examination notes",l:["'Distinguish between the internet and the World Wide Web' is close to guaranteed. State the relationship (infrastructure versus one service running on it) and then give an example of another service (email, FTP, VoIP).","Name the three technologies of the Web: HTML, HTTP and URLs."]}
+]},
+{t:"Browsers, cookies and search engines",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Web browser",d:"A web browser is a software application that enables users to access, retrieve and display content from the World Wide Web.",p:["When a user enters a URL or clicks a hyperlink, the browser sends an HTTP or HTTPS request to the web server, receives HTML, CSS, JavaScript and embedded media, and renders (interprets and visually displays) it as the page the user sees.","Widely used browsers: Google Chrome (market leader), Mozilla Firefox, Microsoft Edge (built on the Chromium engine used by Chrome), Apple Safari and Opera."],t:T[6]},
+ {h:"Cookies and sessions",p:["HTTP is stateless: each request is treated independently with no built-in memory of earlier ones, yet a website remembers that a user is logged in. The mechanism is the cookie, a small piece of data the server asks the browser to store and to send back automatically with every subsequent request to that site.","A session cookie typically holds only a random session ID; the server keeps the meaningful state on its own side, indexed by that ID, and looks it up on every request. This is the OSI Session layer concept of Lesson 5, implemented at the Application layer. Cookies also underlie web advertising tracking, so browsers offer controls to block or limit third-party cookies."],t:T[8]},
+ {h:"Search engine",d:"A search engine is a web-based service enabling users to find pages relevant to their queries, by maintaining a massive, continuously updated index of billions of pages and providing a fast, relevance-ranked interface to that index.",p:["A search query searches this pre-built index, not the live web in real time. Google dominates globally, followed by Microsoft Bing, Yahoo, Baidu (dominant in China) and DuckDuckGo (which emphasises user privacy)."],t:T[7]},
+ {h:"Examination notes",l:["A search engine searches an index built beforehand by a crawler; it does not search the web live.","Explain cookies by contrast with statelessness: the cookie holds only an ID; the state is on the server."]}
+]},
+{t:"URLs and domain names",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"URL: Uniform Resource Locator",d:"A URL is the complete, standardised address identifying and locating a specific resource on the internet.",p:["Example: https://www.example.com:443/path/to/page.html?query=value#section"],t:T[9]},
+ {h:"Domain name",d:"A domain name is the human-readable name identifying a website, such as google.com or mygov.in.",p:["Computers communicate using numerical IP addresses, so domain names supply a usability layer: memorable names for people, with translation to IP addresses handled automatically underneath.","Domain names are hierarchical and read from right to left. The rightmost part is the Top Level Domain (TLD). Generic TLDs include .com, .org, .net, .edu and .gov; country code TLDs (ccTLDs) are two-letter codes such as .in, .uk and .jp. To the left is the second-level domain (google in google.com), and further left may be subdomains such as www or mail."],t:T[10]},
+ {h:"Examination notes",l:["Be able to draw a URL and label all components (scheme, host, port, path, query, fragment) from memory.","Do not confuse the query (after ?) with the fragment (after #)."]}
+]},
+{t:"DNS, web pages and hyperlinks",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"DNS: Domain Name System",d:"The Domain Name System (DNS), the internet's 'phone book', translates human-readable domain names into the numerical IP addresses computers use to communicate.",p:["It is implemented as a massive, globally distributed, hierarchical database across thousands of servers worldwide."]},
+ {h:"The resolution sequence",p:["The browser first checks its local DNS cache. If the answer is not cached it queries the configured resolver (provided by the ISP or a public service such as Google's 8.8.8.8 or Cloudflare's 1.1.1.1). The resolver contacts the root DNS servers, which direct it to the TLD nameserver, which directs it to the authoritative nameserver for the domain, which supplies the IP address. The resolver caches and returns the result to the browser, which connects to the web server."],t:T[11]},
+ {h:"Web page and website",d:"A web page is a single document accessible on the Web, written in HTML and typically using CSS for visual styling and JavaScript for interactive behaviour.",p:["A website is a collection of related pages and associated content hosted on the same server, sharing a common domain name and navigational structure. Every website has a home page (index page): the default page served when the site's root URL is requested without a path."],t:T[12]},
+ {h:"Hyperlinks",d:"A hyperlink is a clickable reference embedded within a page that, when clicked, navigates the browser to another resource.",p:["Hyperlinks are the mechanism that makes the Web a 'web': they create the dense, interconnected network of connections between pages."],t:T[13]},
+ {h:"Examination notes",l:["State the DNS order without omitting a step: cache, resolver, root, TLD, authoritative.","DNS is a direct application of the client-server model."]}
+]},
+{t:"Internet addressing",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"IP address",d:"An IP (Internet Protocol) address is a unique numerical address identifying a device communicating on the internet so that data can be routed from source to destination.",p:["Two versions are in use today: the original IPv4 and the newer IPv6."]},
+ {h:"IPv4",d:"IPv4 is the fourth version of the Internet Protocol, in use since the early 1980s. An IPv4 address is a 32-bit binary number expressed in dotted decimal notation.",p:["The 32 bits divide into four groups of 8 bits (octets); each is converted to decimal (0 to 255) and separated by dots. Each octet is converted by the binary-to-decimal method of Lesson 2.","The total number of addresses is 2^32, about 4.3 billion. Growth in devices exhausted the pool around 2011, when IANA allocated its last address blocks to regional registries."],t:T[15]},
+ {h:"NAT: Network Address Translation",d:"NAT is a technique letting multiple devices on a private local network share a single public IPv4 address.",p:["It significantly extended IPv4's useful life. It is a workaround, not a permanent solution."],t:T[16]},
+ {h:"IPv6",d:"IPv6 is the long-term successor to IPv4, designed to solve address exhaustion permanently. It uses 128-bit addresses.",p:["That gives 2^128, about 340 undecillion addresses. IPv6 addresses are written in hexadecimal as eight groups of four hex digits separated by colons. Leading zeros within a group may be omitted, and one contiguous run of all-zero groups may be replaced by a double colon.","Further improvements: built-in IPsec encryption and authentication, a more efficient packet header, better multicast support, and no need for NAT. Standardised in 1998, adoption has been gradual because of the scale of upgrade; most of the internet runs IPv4 and IPv6 in parallel by the dual-stack approach."],t:T[18]},
+ {h:"IPv4 compared with IPv6",t:T[14]},
+ {h:"Calculating address space",p:["Problem: confirm IPv6's address space is about 2^128 and say roughly how many times larger it is than IPv4's. Solution: IPv4 gives 2^32, about 4.3 x 10^9; IPv6 gives 2^128 = (2^32)^4, about 3.4 x 10^38. The ratio is 2^96, about 8 x 10^28."],t:T[17]},
+ {h:"Examination notes",l:["The IPv4/IPv6 table is frequently reproduced as an answer. Be certain of 2^32 and 2^128.","Explain NAT in one sentence: IPv4 ran short of unique addresses and NAT lets many devices share one; IPv6 has so many that each device can have its own.","In practice the private IPv4 ranges also include 172.16.x.x to 172.31.x.x."]}
+]},
+{t:"Internet services",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Downloading and uploading",d:"Downloading is transferring data from a remote server to the user's local device; uploading is the reverse.",p:["Watching a video, reading a page or installing software involve downloading; posting a photo, sending an attachment or backing up to the cloud involve uploading."],t:T[19]},
+ {h:"Worked example: download rate",p:["Rate in Mbps = size in megabytes x 8 divided by time in seconds."],t:T[26]},
+ {h:"Content Delivery Network",d:"A Content Delivery Network (CDN) maintains copies of frequently requested content on servers distributed across many geographic locations (edge servers), so a request is served from a nearby copy.",p:["Streaming to millions of simultaneous viewers from one origin server would be impossibly slow. A CDN reduces latency and the load on the origin server. Most large websites and streaming services use one."],t:T[20]},
+ {h:"FTP: File Transfer Protocol",d:"FTP is a dedicated protocol for transferring files between computers (Lesson 5).",p:["It uses separate control and data connections."],t:T[21]},
+ {h:"VoIP: Voice over Internet Protocol",d:"VoIP enables voice calls over the internet or any IP network rather than through the PSTN.",p:["A traditional call sends voice as a continuous analog signal over a dedicated circuit-switched line. VoIP uses UDP, chosen for lower latency than TCP. It dramatically reduces the cost of long-distance calls because voice travels with other traffic and distance-dependent charges disappear. Popular applications: WhatsApp calls, Google Voice, Facebook Messenger calls, Discord and Skype."],t:T[22]},
+ {h:"Challenges of VoIP",t:T[23]},
+ {h:"Video conferencing",d:"Video conferencing enables real-time, interactive audio and video communication between participants in different locations. It extends VoIP by adding synchronised video.",p:["It combines HD cameras and microphones, video codecs (H.264, H.265/HEVC), internet infrastructure and client software. The COVID-19 pandemic of 2020-2021 accelerated adoption; hybrid work is now a lasting feature."],t:T[24]},
+ {h:"Online collaboration",d:"Online collaboration tools let people in different locations work together on shared documents, projects and tasks in real time or asynchronously.",p:["They remove the geographic constraints that once made distributed teamwork difficult."],t:T[25]},
+ {h:"Examination notes",l:["Video conferencing is VoIP plus synchronised video, not a separate technology: state the relationship.","VoIP uses UDP for the same reason as in Lesson 5: speed matters more than perfect delivery for real-time voice."]}
+]},
+{t:"Cloud computing",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Cloud computing",d:"Cloud computing is the delivery of computing services (servers, storage, databases, networking, software, analytics) over the internet on an on-demand, pay-as-you-go basis.",p:["Instead of owning hardware, users access resources hosted in data centres operated by cloud providers and pay only for what they use. 'Cloud' is a metaphor from network diagrams that depicted the internet as a cloud-shaped symbol."]},
+ {h:"Cloud storage",d:"Cloud storage lets users store files on remote servers rather than solely on local storage, accessible from any internet-connected device.",p:[],t:T[27]},
+ {h:"Cloud service models",p:["Cloud computing is offered in three models, each with a different level of abstraction and division of responsibility between provider and customer.","IaaS gives virtualised servers, storage and networking; the customer controls the virtual servers and installs their own OS and applications, without capital expense. PaaS lets developers build, deploy and run applications without managing infrastructure; the provider handles servers, storage, OS, runtimes and middleware. SaaS delivers a fully functional application through a browser with nothing to install; the provider hosts, maintains, updates and secures everything.","The three form a spectrum of decreasing customer responsibility: IaaS (customer manages OS, runtime and application), PaaS (only the application), SaaS (nothing beyond own data and configuration)."],t:T[28]},
+ {h:"Advantages and challenges",p:["Cloud computing is a shift from capital expenditure to operational expenditure. Resources can be provisioned in minutes and released when finished; they scale almost instantly; providers operate at a scale giving security, reliability and investment beyond most organisations; geographically distributed data centres give high availability and disaster recovery.","Challenges: dependence on an internet connection; data privacy and security on third-party servers, including regulatory compliance (India's Digital Personal Data Protection Act, Europe's GDPR); vendor lock-in; and subscription costs that can, over years of heavy use, exceed owned hardware."],t:T[29]},
+ {h:"Examination notes",l:["'Distinguish IaaS, PaaS and SaaS': state who manages what at each level, in order, and give one example each (AWS EC2, Heroku, Gmail).","Name the risk precisely: vendor lock-in, not simply 'cost'."]}
+]},
+{t:"Digital citizenship",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Digital citizenship",d:"Digital citizenship refers to the responsible, ethical and thoughtful use of technology and the internet.",p:["It encompasses netiquette, responsible internet usage, privacy awareness, critical evaluation of information and an understanding of the legal and ethical dimensions of online activity."]},
+ {h:"Netiquette",d:"Netiquette (internet etiquette) refers to the informal but widely recognised standards of polite, respectful and constructive behaviour in online communication.",p:["The norms address the absence of non-verbal cues (facial expression, body language, tone of voice) and the permanence and reach of written messages."],t:T[30]},
+ {h:"Responsible internet usage",p:["It encompasses behaviours protecting the user, protecting others and contributing to a healthy digital environment. Strong answers name the specific risk and pair it with a specific behaviour."],t:T[31]},
+ {h:"Evaluating information",t:T[32]},
+ {h:"Recognising phishing",p:["Phishing typically creates urgency or fear to pressure hasty action without careful checking."],t:T[33]},
+ {h:"Examination notes",l:["Scenario questions: identify the concept by name (misinformation, phishing) before describing the response; naming it correctly is part of what is assessed.","Do not answer in generalities such as 'be safe online'."]}
+]}
+];
+
+/* ============ LAB (Lesson 6): URL, DNS, IPv4/IPv6, transfer rate, address space, packet switching, cloud, phishing, sorting ============ */
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+const L={tool:"url",sd:{dim:0,item:null,fb:"",right:null,s:0,t:0},
+  ur:"https://www.example.com:443/products/item.html?id=42#reviews",
+  dn:"www.example.com",dsx:0,
+  ipa:"192.168.1.1",i6:"2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+  fsz:"200",fsec:"40",
+  sb:"32",
+  pm:"HELLO WORLD",pz:"3",px:0,
+  cm:"iaas",
+  ph:0,pa:{},ps:0};
+const LABTOOLS=[["url","URL dissector"],["dns","DNS lookup"],["ip","IPv4 address"],["ip6","IPv6 shortener"],["rate","Download rate"],["space","Address space"],["pkt","Packet switching"],["cloud","Cloud models"],["phish","Spot the phishing"],["sort","Sorting drill"]];
+const note=t=>'<div class="rs note">'+t+"</div>";
+const okb=t=>'<div class="rs ok">'+t+"</div>";
+const badb=t=>'<div class="rs bad">'+t+"</div>";
+const inp=(id,lab,w,t)=>'<div><label class="lab" for="'+id+'">'+lab+'</label><input type="text" id="'+id+'" data-lin="'+t+'" class="mono" value="'+esc(L[id])+'" autocomplete="off" spellcheck="false" style="max-width:'+(w||10)+'rem"></div>';
+const r2=x=>Math.round(x*100)/100;
+function labView(){
+  let h='<p class="hint">Work with the numerical and procedural parts of the chapter: take a URL apart, step through DNS resolution, convert IPv4 and shorten IPv6 addresses, compute download rates and address spaces, watch packets travel and reassemble, compare cloud models and practise spotting phishing.</p>';
+  h+='<div class="subnav" role="group" aria-label="Lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  return '<div class="labwrap">'+h+TOOLS[L.tool].v()+"</div>";
+}
+/* ---------- URL ---------- */
+function urlRes(){
+  const s=String(L.ur||"").trim();
+  const m=s.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):(\/\/)?([^\/?#:]*)?(?::(\d+))?([^?#]*)?(?:\?([^#]*))?(?:#(.*))?$/);
+  if(!m||!m[1])return {urs:badb("Enter a URL beginning with a scheme such as https://")};
+  const sch=m[1],host=m[3]||"",port=m[4]||"",path=m[5]||"",q=m[6],f=m[7];
+  const def={https:"443",http:"80",ftp:"21"}[sch.toLowerCase()];
+  const rows=[["Scheme",sch,"The protocol identifier"],["Host",host||"(none)","The domain name or IP address of the server"],["Port",port||"(omitted"+(def?"; default "+def:"")+")","Optional network port"],["Path",path||"(none: the home page)","Location of the resource on the server"],["Query",q===undefined?"(none)":q,"Parameters after ?"],["Fragment",f===undefined?"(none)":f,"Section of the page, after #"]];
+  let h='<div class="tbl"><table><thead><tr><th>Component</th><th>Value</th><th>Meaning</th></tr></thead><tbody>'+rows.map(r=>"<tr><th>"+r[0]+'</th><td class="mono">'+esc(r[1])+"</td><td>"+esc(r[2])+"</td></tr>").join("")+"</tbody></table></div>";
+  const parts=host.split(".").filter(Boolean);
+  if(parts.length>1){const tld=parts[parts.length-1];h+=note("<b>Domain name</b>, read right to left: TLD <b>."+esc(tld)+"</b>"+(tld.length===2?" (a country code TLD)":"")+"; second-level domain <b>"+esc(parts[parts.length-2])+"</b>"+(parts.length>2?"; subdomain <b>"+esc(parts.slice(0,-2).join("."))+"</b>":"")+".");}
+  return {urs:h};
+}
+function viewUrl(){return '<div class="panel"><h3>URL dissector</h3><div class="row">'+inp("ur","URL",30,"url")+'</div><div id="urs">'+urlRes().urs+"</div></div>";}
+/* ---------- DNS ---------- */
+function dnsSteps(){
+  const d=String(L.dn||"").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/[\/:?#].*$/,"")||"www.example.com",p=d.split("."),tld="."+p[p.length-1],zone=p.length>1?p.slice(-2).join("."):d;
+  return [["Local DNS cache","The browser checks its local cache for a stored answer for "+d+". Not found."],["DNS resolver","The browser queries the configured resolver (from the ISP, or public such as 8.8.8.8 or 1.1.1.1)."],["Root DNS server","The resolver contacts a root server, which directs it to the "+tld+" TLD nameserver."],["TLD nameserver","The resolver asks the "+tld+" nameserver, which directs it to the authoritative nameserver for "+zone+"."],["Authoritative nameserver","The authoritative nameserver for "+zone+" supplies the IP address of "+d+" (for example 93.184.216.34)."],["Resolver caches and returns","The resolver caches the result and returns it to the browser, which connects to the web server. The whole process takes a few milliseconds."]];
+}
+function dnsRes(){const S=dnsSteps(),i=Math.min(L.dsx,S.length-1);return {dnres:note("<b>Step "+(i+1)+" of "+S.length+": "+esc(S[i][0])+".</b> "+esc(S[i][1]))};}
+function viewDns(){
+  const S=dnsSteps(),i=Math.min(L.dsx,S.length-1);
+  let h='<div class="panel"><h3>DNS lookup</h3><div class="row">'+inp("dn","Domain name",20,"dns")+"</div><ol>"+S.map((s,j)=>"<li"+(j===i?' style="font-weight:600"':"")+">"+esc(s[0])+"</li>").join("")+"</ol>";
+  h+='<div id="dnres">'+dnsRes().dnres+'</div><div class="row"><button class="btn" data-act="dback">Back</button><button class="btn primary" data-act="dnext">Next</button><button class="btn" data-act="dnsreset">Restart</button></div></div>';
+  return h;
+}
+/* ---------- IPv4 ---------- */
+function ipRes(){
+  const p=String(L.ipa).trim().split(".");
+  if(p.length!==4||p.some(x=>!/^\d{1,3}$/.test(x)||+x>255))return {iprs:badb("An IPv4 address has four decimal octets, each from 0 to 255 (for example 192.168.1.1).")};
+  const o=p.map(Number),bin=o.map(x=>x.toString(2).padStart(8,"0"));
+  let kind="a public address";
+  if(o[0]===10||(o[0]===172&&o[1]>=16&&o[1]<=31)||(o[0]===192&&o[1]===168))kind="a private address (inside a LAN behind a router that performs NAT; not routable on the public internet)";
+  else if(o[0]===127)kind="a loopback address (this computer itself)";
+  let h=okb("<b>"+o.join(".")+"</b> in binary: <span class=\"mono\">"+bin.join(".")+"</span>");
+  h+='<div class="tbl"><table><thead><tr><th>Octet</th><th>Decimal</th><th>Binary</th></tr></thead><tbody>'+o.map((x,i)=>"<tr><th>"+(i+1)+'</th><td class="mono">'+x+'</td><td class="mono">'+bin[i]+"</td></tr>").join("")+"</tbody></table></div>";
+  h+=note("This is "+kind+".");
+  h+='<p class="hint">Four octets x 8 bits = 32 bits, giving 2<sup>32</sup> = 4,294,967,296 (about 4.3 billion) addresses.</p>';
+  return {iprs:h};
+}
+function viewIp(){return '<div class="panel"><h3>IPv4 address inspector</h3><div class="row">'+inp("ipa","IPv4 address",16,"ip")+'</div><div id="iprs">'+ipRes().iprs+"</div></div>";}
+/* ---------- IPv6 ---------- */
+function v6expand(s){
+  s=String(s).trim().toLowerCase();
+  if(!/^[0-9a-f:]+$/.test(s)||(s.match(/::/g)||[]).length>1||/:::/.test(s))return null;
+  let g;
+  if(s.includes("::")){const [a,b]=s.split("::");const A=a?a.split(":"):[],B=b?b.split(":"):[];const miss=8-A.length-B.length;if(miss<1)return null;g=A.concat(Array(miss).fill("0"),B);}
+  else g=s.split(":");
+  if(g.length!==8||g.some(x=>x.length<1||x.length>4))return null;
+  return g.map(x=>x.padStart(4,"0"));
+}
+function v6short(g){
+  const t=g.map(x=>x.replace(/^0+(?=.)/,""));
+  let best=-1,bl=0,i=0;
+  while(i<8){if(t[i]==="0"){let j=i;while(j<8&&t[j]==="0")j++;if(j-i>bl){bl=j-i;best=i;}i=j;}else i++;}
+  if(bl<2)return t.join(":");
+  return (t.slice(0,best).join(":")+"::"+t.slice(best+bl).join(":"));
+}
+function ip6Res(){
+  const g=v6expand(L.i6);
+  if(!g)return {i6rs:badb("An IPv6 address has eight groups of up to four hexadecimal digits separated by colons; one run of zero groups may be written ::.")};
+  const full=g.join(":"),step1=g.map(x=>x.replace(/^0+(?=.)/,"")).join(":"),sh=v6short(g);
+  let h='<div class="tbl"><table><thead><tr><th>Form</th><th>Address</th></tr></thead><tbody><tr><th>Full, eight groups</th><td class="mono">'+full+'</td></tr><tr><th>Leading zeros omitted</th><td class="mono">'+step1+'</td></tr><tr><th>Zero run replaced by ::</th><td class="mono">'+sh+"</td></tr></tbody></table></div>";
+  h+='<p class="hint">128 bits = 8 groups x 16 bits (4 hex digits). :: may be used only once, otherwise the number of omitted groups would be ambiguous.</p>';
+  return {i6rs:h};
+}
+function viewIp6(){return '<div class="panel"><h3>IPv6 shortener and expander</h3><div class="row">'+inp("i6","IPv6 address",30,"ip6")+'</div><div id="i6rs">'+ip6Res().i6rs+"</div></div>";}
+/* ---------- download rate ---------- */
+function rateRes(){
+  const mb=parseFloat(L.fsz),s=parseFloat(L.fsec);
+  if(!(mb>0)||!(s>0))return {rtres:note("Enter positive numbers: file size in megabytes (MB) and time in seconds.")};
+  const bits=mb*8,rate=bits/s;
+  let h=okb(mb+" MB x 8 = <b>"+r2(bits)+" Mb</b>. Rate = "+r2(bits)+" / "+s+" = <b>"+r2(rate)+" Mbps</b>.");
+  h+=note("At this rate a 1 GB (1000 MB) file would take about "+r2(8000/rate)+" seconds.");
+  h+='<p class="hint">1 byte = 8 bits. A symmetric connection would give the same figure for uploading; an asymmetric home line usually uploads far more slowly.</p>';
+  return {rtres:h};
+}
+function viewRate(){return '<div class="panel"><h3>Average download rate</h3><div class="row">'+inp("fsz","File size (MB)",8,"rate")+inp("fsec","Time (s)",8,"rate")+'</div><div id="rtres">'+rateRes().rtres+"</div></div>";}
+/* ---------- address space ---------- */
+function spaceRes(){
+  const b=parseInt(L.sb,10);
+  if(!(b>=1)||b>256)return {spres:note("Enter a number of bits from 1 to 256.")};
+  const n=2n**BigInt(b),str=n.toString(),sci=str.length>6?str[0]+"."+str.slice(1,3)+" x 10^"+(str.length-1):str;
+  let h=okb("2^"+b+" = <b>"+(str.length>15?sci:Number(n).toLocaleString("en-US"))+"</b> addresses.");
+  const four=2n**32n,six=2n**128n;
+  h+='<div class="tbl"><table><thead><tr><th>Version</th><th>Bits</th><th>Addresses</th></tr></thead><tbody><tr><th>IPv4</th><td class="mono">32</td><td>2^32 = 4,294,967,296 (about 4.3 billion)</td></tr><tr><th>IPv6</th><td class="mono">128</td><td>2^128, about 3.4 x 10^38 (340 undecillion)</td></tr><tr><th>Ratio</th><td class="mono">96</td><td>2^96, about 8 x 10^28 times larger</td></tr></tbody></table></div>';
+  if(b===32)h+=note("This is IPv4's space. Exhausted around 2011.");
+  if(b===128)h+=note("This is IPv6's space: effectively inexhaustible, so NAT is unnecessary.");
+  return {spres:h};
+}
+function viewSpace(){return '<div class="panel"><h3>Address space: 2^n</h3><div class="row">'+inp("sb","Number of address bits (n)",8,"space")+'</div><div id="spres">'+spaceRes().spres+"</div></div>";}
+/* ---------- packet switching ---------- */
+function pktSplit(){
+  const m=String(L.pm||"").slice(0,60),z=Math.max(1,Math.min(10,parseInt(L.pz,10)||0));
+  if(!m||!(parseInt(L.pz,10)>=1))return null;
+  const ps=[];for(let i=0;i<m.length;i+=z)ps.push({n:ps.length+1,d:m.slice(i,i+z)});
+  const arr=ps.filter(p=>p.n%2===0).concat(ps.filter(p=>p.n%2===1).reverse());
+  const routes=["Route A (via router 1)","Route B (via router 2)","Route C (via router 3)"];
+  return {m:m,z:z,ps:ps,arr:arr,routes:routes};
+}
+function pktRes(){
+  const r=pktSplit();
+  if(!r)return {pkres:note("Enter a message (up to 60 characters) and a packet size from 1 to 10 characters.")};
+  let h='<div class="tbl"><table><thead><tr><th>Seq</th><th>Data</th><th>Route taken</th></tr></thead><tbody>'+r.ps.map(p=>"<tr><th>"+p.n+'</th><td class="mono">'+esc(p.d.replace(/ /g,"·"))+"</td><td>"+r.routes[(p.n-1)%3]+"</td></tr>").join("")+"</tbody></table></div>";
+  h+=note("<b>Arrival order (packets may arrive out of order):</b> "+r.arr.map(p=>p.n).join(", ")+".");
+  h+=okb("<b>Reassembled by sequence number:</b> <span class=\"mono\">"+esc(r.ps.map(p=>p.d).join(""))+"</span> ("+r.ps.length+" packets).");
+  h+='<p class="hint">Each packet is independently addressed and may take a different route; sequence numbers let the destination restore the order. Circuit switching would reserve one single path for the whole message instead.</p>';
+  return {pkres:h};
+}
+function viewPkt(){return '<div class="panel"><h3>Packet switching</h3><div class="row">'+inp("pm","Message",20,"pkt")+inp("pz","Packet size (characters)",8,"pkt")+'</div><div id="pkres">'+pktRes().pkres+"</div></div>";}
+/* ---------- cloud models ---------- */
+const LAYERS=["Application","Data and configuration","Runtime and middleware","Operating system","Virtualisation","Servers, storage and networking"];
+const CLOUD={iaas:{n:"IaaS",who:[1,1,1,1,0,0],ex:"AWS EC2, Azure Virtual Machines, Google Compute Engine",t:"The customer installs and manages the operating system, runtime and application on virtual servers."},
+ paas:{n:"PaaS",who:[1,1,0,0,0,0],ex:"Heroku, Google App Engine, Azure App Service",t:"The customer writes and manages only the application (and its data); the provider manages the platform beneath."},
+ saas:{n:"SaaS",who:[0,1,0,0,0,0],ex:"Gmail, Microsoft 365, Zoom, Netflix",t:"The customer manages nothing beyond their own data and configuration; the provider manages everything else."}};
+function viewCloud(){
+  const c=CLOUD[L.cm];
+  let h='<div class="panel"><h3>Who manages what</h3><div class="subnav">'+Object.keys(CLOUD).map(k=>'<button class="chip" data-act="cmod" data-v="'+k+'" aria-pressed="'+(L.cm===k)+'">'+CLOUD[k].n+"</button>").join("")+"</div>";
+  h+='<div class="tbl"><table><thead><tr><th>Layer</th><th>Managed by</th></tr></thead><tbody>'+LAYERS.map((l,i)=>"<tr><th>"+l+"</th><td><b>"+(c.who[i]?"Customer":"Provider")+"</b></td></tr>").join("")+"</tbody></table></div>";
+  h+=okb("<b>"+c.n+".</b> "+c.t)+note("Examples: "+c.ex+".")+'<p class="hint">Moving from IaaS to PaaS to SaaS, responsibility shifts progressively to the provider: customer control and flexibility fall, convenience rises.</p></div>';
+  return h;
+}
+/* ---------- phishing ---------- */
+const MSGS=[
+{t:"Subject: URGENT! Your bank account will be frozen. Click the link and enter your password within one hour.",p:true,w:"Phishing: it impersonates a bank, creates urgency and fear, sets a one-hour deadline and asks for a password."},
+{t:"Subject: Your class timetable for next week is attached. Please check with your teacher if anything is unclear.",p:false,w:"Not phishing: no urgency, no request for credentials, and a clear context."},
+{t:"Subject: Congratulations! You have won a prize. Verify your account number and PIN now or the prize will be cancelled today.",p:true,w:"Phishing: a threat of cancellation creates urgency and it requests personal and financial data."},
+{t:"Subject: Library reminder: your book is due on Friday. You can renew it at the library desk.",p:false,w:"Not phishing: it gives information and asks for no credentials."},
+{t:"Subject: Security alert from your email provider: confirm your password at the link below immediately or your account will be closed.",p:true,w:"Phishing: impersonation, fear of closure and a request for the password through a link."}
+];
+function viewPhish(){
+  const m=MSGS[L.ph],a=L.pa[L.ph];
+  let h='<div class="panel"><h3>Spot the phishing</h3><p class="hint">Message '+(L.ph+1)+" of "+MSGS.length+". Score: "+L.ps+'.</p><pre class="codeview" style="white-space:pre-wrap">'+esc(m.t)+'</pre><div class="row"><button class="btn" data-act="pans" data-v="1"'+(a!==undefined?" disabled":"")+'>Phishing</button><button class="btn" data-act="pans" data-v="0"'+(a!==undefined?" disabled":"")+">Legitimate</button></div>";
+  if(a!==undefined)h+='<div class="rs '+(a===m.p?"ok":"bad")+'"><b>'+(a===m.p?"Correct.":"Not quite.")+"</b> "+esc(m.w)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="pprev"'+(L.ph?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext"'+(L.ph+1<MSGS.length?"":" disabled")+">Next message</button></div></div>";
+  return h;
+}
+/* ---------- sorting drill ---------- */
+const DIMS=[
+{n:"Internet or Web",o:["Internet (infrastructure)","World Wide Web (service)","Another internet service"],it:[["Optical fibre cables and routers",0],["Interlinked pages accessed by a browser",1],["Email",2],["FTP",2],["HTML pages and hyperlinks",1],["TCP/IP",0],["VoIP",2],["HTTP and URLs",1]]},
+{n:"Switching type",o:["Circuit switching","Packet switching"],it:[["Dedicated path for the whole call",0],["Each piece may take a different route",1],["Used by the PSTN",0],["Used by the internet",1],["Reroutes around failures",1],["A break in the path ends the call",0],["Resources reserved even when idle",0],["Must be reassembled in order on arrival",1]]},
+{n:"IPv4 or IPv6",o:["IPv4","IPv6"],it:[["32 bits",0],["128 bits",1],["Dotted decimal",0],["Hexadecimal with colons",1],["Exhausted around 2011",0],["Needs NAT",0],["Built-in IPsec",1],["About 340 undecillion addresses",1]]},
+{n:"URL part",o:["Scheme","Host","Port","Path","Query","Fragment"],it:[["https",0],["www.example.com",1],["443",2],["/path/to/page.html",3],["?id=42",4],["#reviews",5],["Begins after #",5],["Begins after ?",4]]},
+{n:"DNS server",o:["Resolver","Root server","TLD nameserver","Authoritative nameserver"],it:[["Queried by the browser after its cache",0],["Directs the resolver to the TLD nameserver",1],["Directs the resolver to the authoritative nameserver",2],["Supplies the IP address",3],["Google 8.8.8.8 is one",0],["Top of the DNS hierarchy",1]]},
+{n:"Cloud model",o:["IaaS","PaaS","SaaS"],it:[["AWS EC2",0],["Heroku",1],["Gmail",2],["Netflix",2],["Google Compute Engine",0],["Azure App Service",1],["Customer manages the OS and runtime",0],["Customer manages only the application",1],["Customer manages nothing but own data",2]]},
+{n:"VoIP issue",o:["Latency","Jitter","Packet loss"],it:[["Delays causing unnatural conversation",0],["Variation in packet arrival times",1],["Audio gaps",2],["Remedied by a jitter buffer",1],["Remedied by QoS prioritising voice",0]]}
+];
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function viewSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="sdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="sdans" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="sdnext">Next item</button></div>';
+  return h+"</div>";
+}
+/* ---------- registry and events ---------- */
+const TOOLS={url:{v:viewUrl,r:urlRes},dns:{v:viewDns,r:dnsRes},ip:{v:viewIp,r:ipRes},ip6:{v:viewIp6,r:ip6Res},rate:{v:viewRate,r:rateRes},space:{v:viewSpace,r:spaceRes},pkt:{v:viewPkt,r:pktRes},cloud:{v:viewCloud,r:()=>({})},phish:{v:viewPhish,r:()=>({})},sort:{v:viewSort,r:()=>({})}};
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "dnext":if(L.dsx<5)L.dsx++;render();return true;
+    case "dback":if(L.dsx>0)L.dsx--;render();return true;
+    case "dnsreset":L.dsx=0;render();return true;
+    case "cmod":L.cm=v;render();return true;
+    case "pans":{const ok=(+v===1)===MSGS[L.ph].p;L.pa[L.ph]=(+v===1);if(ok)L.ps++;render();return true;}
+    case "pnext":if(L.ph+1<MSGS.length)L.ph++;render();return true;
+    case "pprev":if(L.ph>0)L.ph--;render();return true;
+    case "sdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "sdnext":sdNew();render();return true;
+    case "sdans":{const s=L.sd,d=DIMS[s.dim],it=d.it[s.item],ok=(+v===it[1]);s.t++;if(ok)s.s++;s.right=ok;s.fb=(ok?"Correct. ":"Not quite. ")+"“"+it[0]+"” is "+d.o[it[1]]+".";render();return true;}
+  }
+  return false;
+}
+function labInput(el){
+  if(el.id in L&&typeof L[el.id]==="string")L[el.id]=el.value;
+  const R=TOOLS[L.tool].r();
+  Object.keys(R).forEach(k=>{const e=document.getElementById(k);if(e)e.innerHTML=R[k];});
+  return true;
+}
+function labSelect(el){return false;}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes, then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
