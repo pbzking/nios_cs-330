@@ -1,0 +1,2372 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Arrays Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 3 · Programming · Lesson 16</div>
+    <h1>Arrays</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"The four defining characteristics of an array",c:["Characteristic","Meaning"],r:[
+["Fixed size","The number of elements is set at declaration and cannot change while the program runs"],
+["Homogeneous","Every element has the same type"],
+["Contiguous","Elements lie one after another in memory, so access to any element is very fast"],
+["Zero-based index","The first element is at index 0; the last of n elements is at index n - 1"]]},
+/*1*/{s:0,t:"Ways to initialise an array",c:["Declaration","Effect"],r:[
+["int marks[5] = {85, 90, 78, 92, 88};","Every element is given"],
+["int scores[5] = {10, 20};","The first two are given; the other three become 0"],
+["int values[] = {1, 2, 3, 4};","The size is omitted and the compiler counts 4"],
+["int zeros[100] = {0};","A quick way to zero a whole array"],
+["int marks[5];","No initialiser: a local array holds garbage"]]},
+/*2*/{s:0,t:"Bounds and operators",c:["Question","Answer"],r:[
+["Valid indices of an n-element array","0 to n - 1"],
+["What happens at arr[n] or arr[-1]?","It compiles, but the access is undefined behaviour: it may read garbage, corrupt another variable or crash"],
+["Why does C++ not check bounds?","Checking every access would cost speed; the programmer is responsible"],
+["Safe loop form","for (i = 0; i < size; i++), never i <= size"],
+["Element count","sizeof(arr) / sizeof(arr[0])"],
+["Can arrays be copied or compared with = and ==?","No; = is not allowed and == compares addresses; use a loop (strcpy and strcmp for strings)"],
+["Address of arr[i]","base address + i x sizeof(element)"]]},
+/*3*/{s:1,t:"Two-dimensional arrays",c:["Feature","Rule"],r:[
+["Declaration","int matrix[3][4]; has 3 rows and 4 columns: 12 elements"],
+["Access","m[row][column], both zero-based, row first"],
+["Processing","Outer loop for rows, inner loop for columns; endl after the inner loop"],
+["Storage","Row-major order: the whole of row 0, then row 1, and so on"],
+["Address of m[i][j]","base + (i x C + j) x sizeof(element), where C is the number of columns"],
+["Passing to a function","The number of columns must be given, int m[][4]"],
+["Number of elements","Multiply the dimensions: int a[3][4][2] has 24 elements"]]},
+/*4*/{s:2,t:"Insertion compared with deletion",c:["Feature","Insertion","Deletion"],r:[
+["Shift direction","Right, to open a gap","Left, to close the gap"],
+["Loop order","From the last element backwards","From the deletion point forwards"],
+["Loop","for (i = n; i > pos; i--) arr[i] = arr[i-1];","for (i = pos; i < n-1; i++) arr[i] = arr[i+1];"],
+["Size n afterwards","n++","n--"],
+["Cost","Proportional to the number of elements shifted","Proportional to the number of elements shifted"]]},
+/*5*/{s:2,t:"Passing arrays to functions",c:["Fact","Explanation"],r:[
+["What is passed","The address of the first element (the array decays); no copy is made"],
+["Effect","The function works on the caller's own array, so changes affect the original"],
+["Size","The function cannot find the size; sizeof(arr) gives the size of a pointer"],
+["Remedy","Pass the size as a separate parameter"],
+["Read-only","Declare the parameter const: void print(const int arr[], int n)"]]},
+/*6*/{s:3,t:"Linear search compared with binary search",c:["Feature","Linear search","Binary search"],r:[
+["Requires sorted data","No","Yes"],
+["Worst-case comparisons","n","floor(log2 n) + 1"],
+["Growth","O(n)","O(log n)"],
+["For n = 1,000","Up to 1,000","At most 10"],
+["For n = 1,000,000","Up to 1,000,000","At most 20"],
+["Best for","Small or unsorted arrays","Large, sorted arrays"]]},
+/*7*/{s:3,t:"Binary search for 10 (absent) in 5 8 12 23 45 56 67",nocard:1,c:["low","high","mid","arr[mid]","Decision"],r:[
+["0","6","3","23","23 > 10: high = 2"],["0","2","1","8","8 < 10: low = 2"],["2","2","2","12","12 > 10: high = 1"],["2","1","-","-","low > high: return -1"]]},
+/*8*/{s:4,t:"Bubble sort on 64 34 25 12 22 11",nocard:1,c:["Pass","Array afterwards","Now in final place"],r:[
+["start","64 34 25 12 22 11","-"],["1","34 25 12 22 11 64","64"],["2","25 12 22 11 34 64","34, 64"],["3","12 22 11 25 34 64","25, 34, 64"],["4","12 11 22 25 34 64","22 and above"],["5","11 12 22 25 34 64","all sorted"]]},
+/*9*/{s:4,t:"Selection sort on 64 34 25 12 22 11",nocard:1,c:["Pass i","Minimum found","Array afterwards"],r:[
+["start","-","64 34 25 12 22 11"],["0","11 (index 5)","11 34 25 12 22 64"],["1","12 (index 3)","11 12 25 34 22 64"],["2","22 (index 4)","11 12 22 34 25 64"],["3","25 (index 4)","11 12 22 25 34 64"],["4","34 (itself)","11 12 22 25 34 64"]]},
+/*10*/{s:4,t:"Insertion sort on 64 34 25 12 22 11",nocard:1,c:["Pass i","key","Array afterwards (sorted part before the bar)"],r:[
+["start","-","64 | 34 25 12 22 11"],["1","34","34 64 | 25 12 22 11"],["2","25","25 34 64 | 12 22 11"],["3","12","12 25 34 64 | 22 11"],["4","22","12 22 25 34 64 | 11"],["5","11","11 12 22 25 34 64"]]},
+/*11*/{s:4,t:"The three elementary sorts",c:["Algorithm","Method","Time (worst)","Best used when"],r:[
+["Bubble","Swap adjacent out-of-order pairs","O(n^2); best O(n) with the flag","Teaching; very small arrays"],
+["Selection","Select the minimum and place it","O(n^2) always","Swaps are costly (at most n - 1)"],
+["Insertion","Insert each element into the sorted part","O(n^2); best O(n)","Nearly sorted data; small arrays"]]},
+/*12*/{s:5,t:"C-style string compared with std::string",c:["Task","C-style char array","std::string"],r:[
+["Size","Fixed at declaration","Grows automatically"],
+["Copy","strcpy(dest, src)","a = b;"],
+["Join","strcat(a, b)","a + b"],
+["Compare","strcmp(a, b) == 0","a == b"],
+["Length","strlen(a)","a.length()"],
+["Overflow risk","High","None"],
+["Header","<cstring>","<string>"]]},
+/*13*/{s:5,t:"Reading text into a character array",c:["Method","Behaviour"],r:[
+["cin >> name","Stops at the first whitespace, so it reads one word"],
+["cin.getline(name, size)","Reads a whole line, spaces included, up to size - 1 characters, always leaving room for the null"],
+["cin.ignore()","Discards the newline left behind by a numeric cin >>, so a following getline waits for real input"],
+["getline(cin, line)","Reads a whole line into a std::string"]]},
+/*14*/{s:6,t:"The four essential <cstring> functions",c:["Function","Does","Returns"],r:[
+["strlen(s)","Counts the characters before the null","The length (excludes the null)"],
+["strcpy(d, s)","Copies s, including its null, into d","d"],
+["strcat(d, s)","Appends s to the end of d","d"],
+["strcmp(a, b)","Compares in dictionary (ASCII) order","0 if equal; negative if a is first; positive if a is later"]]},
+/*15*/{s:6,t:"strlen compared with sizeof",c:["Declaration","strlen","sizeof"],r:[
+["char str[20] = \"Hello\";","5 (characters before the null)","20 (capacity of the array)"],
+["char s[] = \"Hello\";","5","6 (five letters and the null)"]]},
+/*16*/{s:7,t:"Matrix operations",c:["Operation","Condition","Rule"],r:[
+["Addition","Identical dimensions","sum[i][j] = a[i][j] + b[i][j]"],
+["Multiplication","Columns of A equal rows of B","result[i][j] += a[i][k] * b[k][j], with result starting at 0"],
+["Transpose","None","t[j][i] = a[i][j]; an m x n matrix becomes n x m"],
+["Main diagonal","Square matrix","Elements m[i][i]"]]},
+/*17*/{s:7,t:"Dimension rule for multiplication",c:["A","B","A x B","Defined?"],r:[
+["2 x 3","3 x 2","2 x 2","Yes: inner sizes 3 and 3 match"],
+["3 x 2","2 x 4","3 x 4","Yes"],
+["2 x 3","2 x 3","-","No: inner sizes 3 and 2 differ"]]},
+/*18*/{s:7,t:"Two methods of frequency count",c:["Method","Idea","Time"],r:[
+["Nested loop with a counted[] flag array","Count each value once by comparing with the later elements and marking duplicates","O(n^2)"],
+["Counting array","Use the value as an index: freq[arr[i]]++; works only for small non-negative integers","O(n)"]]}
+];
+
+const NOTES=[
+["1.1 One-dimensional arrays","An {{array}} is a fixed-size, ordered collection of elements of the {{same}} type stored in {{contiguous}} memory and reached by a {{zero-based}} index; the valid indices of n elements are {{0}} to {{n - 1}}. The address of arr[i] is the base address plus {{i x sizeof(element)}}, so the index is an {{offset}}. The size must be a {{constant}}. A partial initialiser fills the rest with {{zeros}}, so {0} zeroes the whole array; an uninitialised local array holds {{garbage}}. C++ does no {{bounds checking}}: an out-of-range index is {{undefined behaviour}}, the root of the {{buffer overflow}}. The loop form is i < size, never {{i <= size}}. The element count is sizeof(arr) / {{sizeof(arr[0])}}. Arrays cannot be copied with {{=}} or compared with {{==}}."],
+["1.2 Two- and multi-dimensional arrays","A {{two-dimensional}} array is an array of arrays, written a[{{rows}}][{{columns}}], with the row index first. It is processed with {{nested}} loops: the outer loop for rows and the inner loop for columns, and {{endl}} after the inner loop. Memory is one-dimensional, so a 2D array is stored in {{row-major}} order; the address of m[i][j] is base + ({{i x C + j}}) x sizeof(element), where C is the number of {{columns}}. A function receiving a 2D array must be told the number of {{columns}}. The number of elements is the {{product}} of the dimensions: int a[3][4][2] has {{24}} elements."],
+["1.3 Array operations","{{Traversal}} visits every element exactly once. The sum is accumulated in a loop, and the average needs a {{cast}} to avoid integer division. The largest is found by starting with {{arr[0]}}, not 0. An array is reversed in place by swapping pairs for only {{half}} the length. {{Insertion}} shifts elements {{right}}, working from the {{end}} backwards; {{deletion}} shifts elements {{left}}, working {{forwards}}. An array passed to a function {{decays}} into the {{address}} of its first element, so the function changes the {{caller's}} array and cannot find its size: sizeof(arr) gives the size of a {{pointer}}, so the size is passed as a separate parameter. {{const}} promises a function will only read the array."],
+["1.3 Searching","{{Linear search}} checks elements one by one, works on {{any}} array and returns the index or {{-1}}; its worst case is {{n}} comparisons, O(n). {{Binary search}} needs a {{sorted}} array: it compares the target with the {{middle}} element and discards half the range each time, O(log n), with at most {{floor(log2 n) + 1}} comparisons. The middle is written low + {{(high - low) / 2}} to avoid {{overflow}}. An unsuccessful search ends when {{low > high}}. For n = 1,000,000 binary search needs at most {{20}} comparisons."],
+["1.4 Sorting","{{Bubble sort}} swaps adjacent out-of-order pairs; each pass carries the {{largest}} remaining value to the end, and a {{swapped}} flag allows an early exit. {{Selection sort}} selects the {{minimum}} of the unsorted part and swaps it to the front, making at most {{n - 1}} swaps. {{Insertion sort}} keeps a sorted {{prefix}} and slides each key left past larger elements, like sorting playing cards. All three are O({{n^2}}) in the worst case. The library function {{sort}} in <algorithm> is O(n log n). Each sort changes the caller's array because arrays are passed by {{address}}."],
+["1.5 Character arrays and strings","A C-style {{string}} is a char array ending with the {{null}} character '\\0', whose ASCII code is {{0}}. The array must be {{one}} cell larger than the text. 'A' is one character but \"A\" occupies {{two}} bytes. cout prints up to the null. cin >> stops at {{whitespace}}, so it reads one word; {{cin.getline(array, size)}} reads a whole line. After a numeric cin >> the leftover {{newline}} is removed with {{cin.ignore()}}. {{std::string}}, from <string>, is a class that grows automatically, joins with {{+}} and compares with {{==}}; it cannot overflow."],
+["1.6 String functions","<{{cstring}}> supplies {{strlen}}, {{strcpy}}, {{strcat}} and {{strcmp}}, because = and == do not work on character arrays. strlen excludes the {{null}}, while sizeof gives the {{capacity}}: for char s[] = \"Hello\", strlen is {{5}} and sizeof is {{6}}. strcmp returns {{0}} when equal, a negative value when the first string comes first and a positive value otherwise, using ASCII codes, so every {{capital}} sorts before every lowercase letter. Never compare with {{==}}, which compares addresses. strcpy and strcat do not check the destination, so too small an array causes a {{buffer overflow}}."],
+["1.7 Matrices and frequency count","{{Matrix addition}} needs {{identical}} dimensions. {{Multiplication}} needs the number of columns of A to equal the number of {{rows}} of B; an m x n matrix times an n x p matrix is {{m x p}}, with a triple loop and the result starting at {{zero}}. Multiplication is not {{commutative}}. The {{transpose}} satisfies t[j][i] = a[i][j], so a 2 x 3 matrix becomes {{3 x 2}}. The main diagonal elements are m[{{i}}][{{i}}]. A {{frequency count}} uses a nested loop with a {{counted}} flag array, O(n^2), or a {{counting array}} freq[arr[i]]++, O(n), for small non-negative values."]
+];
+const DUMPS=[
+{t:"One-dimensional arrays",p:["Fixed size, same type, contiguous, zero-based","Valid indices 0 to n-1","Address = base + i x sizeof(type)","Partial initialiser zero-fills; uninitialised local holds garbage","No bounds checking: undefined behaviour","Count: sizeof(arr)/sizeof(arr[0])","No = or == on arrays"]},
+{t:"Two- and multi-dimensional",p:["a[rows][cols]; row first","Nested loops; endl after inner loop","Row-major; address base + (i x C + j) x size","Function must be told the columns","Elements = product of dimensions"]},
+{t:"Array operations",p:["Sum, average with cast, largest starts at arr[0]","Reverse: swap half the length","Insert: shift right from the end","Delete: shift left from the point","Arrays pass by address; size separate","const for read-only"]},
+{t:"Searching",p:["Linear: any array, O(n), -1 if absent","Binary: sorted only, O(log n)","mid = low + (high - low)/2","Ends when low > high","1,000,000 items: at most 20 steps"]},
+{t:"Sorting",p:["Bubble: largest sinks; swapped flag","Selection: minimum to front; at most n-1 swaps","Insertion: sorted prefix grows","All O(n^2) worst case","std::sort is O(n log n)"]},
+{t:"Character arrays and strings",p:["Null '\\0' ends a C-string; ASCII 0","One extra cell for the null","'A' is one byte, \"A\" is two","cin >> one word; cin.getline whole line","cin.ignore() after a number","std::string: +, ==, length(), no overflow"]},
+{t:"String functions",p:["strlen excludes null; sizeof is capacity","strcpy, strcat: destination must be big enough","strcmp: 0 equal; capitals before lowercase","Never use == on C-strings","Buffer overflow overwrites neighbouring memory"]},
+{t:"Matrices and frequency count",p:["Add: identical dimensions","Multiply: cols(A) = rows(B); result m x p; start at 0","Not commutative","Transpose: t[j][i] = a[i][j]; m x n becomes n x m","Frequency: counted[] flag or counting array"]}
+];
+
+const SECS=["One-dimensional arrays","Two- and multi-dimensional arrays","Array operations","Searching","Sorting","Character arrays and strings","String functions","Matrices and frequency count"];
+const CORE=[
+[0,"What is an array?","A fixed-size, ordered collection of elements of the same type stored in contiguous memory and reached through a single name plus a numeric index."],
+[0,"What are the four defining characteristics of an array?","Fixed size, homogeneous (same type), contiguous in memory, and zero-based indexing."],
+[0,"What are the valid indices of an n-element array?","0 to n - 1."],
+[0,"State the address formula for arr[i].","address of arr[i] = base address + i x sizeof(element)."],
+[0,"Why do array indices start at 0?","The index is an offset (the number of elements to skip from the start), and the first element is skipped over zero elements."],
+[0,"What must the size in an array declaration be?","A constant known at compile time, such as a literal or a const int."],
+[0,"What does int scores[5] = {10, 20}; do?","The first two elements are 10 and 20 and the other three become 0."],
+[0,"How is a whole array set to zero?","int zeros[100] = {0}; because a partial initialiser zero-fills the rest."],
+[0,"What does an uninitialised local array hold?","Garbage: whatever bits were already in that memory."],
+[0,"Does C++ check array bounds?","No. marks[5] on a 5-element array compiles, and the access is undefined behaviour."],
+[0,"What is undefined behaviour?","An unpredictable result of an illegal operation, such as an out-of-range index: it may return garbage, corrupt another variable or crash."],
+[0,"Why does C++ not check bounds?","Checking every access would cost speed, and C++ is designed for speed; the programmer must stay in bounds."],
+[0,"What is the off-by-one bug in an array loop?","Writing i <= size instead of i < size, so the loop reads one element past the end."],
+[0,"How is the number of elements found?","sizeof(arr) / sizeof(arr[0])."],
+[0,"What is the C++11 range-based for?","for (int x : arr) visits every element directly, with no index."],
+[0,"Can arrays be assigned or compared with = and ==?","No. = cannot assign an array and == compares addresses; copy and compare with a loop (strcpy and strcmp for strings)."],
+[1,"What is a two-dimensional array?","A grid of rows and columns, best seen as an array of arrays; declared as int matrix[3][4]; (3 rows, 4 columns, 12 elements)."],
+[1,"In which order are the two indices written?","Row first, then column: m[row][column]."],
+[1,"How is a 2D array processed?","With nested loops: the outer loop walks the rows and the inner loop walks the columns, with endl after the inner loop."],
+[1,"What is row-major order?","The storage of a 2D array as the whole of row 0, then the whole of row 1, and so on, in one-dimensional memory."],
+[1,"State the address of m[i][j] in an array with C columns.","base + (i x C + j) x sizeof(element)."],
+[1,"Why must a function receiving a 2D array be told the number of columns?","Without it the function cannot compute where each new row begins."],
+[1,"How many elements does int a[3][4][2] have, and how many bytes with 4-byte ints?","3 x 4 x 2 = 24 elements, occupying 96 bytes."],
+[1,"How many loops process a 3D array?","One nested loop for each dimension, so three."],
+[2,"What is traversal?","Visiting every element of an array exactly once, to display, process or examine it."],
+[2,"Why is the average computed as (double)sum / 5?","To avoid integer division, which would discard the fractional part."],
+[2,"Why is the largest initialised to arr[0] and not 0?","If every value were negative, a starting value of 0 would wrongly win."],
+[2,"How is an array reversed in place?","Swap arr[i] with arr[size - 1 - i] for only the first half, i < size / 2; looping the whole array would restore the original."],
+[2,"How is an element inserted at index pos?","Shift the elements from pos onward one place right, working from the end backwards, then store the value at pos and increase n."],
+[2,"How is an element deleted at index pos?","Shift the later elements one place left, working forwards from pos, then decrease n."],
+[2,"Why is insertion at the front of a large array slow?","Every element must be shifted, so the cost is proportional to the number of elements."],
+[2,"What is passed when an array is passed to a function?","The address of its first element (the array decays); no copy of the elements is made."],
+[2,"Why can a function change the caller's array?","It receives the address of the caller's own array, which has the same effect as call by reference."],
+[2,"Why can a function not find the size of its array parameter?","Only an address arrives, so sizeof(arr) gives the size of a pointer, not of the array; the size is passed as a separate parameter."],
+[2,"How is a function promised to only read an array?","Declare the parameter const: void print(const int arr[], int n)."],
+[3,"What is searching?","Locating a target value in an array and reporting its index, or reporting that it is absent."],
+[3,"What is linear search?","Checking the elements one by one from the start until the target is found or the elements run out; it works on any array."],
+[3,"What does linearSearch return when the target is absent, and why?","-1, because no valid index is negative."],
+[3,"What is the worst case of linear search?","n comparisons, when the target is last or absent: O(n)."],
+[3,"What does binary search require?","A sorted array."],
+[3,"How does binary search work?","It compares the target with the middle element; if smaller it searches the left half, if larger the right half, discarding half the range each time."],
+[3,"Why is the middle written low + (high - low) / 2?","(low + high) / 2 can overflow for enormous arrays; the other form never overflows and gives the same answer."],
+[3,"When does an unsuccessful binary search end?","When low > high, meaning the range is empty."],
+[3,"How many comparisons does binary search need at most?","floor(log2 n) + 1: at most 10 for 1,000 items and 20 for 1,000,000."],
+[3,"Recommend a search for a sorted list of 10 million records.","Binary search: about 24 comparisons instead of up to 10 million."],
+[4,"What is sorting?","Rearranging elements into a defined order, usually ascending or descending."],
+[4,"How does bubble sort work?","It repeatedly compares adjacent pairs and swaps them if out of order; each pass carries the largest remaining value to the end."],
+[4,"Why is the inner bound of bubble sort size - i - 1?","After i passes the last i elements are already in place and need not be compared again."],
+[4,"What is the early-exit improvement of bubble sort?","A swapped flag: if a whole pass makes no swap the array is sorted and the loop breaks, so a sorted array needs one pass."],
+[4,"How does selection sort work?","Each pass selects the smallest element of the unsorted part and swaps it into the first unsorted position."],
+[4,"What is the advantage of selection sort?","At most n - 1 swaps, useful when swapping is expensive."],
+[4,"How does insertion sort work?","It keeps a sorted prefix and slides each next element (the key) left past every larger element, as when sorting playing cards."],
+[4,"What is the worst-case time of the three elementary sorts?","O(n^2); sorting 1,000 elements takes about a million steps."],
+[4,"What guarantee does each bubble, selection and insertion pass give?","Bubble fixes the largest at the end; selection fixes the smallest at the front; insertion keeps a sorted prefix that grows by one."],
+[4,"Which library function sorts an array?","sort in <algorithm>, O(n log n): sort(arr, arr + n);"],
+[5,"What is a C-style string?","A char array whose content ends with the null character '\\0' (ASCII code 0)."],
+[5,"Why is the null terminator needed?","It is how every string function knows where the text ends, because the array may be larger than the text."],
+[5,"Why must a char array be one cell larger than the text?","The null terminator occupies a cell of its own: \"Ramesh\" has 6 characters but needs 7 cells."],
+[5,"What is the difference between 'A' and \"A\"?","'A' is one character; \"A\" is two bytes, the letter and the null."],
+[5,"What happens if the null terminator is forgotten?","cout and the string functions read past the end of the array until they meet a zero byte, printing garbage or crashing."],
+[5,"Why does cin >> name read only one word?","cin >> stops at the first whitespace."],
+[5,"How is a whole line read into a char array?","cin.getline(array, size), which reads up to size - 1 characters and leaves room for the null."],
+[5,"Why does getline seem to skip after cin >> age?","The newline typed after the number is left in the input and getline reads that empty line; cin.ignore() discards it first."],
+[5,"What is std::string?","The class in <string> that manages its own memory, grows as needed and supports +, == and .length()."],
+[5,"State two advantages of std::string over a character array.","It grows automatically, supports natural operators (+, ==, =), and cannot overflow."],
+[6,"Which header supplies strlen, strcpy, strcat and strcmp?","<cstring>"],
+[6,"What does strlen return?","The number of characters before the null, not counting the null."],
+[6,"Distinguish strlen from sizeof for a character array.","strlen counts the characters currently in the string; sizeof gives the capacity of the array in bytes. For char s[20] = \"Hello\": 5 and 20."],
+[6,"What does strcpy(destination, source) do?","Copies the whole of source, including its null, into destination; the only correct way to copy a C-string."],
+[6,"What does strcat(destination, source) do?","Appends source onto the end of destination in place; the destination needs room for both and a new null."],
+[6,"What does strcmp(s1, s2) return?","0 if equal, a negative number if s1 comes first, a positive number if s1 comes later, in ASCII dictionary order."],
+[6,"Why is strcmp(\"Zebra\", \"apple\") negative?","ASCII puts every capital before every lowercase letter: 'Z' is 90 and 'a' is 97."],
+[6,"Why is == unsuitable for C-strings?","It compares the addresses of the arrays, which are almost never equal even for identical text; use strcmp(a, b) == 0."],
+[6,"What is a buffer overflow?","Writing beyond the end of an array, for example strcpy of a longer string, overwriting neighbouring memory."],
+[6,"How is a buffer overflow prevented?","Size the destination for the text plus the null, check strlen(src) < sizeof(dest) before copying, and prefer std::string."],
+[7,"When can two matrices be added?","Only when they have identical dimensions; sum[i][j] = a[i][j] + b[i][j]."],
+[7,"When is the product A x B defined?","When the number of columns of A equals the number of rows of B."],
+[7,"What is the size of the product of an m x n and an n x p matrix?","m x p."],
+[7,"Write the core statement of matrix multiplication.","result[i][j] += a[i][k] * b[k][j]; inside three nested loops."],
+[7,"Why must the result array be initialised to zero in multiplication?","The statement += adds onto whatever is already there."],
+[7,"Is matrix multiplication commutative?","No; A x B and B x A are generally different, and often one does not exist."],
+[7,"How many multiplications does a 2 x 3 by 3 x 2 product need?","m x p x n = 2 x 2 x 3 = 12."],
+[7,"What is the transpose of a matrix?","The matrix with rows and columns exchanged: t[j][i] = a[i][j]; an m x n matrix becomes n x m."],
+[7,"What is the main diagonal of a square matrix?","The elements m[i][i]."],
+[7,"What is a frequency count?","Reporting how many times each distinct value occurs in an array."],
+[7,"How does the counting array method work?","Use the value itself as an index into a second array: freq[arr[i]]++; one pass, O(n), for small non-negative integers."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["Which is NOT a characteristic of an array?",["Fixed size","Same type","Contiguous memory","Elements of different types"],3,"All elements have the same type."],
+["The valid indices of int a[10] are:",["1 to 10","0 to 10","0 to 9","1 to 9"],2,"0 to n - 1."],
+["The address of arr[i] is:",["base + i","base + i x sizeof(element)","base x i","base + sizeof(element)"],1,"The index is an offset."],
+["Array indices start at 0 because the index is:",["A label","An offset","A size","A pointer"],1,"The number of elements to skip."],
+["int s[5] = {10, 20}; makes s[4] equal to:",["10","20","0","Garbage"],2,"A partial initialiser fills the rest with zeros."],
+["An uninitialised local array holds:",["Zeros","Garbage","Spaces","Nothing"],1,"Whatever bits were already in memory."],
+["Accessing arr[5] in a 5-element array is:",["A compile-time error","Undefined behaviour","Always zero","Always a crash"],1,"C++ does not check bounds."],
+["The loop for (i = 0; i <= 5; i++) over int a[5] contains:",["A syntax error","An off-by-one bug","No bug","A missing semicolon"],1,"i reaches 5, past the end."],
+["The number of elements of arr is:",["sizeof(arr)","sizeof(arr[0])","sizeof(arr) / sizeof(arr[0])","sizeof(arr) x 2"],2,"Total bytes over bytes per element."],
+["Arrays can be copied with:",["=","==","A loop (or strcpy for strings)","+"],2,"= does not work on arrays."],
+["In m[3][4], the first index runs from:",["0 to 3","0 to 2","1 to 3","0 to 4"],1,"Three rows: 0 to 2."],
+["A 2D array is stored in memory in:",["Column-major order","Row-major order","Random order","Diagonal order"],1,"Row after row."],
+["The address of m[i][j] with C columns is base +:",["(i + j) x size","(i x C + j) x size","(j x C + i) x size","i x j x size"],1,"The flattened position i x C + j."],
+["int a[3][4][2] holds:",["9 elements","14 elements","24 elements","12 elements"],2,"3 x 4 x 2 = 24."],
+["Processing a 2D array requires:",["One loop","Nested loops","Recursion","No loop"],1,"Rows outside, columns inside."],
+["To avoid integer division when averaging, write:",["sum / 5","(double)sum / 5","sum % 5","sum x 5"],1,"Cast first."],
+["The largest element search should start with:",["0","arr[0]","-1","The last element"],1,"0 fails when every value is negative."],
+["To reverse an array in place the loop runs for:",["The whole array","Half the array","One element","Twice the array"],1,"Otherwise every pair is swapped twice."],
+["Insertion into an array shifts elements:",["Left, from the front","Right, from the end backwards","Right, from the front","Not at all"],1,"Working from the end avoids overwriting."],
+["Deletion from an array shifts elements:",["Right","Left, forwards from the deletion point","Left, from the end","Not at all"],1,"They close the gap."],
+["When an array is passed to a function:",["It is copied","The address of its first element is passed","Only its size is passed","Only its first element is passed"],1,"The array decays to an address."],
+["Inside a function with int arr[] as parameter, sizeof(arr) gives:",["The array size","The size of a pointer","Zero","The number of elements"],1,"Typically 8 bytes."],
+["Linear search returns -1 when:",["The target is first","The target is absent","The array is sorted","The array is empty only"],1,"-1 is not a valid index."],
+["Binary search requires the array to be:",["Unsorted","Sorted","Of even length","Of characters"],1,"It relies on order to discard half."],
+["An unsuccessful binary search ends when:",["low == high","low > high","mid == 0","high == size"],1,"The range is empty."],
+["The most comparisons binary search needs on 1,000 sorted items is:",["10","100","500","1,000"],0,"floor(log2 1000) + 1 = 10."],
+["Which sort makes at most n - 1 swaps?",["Bubble","Selection","Insertion","All three"],1,"One swap per pass."],
+["After the first pass of bubble sort:",["The smallest is in place","The largest is at the end","The array is sorted","Nothing changes"],1,"The largest bubbles to the end."],
+["Which sort is like sorting playing cards?",["Bubble","Selection","Insertion","Binary"],2,"Slide each card into its place."],
+["All three elementary sorts are, in the worst case:",["O(n)","O(log n)","O(n^2)","O(1)"],2,"Quadratic time."],
+["A C-style string ends with:",["A space","'\\0'","'\\n'","A semicolon"],1,"The null character, ASCII 0."],
+["\"A\" occupies:",["One byte","Two bytes","Three bytes","Zero bytes"],1,"The letter and the null."],
+["cin >> name reads:",["A whole line","One word","One character","A number only"],1,"It stops at whitespace."],
+["A whole line is read into a char array with:",["cin >>","cin.getline(array, size)","cout","strlen"],1,"getline reads up to size - 1 characters."],
+["cin.ignore() after cin >> age is used to:",["Clear the screen","Discard the leftover newline","Stop the program","Skip the age"],1,"So getline waits for real input."],
+["For char s[] = \"Hello\"; strlen(s) and sizeof(s) are:",["5 and 5","5 and 6","6 and 5","6 and 6"],1,"Five letters; six cells with the null."],
+["strcmp returns 0 when the strings are:",["Different","Equal","Empty","Longer"],1,"Zero means equal."],
+["strcmp(\"Zebra\", \"apple\") is:",["Zero","Negative","Positive","Undefined"],1,"'Z' (90) is less than 'a' (97)."],
+["Comparing two char arrays with == compares their:",["Contents","Addresses","Lengths","Last characters"],1,"Use strcmp instead."],
+["strcpy(small, \"Computer\") with char small[5] causes:",["A compile-time error always","A buffer overflow","Nothing","A shorter copy"],1,"It needs 9 cells."],
+["Matrix addition needs:",["Equal columns only","Identical dimensions","Equal rows only","Square matrices"],1,"Same rows and same columns."],
+["A (2 x 3) times B (3 x 4) gives:",["3 x 3","2 x 4","2 x 3","4 x 2"],1,"m x p."],
+["The transpose of a 2 x 3 matrix is:",["2 x 3","3 x 2","2 x 2","6 x 1"],1,"Dimensions are swapped."]
+];
+const FILL=[
+["The first element of an array has index ___.",["0","zero"],"Zero."],
+["C++ performs no bounds ___ on array indices.",["checking","check"],"Checking."],
+["Address of arr[i] = base + i x ___.",["sizeof(element)","sizeof element","sizeof(type)","size of element"],"The size of an element."],
+["A 2D array is stored in ___-major order.",["row"],"Row-major."],
+["An array passed to a function decays into the ___ of its first element.",["address"],"The address."],
+["Linear search returns ___ when the target is not found.",["-1","minus 1"],"-1."],
+["Binary search needs a ___ array.",["sorted"],"Sorted."],
+["Bubble sort carries the ___ value to the end on each pass.",["largest","biggest","maximum"],"The largest."],
+["___ sort slides each key left past larger elements.",["insertion"],"Insertion."],
+["A C-style string ends with the ___ character.",["null","'\\0'","\\0"],"The null character."],
+["cin.___(array, size) reads a whole line.",["getline"],"getline."],
+["strcmp returns ___ when two strings are equal.",["0","zero"],"Zero."],
+["The product of an m x n and an n x p matrix is ___ x ___.",["m x p","mxp","m*p"],"m x p."],
+["A transposed element satisfies t[j][i] = a[___][___].",["i][j","i,j","ij"],"a[i][j]."]
+];
+const TF=[
+["The valid indices of int a[10] are 1 to 10.",false,"They are 0 to 9."],
+["C++ checks array bounds at run time.",false,"It does not."],
+["The elements of an array are stored contiguously.",true,"Yes."],
+["Arrays can be compared with == to test equal contents.",false,"== compares addresses."],
+["A function receiving an array works on a copy of it.",false,"It works on the caller's array."],
+["Inside a function, sizeof(arr) of an array parameter gives the number of elements.",false,"It gives the size of a pointer."],
+["Binary search works on an unsorted array.",false,"It needs sorted data."],
+["Linear search can be used on an unsorted array.",true,"Yes."],
+["Bubble sort, selection sort and insertion sort are all O(n^2) in the worst case.",true,"Yes."],
+["Selection sort makes at most n - 1 swaps.",true,"Yes."],
+["A character array holding \"Ramesh\" needs at least 6 cells.",false,"It needs 7, including the null."],
+["strlen counts the null terminator.",false,"It does not."],
+["cin >> reads an entire line including spaces.",false,"It reads one word."],
+["std::string can overflow like a character array.",false,"It manages its own memory."],
+["A 2 x 3 matrix can be added to a 3 x 2 matrix.",false,"Dimensions must be identical."],
+["Matrix multiplication is commutative.",false,"A x B and B x A generally differ."],
+["The result array of matrix multiplication should start at zero.",true,"The += adds onto its contents."],
+["The transpose of a 3 x 2 matrix is 2 x 3.",true,"Yes."],
+["In row-major order a whole row is stored before the next row.",true,"Yes."],
+["strcmp(a, b) returns a positive number when a comes first in dictionary order.",false,"It returns a negative number."]
+];
+const VSA=[
+["Define an array in one sentence.",["fixed","same type","contiguous","collection","elements"],"A fixed-size collection of same-type elements in contiguous memory.",1],
+["What is the index of the last element of an array of n elements?",["n-1","n - 1"],"n - 1."],
+["What does C++ do when an index is out of range?",["undefined behaviour","undefined behavior","nothing","no check"],"No check: undefined behaviour."],
+["Which search requires a sorted array?",["binary","binary search"],"Binary search."],
+["Name the character that ends a C-style string.",["null","\\0","'\\0'"],"The null character '\\0'."],
+["What is the ASCII code of the null character?",["0","zero"],"0."],
+["Which function reads a whole line into a character array?",["getline","cin.getline"],"cin.getline."],
+["What does strcmp return when two strings are equal?",["0","zero"],"0."],
+["State the condition under which two matrices can be added.",["identical","same dimensions","same size","same order"],"They must have identical dimensions."],
+["If A is 2 x 3, what is the size of its transpose?",["3x2","3 x 2","3*2"],"3 x 2."],
+["Name the header file of the string class.",["string","<string>"],"<string>."],
+["Write the expression for the element count of array arr.",["sizeof(arr)/sizeof(arr[0])","sizeof(arr) / sizeof(arr[0])"],"sizeof(arr) / sizeof(arr[0])."]
+];
+const CALC=[
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int a[5] = {2, 4, 6};\n    cout << a[1] + a[4];\n    return 0;\n}",alts:[["4"]],ex:1,model:"4",e:"The unlisted elements are 0, so 4 + 0."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int arr[5] = {5, 1, 4, 2, 8};\n    for (int j = 0; j < 4; j++)\n        if (arr[j] > arr[j + 1]) {\n            int t = arr[j];\n            arr[j] = arr[j + 1];\n            arr[j + 1] = t;\n        }\n    for (int i = 0; i < 5; i++)\n        cout << arr[i] << \" \";\n    return 0;\n}",alts:[["14258"]],ex:1,model:"1 4 2 5 8",e:"One bubble pass moves 5 past 1, 4 and 2; 8 stays."},
+{q:"What is printed?",src:"#include <iostream>\n#include <cstring>\nusing namespace std;\nint main()\n{\n    char s[] = \"Hello\";\n    cout << strlen(s) << \" \" << sizeof(s);\n    return 0;\n}",alts:[["56"]],ex:1,model:"5 6",e:"Five letters; six cells including the null."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int arr[] = {1, 3, 5, 7, 9};\n    int low = 0, high = 4, target = 7, steps = 0;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        steps++;\n        cout << mid << \" \";\n        if (arr[mid] == target) break;\n        else if (arr[mid] < target) low = mid + 1;\n        else high = mid - 1;\n    }\n    cout << steps;\n    return 0;\n}",alts:[["232"]],ex:1,model:"2 3 2",e:"mid 2 (value 5, too small), then mid 3 (value 7): found after 2 steps."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int m[3][2] = {{1, 2}, {3, 4}, {5, 6}};\n    int t[2][3];\n    for (int i = 0; i < 3; i++)\n        for (int j = 0; j < 2; j++)\n            t[j][i] = m[i][j];\n    for (int i = 0; i < 2; i++) {\n        for (int j = 0; j < 3; j++)\n            cout << t[i][j];\n        cout << \"/\";\n    }\n    return 0;\n}",alts:[["135/246/"]],ex:1,model:"135/246/",e:"The transpose of a 3 x 2 matrix is 2 x 3."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nvoid change(int arr[], int n)\n{\n    for (int i = 0; i < n; i++)\n        arr[i] += 10;\n}\nint main()\n{\n    int a[3] = {1, 2, 3};\n    change(a, 3);\n    cout << a[0] << \" \" << a[2];\n    return 0;\n}",alts:[["1113"]],ex:1,model:"11 13",e:"The function changes the caller's array."},
+{q:"What is printed?",src:"#include <iostream>\n#include <cstring>\nusing namespace std;\nint main()\n{\n    char a[20] = \"Data\";\n    strcat(a, \"Base\");\n    cout << a << \" \" << strlen(a) << \" \" << (strcmp(\"Zebra\", \"apple\") < 0);\n    return 0;\n}",alts:[["database81"]],ex:1,model:"DataBase 8 1",e:"strcat joins; the length is 8; 'Z' (90) < 'a' (97), so the comparison is true."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int arr[6] = {64, 34, 25, 12, 22, 11};\n    for (int i = 0; i < 6 - 1; i++) {\n        int minIndex = i;\n        for (int j = i + 1; j < 6; j++)\n            if (arr[j] < arr[minIndex]) minIndex = j;\n        if (i == 0) {\n            int t = arr[minIndex]; arr[minIndex] = arr[i]; arr[i] = t;\n            break;\n        }\n    }\n    for (int i = 0; i < 6; i++) cout << arr[i] << \" \";\n    return 0;\n}",alts:[["113425122264"]],ex:1,model:"11 34 25 12 22 64",e:"The first selection pass swaps the minimum 11 with 64."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};\n    int b[3][2] = {{1, 0}, {0, 1}, {1, 1}};\n    int c[2][2] = {0};\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            for (int k = 0; k < 3; k++)\n                c[i][j] += a[i][k] * b[k][j];\n    cout << c[0][0] << \" \" << c[1][1];\n    return 0;\n}",alts:[["411"]],ex:1,model:"4 11",e:"c[0][0] = 1 + 0 + 3 = 4; c[1][1] = 0 + 5 + 6 = 11."},
+{q:"What is printed?",src:"#include <iostream>\nusing namespace std;\nint main()\n{\n    int arr[10] = {1, 2, 2, 3, 1, 4, 2, 5, 1, 3};\n    int freq[6] = {0};\n    for (int i = 0; i < 10; i++)\n        freq[arr[i]]++;\n    cout << freq[1] << freq[2] << freq[3] << freq[4] << freq[5];\n    return 0;\n}",alts:[["33211"]],ex:1,model:"33211",e:"1 occurs 3 times, 2 occurs 3, 3 occurs 2, 4 once, 5 once."}
+];
+const SHORT=[
+["Why do array indices start at 0? Use the address formula.","The address of arr[i] is the base address plus i x sizeof(element), so the index is an offset: the number of elements to skip from the start. The first element skips none, so its index is 0. For int marks[5] starting at 1000, marks[3] is at 1000 + 3 x 4 = 1012.",["Index is an offset","address = base + i x sizeof","First element skips zero"]],
+["Why is accessing arr[5] of a 5-element array dangerous?","The valid indices are 0 to 4 and C++ does not check bounds, so arr[5] compiles but reads or overwrites the memory beside the array. The result is undefined behaviour: garbage, a corrupted variable or a crash, and an out-of-bounds write is the root of the buffer overflow.",["Valid indices 0 to 4","No bounds checking","Undefined behaviour"]],
+["Why can a function change an array passed to it, and why can it not find the array's size?","The array name decays into the address of its first element and only that address is passed, so the function works on the caller's own array, as with call by reference. Because only an address arrives, sizeof(arr) gives the size of a pointer, so the size must be passed as a separate parameter.",["Address passed, not a copy","Changes affect the original","sizeof gives pointer size; pass the size"]],
+["Distinguish linear search from binary search, with the requirement of each.","Linear search checks elements one by one from the start, works on any array, sorted or not, and needs up to n comparisons, O(n). Binary search compares the target with the middle element and discards half the range each time, O(log n), but requires the array to be sorted.",["Linear: any array, O(n)","Binary: sorted only, O(log n)","Halving the range"]],
+["Distinguish strlen from sizeof for a character array.","strlen returns the number of characters before the null terminator, not counting the null. sizeof gives the capacity of the array in bytes. For char str[20] = \"Hello\", strlen is 5 and sizeof is 20; for char s[] = \"Hello\", they are 5 and 6.",["strlen counts characters before the null","sizeof is the capacity","Example 5 and 20"]],
+["Why is == unsuitable for comparing two C-style strings?","A character array name stands for its address, so == compares the addresses of the arrays, which are almost never equal even when the text is identical. strcmp(a, b) == 0 compares the characters and must be used instead.",["== compares addresses","Use strcmp","strcmp returns 0 for equal"]],
+["Distinguish bubble sort from selection sort.","Bubble sort compares adjacent pairs and swaps them when out of order, so the largest value moves to the end on each pass and many swaps occur; with a swapped flag it can stop early. Selection sort finds the minimum of the unsorted part in each pass and makes one swap, so it makes at most n - 1 swaps. Both are O(n^2).",["Bubble: adjacent swaps, largest sinks","Selection: minimum, one swap per pass","Both O(n^2)"]],
+["What is a buffer overflow, and how is it prevented?","A buffer overflow is writing beyond the end of an array, for example strcpy of a string longer than the destination, which overwrites neighbouring memory and is a major security flaw. It is prevented by sizing the destination for the text plus the null, checking strlen(src) < sizeof(dest) before copying, and using std::string.",["Writing past the end","Overwrites neighbouring memory","Size, check, or use std::string"]]
+];
+const LONG=[
+["Explain how a one-dimensional array is stored in memory and derive the address of arr[i]; extend the idea to a two-dimensional array in row-major order.","An array is a row of identical boxes side by side in memory. If the first element is at the base address and each element takes sizeof(type) bytes, element i is i boxes further on, so address of arr[i] = base + i x sizeof(type); the index is an offset, which is why indexing starts at 0 and why access is a single multiplication and addition. For int marks[5] at address 1000 with 4-byte ints, marks[3] is at 1012. Memory is one-dimensional, so a 2D array is flattened in row-major order: all of row 0, then all of row 1. In an array with C columns, m[i][j] has flattened position i x C + j, so its address is base + (i x C + j) x sizeof(type). A function receiving a 2D array therefore needs the number of columns.",["Contiguous equal boxes","address = base + i x size","Index is an offset","Row-major order","base + (i x C + j) x size"]],
+["Write a program for linear search and one for binary search, and trace binary search for a target in a sorted array of 7 elements.","int linearSearch(int arr[], int size, int target) { for (int i = 0; i < size; i++) if (arr[i] == target) return i; return -1; } int binarySearch(int arr[], int size, int target) { int low = 0, high = size - 1; while (low <= high) { int mid = low + (high - low) / 2; if (arr[mid] == target) return mid; else if (arr[mid] < target) low = mid + 1; else high = mid - 1; } return -1; } Binary search needs a sorted array. Trace for 56 in {5, 8, 12, 23, 45, 56, 67}: low 0, high 6, mid 3 (23 < 56) so low = 4; low 4, high 6, mid 5 (56): found at index 5 after two comparisons. For 10, the range empties when low > high and -1 is returned. Linear search is O(n) and works on any array; binary search is O(log n).",["Linear search code","Binary search code","Sorted requirement","Trace with low, high, mid","low > high ends"]],
+["Write the program for bubble sort, and show the array after each pass for {5, 1, 4, 2, 8}.","void bubbleSort(int arr[], int size) { for (int i = 0; i < size - 1; i++) for (int j = 0; j < size - i - 1; j++) if (arr[j] > arr[j + 1]) { int temp = arr[j]; arr[j] = arr[j + 1]; arr[j + 1] = temp; } } Each pass carries the largest remaining value to the end, and the inner bound shrinks because the last i elements are in place. Passes: start 5 1 4 2 8; pass 1: 1 4 2 5 8; pass 2: 1 2 4 5 8; pass 3: 1 2 4 5 8 (no swaps); pass 4: 1 2 4 5 8. With a swapped flag the sort stops after pass 3. Time O(n^2), O(n) best case with the flag.",["Two nested loops with correct bounds","Three-line swap","Pass-by-pass table","Largest sinks each pass","Flag and complexity"]],
+["Explain the four string functions of <cstring> with an example of each, and the danger of two of them.","strlen(s) returns the number of characters before the null: strlen(\"Hello\") is 5. strcpy(d, s) copies s, including its null, into d: strcpy(dest, \"C++\"). strcat(d, s) appends s to d: with d = \"Hello, \" and s = \"World!\" it gives \"Hello, World!\". strcmp(a, b) compares in ASCII dictionary order and returns 0 if equal, negative if a comes first and positive otherwise; capitals sort before lowercase letters, so strcmp(\"Zebra\", \"apple\") is negative. They are needed because = cannot copy and == cannot compare character arrays. strcpy and strcat do not check the destination size: a source longer than the space overwrites neighbouring memory, a buffer overflow, prevented by sizing for the text plus null, checking lengths first or using std::string.",["All four functions with example","strcmp return values","Why = and == fail","Overflow danger of strcpy and strcat","Prevention"]],
+["Write programs for matrix addition and matrix multiplication, stating the condition for each.","Addition needs identical dimensions: for i in rows, for j in columns, sum[i][j] = a[i][j] + b[i][j]. For a = {{1,2,3},{4,5,6}} and b = {{7,8,9},{10,11,12}} the sum is {{8,10,12},{14,16,18}}. Multiplication needs the columns of A to equal the rows of B; an m x n matrix times an n x p matrix is m x p. int result[2][2] = {0}; for (i = 0; i < 2; i++) for (j = 0; j < 2; j++) for (k = 0; k < 3; k++) result[i][j] += a[i][k] * b[k][j]; The result must start at zero because += adds to its contents. For a = {{1,2,3},{4,5,6}} and b = {{7,8},{9,10},{11,12}}, result[0][0] = 1 x 7 + 2 x 9 + 3 x 11 = 58 and the product is {{58,64},{139,154}}. Multiplication is not commutative.",["Addition: identical dimensions and loop","Multiplication: cols(A) = rows(B)","Triple loop with result at zero","Worked example 58","Not commutative"]],
+["Write a program to find the frequency of each element of an array, and explain a faster method for small values.","Use a nested loop with a flag array: bool counted[10] = {false}; for each i, if counted[i] is true skip it; otherwise count = 1 and for each later j with arr[j] == arr[i] increase count and set counted[j] = true; then print arr[i] and count. For {1,2,2,3,1,4,2,5,1,3} this prints 1 three times, 2 three times, 3 twice, 4 once and 5 once. The time is O(n^2). If the values are small non-negative integers, use the value as an index into a counting array: int freq[6] = {0}; for (i = 0; i < size; i++) freq[arr[i]]++; This takes one pass, O(n), and is the principle behind counting sort and hash tables, but works only for small values.",["Nested loop with counted flags","Output for the example","O(n^2)","Counting array freq[arr[i]]++","O(n) and its limitation"]]
+];
+const APP=[
+["A loop for (i = 0; i <= 10; i++) fills int a[10]. Identify the bug and the consequence.","The valid indices are 0 to 9, but i reaches 10, so a[10] is written one element past the end. C++ does not check bounds, so this is undefined behaviour: it may corrupt a neighbouring variable or crash. Write i < 10.",["Index 10 out of range","No bounds checking","Use <"]],
+["A program reads a number then a name with getline, but never waits for the name. Explain why and fix it.","After cin >> number, the newline typed after the number remains in the input. getline reads that leftover empty line and returns at once, so the question seems skipped. Call cin.ignore() after the number and before getline to discard the newline.",["Newline left behind","getline reads the empty line","cin.ignore()"]],
+["Recommend linear or binary search for: (a) 20 unsorted names; (b) a sorted list of 10 million records. Justify each.","(a) Linear search: the data is unsorted, so binary search cannot be used, and 20 comparisons at most is trivial. (b) Binary search: the data is sorted and the list is huge; it needs at most about 24 comparisons instead of up to 10 million.",["(a) unsorted: linear","(b) sorted and large: binary","Comparison counts"]],
+["Explain why inserting at the front of a large array is slow.","Every existing element must shift one place right to open the gap, starting from the last one, so the cost is proportional to the number of elements. Linked lists avoid this cost.",["All elements shift","Cost proportional to n","Linked lists avoid it"]],
+["A sort function is written to take the array by value. Explain why this is unnecessary, and what is really passed.","An array is never passed by value: its name decays into the address of its first element, so the function already works on the caller's array and changes it. No copy of the elements is made, and the function cannot find the size, so the size is passed separately.",["Array decays to an address","Changes the caller's array","Size passed separately"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson16-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const R=String.raw;
+const STEPS=[
+{t:"One-dimensional arrays",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"What an array is",d:"An array is a fixed-size, ordered collection of elements of the same type, stored in contiguous memory and reached through one name plus a numeric index.",t:T[0],p:["Storing the marks of 50 students without an array needs 50 separate variables and no loop could process them together. One array holds all 50, and one loop visits them by index.","An array is a row of identical boxes side by side in memory, and the index is a count of how many boxes to skip. The address of arr[i] is the base address plus i x sizeof(element), which is why the first element has index 0 and why access is instantaneous."]},
+ {h:"Declaration and initialisation",d:"The size of an array must be a constant known at compile time. An initialiser may give every element, only the first few, or leave the compiler to count.",t:T[1],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int marks[5] = {85, 90, 78, 92, 88};
+    int scores[5] = {10, 20};
+    int values[] = {1, 2, 3, 4};
+    int zeros[100] = {0};
+
+    cout << marks[0] << " " << marks[4] << endl;
+    cout << scores[1] << " " << scores[4] << endl;
+    cout << sizeof(values) / sizeof(values[0]) << " " << zeros[99] << endl;
+    marks[2] = 100;
+    cout << marks[2] << endl;
+    return 0;
+}`,tr:"Predict scores[2] before you print it. Then declare int junk[3]; and print junk[0]: an uninitialised local array holds garbage."}},
+ {h:"No bounds checking",d:"C++ does not check that an index is valid. An out-of-range access is undefined behaviour: it may return garbage, corrupt another variable or crash.",t:T[2],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[5] = {10, 20, 30, 40, 50};
+
+    for (int i = 0; i < 5; i++)
+        cout << arr[i] << " ";
+    cout << endl;
+
+    for (int i = 0; i <= 5; i++)      // BUG: i reaches 5
+        cout << arr[i] << " ";
+    return 0;
+}`,tr:"This runner stops at the illegal access with an error; a real compiler would print a garbage value or crash. Change <= to < to fix the loop."},p:["Out-of-bounds writes are the root of the buffer overflow, one of the most exploited security weaknesses in computing. The habit that prevents it is to write loops as i < size, never i <= size."]},
+ {h:"Number of elements and range-based for",d:"The element count is sizeof(arr) / sizeof(arr[0]): the total bytes divided by the bytes of one element. The C++11 range-based for visits every element without an index.",code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[] = {4, 8, 15, 16, 23, 42};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+    cout << endl;
+
+    for (int x : arr)
+        cout << x << " ";
+    cout << endl << sizeof(arr) << " bytes" << endl;
+    return 0;
+}`,tr:"Add a seventh value to the initialiser: nothing else needs to change."},p:["Arrays cannot be copied with = or compared with ==. Copying and comparing are done element by element with a loop (strcpy and strcmp for character arrays)."]}
+]},
+{t:"Two- and multi-dimensional arrays",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Two-dimensional arrays",d:"A two-dimensional array is a grid of rows and columns, best understood as an array of arrays. An element needs two indices, row first and then column.",t:T[3],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int m[3][4] = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8},
+        {9, 10, 11, 12}
+    };
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++)
+            cout << m[i][j] << "\t";
+        cout << endl;
+    }
+    cout << m[1][2] << " " << sizeof(m) << endl;
+    return 0;
+}`,tr:"Predict m[2][3]. Then swap the indices to m[3][2] and read the error: a 3 x 4 array has row indices 0 to 2."}},
+ {h:"Row-major storage",d:"Memory is one long row of bytes, so C++ stores a 2D array in row-major order: all of row 0, then all of row 1, and so on.",p:["The address of m[i][j] in an array with C columns is base + (i x C + j) x sizeof(element), the one-dimensional formula applied to the flattened position i x C + j. This is why a function that receives a 2D array must be told the number of columns, and why traversing row by row, with j in the inner loop, touches memory in order."]},
+ {h:"Three dimensions",d:"A three-dimensional array is a collection of 2D arrays. It is declared and accessed by extending the pattern, with one nested loop per dimension.",code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int cube[2][3][4];
+    cube[0][1][2] = 50;
+
+    for (int d = 0; d < 2; d++)
+        for (int r = 0; r < 3; r++)
+            for (int c = 0; c < 4; c++)
+                cube[d][r][c] = d * 100 + r * 10 + c;
+
+    cout << cube[1][2][3] << " " << sizeof(cube) << endl;
+    return 0;
+}`,tr:"2 x 3 x 4 = 24 elements, 96 bytes. Predict cube[1][0][2]."}}
+]},
+{t:"Array operations",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Traversal, sum, average and largest",d:"Traversal visits every element exactly once. Almost every array algorithm is a traversal with something extra inside the loop.",code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int marks[5] = {85, 90, 78, 92, 88};
+    int sum = 0;
+    for (int i = 0; i < 5; i++)
+        sum += marks[i];
+    double average = (double)sum / 5;
+    cout << sum << " " << average << endl;
+
+    int largest = marks[0];
+    for (int i = 1; i < 5; i++)
+        if (marks[i] > largest)
+            largest = marks[i];
+    cout << largest << endl;
+    return 0;
+}`,tr:"Remove the (double) cast and predict the average. Then initialise largest to 0 and try an array of negative numbers."}},
+ {h:"Reversing in place",d:"An array is reversed by swapping pairs from the two ends. The loop runs only to the middle, because looping the whole array would swap every pair twice and restore the original.",code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[6] = {1, 2, 3, 4, 5, 6};
+    for (int i = 0; i < 6 / 2; i++) {
+        int temp = arr[i];
+        arr[i] = arr[5 - i];
+        arr[5 - i] = temp;
+    }
+    for (int i = 0; i < 6; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`,tr:"Change 6 / 2 to 6 and predict the output."}},
+ {h:"Insertion and deletion",d:"An array has a fixed size, so insertion uses spare capacity. Elements from the insertion point shift right, from the end backwards. Deletion shifts the later elements left, forwards from the deletion point.",t:T[4],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[10] = {10, 20, 30, 40, 50};
+    int n = 5, pos = 2, value = 25;
+
+    for (int i = n; i > pos; i--)
+        arr[i] = arr[i - 1];
+    arr[pos] = value;
+    n++;
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << endl;
+
+    pos = 1;
+    for (int i = pos; i < n - 1; i++)
+        arr[i] = arr[i + 1];
+    n--;
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    return 0;
+}`,tr:"Change the order of the shifting loop so it runs forwards and watch the values overwrite each other."}},
+ {h:"Passing arrays to functions",d:"When an array is passed, the compiler does not copy the elements; the array name decays into the address of its first element. The function works on the caller's own array.",t:T[5],code:{c:R`#include <iostream>
+using namespace std;
+
+void doubleAll(int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+        arr[i] = arr[i] * 2;
+    cout << "sizeof inside: " << sizeof(arr) << endl;
+}
+
+int main()
+{
+    int a[4] = {1, 2, 3, 4};
+    doubleAll(a, 4);
+    for (int i = 0; i < 4; i++)
+        cout << a[i] << " ";
+    cout << endl << "sizeof outside: " << sizeof(a) << endl;
+    return 0;
+}`,tr:"Inside the function sizeof gives the size of a pointer (8), not of the array (16): the size must be passed separately."}}
+]},
+{t:"Searching",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Linear search",d:"Linear search checks the elements one by one from the start until it finds the target or runs out. It works on any array, sorted or not, and returns -1 when the target is absent.",code:{c:R`#include <iostream>
+using namespace std;
+
+int linearSearch(int arr[], int size, int target)
+{
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target)
+            return i;
+    }
+    return -1;
+}
+
+int main()
+{
+    int arr[6] = {23, 8, 45, 12, 67, 5};
+    int result = linearSearch(arr, 6, 45);
+
+    if (result != -1)
+        cout << "Element found at index " << result << endl;
+    else
+        cout << "Element not found" << endl;
+    return 0;
+}`,tr:"Search for 99 and read the result. In the worst case every element is checked."}},
+ {h:"Binary search",d:"Binary search requires a sorted array. It compares the target with the middle element and discards half of the remaining range each time.",t:T[7],code:{c:R`#include <iostream>
+using namespace std;
+
+int binarySearch(int arr[], int size, int target)
+{
+    int low = 0, high = size - 1;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+
+        if (arr[mid] == target)
+            return mid;
+        else if (arr[mid] < target)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return -1;
+}
+
+int main()
+{
+    int arr[7] = {5, 8, 12, 23, 45, 56, 67};
+    cout << binarySearch(arr, 7, 23) << " ";
+    cout << binarySearch(arr, 7, 56) << " ";
+    cout << binarySearch(arr, 7, 10) << endl;
+    return 0;
+}`,tr:"Use the Search tracer in the lab to see low, high and mid for each target."},p:["The middle is written low + (high - low) / 2 because (low + high) / 2 can overflow for enormous arrays. An unsuccessful search ends when low > high."]},
+ {h:"Linear compared with binary search",d:"Binary search needs far fewer comparisons but demands sorted data.",t:T[6]}
+]},
+{t:"Sorting",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Bubble sort",d:"Bubble sort repeatedly compares adjacent pairs and swaps them if they are out of order. Each full pass carries the largest remaining value to the end.",t:T[8],code:{c:R`#include <iostream>
+using namespace std;
+
+void bubbleSort(int arr[], int size)
+{
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    int arr[6] = {64, 34, 25, 12, 22, 11};
+    bubbleSort(arr, 6);
+    for (int i = 0; i < 6; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`,tr:"Add a bool swapped flag and break when a pass makes no swap: the improved version finishes a sorted array after one pass."}},
+ {h:"Selection sort",d:"Selection sort divides the array into a sorted front and an unsorted rest. Each pass selects the smallest element of the unsorted part and swaps it into the first unsorted position.",t:T[9],code:{c:R`#include <iostream>
+using namespace std;
+
+void selectionSort(int arr[], int size)
+{
+    for (int i = 0; i < size - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < size; j++)
+            if (arr[j] < arr[minIndex])
+                minIndex = j;
+
+        int temp = arr[minIndex];
+        arr[minIndex] = arr[i];
+        arr[i] = temp;
+    }
+}
+
+int main()
+{
+    int arr[6] = {64, 34, 25, 12, 22, 11};
+    selectionSort(arr, 6);
+    for (int i = 0; i < 6; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`,tr:"Selection sort makes at most n - 1 = 5 swaps here."}},
+ {h:"Insertion sort",d:"Insertion sort builds the sorted array one element at a time, as most people sort playing cards: take the next card, slide it left past every larger card and drop it into the gap.",t:T[10],code:{c:R`#include <iostream>
+using namespace std;
+
+void insertionSort(int arr[], int size)
+{
+    for (int i = 1; i < size; i++) {
+        int key = arr[i];
+        int j = i - 1;
+
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+int main()
+{
+    int arr[6] = {64, 34, 25, 12, 22, 11};
+    insertionSort(arr, 6);
+    for (int i = 0; i < 6; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`,tr:"Use the Sort tracer in the lab to see the array after every pass."}},
+ {h:"Comparing the three sorts",d:"All three take time proportional to n^2 in the worst case, so they are the foundation, not the destination.",t:T[11],p:["In real programs the library function sort in <algorithm>, O(n log n), is used: sort(arr, arr + n);. The elementary sorts are learned because tracing a sort is basic literacy for a programmer."]}
+]},
+{t:"Character arrays and strings",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"C-style strings",d:"A C-style string is an array of char whose content ends with the null character '\\0', the character with ASCII code 0. The null is how every string function finds the end of the text.",p:["The array must be at least one larger than the longest text it will hold: \"Ramesh\" has 6 characters but needs 7 cells. When a character array is initialised from a string literal, the compiler adds the null automatically. 'A' is one character, while \"A\" is two bytes, the letter and a null."],code:{c:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char name[20] = "Ramesh";
+    char city[] = "Kozhikode";
+    char vowels[] = {'a', 'e', 'i', 'o', 'u', '\0'};
+
+    cout << name << " " << strlen(name) << " " << sizeof(name) << endl;
+    cout << city << " " << sizeof(city) << endl;
+    cout << vowels << " " << strlen(vowels) << endl;
+    return 0;
+}`,tr:"Delete the '\\0' from vowels: without a null it is not a string, and a real program would read garbage past the end."}},
+ {h:"Input and output",d:"cin >> reads into a character array but stops at the first whitespace, capturing one word. cin.getline(array, size) reads a whole line, spaces included, up to size - 1 characters.",t:T[13],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int age;
+    char name[50];
+    cout << "Enter age: ";
+    cin >> age;
+    cin.ignore();
+    cout << "Enter full name: ";
+    cin.getline(name, 50);
+    cout << name << " is " << age << endl;
+    return 0;
+}`,inp:"17\\nRamesh Kumar",tr:"Delete cin.ignore(); and run: getline reads the empty rest of the first line and appears to skip the question."}},
+ {h:"std::string",d:"The string class in <string> manages its own memory, grows as needed and supports natural operators. It is a class: name is an object and name.length() is a member function.",t:T[12],code:{c:R`#include <iostream>
+#include <string>
+using namespace std;
+
+int main()
+{
+    string name = "Priya";
+    string greeting = "Hello, " + name + "!";
+    cout << greeting << endl;
+    cout << "Length: " << name.length() << endl;
+
+    if (name == "Priya")
+        cout << "Same name" << endl;
+
+    string line;
+    cout << "Enter a sentence: ";
+    getline(cin, line);
+    cout << "You entered: " << line << endl;
+    return 0;
+}`,inp:"Arrays are fun",tr:"In new programs prefer std::string; the syllabus examines the C-style form as an application of arrays."}}
+]},
+{t:"String functions",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"strlen and sizeof",d:"strlen returns the number of characters before the null. sizeof reports the capacity of the array in bytes.",t:T[15],code:{c:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char str[20] = "Hello";
+    cout << strlen(str) << endl;
+    cout << sizeof(str) << endl;
+
+    char s[] = "Hello";
+    cout << strlen(s) << " " << sizeof(s) << endl;
+    return 0;
+}`,tr:"Predict the second line before you run."}},
+ {h:"strcpy and strcat",d:"strcpy(destination, source) copies the whole of source, including its null. strcat(destination, source) appends source onto destination in place; the destination must already hold a valid string and have spare room.",t:T[14],code:{c:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char source[20] = "C++ Programming";
+    char destination[20];
+    strcpy(destination, source);
+    cout << destination << endl;
+
+    char str1[30] = "Hello, ";
+    char str2[20] = "World!";
+    strcat(str1, str2);
+    cout << str1 << endl;
+    return 0;
+}`,tr:"Make str1 an array of size 10 and run: the join no longer fits and the runner reports the buffer overflow."}},
+ {h:"strcmp",d:"strcmp compares two strings in dictionary order using the ASCII codes of the first characters that differ. It returns 0 if equal, a negative number if the first string comes first and a positive number otherwise.",code:{c:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char str1[] = "apple";
+    char str2[] = "banana";
+    char str3[] = "apple";
+
+    cout << (strcmp(str1, str2) < 0) << endl;
+    cout << (strcmp(str2, str1) > 0) << endl;
+    cout << strcmp(str1, str3) << endl;
+    cout << (strcmp("Zebra", "apple") < 0) << endl;
+
+    if (strcmp(str1, str3) == 0)
+        cout << "str1 and str3 are equal" << endl;
+    return 0;
+}`,tr:"Never compare character arrays with ==, which compares addresses. Note that strcmp returns 0 for equal."},p:["Test only the sign of the non-zero result or whether it is zero: its exact size is not specified."]},
+ {h:"Buffer overflow",d:"strcpy and strcat do not check that the destination is large enough. A longer source overwrites the memory beyond the end of the array.",code:{c:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char small[5];
+    strcpy(small, "Computer");
+    cout << small << endl;
+    return 0;
+}`,tr:"\"Computer\" needs 9 cells (8 letters and the null) but small has 5. A real program would overwrite neighbouring memory. Change 5 to 9."},p:["The rules that prevent it: size the destination for the text plus the null; check strlen(src) < sizeof(dest) before copying; prefer std::string."]},
+ {h:"Writing the functions yourself",d:"A C-string is nothing more than an array scanned for its null.",code:{c:R`#include <iostream>
+#include <cctype>
+using namespace std;
+
+int myStrlen(const char s[])
+{
+    int count = 0;
+    while (s[count] != '\0')
+        count++;
+    return count;
+}
+
+int countVowels(const char s[])
+{
+    int count = 0;
+    for (int i = 0; s[i] != '\0'; i++) {
+        char c = tolower(s[i]);
+        if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+            count++;
+    }
+    return count;
+}
+
+int main()
+{
+    cout << myStrlen("Hello") << " " << countVowels("Education") << endl;
+    return 0;
+}`,tr:"Predict countVowels(\"Sky\")."}}
+]},
+{t:"Matrices and frequency count",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Matrix addition",d:"Two matrices can be added only if they have identical dimensions. The sum is formed by adding corresponding elements.",t:T[16],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int b[2][3] = {{7, 8, 9}, {10, 11, 12}};
+    int sum[2][3];
+
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 3; j++)
+            sum[i][j] = a[i][j] + b[i][j];
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 3; j++)
+            cout << sum[i][j] << " ";
+        cout << endl;
+    }
+    return 0;
+}`,tr:"Change b to a 3 x 2 matrix: the dimensions no longer match."}},
+ {h:"Matrix multiplication",d:"The product A x B exists only when the number of columns of A equals the number of rows of B. If A is m x n and B is n x p, the product is m x p, and each element is a dot product of a row of A with a column of B.",t:T[17],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int b[3][2] = {{7, 8}, {9, 10}, {11, 12}};
+    int result[2][2] = {0};
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 3; k++) {
+                result[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++)
+            cout << result[i][j] << " ";
+        cout << endl;
+    }
+    return 0;
+}`,tr:"result[0][0] = 1 x 7 + 2 x 9 + 3 x 11 = 58. Remove the {0} and see why the result must start at zero."},p:["Multiplication is not commutative: B x A would be a 3 x 3 matrix, quite unlike this 2 x 2 result. Twelve multiplications are performed, m x p x n."]},
+ {h:"Transpose and other quick programs",d:"The transpose turns rows into columns: the element at (i, j) moves to (j, i). An m x n matrix has an n x m transpose.",code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int t[3][2];
+
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 3; j++)
+            t[j][i] = a[i][j];
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 2; j++)
+            cout << t[i][j] << " ";
+        cout << endl;
+    }
+
+    int m[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    int rowSum = 0, diagonal = 0;
+    for (int j = 0; j < 3; j++) rowSum += m[0][j];
+    for (int i = 0; i < 3; i++) diagonal += m[i][i];
+    cout << rowSum << " " << diagonal << endl;
+    return 0;
+}`,tr:"Declare t as t[2][3] and see the error: the result needs swapped dimensions."}},
+ {h:"Frequency count",d:"A frequency count reports how many times each distinct value occurs. The direct method uses a nested loop and a flag array so that each value is reported only once.",t:T[18],code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[10] = {1, 2, 2, 3, 1, 4, 2, 5, 1, 3};
+    int size = 10;
+    bool counted[10] = {false};
+
+    for (int i = 0; i < size; i++) {
+        if (counted[i]) continue;
+        int count = 1;
+        for (int j = i + 1; j < size; j++) {
+            if (arr[i] == arr[j]) {
+                count++;
+                counted[j] = true;
+            }
+        }
+        cout << arr[i] << " occurs " << count << " time(s)" << endl;
+    }
+
+    int freq[6] = {0};
+    for (int i = 0; i < size; i++)
+        freq[arr[i]]++;
+    for (int v = 0; v < 6; v++)
+        cout << freq[v] << " ";
+    return 0;
+}`,tr:"The counting array does the whole job in one pass, but only for small non-negative integers."}}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* ============ MINI C++ FUNCTION RUNNER (references, overloading, defaults, static locals, recursion, scope, <cmath> <cctype> <cstring> <cstdlib>) ============ */
+class FnErr extends Error{constructor(kind,title,detail,line){super(title);this.kind=kind;this.title=title;this.detail=detail;this.line=line;}}
+class ExitSig{constructor(c){this.c=c;}}
+const FN_STD=["cout","cin","endl","string"];
+const FN_LIB={sqrt:"cmath",pow:"cmath",fabs:"cmath",floor:"cmath",ceil:"cmath",round:"cmath",sin:"cmath",cos:"cmath",tan:"cmath",log:"cmath",log10:"cmath",exp:"cmath",
+ isalpha:"cctype",isdigit:"cctype",isalnum:"cctype",isspace:"cctype",isupper:"cctype",islower:"cctype",toupper:"cctype",tolower:"cctype",
+ strlen:"cstring",strcpy:"cstring",strcat:"cstring",strcmp:"cstring",
+ rand:"cstdlib",srand:"cstdlib",atoi:"cstdlib",atof:"cstdlib",exit:"cstdlib",time:"ctime"};
+function fnLex(src){
+  const T=[],inc=[];let i=0,line=1;const n=src.length;
+  const ops=["<<=",">>=","->","::","++","--","+=","-=","*=","/=","%=","==","!=","<=",">=","&&","||","<<",">>"];
+  while(i<n){
+    const c=src[i];
+    if(c==="\n"){line++;i++;continue;}
+    if(/\s/.test(c)){i++;continue;}
+    if(c==="#"){let j=i;while(j<n&&src[j]!=="\n")j++;const m=/#\s*include\s*[<"]([\w.]+)[>"]/.exec(src.slice(i,j));if(m)inc.push(m[1].replace(/\.h$/,"").replace(/^(math|ctype|string|stdlib|time)$/,x=>x==="string"?"cstring":"c"+x));i=j;continue;}
+    if(c==="/"&&src[i+1]==="/"){while(i<n&&src[i]!=="\n")i++;continue;}
+    if(c==="/"&&src[i+1]==="*"){i+=2;while(i<n&&!(src[i]==="*"&&src[i+1]==="/")){if(src[i]==="\n")line++;i++;}i+=2;continue;}
+    let m;
+    if((m=/^(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?[fFlLuU]*/.exec(src.slice(i,i+40)))){const txt=m[1]+(m[2]||"");T.push({t:"num",v:parseFloat(txt),f:/[.eE]/.test(txt),line});i+=m[0].length;continue;}
+    if(/[A-Za-z_]/.test(c)){let j=i;while(j<n&&/\w/.test(src[j]))j++;T.push({t:"id",v:src.slice(i,j),line});i=j;continue;}
+    if(c==='"'){let j=i+1,s="";while(j<n&&src[j]!=='"'){if(src[j]==="\\"){const e=src[j+1];s+=e==="n"?"\n":e==="t"?"\t":e==="0"?"\0":e;j+=2;}else{if(src[j]==="\n")throw new FnErr("compile","Compile-time error (syntax)","Missing terminating \" character.",line);s+=src[j++];}}T.push({t:"str",v:s,line});i=j+1;continue;}
+    if(c==="'"){let j=i+1,s="";if(src[j]==="\\"){const e=src[j+1];s=e==="n"?"\n":e==="t"?"\t":e==="0"?"\0":e;j+=2;}else s=src[j++];T.push({t:"chr",v:s.charCodeAt(0),line});i=j+1;continue;}
+    let op=null;for(const o of ops)if(src.startsWith(o,i)){op=o;break;}
+    if(!op)op=c;T.push({t:"op",v:op,line});i+=op.length;
+  }
+  // drop std:: prefixes and mark the next token
+  const R=[];for(let k=0;k<T.length;k++){if(T[k].t==="id"&&T[k].v==="std"&&T[k+1]&&T[k+1].v==="::"){T[k+2].std=true;k+=1;continue;}R.push(T[k]);}
+  R.push({t:"eof",v:"<end of file>",line});R.inc=inc;return R;
+}
+const TYW=["const","static","inline","extern","unsigned","long","short","int","double","float","bool","char","string","void","auto"];
+function normType(ws){
+  const w=ws.filter(x=>!["const","static","inline","extern","unsigned","signed"].includes(x));
+  if(w.includes("double")||w.includes("float"))return "double";
+  if(w.includes("string"))return "string";
+  if(w.includes("bool"))return "bool";
+  if(w.includes("char"))return "char";
+  if(w.includes("void"))return "void";
+  if(w.includes("auto"))return "auto";
+  if(w.filter(x=>x==="long").length>=1)return "long";
+  return "int";
+}
+function fnParse(T){
+  let p=0;const funcs={},globals=[],externs={};let usingStd=false;const inc=T.inc||[];
+  const peek=(k=0)=>T[Math.min(p+k,T.length-1)];
+  const isV=(v,k=0)=>{const t=peek(k);return (t.t==="op"||t.t==="id")&&t.v===v;};
+  const syn=(msg,line)=>{throw new FnErr("compile","Compile-time error (syntax)","Line "+(line||peek().line)+": "+msg,line||peek().line);};
+  const sem=(title,msg,line)=>{throw new FnErr("compile","Compile-time error ("+title+")","Line "+(line||peek().line)+": "+msg,line||peek().line);};
+  const next=()=>T[p++];
+  const acc=v=>{if(isV(v)){p++;return true;}return false;};
+  const exp=v=>{if(!acc(v)){const prev=T[Math.max(p-1,0)];syn("expected '"+v+"' before '"+peek().v+"'"+(v===";"?" (a missing semicolon is reported at the next token; check the end of line "+prev.line+")":""),v===";"?prev.line:peek().line);}};
+  const ident=()=>{const t=next();if(t.t!=="id")syn("expected a name but found '"+t.v+"'",t.line);return t.v;};
+  const isTypeStart=()=>{const t=peek();return t.t==="id"&&TYW.includes(t.v);};
+  function needHdr(name,line){const h=FN_LIB[name];if(h&&!inc.includes(h)&&!(h==="cstdlib"&&name==="abs"))sem("undeclared name","'"+name+"' was not declared in this scope. Add #include <"+h+"> at the top of the file.",line);}
+  function parseType(){
+    const ws=[],line=peek().line;
+    while(peek().t==="id"&&TYW.includes(peek().v)){const t=next();if(t.v==="string"&&!t.std&&!usingStd)sem("undeclared name","'string' was not declared in this scope. Write using namespace std; or std::string.",t.line);ws.push(t.v);}
+    if(!ws.length)syn("expected a type",line);
+    const ty={name:normType(ws),ref:false,isConst:ws.includes("const"),stat:ws.includes("static"),ext:ws.includes("extern"),inl:ws.includes("inline")};
+    if(acc("&"))ty.ref=true;
+    return ty;
+  }
+  function parseParams(){
+    const ps=[];exp("(");
+    if(!isV(")")){do{
+      if(isV("void")&&isV(")",1)){next();break;}
+      const ty=parseType();let nm="";if(peek().t==="id")nm=ident();
+      let arr=false;while(isV("[")){next();while(!isV("]")&&peek().t!=="eof")next();exp("]");arr=true;}
+      let def=null;if(acc("="))def=parseAssign();
+      ps.push({type:ty,name:nm,arr:arr,def:def});
+    }while(acc(","));}
+    exp(")");return ps;
+  }
+  // ---- expressions ----
+  function parseExpr(){return parseAssign();}
+  function parseAssign(){
+    const l=parseTernary();const t=peek();
+    if(t.t==="op"&&["=","+=","-=","*=","/=","%="].includes(t.v)){next();const r=parseAssign();return {n:"asg",op:t.v,l:l,r:r,line:t.line};}
+    return l;
+  }
+  function parseTernary(){const c=parseBin(0);if(isV("?")){const line=next().line;const a=parseAssign();exp(":");const b=parseAssign();return {n:"tern",c:c,a:a,b:b,line:line};}return c;}
+  const LV=[["||"],["&&"],["==","!="],["<","<=",">",">="],["<<",">>"],["+","-"],["*","/","%"]];
+  function parseBin(lv){
+    if(lv>=LV.length)return parseUnary();
+    let l=parseBin(lv+1);
+    for(;;){const t=peek();if(t.t==="op"&&LV[lv].includes(t.v)){next();const r=parseBin(lv+1);l={n:"bin",op:t.v,l:l,r:r,line:t.line};}else break;}
+    return l;
+  }
+  function parseUnary(){
+    const t=peek();
+    if(t.t==="op"&&["!","-","+"].includes(t.v)){next();return {n:"un",op:t.v,e:parseUnary(),line:t.line};}
+    if(t.t==="op"&&(t.v==="++"||t.v==="--")){next();return {n:"inc",op:t.v,pre:true,e:parseUnary(),line:t.line};}
+    if(t.v==="("&&t.t==="op"&&peek(1).t==="id"&&TYW.includes(peek(1).v)){let k=1;while(peek(k).t==="id"&&TYW.includes(peek(k).v))k++;if(isV(")",k)){next();const ty=parseType();exp(")");return {n:"cast",ty:ty.name,e:parseUnary(),line:t.line};}}
+    return parsePostfix();
+  }
+  function parsePostfix(){
+    let e=parsePrimary();
+    for(;;){
+      const t=peek();
+      if(t.v==="["&&t.t==="op"){next();const i=parseExpr();exp("]");e={n:"idx",a:e,i:i,line:t.line};}
+      else if((t.v==="++"||t.v==="--")&&t.t==="op"){next();e={n:"inc",op:t.v,pre:false,e:e,line:t.line};}
+      else if(t.v==="."&&t.t==="op"){next();const m=ident();exp("(");const as=[];if(!isV(")")){do{as.push(parseAssign());}while(acc(","));}exp(")");e={n:"meth",o:e,m:m,args:as,line:t.line};}
+      else break;
+    }
+    return e;
+  }
+  function parsePrimary(){
+    const t=next();
+    if(t.t==="num")return {n:"num",v:t.v,f:t.f};
+    if(t.t==="str")return {n:"str",v:t.v};
+    if(t.t==="chr")return {n:"chr",v:t.v};
+    if(t.t==="op"&&t.v==="("){const e=parseExpr();exp(")");return e;}
+    if(t.t==="op"&&t.v==="::"){const nm=ident();return {n:"gid",name:nm,line:t.line};}
+    if(t.t==="id"){
+      if(t.v==="true")return {n:"num",v:1,b:true};if(t.v==="false")return {n:"num",v:0,b:true};
+      if(FN_STD.includes(t.v)&&!t.std&&!usingStd)sem("undeclared name","'"+t.v+"' was not declared in this scope. Write using namespace std; or std::"+t.v+".",t.line);
+      if(t.v==="sizeof"&&isV("(")){next();let r;if(isTypeStart()){const ty=parseType();r={n:"sizeof",ty:ty.name,line:t.line};}else r={n:"sizeof",e:parseExpr(),line:t.line};exp(")");return r;}
+      if(isV("(")&&!TYW.includes(t.v)){
+        next();const args=[];if(!isV(")")){do{args.push(parseAssign());}while(acc(","));}exp(")");
+        if(!funcs[t.v]&&!(FN_LIB[t.v])&&t.v!=="abs"&&t.v!=="getline")sem("undeclared name","'"+t.v+"' was not declared in this scope. A function must be declared (a prototype) or defined before it is called.",t.line);
+        if(FN_LIB[t.v]&&!funcs[t.v])needHdr(t.v,t.line);
+        return {n:"call",name:t.v,args:args,line:t.line};
+      }
+      return {n:"id",name:t.v,line:t.line};
+    }
+    syn("expected an expression before '"+t.v+"'",t.line);
+  }
+  // ---- statements ----
+  function parseBlock(){exp("{");const b=[];while(!isV("}")){if(peek().t==="eof")syn("expected '}' at end of input");b.push(parseStmt());}exp("}");return {n:"blk",b:b};}
+  function parseInit(){
+    if(isV("{")){next();const l=[];if(!isV("}")){do{if(isV("}"))break;l.push(parseInit());}while(acc(","));}exp("}");return {n:"init",l:l};}
+    return parseAssign();
+  }
+  function parseDeclr(){
+    const nm=ident();const dims=[];let hasDims=false;
+    while(isV("[")){next();hasDims=true;if(isV("]"))dims.push(null);else dims.push(parseExpr());exp("]");}
+    let init=null;if(acc("="))init=parseInit();
+    return {name:nm,dims:hasDims?dims:null,init:init};
+  }
+  function parseDecl(ty,line){
+    const ds=[];
+    do{ds.push(parseDeclr());}while(acc(","));
+    exp(";");return {n:"decl",ty:ty,ds:ds,line:line};
+  }
+  function parseStmt(){
+    const t=peek();
+    if(isV("{"))return parseBlock();
+    if(acc(";"))return {n:"blk",b:[]};
+    if(t.t==="id"){
+      if(t.v==="if"){next();exp("(");const c=parseExpr();exp(")");const a=parseStmt();let b=null;if(isV("else")){next();b=parseStmt();}return {n:"if",c:c,a:a,b:b,line:t.line};}
+      if(t.v==="while"){next();exp("(");const c=parseExpr();exp(")");return {n:"while",c:c,b:parseStmt(),line:t.line};}
+      if(t.v==="do"){next();const b=parseStmt();if(!isV("while"))syn("expected 'while' before '"+peek().v+"'");next();exp("(");const c=parseExpr();exp(")");exp(";");return {n:"dowhile",c:c,b:b,line:t.line};}
+      if(t.v==="for"){next();exp("(");let init=null;if(!isV(";")){if(isTypeStart()){const ty=parseType();if(peek().t==="id"&&isV(":",1)){const nm=ident();next();const arr=parseExpr();exp(")");return {n:"each",ty:ty,name:nm,arr:arr,b:parseStmt(),line:t.line};}init=parseDecl(ty,t.line);}else{init={n:"expr",e:parseExpr()};exp(";");}}else next();let c=null;if(!isV(";"))c=parseExpr();exp(";");let u=null;if(!isV(")"))u=parseExpr();exp(")");return {n:"for",init:init,c:c,u:u,b:parseStmt(),line:t.line};}
+      if(t.v==="return"){next();let e=null;if(!isV(";"))e=parseExpr();exp(";");return {n:"ret",e:e,line:t.line};}
+      if(t.v==="break"){next();exp(";");return {n:"brk"};}
+      if(t.v==="continue"){next();exp(";");return {n:"cnt"};}
+      if(TYW.includes(t.v)){const ty=parseType();return parseDecl(ty,t.line);}
+    }
+    const e=parseExpr();exp(";");return {n:"expr",e:e,line:t.line};
+  }
+  // ---- program ----
+  const sigOf=ps=>ps.map(q=>q.type.name+(q.arr?"[]":"")).join(",");
+  while(peek().t!=="eof"){
+    if(acc(";"))continue;
+    if(isV("using")){next();if(isV("namespace")){next();ident();usingStd=true;}else{while(!isV(";"))next();}exp(";");continue;}
+    const line=peek().line;
+    if(!isTypeStart())syn("expected a declaration but found '"+peek().v+"'",line);
+    const ty=parseType();const nm=ident();
+    if(isV("(")){
+      const ps=parseParams();
+      // defaults must run right to left
+      let seen=false;ps.forEach((q,k)=>{if(q.def)seen=true;else if(seen)sem("declaration","default argument missing for parameter "+(k+1)+" of '"+nm+"'. Defaults must be given from right to left.",line);});
+      const list=funcs[nm]||(funcs[nm]=[]);
+      const sig=sigOf(ps);let f=list.find(x=>sigOf(x.params)===sig);
+      if(!f){
+        const clash=list.find(x=>x.params.length===ps.length&&sigOf(x.params)===sig);
+        f={name:nm,ret:ty,params:ps,body:null,line:line};list.push(f);
+      }else{
+        if(f.ret.name!==ty.name)sem("declaration","conflicting return type: '"+nm+"' is already declared with a different return type. Overloads cannot differ only in return type.",line);
+        ps.forEach((q,k)=>{if(q.def){if(f.params[k].def)sem("declaration","default argument given for parameter "+(k+1)+" of '"+nm+"' after a previous specification. A default belongs in the declaration only once.",line);f.params[k].def=q.def;}});
+      }
+      // same name and same parameter types but different return type handled above; also different types but all equal arity are valid overloads
+      if(isV("{")){
+        if(f.body)sem("redefinition","redefinition of '"+nm+"'. A function can be defined only once.",line);
+        ps.forEach((q,k)=>{f.params[k].name=q.name;f.params[k].arr=q.arr;});
+        f.body=true;f.bodyNode=null;f.nm=nm;
+        const par=ps;
+        f.bodyNode=parseBlock();f.body=true;
+      }else{
+        if(!isV(";"))syn("expected ';' or '{' before '"+peek().v+"' (a declaration ends with a semicolon; a definition has a body and no semicolon)",peek().line);
+        next();
+      }
+      continue;
+    }
+    // global variable(s)
+    p-=1;const ds=[];
+    do{ds.push(parseDeclr());}while(acc(","));
+    exp(";");
+    if(ty.ext&&!ty.stat){ds.forEach(d=>externs[d.name]={ty:ty,line:line});}
+    else globals.push({n:"decl",ty:ty,ds:ds,line:line});
+  }
+  return {funcs:funcs,globals:globals,externs:externs,usingStd:usingStd,inc:inc};
+}
+/* ---------- runtime ---------- */
+function fnFmtD(x){
+  if(!isFinite(x))return isNaN(x)?"nan":(x<0?"-inf":"inf");
+  if(x===0)return "0";
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  let s=x.toPrecision(6);
+  if(e<-5||e>=6){s=x.toExponential(5).replace(/\.?0+e/,"e");s=s.replace(/e([+-])(\d)$/,"e$10$2");return s;}
+  if(s.includes("e")){s=Number(s).toString();}
+  if(s.includes("."))s=s.replace(/0+$/,"").replace(/\.$/,"");
+  return s;
+}
+function fnRun(src,inp){
+  const out=[],warn=[];let steps=0,depth=0;
+  const inS=(inp||"").replace(/\r/g,"");let ip=0;
+  const readTok=()=>{while(ip<inS.length&&/\s/.test(inS[ip]))ip++;if(ip>=inS.length)return null;let j=ip;while(j<inS.length&&!/\s/.test(inS[j]))j++;const t=inS.slice(ip,j);ip=j;return t;};
+  const readLine=()=>{if(ip>=inS.length)return null;let j=inS.indexOf("\n",ip);if(j<0)j=inS.length;const t=inS.slice(ip,j);ip=Math.min(j+1,inS.length);return t;};
+  let randSeed=1;
+  const MAXD=900;
+  function rt(title,detail,line){throw new FnErr("run","Run-time error: "+title,detail,line);}
+  const isNumK=k=>k==="int"||k==="long"||k==="double"||k==="bool"||k==="char";
+  const wrap32=x=>(x|0);
+  function coerce(k,val,line){
+    if(k==="auto")return {k:val.k,v:val.v};
+    if(k==="string"){if(val.k==="string")return {k:"string",v:val.v};if(val.k==="arr")return {k:"string",v:cstr(val)};rt("invalid conversion","cannot convert a number to string",line);}
+    if(!isNumK(val.k))rt("invalid conversion","cannot convert '"+val.k+"' to "+k,line);
+    let v=val.v;
+    if(k==="double")return {k:"double",v:Number(v)};
+    if(k==="bool")return {k:"bool",v:v?1:0};
+    if(k==="char"){return {k:"char",v:((Math.trunc(v)%256)+256)%256};}
+    v=Math.trunc(v);if(!isFinite(v))v=0;
+    if(k==="int")return {k:"int",v:wrap32(v)};
+    return {k:"long",v:v};
+  }
+  function cstr(a){let s="";for(const c of a.v){if(c.v===0)break;s+=String.fromCharCode(c.v);}return s;}
+  function sOf(x,line){if(x.k==="string")return x.v;if(x.k==="arr")return cstr(x);rt("invalid argument","a string was expected",line);}
+  function fmt(x){
+    if(x.k==="double")return fnFmtD(x.v);
+    if(x.k==="bool")return x.v?"1":"0";
+    if(x.k==="char")return String.fromCharCode(x.v);
+    if(x.k==="string")return x.v;
+    if(x.k==="arr")return x.ek==="char"?cstr(x):"0x7ffc";
+    return String(x.v);
+  }
+  const G={vars:new Map(),parent:null};
+  function look(env,name,line){for(let e=env;e;e=e.parent){if(e.vars.has(name))return e.vars.get(name);}rt("undeclared name","'"+name+"' was not declared in this scope.",line);}
+  let P=null;
+  function mkCell(ty,line,d,env,garb){
+    const k=ty.name;
+    if(d.dims){
+      let dims=d.dims.map(e=>e?Math.trunc(evalE(e,env).v):null);
+      const init=d.init;
+      if(dims[0]===null){
+        if(init&&init.n==="str")dims[0]=init.v.length+1;
+        else if(init&&init.n==="init"){const nested=init.l.some(x=>x.n==="init");if(nested||dims.length===1)dims[0]=init.l.length;else{const rest=dims.slice(1).reduce((x,y)=>x*y,1);dims[0]=Math.ceil(init.l.length/rest);}}
+        else rt("array size","the size of an array must be given or deduced from its initialiser",line);
+      }
+      if(dims.some(x=>x===null||x<=0||!isFinite(x)))rt("array size","an array size must be a positive constant",line);
+      let g=0;
+      const build=(ds,cur)=>{
+        if(ds.length===0){
+          if(cur&&cur.p<cur.l.length){let it=cur.l[cur.p++];while(it.n==="init")it=it.l[0]||{n:"num",v:0};return coerce(k,evalE(it,env),line);}
+          if(garb&&!init&&k!=="char"&&k!=="string"&&k!=="bool"){g++;return {k:k,v:k==="double"?21.5+((g*37+11)%80):21+((g*37+11)%80)};}
+          return {k:k,v:k==="string"?"":0};
+        }
+        const cells=[];
+        for(let i=0;i<ds[0];i++){
+          if(cur&&ds.length>1&&cur.p<cur.l.length&&cur.l[cur.p].n==="init"){const sub=cur.l[cur.p++];cells.push(build(ds.slice(1),{l:sub.l,p:0}));}
+          else cells.push(build(ds.slice(1),cur));
+        }
+        return {k:"arr",ek:ds.length>1?"arr":k,v:cells};
+      };
+      if(init&&init.n==="str"){
+        if(dims.length!==1||k!=="char")rt("invalid initialiser","only a char array can be initialised from a string",line);
+        if(init.v.length+1>dims[0])rt("array too small","initialiser string is longer than the array",line);
+        const cells=[];for(let i=0;i<dims[0];i++)cells.push({k:"char",v:i<init.v.length?init.v.charCodeAt(i):0});
+        return {k:"arr",ek:"char",v:cells};
+      }
+      if(init&&init.n!=="init")rt("invalid initialiser","an array needs a braced list { ... }",line);
+      const arr=build(dims,init?{l:init.l,p:0}:null);
+      if(init&&init.n==="init"){let cnt=0;const count=l=>l.forEach(x=>x.n==="init"?count(x.l):cnt++);count(init.l);if(cnt>dims.reduce((x,y)=>x*y,1))throw new FnErr("compile","Compile-time error (too many initialisers)","Line "+line+": there are more initialisers than elements in the array.",line);}
+      return arr;
+    }
+    if(d.init){if(d.init.n==="init"){const f=d.init.l[0];return coerce(k==="auto"?"int":k,f?evalE(f,env):{k:"int",v:0},line);}const val=evalE(d.init,env);return coerce(k==="auto"?val.k:k,val,line);}
+    return {k:k==="auto"?"int":k,v:k==="string"?"":0};
+  }
+  function declare(node,env,isGlobal){
+    for(const d of node.ds){
+      if(node.ty.stat&&!isGlobal){
+        const key=node;
+        node.statics=node.statics||new Map();
+        if(!node.statics.has(d.name))node.statics.set(d.name,mkCell(node.ty,node.line,d,env,false));
+        env.vars.set(d.name,node.statics.get(d.name));
+      }else env.vars.set(d.name,mkCell(node.ty,node.line,d,env,!isGlobal));
+    }
+  }
+  const isLv=n=>n.n==="id"||n.n==="idx"||n.n==="gid";
+  function lv(n,env){
+    if(n.n==="id")return look(env,n.name,n.line);
+    if(n.n==="gid"){if(!G.vars.has(n.name))rt("undeclared name","'::"+n.name+"' was not declared in the global scope.",n.line);return G.vars.get(n.name);}
+    if(n.n==="idx"){const a=evalE(n.a,env);const i=Math.trunc(evalE(n.i,env).v);if(a.k!=="arr")rt("invalid use","subscript used on a non-array",n.line);if(i<0||i>=a.v.length)rt("array index out of range","index "+i+" is outside an array of "+a.v.length+" elements (undefined behaviour in real C++).",n.line);return a.v[i];}
+    rt("invalid assignment","the left side must be a variable",n.line);
+  }
+  function arith(op,a,b,line){
+    if(a.k==="string"||b.k==="string"){
+      if(a.k!=="string"&&a.k!=="arr"||b.k!=="string"&&b.k!=="arr")rt("invalid operands","a string cannot be combined with a number here",line);
+      const x=sOf(a,line),y=sOf(b,line);
+      if(op==="+")return {k:"string",v:x+y};
+      if(op==="==")return {k:"bool",v:x===y?1:0};if(op==="!=")return {k:"bool",v:x!==y?1:0};
+      if(op==="<")return {k:"bool",v:x<y?1:0};if(op===">")return {k:"bool",v:x>y?1:0};
+      if(op==="<=")return {k:"bool",v:x<=y?1:0};if(op===">=")return {k:"bool",v:x>=y?1:0};
+      rt("invalid operands","operator "+op+" is not defined for strings",line);
+    }
+    if(a.k==="arr"||b.k==="arr"){if(op==="=="||op==="!=")return {k:"bool",v:((a===b)===(op==="=="))?1:0};rt("invalid operands","arrays cannot be combined with "+op,line);}
+    const dbl=a.k==="double"||b.k==="double",lng=a.k==="long"||b.k==="long";
+    const x=a.v,y=b.v;
+    switch(op){
+      case "+":case "-":case "*":{
+        let r=op==="+"?x+y:op==="-"?x-y:x*y;
+        if(dbl)return {k:"double",v:r};
+        if(lng)return {k:"long",v:r};
+        if(op==="*")r=Number(BigInt.asIntN(32,BigInt(x)*BigInt(y)));
+        return {k:"int",v:wrap32(r)};}
+      case "/":
+        if(dbl)return {k:"double",v:x/y};
+        if(y===0)rt("division by zero","An integer division by zero crashes the program (the compiler cannot detect it).",line);
+        return {k:lng?"long":"int",v:Math.trunc(x/y)};
+      case "%":
+        if(dbl)rt("invalid operands","% needs integer operands",line);
+        if(y===0)rt("division by zero","A remainder by zero crashes the program.",line);
+        return {k:lng?"long":"int",v:x%y};
+      case "==":return {k:"bool",v:x===y?1:0};case "!=":return {k:"bool",v:x!==y?1:0};
+      case "<":return {k:"bool",v:x<y?1:0};case ">":return {k:"bool",v:x>y?1:0};
+      case "<=":return {k:"bool",v:x<=y?1:0};case ">=":return {k:"bool",v:x>=y?1:0};
+    }
+    rt("unsupported operator",op,line);
+  }
+  function tick(line){if(++steps>1500000)throw new FnErr("run","Time limit exceeded","The program ran for too long: probably an infinite loop or a recursion that never reaches its base case.",line);}
+  function evalE(n,env){
+    switch(n.n){
+      case "num":return n.b?{k:"bool",v:n.v}:{k:n.f?"double":"int",v:n.v};
+      case "str":return {k:"string",v:n.v};
+      case "chr":return {k:"char",v:n.v};
+      case "id":{if(n.name==="endl")return {k:"endl"};if(n.name==="cout"||n.name==="cin")return {k:"stream",s:n.name};return look(env,n.name,n.line);}
+      case "gid":return lv(n,env);
+      case "idx":return lv(n,env);
+      case "un":{const e=evalE(n.e,env);if(n.op==="!")return {k:"bool",v:e.v?0:1};if(n.op==="-")return e.k==="double"?{k:"double",v:-e.v}:{k:e.k==="long"?"long":"int",v:-e.v};return e;}
+      case "inc":{const c=lv(n.e,env);const old={k:c.k,v:c.v};const nv=coerce(c.k,{k:"int",v:c.v+(n.op==="++"?1:-1)});if(c.k==="double")nv.v=c.v+(n.op==="++"?1:-1);c.v=nv.v;return n.pre?{k:c.k,v:c.v}:old;}
+      case "cast":{const e=evalE(n.e,env);return coerce(n.ty,e,n.line);}
+      case "tern":return evalE(evalE(n.c,env).v?n.a:n.b,env);
+      case "meth":{const o=evalE(n.o,env);
+        if(o.k==="stream"&&o.s==="cin"){
+          if(n.m==="getline"){const d=lv(n.args[0],env);const sz=Math.trunc(evalE(n.args[1],env).v);const t=readLine();if(t===null)rt("input","cin.getline ran out of input: type the text in the keyboard input box.",n.line);const u=t.slice(0,sz-1);for(let q=0;q<u.length;q++)d.v[q]={k:"char",v:u.charCodeAt(q)};d.v[u.length]={k:"char",v:0};return o;}
+          if(n.m==="ignore"){if(ip<inS.length)ip++;return o;}
+          rt("unsupported","cin."+n.m+" is not supported by this runner",n.line);
+        }
+        const s=sOf(o,n.line);if(n.m==="length"||n.m==="size")return {k:"int",v:s.length};rt("unsupported","string method '"+n.m+"' is not supported by this runner",n.line);}
+      case "asg":{
+        const c=lv(n.l,env);let r=evalE(n.r,env);
+        if(n.op!=="=")r=arith(n.op[0],{k:c.k,v:c.v},r,n.line);
+        if(c.k==="arr")rt("invalid assignment","an array cannot be assigned as a whole",n.line);
+        const nv=coerce(c.k,r,n.line);c.v=nv.v;return {k:c.k,v:c.v};}
+      case "bin":{
+        if(n.op==="&&"){const a=evalE(n.l,env);if(!a.v)return {k:"bool",v:0};return {k:"bool",v:evalE(n.r,env).v?1:0};}
+        if(n.op==="||"){const a=evalE(n.l,env);if(a.v)return {k:"bool",v:1};return {k:"bool",v:evalE(n.r,env).v?1:0};}
+        if(n.op==="<<"||n.op===">>"){
+          const a=evalE(n.l,env);
+          if(a.k==="stream"){
+            if(n.op==="<<"&&a.s==="cout"){const b=evalE(n.r,env);out.push(b.k==="endl"?"\n":fmt(b));return a;}
+            if(n.op===">>"&&a.s==="cin"){const c=lv(n.r,env);const t=readTok();if(t===null)rt("input","cin ran out of input: type the values in the keyboard input box.",n.line);if(c.k==="arr"){if(t.length+1>c.v.length)rt("buffer overflow","cin >> wrote "+(t.length+1)+" characters (with the null) into an array of "+c.v.length+": a buffer overflow.",n.line);for(let q=0;q<t.length;q++)c.v[q]={k:"char",v:t.charCodeAt(q)};c.v[t.length]={k:"char",v:0};}else if(c.k==="string")c.v=t;else{const x=Number(t);if(isNaN(x))rt("input","'"+t+"' is not a number",n.line);c.v=coerce(c.k,{k:"double",v:x}).v;}return a;}
+            rt("invalid stream operation","wrong direction for the stream",n.line);
+          }
+          const b=evalE(n.r,env);return {k:"int",v:n.op==="<<"?a.v<<b.v:a.v>>b.v};
+        }
+        return arith(n.op,evalE(n.l,env),evalE(n.r,env),n.line);}
+      case "sizeof":{
+        const SZ={int:4,long:8,double:8,char:1,bool:1,string:32};
+        const sv=v=>v.k==="arr"?(v.ptr?8:v.v.length*(v.v.length?sv(v.v[0]):0)):(SZ[v.k]||4);
+        if(n.ty)return {k:"long",v:SZ[n.ty]||4};
+        return {k:"long",v:sv(evalE(n.e,env))};}
+      case "call":return callFn(n,env);
+    }
+    rt("unsupported","expression",n.line);
+  }
+  function cost(par,arg){
+    const pk=par.type.name;
+    if(par.arr)return arg.k==="arr"?0:(arg.k==="string"&&par.type.name==="char"?0:null);
+    if(pk==="string")return arg.k==="string"?0:(arg.k==="arr"?1:null);
+    if(!isNumK(arg.k))return null;
+    if(par.type.ref&&!par.type.isConst&&!arg.cell)return null;
+    if(par.type.ref&&!par.type.isConst&&arg.cell&&arg.cell.k!==pk)return null;
+    if(pk===arg.k)return 0;
+    if((arg.k==="char"||arg.k==="bool")&&pk==="int")return 0.5;
+    if(arg.k==="int"&&pk==="long")return 0.5;
+    return 1;
+  }
+  function callFn(n,env){
+    tick(n.line);
+    const args=n.args.map(a=>{const c=(isLv(a)&&!(a.n==="id"&&(a.name==="cin"||a.name==="cout")))?lv(a,env):null;if(c&&c.k!=="arr")return {k:c.k,v:c.v,cell:c};if(c)return c;return evalE(a,env);});
+    if(n.name==="getline"&&!P.funcs.getline){if(!args[1]||!args[1].cell||args[1].cell.k!=="string")rt("invalid argument","getline(cin, line) needs a string variable",n.line);const t=readLine();if(t===null)rt("input","getline ran out of input: type the text in the keyboard input box.",n.line);args[1].cell.v=t;return {k:"stream",s:"cin"};}
+    const lib=builtin(n.name,args,n.line);
+    const list=P.funcs[n.name];
+    if(!list){if(lib)return lib;rt("undeclared name","'"+n.name+"' was not declared.",n.line);}
+    let best=[],bc=Infinity;
+    for(const f of list){
+      const req=f.params.filter(q=>!q.def).length;
+      if(args.length<req||args.length>f.params.length)continue;
+      let tot=0,ok=true;
+      for(let i=0;i<args.length;i++){const c=cost(f.params[i],args[i]);if(c===null){ok=false;break;}tot+=c;}
+      if(!ok)continue;
+      if(tot<bc){bc=tot;best=[f];}else if(tot===bc)best.push(f);
+    }
+    const sigStr=args.map(a=>a.k==="long"?"long long":a.k==="arr"?(a.ek+"*"):a.k).join(", ");
+    if(!best.length)throw new FnErr("compile","Compile-time error (no matching function)","Line "+n.line+": no version of '"+n.name+"' accepts the arguments ("+sigStr+"). Check the number and types of the arguments (a non-const reference needs a variable).",n.line);
+    if(best.length>1)throw new FnErr("compile","Compile-time error (ambiguous call)","Line "+n.line+": the call of overloaded '"+n.name+"("+sigStr+")' is ambiguous: "+best.length+" versions fit equally well, each needing a conversion.",n.line);
+    const f=best[0];
+    if(!f.body)throw new FnErr("link","Linker error: undefined reference to '"+n.name+"'","The function '"+n.name+"' was declared (a prototype) but never defined. The compiler accepts a prototype; the linker needs the definition (Lesson 12).",n.line);
+    if(++depth>MAXD){depth=0;throw new FnErr("run","Run-time error: stack overflow","The call stack ran out of memory after about "+MAXD+" nested calls: usually a recursion with no reachable base case. Real programs crash with a segmentation fault.",n.line);}
+    const fenv={vars:new Map(),parent:G};
+    f.params.forEach((q,i)=>{
+      let a=args[i];
+      if(!a){a=evalE(q.def,G);}
+      if(q.arr){if(a.k==="string"){const cs=[];for(const ch of a.v)cs.push({k:"char",v:ch.charCodeAt(0)});cs.push({k:"char",v:0});a={k:"arr",ek:"char",v:cs};}fenv.vars.set(q.name,{k:"arr",ek:a.ek,v:a.v,ptr:true});return;}
+      if(q.type.ref&&a.cell){fenv.vars.set(q.name,a.cell);return;}
+      fenv.vars.set(q.name,coerce(q.type.name,{k:a.k,v:a.v,}));
+    });
+    let sig=execBlock(f.bodyNode,fenv);
+    depth--;
+    if(sig&&sig.t==="ret"){if(f.ret.name==="void")return {k:"void"};return f.ret.name==="auto"?sig.v:coerce(f.ret.name,sig.v,n.line);}
+    if(f.ret.name!=="void"&&f.name!=="main"){warn.push("control reaches the end of non-void function '"+f.name+"' without a return (undefined behaviour)");return {k:f.ret.name==="double"?"double":"int",v:0};}
+    return {k:"void"};
+  }
+  function builtin(name,a,line){
+    const lib=FN_LIB[name];const num=i=>{if(!a[i]||!isNumK(a[i].k))rt("invalid argument","argument "+(i+1)+" of "+name+" must be a number",line);return a[i].v;};
+    const D=v=>({k:"double",v:v}),I=v=>({k:"int",v:v});
+    if(P.funcs[name])return null;
+    switch(name){
+      case "sqrt":return D(Math.sqrt(num(0)));case "pow":return D(Math.pow(num(0),num(1)));
+      case "fabs":return D(Math.abs(num(0)));case "floor":return D(Math.floor(num(0)));case "ceil":return D(Math.ceil(num(0)));
+      case "round":{const x=num(0);return D(x<0?-Math.round(-x):Math.round(x));}
+      case "sin":return D(Math.sin(num(0)));case "cos":return D(Math.cos(num(0)));case "tan":return D(Math.tan(num(0)));
+      case "log":return D(Math.log(num(0)));case "log10":return D(Math.log10(num(0)));case "exp":return D(Math.exp(num(0)));
+      case "abs":{const x=num(0);return a[0].k==="double"?D(Math.abs(x)):I(Math.abs(x));}
+      case "isalpha":{const c=num(0);return I(/[A-Za-z]/.test(String.fromCharCode(c))?1:0);}
+      case "isdigit":{const c=num(0);return I(c>=48&&c<=57?1:0);}
+      case "isalnum":{const c=num(0);return I(/[A-Za-z0-9]/.test(String.fromCharCode(c))?1:0);}
+      case "isspace":{const c=num(0);return I(c===32||(c>=9&&c<=13)?1:0);}
+      case "isupper":{const c=num(0);return I(c>=65&&c<=90?1:0);}case "islower":{const c=num(0);return I(c>=97&&c<=122?1:0);}
+      case "toupper":{const c=num(0);return I(c>=97&&c<=122?c-32:c);}case "tolower":{const c=num(0);return I(c>=65&&c<=90?c+32:c);}
+      case "strlen":return I(sOf(a[0],line).length);
+      case "strcmp":{const x=sOf(a[0],line),y=sOf(a[1],line);return I(x===y?0:(x<y?-1:1));}
+      case "strcpy":case "strcat":{
+        const d=a[0];if(d.k!=="arr")rt("invalid argument","the destination of "+name+" must be a character array",line);
+        const s=sOf(a[1],line);const base=name==="strcat"?cstr(d):"";const res=base+s;
+        if(res.length+1>d.v.length)rt("buffer overflow","'"+name+"' wrote "+(res.length+1)+" characters (including the null terminator) into an array of "+d.v.length+". In real C++ this overwrites neighbouring memory: a buffer overflow.",line);
+        for(let i=0;i<res.length;i++)d.v[i]={k:"char",v:res.charCodeAt(i)};d.v[res.length]={k:"char",v:0};return d;}
+      case "rand":{randSeed=(randSeed*1103515245+12345)%2147483648;return I(randSeed);}
+      case "srand":{randSeed=Math.abs(Math.trunc(num(0)))%2147483648;return {k:"void"};}
+      case "time":return {k:"long",v:Math.floor(Date.now()/1000)};
+      case "atoi":{const m=/^\s*[+-]?\d+/.exec(sOf(a[0],line));return I(m?parseInt(m[0],10):0);}
+      case "atof":{const m=/^\s*[+-]?(\d+\.?\d*|\.\d+)/.exec(sOf(a[0],line));return D(m?parseFloat(m[0]):0);}
+      case "exit":throw new ExitSig(a[0]?a[0].v:0);
+    }
+    return null;
+  }
+  function execBlock(b,env){const e={vars:new Map(),parent:env};for(const s of b.b){const r=exec(s,e);if(r)return r;}return null;}
+  function exec(s,env){
+    switch(s.n){
+      case "blk":return execBlock(s,env);
+      case "decl":declare(s,env,false);return null;
+      case "expr":evalE(s.e,env);return null;
+      case "if":return evalE(s.c,env).v?exec(s.a,env):(s.b?exec(s.b,env):null);
+      case "while":while(evalE(s.c,env).v){tick(s.line);const r=exec(s.b,env);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}}return null;
+      case "dowhile":do{tick(s.line);const r=exec(s.b,env);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}}while(evalE(s.c,env).v);return null;
+      case "for":{const e={vars:new Map(),parent:env};if(s.init){if(s.init.n==="decl")declare(s.init,e,false);else evalE(s.init.e,e);}
+        while(!s.c||evalE(s.c,e).v){tick(s.line);const r=exec(s.b,e);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}if(s.u)evalE(s.u,e);}return null;}
+      case "each":{const a=evalE(s.arr,env);if(a.k!=="arr")rt("invalid use","range-based for needs an array",s.line);
+        for(const cell of a.v){tick(s.line);const e={vars:new Map(),parent:env};e.vars.set(s.name,s.ty.ref?cell:(s.ty.name==="auto"?{k:cell.k,v:cell.v}:coerce(s.ty.name,cell)));const r=exec(s.b,e);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}}return null;}
+      case "ret":return {t:"ret",v:s.e?evalE(s.e,env):{k:"void"}};
+      case "brk":return {t:"brk"};case "cnt":return {t:"cnt"};
+    }
+    rt("unsupported","statement",s.line);
+  }
+  let code=0;
+  try{
+    P=fnParse(fnLex(src.replace(/\r/g,"")));
+    for(const g of P.globals)declare(g,G,true);
+    for(const nm in P.externs)if(!G.vars.has(nm))throw new FnErr("link","Linker error: undefined reference to '"+nm+"'","'"+nm+"' is declared extern here but no file defines it. An extern declaration allocates no memory; the linker must find exactly one definition (Lesson 12).",P.externs[nm].line);
+    const mains=P.funcs.main;if(!mains||!mains[0].body)throw new FnErr("link","Linker error: undefined reference to 'main'","Every program needs a main() function.",0);
+    const r=callFn({name:"main",args:[],line:0},G);code=r&&r.k!=="void"?r.v:0;
+  }catch(e){
+    if(e instanceof ExitSig)return {ok:true,out:out.join(""),code:e.c,warn:warn};
+    if(e instanceof FnErr)return {ok:false,out:e.kind==="run"?out.join(""):"",cls:e.kind==="link"?"note":"bad",title:e.title,detail:e.detail,line:e.line,warn:warn};
+    if(e instanceof RangeError)return {ok:false,out:out.join(""),cls:"bad",title:"Run-time error: stack overflow",detail:"The call stack ran out of memory: usually a recursion with no reachable base case.",warn:warn};
+    return {ok:false,out:out.join(""),cls:"note",title:"The runner could not run this program",detail:String(e&&e.message||e).slice(0,200),warn:warn};
+  }
+  return {ok:true,out:out.join(""),code:code,warn:warn};
+}
+
+function runCpp(src,inp){
+  const r=fnRun(src,(inp||"").replace(/\\n/g,"\n"));
+  if(r.ok&&r.warn&&r.warn.length)r.note=r.warn.join("; ");
+  return r;
+}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to execute the program. Output appears here.</p>';
+  let h="";
+  if(r.ok){h+='<pre class="outpre">'+(r.out?esc(r.out):'<span class="dim">(no output)</span>')+'</pre>'+(r.note?'<div class="rs note"><b>Warning.</b> '+esc(r.note)+'</div>':'')+'<div class="rs ok">Finished normally (exit code '+r.code+')</div>';}
+  else{if(r.out)h+='<pre class="outpre">'+esc(r.out)+'</pre>';h+='<div class="rs '+r.cls+'"><b>'+esc(r.title)+'.</b> '+esc(r.detail)+'</div>';}
+  return h;
+}
+/* ============ CODE WIDGET ============ */
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const needIn=spec.inp!==undefined||/\bcin\b/.test(src);
+  const inp=CS.inp[id]!==undefined?CS.inp[id]:(spec.inp||"");
+  const rows=Math.min(22,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">C++ program</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="C++ code editor">'+esc(src)+'</textarea>';
+  if(needIn)h+='<div class="cw-in"><label class="lab" for="in-'+id+'">Keyboard input for cin (type \\n for the Enter key)</label><input type="text" class="cin" id="in-'+id+'" data-iid="'+id+'" value="'+esc(inp)+'" autocomplete="off"></div>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id),ii=document.getElementById("in-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const inp=ii?ii.value:(CS.inp[id]||spec.inp||"");CS.inp[id]=inp;
+  const r=runCpp(src,inp);
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ mt:"1d",mb:"1000",mz:"4",mi:"3",mc:"4",mj:"2",
+ sa:"bubble",sarr:"64, 34, 25, 12, 22, 11",
+ se:"binary",sarr2:"5, 8, 12, 23, 45, 56, 67",stg:"56",
+ st1:"Ramesh",scap:"10",st2:"Rakesh",
+ mop:"add",mr1:"2",mc1:"3",mr2:"2",mc2:"3",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run code"],["pred","Predict the output"],["fix","Fix the bug"],["mem","Memory addresses"],["sort","Sort tracer"],["search","Search tracer"],["str","String cells"],["mat","Matrix lab"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank program",spec:{c:"#include <iostream>\nusing namespace std;\n\nint main()\n{\n    int a[5] = {3, 1, 4, 1, 5};\n    int sum = 0;\n    for (int i = 0; i < 5; i++)\n        sum += a[i];\n    cout << sum << endl;\n    return 0;\n}",tr:"Write your own array programs here."}});
+function labView(){
+  let h='<p class="hint">Arrays are learned by tracing. Run each listing, predict the output before you press Run, then change one bound or one index and predict again. The tracers show the same pass-by-pass tables that examiners mark.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,mem:labMem,sort:labSortT,search:labSearch,str:labStr,mat:labMat,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s programs</h3><label class="lab" for="exsel">Choose a listing</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">The runner is written for this course: it understands one-, two- and three-dimensional arrays, initialisers, sizeof, the range-based for, arrays passed to functions, character arrays, cin.getline and cin.ignore, std::string, the &lt;cstring&gt; functions and loops. Where real C++ would show undefined behaviour (an index out of range, a buffer overflow) the runner stops and explains it instead.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your prediction (what the program prints; separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected output: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to execute the code and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+const FIX=[
+{t:"The off-by-one loop",kind:"Run-time error (undefined behaviour)",goal:"The program should print: 10 20 30 40 50",exp:"10 20 30 40 50",hint:"The valid indices of a 5-element array are 0 to 4. How far does i go?",sol:"Use i < 5 in the loop condition.",why:"C++ does not check bounds; an index of 5 is undefined behaviour. Always write i < size.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[5] = {10, 20, 30, 40, 50};
+    for (int i = 0; i <= 5; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`},
+{t:"Comparing strings with ==",kind:"Logical error",goal:"The program should print: Equal",exp:"Equal",hint:"What does == compare for two arrays? Which function compares text?",sol:"Use if (strcmp(a, b) == 0) and include <cstring>.",why:"== compares the addresses of the arrays. strcmp compares the characters and returns 0 for equal.",src:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char a[] = "abc";
+    char b[] = "abc";
+    if (a == b)
+        cout << "Equal";
+    else
+        cout << "Different";
+    return 0;
+}`},
+{t:"Reversing the whole array",kind:"Logical error",goal:"The program should print: 6 5 4 3 2 1",exp:"6 5 4 3 2 1",hint:"What happens when every pair is swapped twice?",sol:"Loop only to the middle: i < 6 / 2.",why:"Swapping all the pairs twice restores the original order.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[6] = {1, 2, 3, 4, 5, 6};
+    for (int i = 0; i < 6; i++) {
+        int temp = arr[i];
+        arr[i] = arr[5 - i];
+        arr[5 - i] = temp;
+    }
+    for (int i = 0; i < 6; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`},
+{t:"Insertion that overwrites",kind:"Logical error",goal:"The program should print: 10 20 25 30 40 50",exp:"10 20 25 30 40 50",hint:"In which direction must the elements be shifted so that none is overwritten before it is moved?",sol:"Shift from the end backwards: for (int i = n; i > pos; i--) arr[i] = arr[i - 1];",why:"Shifting forwards copies the same value over every later element.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[10] = {10, 20, 30, 40, 50};
+    int n = 5, pos = 2, value = 25;
+    for (int i = pos; i < n; i++)
+        arr[i + 1] = arr[i];
+    arr[pos] = value;
+    n++;
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`},
+{t:"Average with integer division",kind:"Logical error",goal:"The program should print: 86.6",exp:"86.6",hint:"Is sum / 5 computed with integers or with doubles?",sol:"Cast first: double average = (double)sum / 5;",why:"Integer division discards the fractional part before the result is stored.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int marks[5] = {85, 90, 78, 92, 88};
+    int sum = 0;
+    for (int i = 0; i < 5; i++)
+        sum += marks[i];
+    double average = sum / 5;
+    cout << average;
+    return 0;
+}`},
+{t:"getline that never waits",kind:"Logical error",goal:"With the input shown the program should print: Ramesh Kumar is 17",exp:"Enter age: Enter full name: Ramesh Kumar is 17",inp:"17\\nRamesh Kumar",hint:"What is left in the input after cin >> age?",sol:"Add cin.ignore(); after cin >> age;",why:"The newline after the number stays in the input and getline reads that empty line.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int age;
+    char name[50];
+    cout << "Enter age: ";
+    cin >> age;
+    cout << "Enter full name: ";
+    cin.getline(name, 50);
+    cout << name << " is " << age << endl;
+    return 0;
+}`},
+{t:"Buffer overflow in strcpy",kind:"Run-time error (undefined behaviour)",goal:"The program should print: Computer",exp:"Computer",hint:"\"Computer\" has 8 letters. How many cells does it need with the null?",sol:"Declare char small[9]; (or larger).",why:"strcpy does not check the destination: 9 cells are needed, including the null.",src:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char small[5];
+    strcpy(small, "Computer");
+    cout << small;
+    return 0;
+}`},
+{t:"Matrix product that starts with garbage",kind:"Logical error",goal:"The program should print the two rows: 58 64 and 139 154",exp:"58 64 \n139 154",hint:"Which statement adds onto whatever is already in result?",sol:"Initialise the result to zero: int result[2][2] = {0};",why:"The += operator adds to the existing contents, so the result must start at zero.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int b[3][2] = {{7, 8}, {9, 10}, {11, 12}};
+    int result[2][2];
+
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            for (int k = 0; k < 3; k++)
+                result[i][j] += a[i][k] * b[k][j];
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++)
+            cout << result[i][j] << " ";
+        cout << endl;
+    }
+    return 0;
+}`},
+{t:"Bubble sort bound",kind:"Run-time error (undefined behaviour)",goal:"The program should print: 11 12 22 25 34 64",exp:"11 12 22 25 34 64",hint:"On the last comparison j + 1 reaches the end. What should the inner bound be?",sol:"Use j < size - i - 1.",why:"arr[j + 1] must stay inside the array; the last i elements are already in place.",src:R`#include <iostream>
+using namespace std;
+
+void bubbleSort(int arr[], int size)
+{
+    for (int i = 0; i < size - 1; i++)
+        for (int j = 0; j < size; j++)
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+}
+
+int main()
+{
+    int arr[6] = {64, 34, 25, 12, 22, 11};
+    bubbleSort(arr, 6);
+    for (int i = 0; i < 6; i++)
+        cout << arr[i] << " ";
+    return 0;
+}`},
+{t:"Transpose with the wrong dimensions",kind:"Run-time error (undefined behaviour)",goal:"The program should print the 3 x 2 transpose: 1 4 / 2 5 / 3 6",exp:"1 4 \n2 5 \n3 6",hint:"A 2 x 3 matrix has a transpose of which size?",sol:"Declare int t[3][2];",why:"The transpose of an m x n matrix is n x m.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int t[2][3];
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 3; j++)
+            t[j][i] = a[i][j];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 2; j++)
+            cout << t[i][j] << " ";
+        cout << endl;
+    }
+    return 0;
+}`}
+];
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+function parseList(s,min,max){
+  const parts=s.split(/[\s,]+/).filter(Boolean);
+  if(parts.length<min||parts.length>max)return {err:"Enter between "+min+" and "+max+" whole numbers separated by commas."};
+  const v=parts.map(Number);if(v.some(x=>!Number.isInteger(x)||Math.abs(x)>9999))return {err:"Use whole numbers between -9999 and 9999."};
+  return {v:v};
+}
+/* ---------- Memory addresses ---------- */
+function memRes(){
+  const base=parseInt(L.mb,10),sz=parseInt(L.mz,10),i=parseInt(L.mi,10);
+  if([base,sz,i].some(x=>isNaN(x)||x<0)||sz<1||sz>16)return '<div class="rs bad">Enter a base address, an element size from 1 to 16 and a non-negative index.</div>';
+  if(L.mt==="1d"){
+    const addr=base+i*sz;
+    const rows=[];for(let k=0;k<Math.min(8,Math.max(i+2,5));k++)rows.push(["arr["+k+"]",String(base+k*sz),k===i?"selected":""]);
+    return '<div class="rs ok"><b>address of arr['+i+"] = "+base+" + "+i+" x "+sz+" = "+addr+".</b> The index is an offset: "+i+" elements are skipped from the start.</div>"+tbl(["Element","Address","Note"],rows);
+  }
+  const c=parseInt(L.mc,10),j=parseInt(L.mj,10);
+  if([c,j].some(x=>isNaN(x)||x<0)||c<1||c>10||j>=c)return '<div class="rs bad">Enter a column count from 1 to 10 and a column index smaller than the column count.</div>';
+  const flat=i*c+j,addr=base+flat*sz;
+  const rows=[];for(let k=0;k<Math.min(12,flat+3);k++)rows.push(["m["+Math.floor(k/c)+"]["+(k%c)+"]",String(k),String(base+k*sz),k===flat?"selected":""]);
+  return '<div class="rs ok"><b>address of m['+i+"]["+j+"] = "+base+" + ("+i+" x "+c+" + "+j+") x "+sz+" = "+base+" + "+flat+" x "+sz+" = "+addr+".</b> In row-major order the flattened position is i x C + j = "+flat+".</div>"+tbl(["Element","Flattened position","Address","Note"],rows);
+}
+function labMem(){
+  return '<div class="panel"><h3>Memory addresses</h3><p class="hint">Compute where an element lies in memory. For an int array on a system where an int takes 4 bytes and the array starts at address 1000, arr[3] is at 1012.</p>'+chips("mt",[["1d","One-dimensional"],["2d","Two-dimensional (row-major)"]])+'<div class="row">'+numIn("mb","Base address","mb",7,"mem")+numIn("mz","Bytes per element","mz",5,"mem")+numIn("mi",L.mt==="1d"?"Index i":"Row i","mi",5,"mem")+(L.mt==="2d"?numIn("mj","Column j","mj",5,"mem")+numIn("mc","Columns C","mc",5,"mem"):"")+'</div><div id="memres">'+memRes()+"</div></div>";
+}
+/* ---------- Sort tracer ---------- */
+function sortSim(){
+  const p=parseList(L.sarr,2,10);if(p.err)return {err:p.err};
+  const a=p.v.slice(),rows=[];let cmp=0,sw=0;const n=a.length;
+  rows.push(["start","-",a.join(" ")]);
+  if(L.sa==="bubble"){
+    for(let i=0;i<n-1;i++){let s=0;for(let j=0;j<n-i-1;j++){cmp++;if(a[j]>a[j+1]){const t=a[j];a[j]=a[j+1];a[j+1]=t;s++;sw++;}}rows.push([i+1,s+" swap(s); "+a.slice(n-i-1).join(" ")+" in final place",a.join(" ")]);if(s===0){rows[rows.length-1][1]="no swaps: already sorted (a flag would stop here)";}}
+  }else if(L.sa==="selection"){
+    for(let i=0;i<n-1;i++){let m=i;for(let j=i+1;j<n;j++){cmp++;if(a[j]<a[m])m=j;}if(m!==i){const t=a[m];a[m]=a[i];a[i]=t;sw++;}rows.push([i,"minimum "+a[i]+" placed at index "+i+(m===i?" (already there)":""),a.join(" ")]);}
+  }else{
+    for(let i=1;i<n;i++){const key=a[i];let j=i-1;while(j>=0){cmp++;if(a[j]>key){a[j+1]=a[j];sw++;j--;}else break;}a[j+1]=key;rows.push([i,"key "+key,a.slice(0,i+1).join(" ")+(i+1<n?" | "+a.slice(i+1).join(" "):"")]);}
+  }
+  return {rows:rows,cmp:cmp,sw:sw,res:a};
+}
+function sortCode(){
+  if(L.sa==="bubble")return "for (int i = 0; i < size - 1; i++)\n    for (int j = 0; j < size - i - 1; j++)\n        if (arr[j] > arr[j + 1])\n            swap arr[j] and arr[j + 1];";
+  if(L.sa==="selection")return "for (int i = 0; i < size - 1; i++) {\n    int minIndex = i;\n    for (int j = i + 1; j < size; j++)\n        if (arr[j] < arr[minIndex]) minIndex = j;\n    swap arr[minIndex] and arr[i];\n}";
+  return "for (int i = 1; i < size; i++) {\n    int key = arr[i];\n    int j = i - 1;\n    while (j >= 0 && arr[j] > key) { arr[j + 1] = arr[j]; j--; }\n    arr[j + 1] = key;\n}";
+}
+function sortRes(){
+  const r=sortSim();if(r.err)return '<div class="rs bad">'+esc(r.err)+"</div>";
+  const head=L.sa==="bubble"?["Pass","Effect","Array afterwards"]:L.sa==="selection"?["Pass i","Effect","Array afterwards"]:["Pass i","Effect","Array afterwards (sorted part before the bar)"];
+  return '<pre class="codeview">'+esc(sortCode())+"</pre>"+tbl(head,r.rows)+'<div class="rs ok"><b>Sorted: '+esc(r.res.join(" "))+".</b> Comparisons: "+r.cmp+(L.sa==="insertion"?"; elements shifted: "+r.sw+".":"; swaps: "+r.sw+".")+(L.sa==="selection"?" Selection sort never makes more than n - 1 = "+(r.res.length-1)+" swaps.":"")+"</div>";
+}
+function labSortT(){
+  return '<div class="panel"><h3>Sort tracer</h3><p class="hint">Choose an algorithm and an array. The table shows the array after every pass, exactly as an examination trace does. Try an already sorted array and a reversed one.</p>'+chips("sa",[["bubble","Bubble sort"],["selection","Selection sort"],["insertion","Insertion sort"]])+'<div class="row">'+numIn("sarr","Array (2 to 10 numbers)","sarr",22,"sort")+'</div><div id="sortres">'+sortRes()+"</div></div>";
+}
+/* ---------- Search tracer ---------- */
+function searchRes(){
+  const p=parseList(L.sarr2,1,15),t=parseInt(L.stg,10);
+  if(p.err)return '<div class="rs bad">'+esc(p.err)+"</div>";if(isNaN(t))return '<div class="rs bad">Enter a whole number as the target.</div>';
+  const a=p.v;
+  if(L.se==="linear"){
+    const rows=[];let found=-1;for(let i=0;i<a.length;i++){const hit=a[i]===t;rows.push([i,a[i],hit?"equal: found":"not equal"]);if(hit){found=i;break;}}
+    return '<pre class="codeview">'+esc("for (int i = 0; i < size; i++)\n    if (arr[i] == target) return i;\nreturn -1;")+"</pre>"+tbl(["i","arr[i]","Comparison with "+t],rows)+'<div class="rs '+(found>=0?"ok":"note")+'"><b>'+(found>=0?"Found at index "+found+".":"Not found: returns -1.")+"</b> "+rows.length+" comparison(s); worst case "+a.length+".</div>";
+  }
+  const sorted=a.every((x,i)=>i===0||a[i-1]<=x);
+  if(!sorted)return '<div class="rs bad"><b>The array is not sorted.</b> Binary search requires a sorted array, so the result would be unreliable. Sort the numbers into ascending order first.</div>';
+  let low=0,high=a.length-1,rows=[],found=-1;
+  while(low<=high){const mid=low+Math.floor((high-low)/2);const v=a[mid];let d;if(v===t){d=v+" = "+t+": found";found=mid;}else if(v<t){d=v+" < "+t+": low = "+(mid+1);}else d=v+" > "+t+": high = "+(mid-1);rows.push([low,high,mid,v,d]);if(found>=0)break;if(v<t)low=mid+1;else high=mid-1;}
+  if(found<0)rows.push([low,high,"-","-","low > high: range empty, return -1"]);
+  const worst=Math.floor(Math.log2(a.length))+1;
+  return '<pre class="codeview">'+esc("while (low <= high) {\n    int mid = low + (high - low) / 2;\n    if (arr[mid] == target) return mid;\n    else if (arr[mid] < target) low = mid + 1;\n    else high = mid - 1;\n}\nreturn -1;")+"</pre>"+tbl(["low","high","mid","arr[mid]","Decision"],rows)+'<div class="rs '+(found>=0?"ok":"note")+'"><b>'+(found>=0?"Found at index "+found+".":"Not found: returns -1.")+"</b> "+rows.filter(r=>r[2]!=="-").length+" comparison(s); at most floor(log2 "+a.length+") + 1 = "+worst+" are ever needed.</div>";
+}
+function labSearch(){
+  return '<div class="panel"><h3>Search tracer</h3><p class="hint">Choose a search and a target. Binary search needs the array in ascending order.</p>'+chips("se",[["binary","Binary search"],["linear","Linear search"]])+'<div class="row">'+numIn("sarr2","Array (numbers)","sarr2",22,"search")+numIn("stg","Target","stg",6,"search")+'</div><div id="searchres">'+searchRes()+"</div></div>";
+}
+/* ---------- String cells ---------- */
+function strRes(){
+  const s=L.st1,cap=parseInt(L.scap,10);
+  if(isNaN(cap)||cap<1||cap>20)return '<div class="rs bad">Enter a capacity from 1 to 20.</div>';
+  if(s.length>20)return '<div class="rs bad">Use at most 20 characters.</div>';
+  const cells=[];for(let i=0;i<cap;i++)cells.push(i<s.length?s[i]:i===s.length?"\\0":"?");
+  const ov=s.length+1>cap;
+  let h='<div class="tblwrap"><table class="tbl"><thead><tr>'+cells.map((c,i)=>"<th>["+i+"]</th>").join("")+"</tr></thead><tbody><tr>"+cells.map((c,i)=>"<td"+(c==="\\0"?' style="font-weight:700"':"")+">"+esc(c==="\\0"?"\\0":c)+"</td>").join("")+"</tr></tbody></table></div>";
+  if(ov)return h+'<div class="rs bad"><b>Buffer overflow.</b> The text needs '+s.length+" characters plus the null: "+(s.length+1)+" cells, but char name["+cap+"] has only "+cap+". The extra characters would overwrite neighbouring memory.</div>";
+  const t=L.st2;let k=0;while(k<s.length&&k<t.length&&s[k]===t[k])k++;
+  const a=k<s.length?s.charCodeAt(k):0,b=k<t.length?t.charCodeAt(k):0;
+  const cmp=a===b?"0 (equal)":(a<b?"negative":"positive");
+  return h+'<div class="rs ok"><b>strlen = '+s.length+"; sizeof = "+cap+".</b> The null terminator is at index "+s.length+"; "+(cap-s.length-1)+" cell(s) are unused (garbage). Remember that the array must be one cell larger than the text.</div><p><b>strcmp(\""+esc(s)+'", "'+esc(t)+"\") is "+cmp+".</b> "+(a===b?"All characters are equal and both end together.":"The first difference is at index "+k+": '"+(k<s.length?s[k]:"\\0")+"' ("+a+") against '"+(k<t.length?t[k]:"\\0")+"' ("+b+"). Capital letters (65 to 90) sort before lowercase letters (97 to 122).")+"</p>";
+}
+function labStr(){
+  return '<div class="panel"><h3>String cells</h3><p class="hint">See how char name[capacity] = "text" lies in memory: the characters, the null terminator and the unused cells. Then compare with a second string using strcmp.</p><div class="row">'+numIn("st1","Text (name)","st1",12,"str")+numIn("scap","Array size","scap",5,"str")+numIn("st2","Compare with","st2",12,"str")+'</div><div id="strres">'+strRes()+"</div></div>";
+}
+/* ---------- Matrix lab ---------- */
+function matVals(r,c,seed){const m=[];for(let i=0;i<r;i++){m.push([]);for(let j=0;j<c;j++)m[i].push(seed===0?i*c+j+1:((i+j+seed)%4)+1);}return m;}
+function matHtml(m,name){return '<div class="mcell"><b>'+name+" ("+m.length+" x "+m[0].length+')</b><pre class="codeview">'+esc(m.map(r=>r.join("  ")).join("\n"))+"</pre></div>";}
+function matRes(){
+  const r1=+L.mr1,c1=+L.mc1,r2=+L.mr2,c2=+L.mc2;
+  const A=matVals(r1,c1,0),B=matVals(r2,c2,1);
+  let h='<div class="row">'+matHtml(A,"A")+(L.mop==="tr"?"":matHtml(B,"B"))+"</div>";
+  if(L.mop==="add"){
+    if(r1!==r2||c1!==c2)return h+'<div class="rs bad"><b>Addition is not defined.</b> A is '+r1+" x "+c1+" and B is "+r2+" x "+c2+": the dimensions must be identical.</div>";
+    const S=A.map((r,i)=>r.map((x,j)=>x+B[i][j]));return h+matHtml(S,"A + B")+'<div class="rs ok"><b>sum[i][j] = a[i][j] + b[i][j].</b> Each element is the sum of the corresponding elements.</div>';
+  }
+  if(L.mop==="mul"){
+    if(c1!==r2)return h+'<div class="rs bad"><b>A x B is not defined.</b> The columns of A ('+c1+") must equal the rows of B ("+r2+"). The inner sizes "+c1+" and "+r2+" differ.</div>";
+    const C=[];for(let i=0;i<r1;i++){C.push([]);for(let j=0;j<c2;j++){let s=0;for(let k=0;k<c1;k++)s+=A[i][k]*B[k][j];C[i].push(s);}}
+    const terms=[];for(let k=0;k<c1;k++)terms.push(A[0][k]+" x "+B[k][0]);
+    return h+matHtml(C,"A x B")+'<div class="rs ok"><b>A ('+r1+" x "+c1+") x B ("+r2+" x "+c2+") = "+r1+" x "+c2+".</b> Example: result[0][0] = "+terms.join(" + ")+" = "+C[0][0]+". Multiplications performed: "+r1+" x "+c2+" x "+c1+" = "+(r1*c2*c1)+".</div>";
+  }
+  const Tm=[];for(let j=0;j<c1;j++){Tm.push([]);for(let i=0;i<r1;i++)Tm[j].push(A[i][j]);}
+  return h+matHtml(Tm,"Transpose of A")+'<div class="rs ok"><b>t[j][i] = a[i][j].</b> A '+r1+" x "+c1+" matrix has a "+c1+" x "+r1+" transpose: the dimensions are swapped.</div>";
+}
+function labMat(){
+  const dims=["1","2","3","4"];
+  return '<div class="panel"><h3>Matrix lab</h3><p class="hint">Choose an operation and the dimensions. The lab checks the rule first, exactly as an examiner expects, then shows the result.</p>'+chips("mop",[["add","Addition"],["mul","Multiplication"],["tr","Transpose"]])+'<div class="row">'+selHtml("mr1","A rows","mr1",dims)+selHtml("mc1","A columns","mc1",dims)+(L.mop==="tr"?"":selHtml("mr2","B rows","mr2",dims)+selHtml("mc2","B columns","mc2",dims))+'</div><div id="matres">'+matRes()+"</div></div>";
+}
+/* ---------- Sorting drill ---------- */
+const DIMS=[
+{n:"Which search?",o:["Linear search","Binary search"],it:[["Requires a sorted array",1],["Works on any array",0],["O(log n)",1],["O(n)",0],["Needs at most 20 comparisons for a million items",1],["Best for 20 unsorted names",0],["Uses low, high and mid",1],["Checks elements one by one from the start",0]]},
+{n:"Which sort?",o:["Bubble","Selection","Insertion"],it:[["Makes at most n - 1 swaps",1],["Like sorting playing cards",2],["Largest value sinks to the end each pass",0],["Keeps a sorted prefix that grows by one",2],["Selects the minimum of the unsorted part",1],["Can stop early with a swapped flag",0],["Best on nearly sorted data",2],["Swaps adjacent out-of-order pairs",0]]},
+{n:"strlen or sizeof?",o:["strlen","sizeof"],it:[["Counts characters before the null",0],["Gives the capacity of the array",1],["Is 5 for char s[20] = \"Hello\"",0],["Is 20 for char s[20] = \"Hello\"",1],["Is 6 for char s[] = \"Hello\"",1],["Excludes the null terminator",0]]},
+{n:"Which header?",o:["<cstring>","<string>","<algorithm>","<cctype>"],it:[["strcpy",0],["std::string",1],["sort",2],["tolower",3],["strcmp",0],["getline(cin, line)",1]]},
+{n:"Array or string fact?",o:["Array","C-style string","std::string"],it:[["Ends with a null character",1],["Grows automatically",2],["Has no bounds checking",0],["Compared with strcmp",1],["Compared with ==",2],["Copied with strcpy",1],["Joined with +",2],["Contiguous, fixed size",0]]},
+{n:"Matrix rule?",o:["Addition","Multiplication","Transpose"],it:[["Identical dimensions needed",0],["Columns of A equal rows of B",1],["t[j][i] = a[i][j]",2],["Result of an m x n and an n x p is m x p",1],["Not commutative",1],["An m x n matrix becomes n x m",2],["sum[i][j] = a[i][j] + b[i][j]",0]]}
+];
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.out||"").replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="mem")set("memres",memRes());
+  else if(k==="sort")set("sortres",sortRes());
+  else if(k==="search")set("searchres",searchRes());
+  else if(k==="str")set("strres",strRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

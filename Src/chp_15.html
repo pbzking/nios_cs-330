@@ -1,0 +1,2090 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Functions Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 3 · Programming · Lesson 15</div>
+    <h1>Functions</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Benefits of using functions",c:["Benefit","Meaning"],r:[
+["Decomposition","A large problem is broken into small, manageable tasks, each solved by one function"],
+["Reusability","A function is written once and called from many places, so code is not duplicated"],
+["Readability","main() reads as a list of well-named steps"],
+["Easier testing","Each function can be tested and debugged on its own"],
+["Collaboration","Different programmers can write different functions of the same program"]]},
+/*1*/{s:0,t:"Anatomy of a function definition",c:["Part","Role","Example in int add(int a, int b)"],r:[
+["Return type","Type of the value sent back to the caller (void if none)","int"],
+["Function name","Identifier used to call the function","add"],
+["Parameter list","Variables, with types, that receive the arguments","(int a, int b)"],
+["Body","Statements in braces that perform the task","{ return a + b; }"],
+["return statement","Ends the function and sends a value back","return a + b;"]]},
+/*2*/{s:0,t:"Declaration (prototype) compared with definition",c:["Feature","Declaration (prototype)","Definition"],r:[
+["Purpose","Tells the compiler the name, return type and parameter types","Supplies the body that does the work"],
+["Body","None","Present, in braces"],
+["Ends with","A semicolon","The closing brace (no semicolon after the header)"],
+["Parameter names","Optional","Required if the parameters are used"],
+["Number allowed","Any number of times","Exactly once (one-definition rule)"]]},
+/*3*/{s:0,t:"Parameter compared with argument",c:["Term","Where it appears","Meaning"],r:[
+["Parameter (formal)","In the function header","A variable that receives a value when the function is called"],
+["Argument (actual)","In the function call","The value or expression supplied by the caller"]]},
+/*4*/{s:1,t:"Call by value compared with call by reference",c:["Feature","Call by value","Call by reference"],r:[
+["Declaration","void f(int x)","void f(int &x)"],
+["What the function receives","A copy of the argument","An alias for the caller's variable"],
+["Can change the caller's variable","No","Yes"],
+["Argument allowed","Any expression, including a constant","Must be a variable (an lvalue), unless the parameter is const"],
+["Cost for large objects","Copying can be expensive","No copy is made"]]},
+/*5*/{s:1,t:"Uses of reference parameters",c:["Use","Example","Reason"],r:[
+["Modify the caller's variables","swapValues(int &a, int &b)","The function must change the originals"],
+["Return more than one value","divide(int a, int b, int &q, int &r)","A function can return only one value directly"],
+["Avoid copying a large object","void greet(const string &name)","const & gives speed and prevents modification"]]},
+/*6*/{s:2,t:"Types of functions",c:["Kind","Meaning","Example"],r:[
+["Built-in (library)","Supplied by a standard header","sqrt(), toupper(), strlen()"],
+["User-defined","Written by the programmer","int add(int a, int b)"],
+["void function","Performs an action and returns no value","void greet()"],
+["Value-returning function","Sends one value back with return","int square(int n)"]]},
+/*7*/{s:3,t:"Rules for default arguments",c:["Rule","Explanation"],r:[
+["Right to left","Defaults are given from the rightmost parameter; int area(int l, int b = 5, int h) is an error"],
+["Specified once","The default appears in the prototype or the definition, never both"],
+["Omitted arguments","Omitted arguments are always the rightmost ones"],
+["Example","calculateInterest(10000, 8.0, 3) gives 2400; with the default time of 1 it gives 800"]]},
+/*8*/{s:3,t:"Function overloading",c:["Question","Answer"],r:[
+["What is it?","Several functions with the same name but different parameter lists"],
+["What may differ?","The number of parameters or their types"],
+["Is the return type enough?","No; two functions differing only in return type are a compile-time error"],
+["How does the compiler choose?","It matches the call's arguments to the best parameter list"],
+["What is an ambiguous call?","A call where two or more overloads fit equally well, such as add(5, 3.5) with add(int,int) and add(double,double)"],
+["What is name mangling?","The compiler gives each overload a unique internal name encoding its parameter types, for example _Z3addii"]]},
+/*9*/{s:4,t:"Recursion compared with iteration",c:["Feature","Recursion","Iteration"],r:[
+["Mechanism","A function calls itself","A loop repeats statements"],
+["Termination","A base case stops the calls","A loop condition becomes false"],
+["Memory","One stack frame per call","Constant"],
+["Speed","Slower: call overhead","Usually faster"],
+["Risk","Stack overflow if there is no base case","Infinite loop if the condition never fails"],
+["Clarity","Natural for self-similar problems","Natural for simple repetition"]]},
+/*10*/{s:4,t:"Call stack for factorial(3)",nocard:1,c:["Step","Call","Action","Returns"],r:[
+["1","factorial(3)","n != 0, so call factorial(2)","waits"],
+["2","factorial(2)","n != 0, so call factorial(1)","waits"],
+["3","factorial(1)","n != 0, so call factorial(0)","waits"],
+["4","factorial(0)","Base case reached","1"],
+["5","factorial(1)","1 x 1","1"],
+["6","factorial(2)","2 x 1","2"],
+["7","factorial(3)","3 x 2","6"]]},
+/*11*/{s:5,t:"Local compared with global variables",c:["Feature","Local variable","Global variable"],r:[
+["Declared","Inside a function or block","Outside every function"],
+["Scope","From the declaration to the end of its block","From the declaration to the end of the file"],
+["Lifetime","Created on entry, destroyed on exit","Whole run of the program"],
+["Default value","Garbage (undefined)","Zero"],
+["Shadowing","A local hides a global of the same name; ::name reaches the global","Hidden while a local of that name is in scope"]]},
+/*12*/{s:5,t:"Storage classes",c:["Class","Meaning"],r:[
+["auto","Default for locals; in C++11 it means the type is deduced from the initialiser"],
+["register","A request to keep the variable in a CPU register; deprecated in C++11 and removed in C++17"],
+["static (local)","One copy that keeps its value between calls; initialised only once"],
+["static (global)","Visible only inside its own file (internal linkage)"],
+["extern","Declares a variable defined in another file; allocates no memory"]]},
+/*13*/{s:6,t:"Mathematical functions of <cmath>",c:["Function","Result","Example"],r:[
+["sqrt(x)","Square root","sqrt(144) = 12"],
+["pow(x, y)","x raised to the power y","pow(2, 3) = 8"],
+["abs(x) / fabs(x)","Absolute value","fabs(-7.5) = 7.5"],
+["floor(x)","Largest integer not above x","floor(3.7) = 3"],
+["ceil(x)","Smallest integer not below x","ceil(3.2) = 4"],
+["round(x)","Nearest integer","round(3.5) = 4"],
+["sin, cos, tan","Trigonometric functions of an angle in radians","sin(0) = 0"],
+["log(x), log10(x), exp(x)","Natural logarithm, base-10 logarithm, e to the power x","log10(100) = 2"]]},
+/*14*/{s:6,t:"Character functions of <cctype>",c:["Function","Tests or converts","Example"],r:[
+["isalpha(c)","Is c a letter?","isalpha('A') is non-zero"],
+["isdigit(c)","Is c a digit 0 to 9?","isdigit('7') is non-zero"],
+["isalnum(c)","Is c a letter or a digit?","isalnum('_') is 0"],
+["isspace(c)","Is c a space, tab or newline?","isspace(' ') is non-zero"],
+["isupper(c) / islower(c)","Is c upper case or lower case?","islower('q') is non-zero"],
+["toupper(c) / tolower(c)","Converts the case; returns an int","(char)toupper('a') gives 'A'"]]},
+/*15*/{s:7,t:"String functions of <cstring>",c:["Function","Action","Note"],r:[
+["strlen(s)","Length of s, excluding the null terminator","strlen(\"Hello\") = 5"],
+["strcpy(d, s)","Copies s into d","d must be large enough"],
+["strcat(d, s)","Appends s to the end of d","d must have room for both"],
+["strcmp(a, b)","Compares two strings: 0 if equal, negative if a is smaller, positive if larger","Never compare C strings with =="]]},
+/*16*/{s:7,t:"Functions of <cstdlib>",c:["Function","Action","Note"],r:[
+["rand()","Returns a pseudo-random integer","The same sequence on every run unless seeded"],
+["srand(seed)","Seeds the generator","srand(time(0)) gives a different sequence each run"],
+["atoi(s)","Converts a string to int","atoi(\"42\") = 42"],
+["atof(s)","Converts a string to double","atof(\"3.5\") = 3.5"],
+["exit(n)","Ends the program at once","exit(0) means success"],
+["abs(n)","Absolute value of an integer","abs(-5) = 5"]]},
+/*17*/{s:4,t:"Calls made by fibonacci(4)",nocard:1,c:["Call","Calls made","Returns"],r:[
+["fibonacci(4)","fibonacci(3), fibonacci(2)","3"],
+["fibonacci(3)","fibonacci(2), fibonacci(1)","2"],
+["fibonacci(2)","fibonacci(1), fibonacci(0)","1"],
+["Total","9 calls for fibonacci(4); the count grows exponentially","3"]]}
+];
+
+const NOTES=[
+["1.1 Function basics","A {{function}} is a named, self-contained block of statements that performs one task. Its benefits are {{decomposition}}, {{reusability}}, {{readability}}, easier {{testing}} and {{collaboration}}. A function behaves as a {{black box}}: the caller needs to know what it does, not how. A definition has a {{return type}}, a {{name}}, a {{parameter list}} and a {{body}}. A {{declaration}} (prototype) gives the compiler the signature and ends with a {{semicolon}}; a {{definition}} supplies the body and is written {{once}}. A function must be declared or defined {{before}} it is called. A {{parameter}} is in the function header; an {{argument}} is the value in the call. A non-void function that reaches its end without {{return}} gives {{undefined}} behaviour."],
+["1.2 Parameter passing","In call by {{value}} the function receives a {{copy}}, so changes do not affect the caller. In call by {{reference}}, written with {{&}} in the parameter, the parameter is an {{alias}} of the caller's variable, so changes {{do}} affect it. The argument for a reference parameter must be a {{variable}}. References let a function {{swap}} two values and return {{more than one}} value, for example divide(17, 5, q, r) giving quotient {{3}} and remainder {{2}}. A {{const}} reference such as const string& avoids {{copying}} and prevents modification. Avoid naming a function swap, max, min or abs, which clash with {{library}} names."],
+["1.3 Types of functions","{{Built-in}} (library) functions come from standard headers such as <cmath>; {{user-defined}} functions are written by the programmer. A {{void}} function performs an action and returns {{nothing}}; a {{value-returning}} function sends one value back with {{return}}, and its call can be used inside an {{expression}}."],
+["1.4 Default arguments, overloading and inline","A {{default argument}} is used when the caller omits that argument. Defaults are given from {{right to left}}, and are specified {{once}}, in the prototype or the definition. For calculateInterest(10000, 8.0, 3) the result is {{2400}}. {{Overloading}} means several functions with the same name but different {{parameter lists}}; a difference in {{return type}} alone is not enough. A call that fits two overloads equally well is {{ambiguous}}, as add(5, 3.5). The compiler gives each overload a unique internal name, called name {{mangling}}. An {{inline}} function is a request that the compiler replace the call by the function's {{body}}, avoiding call overhead; it suits {{small}} functions."],
+["1.5 Recursion","{{Recursion}} is a function calling {{itself}}. Every recursive function needs a {{base case}}, which stops the calls, and a {{recursive case}}, which moves toward it. factorial(5) is {{120}}. Each call has its own {{stack frame}} on the call {{stack}}; a recursion without a reachable base case ends in a {{stack overflow}}. Naive fibonacci(4) makes {{9}} calls and the count grows {{exponentially}}. Recursion is {{slower}} and uses more {{memory}} than iteration, but is natural for self-similar problems. gcdOf(48, 18) is {{6}}."],
+["1.6 Scope and storage classes","{{Scope}} is the region where a name is visible. A {{local}} variable exists only inside its function or block; a {{global}} variable is declared outside every function and is {{zero}}-initialised. A local that has the same name as a global {{shadows}} it; the global is reached with the {{scope resolution}} operator {{::}}. {{auto}} deduces the type in C++11; {{register}} is deprecated in C++11 and removed in C++17. A {{static}} local keeps its value between calls and is initialised {{once}}. A static global is visible only in its own {{file}}. {{extern}} declares a variable defined in another file and allocates no {{memory}}."],
+["1.7 Library functions: cmath and cctype","<{{cmath}}> provides sqrt, pow, fabs, floor, ceil, round and the trigonometric and logarithmic functions. sqrt(144) is {{12}}, pow(2, 3) is {{8}}, floor(3.7) is {{3}}, ceil(3.2) is {{4}}. <{{cctype}}> provides isalpha, isdigit, isalnum, isspace, isupper, islower, toupper and tolower. toupper returns an {{int}}, so it is cast with (char) before printing as a character."],
+["1.8 Library functions: cstring and cstdlib","<{{cstring}}> provides strlen, strcpy, strcat and strcmp for character arrays. strlen excludes the {{null}} terminator. Copying or joining into a destination that is too small causes a {{buffer overflow}}. strcmp returns {{0}} when the strings are equal; never compare C strings with {{==}}. <{{cstdlib}}> provides rand, srand, atoi, atof and exit. rand() is {{pseudo-random}}: it repeats the same sequence unless seeded with {{srand(time(0))}}. A dice roll is rand() % 6 + {{1}}."]
+];
+const DUMPS=[
+{t:"Function basics",p:["Benefits: decomposition, reuse, readability, testing, collaboration","Definition: return type, name, parameters, body","Prototype ends with a semicolon; definition has a body","Declare before use","Parameter in header; argument in call","Missing return in non-void: undefined behaviour"]},
+{t:"Parameter passing",p:["By value: a copy; caller unchanged","By reference: & ; alias; caller changed","Reference argument must be a variable","swap and divide use references","const T& avoids a copy","Do not name functions swap, max, min, abs"]},
+{t:"Types of functions",p:["Built-in: sqrt, toupper, strlen","User-defined: written by you","void: action, no value","Value-returning: return inside an expression"]},
+{t:"Default, overload, inline",p:["Defaults right to left, given once","calculateInterest(10000, 8.0, 3) = 2400","Overload: same name, different parameters","Return type alone is not enough","Ambiguous: add(5, 3.5)","Name mangling: _Z3addii","inline: small functions"]},
+{t:"Recursion",p:["Base case and recursive case","factorial(5) = 120","One stack frame per call","No base case: stack overflow","fibonacci(4): 9 calls; exponential","Recursion slower, more memory than iteration","gcdOf(48, 18) = 6"]},
+{t:"Scope and storage",p:["Local: block scope; garbage if uninitialised","Global: file scope; zero","Shadowing; :: reaches the global","auto: type deduction","register: deprecated C++11, removed C++17","static local: kept between calls; initialised once","static global: file only","extern: declared elsewhere; no memory"]},
+{t:"cmath and cctype",p:["sqrt(144) = 12; pow(2,3) = 8","floor(3.7) = 3; ceil(3.2) = 4; round(3.5) = 4","fabs for doubles","isalpha, isdigit, isalnum, isspace, isupper, islower","toupper returns int: cast to char"]},
+{t:"cstring and cstdlib",p:["strlen excludes the null terminator","strcpy, strcat: destination must be big enough","strcmp = 0 when equal; never ==","rand: pseudo-random; same sequence unless seeded","srand(time(0)) for variety","Dice: rand() % 6 + 1","atoi, atof, exit"]}
+];
+
+const SECS=["Function basics","Parameter passing","Types of functions","Default, overload and inline","Recursion","Scope and storage classes","cmath and cctype","cstring and cstdlib"];
+const CORE=[
+[0,"What is a function?","A named, self-contained block of statements that performs one task and can be called from other parts of a program."],
+[0,"List the benefits of using functions.","Decomposition of a large problem, reusability, readability, easier testing and debugging, and collaboration between programmers."],
+[0,"What is meant by a function as a black box?","The caller needs to know what the function does and what it needs, not how it does it."],
+[0,"Name the parts of a function definition.","Return type, function name, parameter list and body (with a return statement for a value)."],
+[0,"What is a function declaration (prototype)?","A statement giving the compiler the name, return type and parameter types of a function; it has no body and ends with a semicolon."],
+[0,"What is a function definition?","The function header together with its body; it is written once."],
+[0,"Why is a prototype needed?","A function must be declared or defined before it is called; a prototype lets main() come first with the definition after it."],
+[0,"What error results from calling a function that was never declared before the call?","A compile-time error: the name was not declared in this scope."],
+[0,"What happens if a prototype is given but the definition is missing?","The compiler accepts the program but the linker reports an undefined reference."],
+[0,"Distinguish a parameter from an argument.","A parameter is the variable in the function header; an argument is the value supplied in the call."],
+[0,"What does the return type void mean?","The function returns no value."],
+[0,"What happens if a non-void function ends without a return statement?","The behaviour is undefined; the caller receives a garbage value."],
+[1,"What is call by value?","The function receives a copy of the argument, so changes to the parameter do not affect the caller's variable."],
+[1,"What is call by reference?","The parameter is declared with & and becomes an alias of the caller's variable, so changes affect the original."],
+[1,"How is a reference parameter written?","With an ampersand after the type: void swapValues(int &a, int &b)."],
+[1,"What must the argument of a reference parameter be?","A variable (an lvalue); a constant cannot be bound to a non-const reference."],
+[1,"Why can a function with reference parameters return more than one value?","It can write results into the caller's variables, for example divide(17, 5, q, r) sets q = 3 and r = 2."],
+[1,"What does const string& achieve?","It avoids copying a large object and prevents the function from modifying it."],
+[1,"Why should a function not be named swap, max, min or abs?","These names exist in the standard library and a user function of the same name can clash with them."],
+[2,"Distinguish built-in from user-defined functions.","Built-in functions are supplied by standard headers (sqrt, toupper); user-defined functions are written by the programmer."],
+[2,"Distinguish void from value-returning functions.","A void function performs an action and returns nothing; a value-returning function sends one value back with return and can be used in an expression."],
+[3,"What is a default argument?","A value given in the parameter list that is used when the caller omits that argument."],
+[3,"Which parameters may have default values?","Defaults are given from right to left: once a parameter has a default, all parameters to its right must too. int area(int l, int b = 5, int h) is an error."],
+[3,"Where is a default argument specified?","Once only, in the prototype or in the definition, never in both."],
+[3,"What is function overloading?","Defining several functions with the same name but different parameter lists (number or types of parameters)."],
+[3,"Can functions be overloaded by return type alone?","No; the parameter lists must differ."],
+[3,"What is an ambiguous call?","A call that matches two or more overloads equally well, such as add(5, 3.5) when add(int, int) and add(double, double) exist; it is a compile-time error."],
+[3,"What is name mangling?","The compiler's encoding of parameter types into each overload's internal name, for example _Z3addii for add(int, int)."],
+[3,"What is an inline function?","A function that the compiler is asked to expand at the point of call, removing call overhead; suited to small functions."],
+[4,"What is recursion?","A function calling itself, directly or indirectly."],
+[4,"What two parts must every recursive function have?","A base case that stops the recursion and a recursive case that moves toward the base case."],
+[4,"Define factorial recursively.","factorial(0) = 1 (base case); factorial(n) = n x factorial(n - 1)."],
+[4,"What is the call stack?","The region of memory holding one stack frame (parameters, local variables, return address) for each active function call."],
+[4,"What causes a stack overflow?","Recursion with no reachable base case, or too deep, which exhausts the stack memory."],
+[4,"How many calls does fibonacci(4) make with the naive recursive definition?","9 calls; the number grows exponentially, and fibonacci(40) needs over 300 million calls."],
+[4,"State the recursive definition of the greatest common divisor.","gcd(a, 0) = a; gcd(a, b) = gcd(b, a % b). gcd(48, 18) = 6."],
+[5,"What is scope?","The region of a program in which a name is visible and can be used."],
+[5,"What is a local variable?","A variable declared inside a function or block; it exists only while that block runs."],
+[5,"What is a global variable?","A variable declared outside every function; it is visible to the rest of the file and initialised to zero."],
+[5,"What is shadowing?","A local variable with the same name as a global hides the global inside its scope."],
+[5,"How is a shadowed global reached?","With the scope resolution operator: ::count."],
+[5,"What does auto mean in C++11?","The compiler deduces the variable's type from its initialiser."],
+[5,"What is the register storage class?","A request to keep a variable in a CPU register; deprecated in C++11 and removed in C++17."],
+[5,"What is a static local variable?","A local variable that keeps its value between calls and is initialised only once."],
+[5,"What is a static global variable?","A global variable visible only inside its own file (internal linkage)."],
+[5,"What does extern do?","Declares a variable that is defined in another file; no memory is allocated by the declaration."],
+[6,"Which header provides sqrt and pow?","<cmath>"],
+[6,"What are the values of sqrt(144) and pow(2, 3)?","12 and 8."],
+[6,"What do floor(3.7) and ceil(3.2) return?","3 and 4."],
+[6,"What does round(3.5) return?","4, the nearest integer."],
+[6,"Which header provides isalpha and toupper?","<cctype>"],
+[6,"Why is toupper cast to char when printed?","toupper returns an int, so cout would print its number; (char)toupper(c) prints the character."],
+[7,"Which header provides strlen, strcpy, strcat and strcmp?","<cstring>"],
+[7,"What does strlen(\"Hello\") return?","5; the null terminator is not counted."],
+[7,"What is a buffer overflow in strcpy or strcat?","Writing more characters than the destination array can hold, which overwrites neighbouring memory."],
+[7,"What does strcmp return?","0 if the strings are equal, a negative value if the first is smaller and a positive value if it is larger."],
+[7,"Why must C strings not be compared with ==?","== compares the addresses of the arrays, not their contents; use strcmp."],
+[7,"Which header provides rand and srand?","<cstdlib>"],
+[7,"Why does rand() give the same numbers on every run?","It is a pseudo-random generator that starts from a fixed seed; srand(time(0)) seeds it differently each run."],
+[7,"How is a dice roll from 1 to 6 produced?","rand() % 6 + 1."],
+[7,"What do atoi and atof do?","Convert a string to an int and to a double: atoi(\"42\") is 42."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["Which is NOT a benefit of using functions?",["Reusability","Readability","Easier testing","Faster compilation of every statement"],3,"The benefits are decomposition, reuse, readability, testing and collaboration."],
+["A function declaration (prototype) ends with:",["A closing brace","A semicolon","A colon","Nothing"],1,"A prototype has no body and ends with a semicolon."],
+["In int add(int a, int b), the variables a and b are:",["Arguments","Parameters","Return values","Prototypes"],1,"Parameters are in the header; arguments are in the call."],
+["In the call add(5, 3), the values 5 and 3 are:",["Parameters","Arguments","Prototypes","Return types"],1,"Arguments are the values supplied by the caller."],
+["The return type of a function that returns no value is:",["int","null","void","empty"],2,"void."],
+["Calling a function that has not been declared or defined earlier gives:",["A run-time error","A compile-time error","A linker error","No error"],1,"The compiler reports that the name was not declared."],
+["A prototype is given, but the function is never defined. The error comes from the:",["Preprocessor","Compiler","Linker","Loader only"],2,"The linker reports an undefined reference."],
+["In call by value the function receives:",["The address of the variable","A copy of the value","The variable itself","Nothing"],1,"A copy, so the caller's variable is unchanged."],
+["Which parameter makes the function modify the caller's variable?",["int x","int &x","const int x","int x = 0"],1,"The & makes x an alias of the argument."],
+["The argument for a reference parameter must be:",["A constant","A variable","A string","A function"],1,"It must be a variable (an lvalue)."],
+["const string& is used mainly to:",["Allow modification","Avoid copying and prevent modification","Return a string","Make the string global"],1,"No copy is made and the function cannot change it."],
+["After void f(int a, int &b){ a = 10; b = 20; } is called as f(x, y) with x = 1, y = 2, the values are:",["10 20","1 20","10 2","1 2"],1,"a is a copy; b is an alias of y."],
+["A function that returns a value is called inside an expression. It is a:",["void function","Value-returning function","Prototype","Macro"],1,"Its returned value takes part in the expression."],
+["Default arguments are specified from:",["Left to right","Right to left","Any position","The middle"],1,"Once a default is given, every parameter to its right needs one."],
+["int area(int l, int b = 5, int h); causes:",["No error","A compile-time error","A run-time error","A linker error"],1,"A parameter after a default has no default."],
+["Function overloading requires functions to differ in:",["Return type only","Parameter lists","Body only","Name"],1,"Number or types of parameters."],
+["The call add(5, 3.5) with add(int, int) and add(double, double) is:",["Resolved to int","Resolved to double","Ambiguous","Valid in all compilers silently"],2,"Each overload needs one conversion, so neither is best."],
+["Name mangling is used to:",["Hide variables","Give each overload a unique internal name","Shorten names","Remove prototypes"],1,"For example _Z3addii."],
+["An inline function is a request to:",["Run faster at all times","Replace the call with the function body","Hide the function","Make it recursive"],1,"The compiler may expand the body at the call."],
+["Every recursive function must have:",["A global variable","A base case","A loop","A static variable"],1,"The base case stops the recursion."],
+["The value of factorial(5) is:",["24","60","120","720"],2,"5 x 4 x 3 x 2 x 1 = 120."],
+["Recursion with no reachable base case ends in:",["A faster program","A stack overflow","A linker error","A syntax error"],1,"The call stack runs out of memory."],
+["The number of calls made by naive fibonacci(4) is:",["4","5","7","9"],3,"9 calls."],
+["gcdOf(48, 18) with gcd(a, b) = gcd(b, a % b) gives:",["3","6","9","12"],1,"48,18 -> 18,12 -> 12,6 -> 6,0, so 6."],
+["A variable declared outside every function is:",["Local","Global","Register","Dynamic"],1,"Global scope."],
+["The default value of an uninitialised global int is:",["Garbage","Zero","One","Undefined"],1,"Globals are zero-initialised."],
+["A local variable hides a global of the same name. This is called:",["Overloading","Shadowing","Recursion","Linking"],1,"Shadowing; ::name reaches the global."],
+["A static local variable:",["Is destroyed at each return","Keeps its value between calls","Is visible to all files","Is always zero at each call"],1,"It is initialised once and persists."],
+["The extern keyword:",["Allocates memory","Declares a variable defined in another file","Makes a variable static","Removes a variable"],1,"No memory is allocated by the declaration."],
+["Which storage class was removed in C++17?",["auto","register","static","extern"],1,"register was deprecated in C++11 and removed in C++17."],
+["Which header declares sqrt()?",["<iostream>","<cmath>","<cctype>","<cstring>"],1,"<cmath>."],
+["The value of ceil(3.2) is:",["3","3.2","4","3.5"],2,"The smallest integer not below 3.2 is 4."],
+["toupper('a') returns:",["The char 'A'","The int 65","The string \"A\"","A bool"],1,"It returns an int; cast with (char) to print 'A'."],
+["strlen(\"Hello\") is:",["4","5","6","Undefined"],1,"5; the null terminator is not counted."],
+["Two C strings should be compared with:",["==","strcmp()","strcpy()","strlen()"],1,"== compares addresses, not contents."],
+["srand(time(0)) is used to:",["Stop rand()","Seed rand() differently each run","Sort numbers","Delay the program"],1,"The sequence then differs between runs."],
+["rand() % 6 + 1 gives a number from:",["0 to 5","1 to 6","1 to 7","0 to 6"],1,"% 6 gives 0 to 5; adding 1 gives 1 to 6."]
+];
+const FILL=[
+["A function must be declared or defined ___ it is called.",["before"],"Before."],
+["A function declaration without a body is also called a ___.",["prototype"],"Prototype."],
+["In call by ___ the function works on a copy of the argument.",["value"],"Value."],
+["A reference parameter is written with the symbol ___.",["&","ampersand"],"The ampersand."],
+["Default arguments are given from ___ to left.",["right"],"Right to left."],
+["Functions with the same name but different parameter lists are ___.",["overloaded","overloading"],"Overloaded."],
+["Every recursive function needs a ___ case.",["base"],"Base."],
+["A recursion with no base case causes a stack ___.",["overflow"],"Overflow."],
+["A ___ local variable keeps its value between function calls.",["static"],"Static."],
+["The ___ resolution operator :: reaches a shadowed global.",["scope"],"Scope resolution."],
+["sqrt() and pow() are declared in the header <___>.",["cmath"],"<cmath>."],
+["toupper() returns an ___.",["int","integer"],"An int."],
+["strcmp returns ___ when two strings are equal.",["0","zero"],"Zero."],
+["srand(time(0)) seeds the ___ number generator.",["random","pseudo-random","pseudo random"],"The random number generator."]
+];
+const TF=[
+["A function can be defined many times in the same program.",false,"It is defined once; it may be declared many times."],
+["A prototype ends with a semicolon.",true,"Yes."],
+["Parameters appear in the function call.",false,"They appear in the header; arguments appear in the call."],
+["In call by value, changes to the parameter change the caller's variable.",false,"Only a copy changes."],
+["A reference parameter is an alias of the caller's variable.",true,"Yes."],
+["A constant such as 5 can be passed to an int & parameter.",false,"A non-const reference needs a variable."],
+["A function can change two caller variables using reference parameters.",true,"Yes, as in swapValues."],
+["A void function may be used inside an arithmetic expression.",false,"It returns no value."],
+["Default arguments may be specified in both the prototype and the definition.",false,"Only once."],
+["Two functions that differ only in return type can be overloaded.",false,"The parameter lists must differ."],
+["add(5, 3.5) is ambiguous when add(int, int) and add(double, double) exist.",true,"Yes."],
+["An inline function is a request, not a command, to the compiler.",true,"Yes."],
+["A recursive function without a base case runs forever or overflows the stack.",true,"Yes."],
+["Recursion generally uses more memory than iteration.",true,"Each call has a stack frame."],
+["A global variable is initialised to zero by default.",true,"Yes."],
+["A static local variable is re-initialised on every call.",false,"It is initialised once."],
+["register was removed from C++ in C++17.",true,"Yes, after deprecation in C++11."],
+["fabs() is used for the absolute value of a double.",true,"Yes."],
+["Two C strings can be compared safely with ==.",false,"Use strcmp."],
+["rand() gives a different sequence on every run without srand.",false,"The same sequence is repeated."]
+];
+const VSA=[
+["Give two benefits of using functions.",["reuse","readability","testing","decomposition","collaboration"],"For example reusability and readability."],
+["What does a function prototype end with?",["semicolon",";"],"A semicolon."],
+["What is the return type of a function that returns nothing?",["void"],"void."],
+["Which symbol makes a parameter a reference?",["&","ampersand"],"The ampersand."],
+["What is the term for a value passed in a function call?",["argument","actual argument","actual parameter"],"An argument."],
+["What stops a recursion?",["base case","basecase"],"The base case."],
+["What operator reaches a global variable hidden by a local one?",["::","scope resolution"],"The scope resolution operator ::."],
+["Name the storage class whose variable keeps its value between calls.",["static"],"static."],
+["Which header provides toupper?",["cctype","<cctype>"],"<cctype>."],
+["Which header provides strlen?",["cstring","<cstring>"],"<cstring>."],
+["Which function is used to seed rand()?",["srand"],"srand."],
+["Write the expression for a dice roll from 1 to 6.",["rand()%6+1","rand() % 6 + 1"],"rand() % 6 + 1."]
+];
+const CALC=[
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nvoid change(int a, int &b)\n{\n    a = 10;\n    b = 20;\n}\nint main()\n{\n    int x = 1, y = 2;\n    change(x, y);\n    cout << x << \" \" << y;\n    return 0;\n}",alts:[["120"]],ex:1,model:"1 20",e:"a is a copy; b is an alias of y."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nvoid counter()\n{\n    static int n = 10;\n    n++;\n    cout << n << \" \";\n}\nint main()\n{\n    counter();\n    counter();\n    counter();\n    return 0;\n}",alts:[["111213"]],ex:1,model:"11 12 13",e:"The static variable is initialised once and keeps its value."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nint sum(int n)\n{\n    if (n == 0)\n        return 0;\n    return n + sum(n - 1);\n}\nint main()\n{\n    cout << sum(4);\n    return 0;\n}",alts:[["10"]],ex:1,model:"10",e:"4 + 3 + 2 + 1 + 0 = 10."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nint gcd(int a, int b)\n{\n    if (b == 0)\n        return a;\n    return gcd(b, a % b);\n}\nint main()\n{\n    cout << gcd(48, 18);\n    return 0;\n}",alts:[["6"]],ex:1,model:"6",e:"48,18 then 18,12 then 12,6 then 6,0."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nint count = 5;\nint main()\n{\n    int count = 100;\n    cout << ::count << \" \" << count;\n    return 0;\n}",alts:[["5100"]],ex:1,model:"5 100",e:"::count is the global; count is the local that shadows it."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nint calc(int a, int b = 2, int c = 3)\n{\n    return a * b + c;\n}\nint main()\n{\n    cout << calc(5) << \" \" << calc(5, 4) << \" \" << calc(5, 4, 1);\n    return 0;\n}",alts:[["13231"]],ex:1,model:"13 23 21",e:"5*2+3 = 13; 5*4+3 = 23; 5*4+1 = 21."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nvoid show(int x) { cout << \"int \"; }\nvoid show(double x) { cout << \"double \"; }\nint main()\n{\n    show(5);\n    show(2.5);\n    show('A');\n    return 0;\n}",alts:[["intdoubleint"]],ex:1,model:"int double int",e:"A char is promoted to int, which is an exact-enough match."},
+{q:"What does the program print?",src:"#include <iostream>\n#include <cmath>\nusing namespace std;\nint main()\n{\n    cout << sqrt(81) << \" \" << pow(2, 5) << \" \" << floor(3.9) << \" \" << ceil(3.1);\n    return 0;\n}",alts:[["93234"]],ex:1,model:"9 32 3 4",e:"sqrt(81) = 9, 2^5 = 32, floor(3.9) = 3, ceil(3.1) = 4."},
+{q:"What does the program print?",src:"#include <iostream>\nusing namespace std;\nint f(int n)\n{\n    return (n <= 1) ? 1 : n * f(n - 1);\n}\nint main()\n{\n    cout << f(5);\n    return 0;\n}",alts:[["120"]],ex:1,model:"120",e:"This is factorial: 5 x 4 x 3 x 2 x 1."},
+{q:"What does the program print?",src:"#include <iostream>\n#include <cstring>\nusing namespace std;\nint main()\n{\n    char a[20] = \"Hello\";\n    strcat(a, \"World\");\n    cout << a << \" \" << strlen(a);\n    return 0;\n}",alts:[["helloworld10"]],ex:1,model:"HelloWorld 10",e:"strcat appends; the length is 5 + 5 = 10."}
+];
+const SHORT=[
+["Distinguish call by value from call by reference.","In call by value the function receives a copy of the argument, so changes to the parameter do not affect the caller's variable. In call by reference the parameter is declared with & and is an alias of the caller's variable, so changes do affect it; the argument must be a variable. For void f(int a, int &b) called as f(x, y), only y can be changed.",["Value: a copy, caller unchanged","Reference: an alias, caller changed","Argument must be a variable for a reference"]],
+["Distinguish a function declaration from a function definition.","A declaration (prototype) states the name, return type and parameter types, has no body and ends with a semicolon; it may appear many times. A definition supplies the body in braces and appears once. A function must be declared or defined before it is called.",["Declaration: no body, semicolon","Definition: has the body, once","Declare before use"]],
+["State the rules for default arguments.","Defaults are given from right to left, so every parameter after one with a default must also have a default. A default is specified once, in the prototype or in the definition, not both. Omitted arguments are always the rightmost ones. int area(int l, int b = 5, int h) is therefore an error.",["Right to left","Specified once","Omit rightmost arguments only"]],
+["What is function overloading? Why is the return type not enough?","Overloading defines several functions with the same name but different parameter lists (number or types). The compiler chooses by matching the arguments in the call. The return type is not part of the choice because a call does not show what type of result is wanted, so overloads differing only in return type are a compile-time error.",["Same name, different parameters","Chosen by the arguments","Return type alone is an error"]],
+["What are the base case and the recursive case? Illustrate with factorial.","The base case is the simplest input, answered directly without a further call; it stops the recursion. The recursive case reduces the problem and calls the function again. For factorial, factorial(0) = 1 is the base case and factorial(n) = n x factorial(n - 1) is the recursive case.",["Base case stops recursion","Recursive case moves toward it","factorial example"]],
+["Compare recursion with iteration.","Recursion repeats by a function calling itself and ends at a base case; iteration repeats with a loop that ends when its condition is false. Recursion uses a stack frame for each call, so it needs more memory and is slower, and can overflow the stack; iteration uses constant memory. Recursion is clearer for self-similar problems.",["Self-call versus loop","Recursion: more memory, slower","Recursion clearer for self-similar problems"]],
+["Distinguish local and global variables.","A local variable is declared inside a function or block, exists only while that block runs and is uninitialised unless set. A global variable is declared outside every function, lives for the whole program and is initialised to zero. A local with the same name shadows the global; ::name reaches the global.",["Local: block scope","Global: whole file, zero","Shadowing and ::"]],
+["Explain the static storage class for local and global variables.","A static local variable is created once, initialised once and keeps its value between calls, though it is visible only inside its function. A static global variable is visible only within its own file (internal linkage), which prevents name clashes between files.",["Static local keeps value","Initialised once","Static global: file only"]]
+];
+const LONG=[
+["Explain the structure of a function in C++: declaration, definition and call. Use a suitable program.","A function definition has a return type, a name, a parameter list and a body. For example int add(int a, int b) { return a + b; }. A declaration (prototype), int add(int, int);, tells the compiler the name, return type and parameter types, has no body and ends with a semicolon; it lets main() appear before the definition. A call such as int s = add(5, 3); supplies arguments, which are copied into the parameters a and b; the function runs and return sends 8 back to the caller. A function must be declared or defined before it is called; a prototype without a definition is a linker error. The parameters are in the header and the arguments are in the call.",["Definition parts","Prototype with semicolon","Call, arguments and return","Declare before use","Parameter versus argument"]],
+["Explain parameter passing in C++ with call by value and call by reference. Write a swap function.","In call by value the parameter is a copy, so the caller's variable cannot change. In call by reference the parameter is declared with & and is an alias of the caller's variable. A swap needs references: void swapValues(int &a, int &b) { int t = a; a = b; b = t; }. Called as swapValues(x, y) with x = 10 and y = 20 it leaves x = 20 and y = 10. With by-value parameters the swap would change only the copies. References also let a function return several results, for example divide(17, 5, q, r) giving q = 3 and r = 2, and const string& avoids copying a large argument. The argument for a reference parameter must be a variable.",["Value: copy","Reference: alias with &","swapValues code","Several results via references","const reference"]],
+["Explain default arguments and function overloading with examples. Mention ambiguity.","A default argument is used when the call omits it: double calculateInterest(double p, double r, int t = 1). The call calculateInterest(10000, 8.0, 3) gives 2400, while calculateInterest(10000, 8.0) gives 800. Defaults go from right to left and are specified once. Overloading gives several functions the same name with different parameter lists: int add(int, int), double add(double, double) and int add(int, int, int). The compiler selects by the arguments, so add(2.5, 1.5) calls the double version. The return type alone cannot distinguish overloads. A call such as add(5, 3.5) is ambiguous because both two-argument versions need a conversion, so it is a compile-time error. Each overload gets a unique internal name (name mangling, _Z3addii).",["Default example and rules","Overloading example","Return type not enough","Ambiguous call","Name mangling"]],
+["Explain recursion. Write recursive functions for factorial and gcd, and trace factorial(3).","Recursion is a function calling itself. It needs a base case and a recursive case. int factorial(int n) { if (n == 0) return 1; return n * factorial(n - 1); } and int gcdOf(int a, int b) { if (b == 0) return a; return gcdOf(b, a % b); }. Tracing factorial(3): factorial(3) calls factorial(2), which calls factorial(1), which calls factorial(0); this returns 1, then factorial(1) returns 1, factorial(2) returns 2 and factorial(3) returns 6. Each call has its own stack frame; without a reachable base case the stack overflows. gcdOf(48, 18) gives 6. Recursion is slower and uses more memory than iteration, and the naive fibonacci(4) makes 9 calls, growing exponentially.",["Base and recursive case","Factorial code","gcd code","Trace down and back","Stack frames and overflow"]],
+["Explain scope and the storage classes auto, register, static and extern with examples.","Scope is the region where a name is visible. A local variable lives inside its block; a global is declared outside all functions and is zero-initialised. A local may shadow a global; ::count reaches the global. auto deduces the type from the initialiser in C++11. register asked for a CPU register and was deprecated in C++11 and removed in C++17. A static local, as in static int calls = 0; calls++;, keeps its value between calls and is initialised once, so three calls print 1, 2 and 3. A static global is visible only in its own file. extern declares a variable defined in another file and allocates no memory; the definition must appear exactly once.",["Local and global scope","Shadowing and ::","auto and register","Static local with example","Static global and extern"]]
+];
+const APP=[
+["A student writes void swap(int a, int b) to exchange two variables, but after the call nothing changes. Explain and correct it.","The parameters are passed by value, so the function swaps copies and the caller's variables are untouched. Declare the parameters as references: void swapValues(int &a, int &b). Also avoid the name swap, which exists in the standard library.",["Copies swapped","Use reference parameters","Avoid library name swap"]],
+["A function int f(int n) { return f(n + 1); } is called with f(1). What happens and why?","There is no base case and the argument moves away from any stopping point, so calls never end. Each call adds a stack frame until memory is exhausted and the program crashes with a stack overflow. A base case such as if (n > 100) return n; is needed.",["No base case","Frames pile up","Stack overflow"]],
+["A program calls sqrt(16) but gives the error that sqrt was not declared. Explain the cause and the fix.","sqrt belongs to the library header <cmath>, which was not included, so the compiler does not know the name. Add #include <cmath> at the top.",["sqrt is in cmath","Header missing","Add the include"]],
+["A function counts how many times it is called but always prints 1. Diagnose and correct it.","The counter is an ordinary local variable, created and reset on each call. Declare it static: static int calls = 0; so it is initialised once and keeps its value between calls (alternatively use a global).",["Local is recreated","Make it static","Or use a global"]],
+["A game uses rand() % 6 + 1 to roll a die but every run gives the same sequence of rolls. Explain and fix.","rand() is pseudo-random and starts from the same default seed on every run. Call srand(time(0)) once at the start of main, with <cstdlib> and <ctime> included, so the seed changes each run.",["Fixed seed","srand(time(0)) once","Include the headers"]]
+];
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson15-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const R=String.raw;
+const STEPS=[
+{t:"Function basics",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Why functions",d:"A function is a named, self-contained block of statements that performs one task and can be called from other parts of a program.",p:["Programs so far have placed all their statements in main(). Functions divide a program into small tasks. A function behaves as a black box: the caller needs to know what it does and what it needs, not how it works."],t:T[0]},
+ {h:"Anatomy of a function",d:"A function definition consists of a return type, a name, a parameter list and a body.",t:T[1],code:{c:R`#include <iostream>
+using namespace std;
+
+int add(int a, int b)
+{
+    return a + b;
+}
+
+int main()
+{
+    int s = add(5, 3);
+    cout << "Sum: " << s << endl;
+    return 0;
+}`,tr:"Change the arguments in the call to add(20, 22). Then change the return type to double and predict the effect."}},
+ {h:"Declaration and definition",d:"A declaration (prototype) tells the compiler the name, return type and parameter types of a function. A definition supplies the body. A function must be declared or defined before it is called.",t:T[2],code:{c:R`#include <iostream>
+using namespace std;
+
+int add(int, int);          // declaration: ends with a semicolon
+
+int main()
+{
+    cout << add(5, 3) << endl;
+    return 0;
+}
+
+int add(int a, int b)       // definition: has a body
+{
+    return a + b;
+}`,tr:"Delete the declaration line and run: the compiler reports that add was not declared. Restore it, then delete the definition: the program compiles in a real C++ system but fails at the linker."}},
+ {h:"Parameter and argument",d:"A parameter is the variable named in the function header. An argument is the value supplied in the call.",t:T[3],p:["In add(5, 3) the values 5 and 3 are arguments; in int add(int a, int b) the variables a and b are parameters. Each argument is matched to a parameter by position.","A non-void function must return a value on every path. If control reaches the closing brace without a return, the behaviour is undefined."]}
+]},
+{t:"Parameter passing",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Call by value",d:"In call by value the function receives a copy of the argument. Changes to the parameter do not affect the caller's variable.",t:T[4],code:{c:R`#include <iostream>
+using namespace std;
+
+void change(int num)
+{
+    num = 100;
+    cout << "Inside function : num = " << num << endl;
+}
+
+int main()
+{
+    int num = 5;
+    change(num);
+    cout << "After call: num = " << num << endl;
+    return 0;
+}`,tr:"Predict the second line before you run. Then change the parameter to int &num and run again."}},
+ {h:"Call by reference",d:"In call by reference the parameter is declared with & and becomes an alias of the caller's variable. Changes made through it affect the original.",p:["The argument for a reference parameter must be a variable, because the function needs something to refer to."],code:{c:R`#include <iostream>
+using namespace std;
+
+void swapValues(int &a, int &b)
+{
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+int main()
+{
+    int x = 10, y = 20;
+    swapValues(x, y);
+    cout << "x = " << x << ", y = " << y << endl;
+    return 0;
+}`,tr:"Remove both & symbols and predict the output. Avoid naming this function swap: the standard library already has one."}},
+ {h:"Returning several values",d:"A function can return only one value directly, but reference parameters let it deliver several results.",t:T[5],code:{c:R`#include <iostream>
+using namespace std;
+
+void divide(int a, int b, int &quotient, int &remainder)
+{
+    quotient = a / b;
+    remainder = a % b;
+}
+
+int main()
+{
+    int q, r;
+    divide(17, 5, q, r);
+    cout << q << " remainder " << r << endl;
+    return 0;
+}`,tr:"Call divide(100, 7, q, r) and predict q and r."}},
+ {h:"Constant reference",d:"A const reference parameter avoids copying a large argument and prevents the function from modifying it.",code:{c:R`#include <iostream>
+#include <string>
+using namespace std;
+
+void greet(const string &name)
+{
+    cout << "Hello, " << name << endl;
+}
+
+int main()
+{
+    string s = "Ram";
+    greet(s);
+    return 0;
+}`,tr:"Try to add name = \"Sita\"; inside greet. A const reference cannot be modified (real compilers report an error)."}}
+]},
+{t:"Types of functions",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Built-in and user-defined",d:"Built-in (library) functions are supplied by standard headers. User-defined functions are written by the programmer.",t:T[6]},
+ {h:"void and value-returning functions",d:"A void function performs an action and returns no value. A value-returning function sends one value back with return, so a call to it can be used inside an expression.",code:{c:R`#include <iostream>
+using namespace std;
+
+void greet()
+{
+    cout << "Welcome" << endl;
+}
+
+int square(int n)
+{
+    return n * n;
+}
+
+int main()
+{
+    greet();
+    cout << square(7) << " " << square(3) + square(4) << endl;
+    return 0;
+}`,tr:"Predict square(3) + square(4), then change it to square(square(2))."}}
+]},
+{t:"Default arguments, overloading and inline",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Default arguments",d:"A default argument is a value given in the parameter list and used when the caller omits that argument.",t:T[7],code:{c:R`#include <iostream>
+using namespace std;
+
+double calculateInterest(double p, double r, int t = 1)
+{
+    return p * r * t / 100;
+}
+
+int main()
+{
+    cout << calculateInterest(10000, 8.0, 3) << endl;
+    cout << calculateInterest(10000, 8.0) << endl;
+    return 0;
+}`,tr:"Add a default for r as well: double r = 8.0. Then try giving a default to p only, which is an error."}},
+ {h:"Function overloading",d:"Overloading means defining several functions with the same name but different parameter lists. The compiler chooses by matching the arguments.",t:T[8],code:{c:R`#include <iostream>
+using namespace std;
+
+int add(int a, int b)
+{
+    return a + b;
+}
+
+double add(double a, double b)
+{
+    return a + b;
+}
+
+int add(int a, int b, int c)
+{
+    return a + b + c;
+}
+
+int main()
+{
+    cout << add(5, 3) << " " << add(2.5, 1.5) << " " << add(1, 2, 3) << endl;
+    return 0;
+}`,tr:"Add cout << add(5, 3.5); and run: both two-argument versions need a conversion, so the call is ambiguous."}},
+ {h:"Inline functions",d:"An inline function is a request that the compiler replace each call by the body of the function, removing the cost of a call. It suits small functions.",code:{c:R`#include <iostream>
+using namespace std;
+
+inline int maxOf(int a, int b)
+{
+    return (a > b) ? a : b;
+}
+
+int main()
+{
+    cout << maxOf(4, 9) << endl;
+    return 0;
+}`,tr:"The compiler may ignore the request. Why is maxOf a better name than max?"}}
+]},
+{t:"Recursion",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Base case and recursive case",d:"Recursion is a function calling itself. A base case stops the recursion; a recursive case reduces the problem and calls the function again.",code:{c:R`#include <iostream>
+using namespace std;
+
+int factorial(int n)
+{
+    if (n == 0)             // base case
+        return 1;
+    return n * factorial(n - 1);   // recursive case
+}
+
+int main()
+{
+    cout << factorial(5) << endl;
+    return 0;
+}`,tr:"Delete the base case and run: the program ends in a stack overflow. Use the call-stack tracer in the lab to see each frame."}},
+ {h:"The call stack",d:"Each call has its own stack frame holding its parameters, locals and return address. The frames are created going down and removed as the calls return.",t:T[10]},
+ {h:"Fibonacci and gcd",d:"Naive recursive fibonacci makes an exponential number of calls. The recursive gcd of Euclid is efficient.",t:T[17],code:{c:R`#include <iostream>
+using namespace std;
+
+int fibonacci(int n)
+{
+    if (n <= 1)
+        return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+int gcdOf(int a, int b)
+{
+    if (b == 0)
+        return a;
+    return gcdOf(b, a % b);
+}
+
+int main()
+{
+    for (int i = 0; i < 8; i++)
+        cout << fibonacci(i) << " ";
+    cout << endl << gcdOf(48, 18) << endl;
+    return 0;
+}`,tr:"Predict gcdOf(100, 75). Then compare with iteration using the table below."},p:["fibonacci(40) would need over 300 million calls, which is why an iterative or memoised version is used for large n."]},
+ {h:"Recursion compared with iteration",d:"Recursion and iteration both repeat work, with different costs and risks.",t:T[9]}
+]},
+{t:"Scope and storage classes",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Local and global variables",d:"Scope is the region of the program where a name is visible. A local variable is declared inside a block; a global variable is declared outside every function.",t:T[11],code:{c:R`#include <iostream>
+using namespace std;
+
+int globalCounter = 0;
+
+void increment()
+{
+    globalCounter++;
+}
+
+int main()
+{
+    increment();
+    increment();
+    cout << globalCounter << endl;
+    return 0;
+}`,tr:"Predict the output if main also declared int globalCounter = 10; before the calls."}},
+ {h:"Shadowing and the scope resolution operator",d:"A local variable with the same name as a global hides the global inside its scope. The global is reached with ::.",code:{c:R`#include <iostream>
+using namespace std;
+
+int count = 5;
+
+int main()
+{
+    int count = 100;
+    cout << ::count << endl;
+    cout << count << endl;
+    return 0;
+}`,tr:"Remove the local count and predict the second line."}},
+ {h:"Storage classes",d:"The storage class controls the lifetime, visibility and storage of a variable: auto, register, static and extern.",t:T[12]},
+ {h:"Static local variables",d:"A static local variable is created and initialised once and keeps its value between calls.",code:{c:R`#include <iostream>
+using namespace std;
+
+void countCalls()
+{
+    static int calls = 0;
+    calls++;
+    cout << "Called " << calls << " times." << endl;
+}
+
+int main()
+{
+    countCalls();
+    countCalls();
+    countCalls();
+    return 0;
+}`,tr:"Remove the word static and predict the output."}},
+ {h:"auto",d:"In C++11, auto makes the compiler deduce a variable's type from its initialiser.",code:{c:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    auto a = 10;
+    auto pi = 3.14;
+    cout << a << " " << pi << endl;
+    return 0;
+}`,tr:"What type does auto give for 7 / 2? And for 7 / 2.0?"}}
+]},
+{t:"cmath and cctype",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Mathematical functions",d:"The header <cmath> declares sqrt, pow, fabs, floor, ceil, round and the trigonometric and logarithmic functions.",t:T[13],code:{c:R`#include <iostream>
+#include <cmath>
+using namespace std;
+
+int main()
+{
+    cout << sqrt(144) << " " << pow(3, 4) << " " << fabs(-7.5) << endl;
+    cout << floor(3.7) << " " << ceil(3.2) << " " << round(3.5) << endl;
+    return 0;
+}`,tr:"Remove the #include <cmath> line and run: sqrt is then not declared."}},
+ {h:"Character functions",d:"The header <cctype> declares functions that test and convert characters.",t:T[14],code:{c:R`#include <iostream>
+#include <cctype>
+using namespace std;
+
+int main()
+{
+    char c = 'q';
+    cout << (char)toupper(c) << endl;
+    cout << (isalpha(c) != 0) << (isdigit(c) != 0) << endl;
+    return 0;
+}`,tr:"Remove the (char) cast: toupper returns an int, so the number 81 is printed instead of Q."}}
+]},
+{t:"cstring and cstdlib",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"String functions",d:"The header <cstring> declares functions for character arrays terminated by a null character.",t:T[15],code:{c:R`#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char a[20] = "Hello";
+    cout << strlen(a) << endl;
+    strcat(a, "World");
+    cout << a << endl;
+    cout << strcmp("abc", "abc") << endl;
+    return 0;
+}`,tr:"Change the array size from 20 to 8 and run: the strcat then overflows the buffer."},p:["Never compare two C strings with ==: it compares their addresses, not their characters. Use strcmp, which returns 0 when they are equal."]},
+ {h:"General utilities",d:"The header <cstdlib> declares rand, srand, atoi, atof and exit.",t:T[16],code:{c:R`#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+int main()
+{
+    srand(time(0));
+    int dice = rand() % 6 + 1;
+    cout << "You rolled a number from 1 to 6: " << (dice >= 1 && dice <= 6) << endl;
+    cout << atoi("42") + 1 << endl;
+    return 0;
+}`,tr:"rand() % 6 + 1 gives 1 to 6. What range does rand() % 10 give?"},p:["rand() is pseudo-random: without srand it repeats the same sequence on every run."]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* ============ MINI C++ FUNCTION RUNNER (references, overloading, defaults, static locals, recursion, scope, <cmath> <cctype> <cstring> <cstdlib>) ============ */
+class FnErr extends Error{constructor(kind,title,detail,line){super(title);this.kind=kind;this.title=title;this.detail=detail;this.line=line;}}
+class ExitSig{constructor(c){this.c=c;}}
+const FN_STD=["cout","cin","endl","string"];
+const FN_LIB={sqrt:"cmath",pow:"cmath",fabs:"cmath",floor:"cmath",ceil:"cmath",round:"cmath",sin:"cmath",cos:"cmath",tan:"cmath",log:"cmath",log10:"cmath",exp:"cmath",
+ isalpha:"cctype",isdigit:"cctype",isalnum:"cctype",isspace:"cctype",isupper:"cctype",islower:"cctype",toupper:"cctype",tolower:"cctype",
+ strlen:"cstring",strcpy:"cstring",strcat:"cstring",strcmp:"cstring",
+ rand:"cstdlib",srand:"cstdlib",atoi:"cstdlib",atof:"cstdlib",exit:"cstdlib",time:"ctime"};
+function fnLex(src){
+  const T=[],inc=[];let i=0,line=1;const n=src.length;
+  const ops=["<<=",">>=","->","::","++","--","+=","-=","*=","/=","%=","==","!=","<=",">=","&&","||","<<",">>"];
+  while(i<n){
+    const c=src[i];
+    if(c==="\n"){line++;i++;continue;}
+    if(/\s/.test(c)){i++;continue;}
+    if(c==="#"){let j=i;while(j<n&&src[j]!=="\n")j++;const m=/#\s*include\s*[<"]([\w.]+)[>"]/.exec(src.slice(i,j));if(m)inc.push(m[1].replace(/\.h$/,"").replace(/^(math|ctype|string|stdlib|time)$/,x=>x==="string"?"cstring":"c"+x));i=j;continue;}
+    if(c==="/"&&src[i+1]==="/"){while(i<n&&src[i]!=="\n")i++;continue;}
+    if(c==="/"&&src[i+1]==="*"){i+=2;while(i<n&&!(src[i]==="*"&&src[i+1]==="/")){if(src[i]==="\n")line++;i++;}i+=2;continue;}
+    let m;
+    if((m=/^(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?[fFlLuU]*/.exec(src.slice(i,i+40)))){const txt=m[1]+(m[2]||"");T.push({t:"num",v:parseFloat(txt),f:/[.eE]/.test(txt),line});i+=m[0].length;continue;}
+    if(/[A-Za-z_]/.test(c)){let j=i;while(j<n&&/\w/.test(src[j]))j++;T.push({t:"id",v:src.slice(i,j),line});i=j;continue;}
+    if(c==='"'){let j=i+1,s="";while(j<n&&src[j]!=='"'){if(src[j]==="\\"){const e=src[j+1];s+=e==="n"?"\n":e==="t"?"\t":e==="0"?"\0":e;j+=2;}else{if(src[j]==="\n")throw new FnErr("compile","Compile-time error (syntax)","Missing terminating \" character.",line);s+=src[j++];}}T.push({t:"str",v:s,line});i=j+1;continue;}
+    if(c==="'"){let j=i+1,s="";if(src[j]==="\\"){const e=src[j+1];s=e==="n"?"\n":e==="t"?"\t":e==="0"?"\0":e;j+=2;}else s=src[j++];T.push({t:"chr",v:s.charCodeAt(0),line});i=j+1;continue;}
+    let op=null;for(const o of ops)if(src.startsWith(o,i)){op=o;break;}
+    if(!op)op=c;T.push({t:"op",v:op,line});i+=op.length;
+  }
+  // drop std:: prefixes and mark the next token
+  const R=[];for(let k=0;k<T.length;k++){if(T[k].t==="id"&&T[k].v==="std"&&T[k+1]&&T[k+1].v==="::"){T[k+2].std=true;k+=1;continue;}R.push(T[k]);}
+  R.push({t:"eof",v:"<end of file>",line});R.inc=inc;return R;
+}
+const TYW=["const","static","inline","extern","unsigned","long","short","int","double","float","bool","char","string","void","auto"];
+function normType(ws){
+  const w=ws.filter(x=>!["const","static","inline","extern","unsigned","signed"].includes(x));
+  if(w.includes("double")||w.includes("float"))return "double";
+  if(w.includes("string"))return "string";
+  if(w.includes("bool"))return "bool";
+  if(w.includes("char"))return "char";
+  if(w.includes("void"))return "void";
+  if(w.includes("auto"))return "auto";
+  if(w.filter(x=>x==="long").length>=1)return "long";
+  return "int";
+}
+function fnParse(T){
+  let p=0;const funcs={},globals=[],externs={};let usingStd=false;const inc=T.inc||[];
+  const peek=(k=0)=>T[Math.min(p+k,T.length-1)];
+  const isV=(v,k=0)=>{const t=peek(k);return (t.t==="op"||t.t==="id")&&t.v===v;};
+  const syn=(msg,line)=>{throw new FnErr("compile","Compile-time error (syntax)","Line "+(line||peek().line)+": "+msg,line||peek().line);};
+  const sem=(title,msg,line)=>{throw new FnErr("compile","Compile-time error ("+title+")","Line "+(line||peek().line)+": "+msg,line||peek().line);};
+  const next=()=>T[p++];
+  const acc=v=>{if(isV(v)){p++;return true;}return false;};
+  const exp=v=>{if(!acc(v)){const prev=T[Math.max(p-1,0)];syn("expected '"+v+"' before '"+peek().v+"'"+(v===";"?" (a missing semicolon is reported at the next token; check the end of line "+prev.line+")":""),v===";"?prev.line:peek().line);}};
+  const ident=()=>{const t=next();if(t.t!=="id")syn("expected a name but found '"+t.v+"'",t.line);return t.v;};
+  const isTypeStart=()=>{const t=peek();return t.t==="id"&&TYW.includes(t.v);};
+  function needHdr(name,line){const h=FN_LIB[name];if(h&&!inc.includes(h)&&!(h==="cstdlib"&&name==="abs"))sem("undeclared name","'"+name+"' was not declared in this scope. Add #include <"+h+"> at the top of the file.",line);}
+  function parseType(){
+    const ws=[],line=peek().line;
+    while(peek().t==="id"&&TYW.includes(peek().v)){const t=next();if(t.v==="string"&&!t.std&&!usingStd)sem("undeclared name","'string' was not declared in this scope. Write using namespace std; or std::string.",t.line);ws.push(t.v);}
+    if(!ws.length)syn("expected a type",line);
+    const ty={name:normType(ws),ref:false,isConst:ws.includes("const"),stat:ws.includes("static"),ext:ws.includes("extern"),inl:ws.includes("inline")};
+    if(acc("&"))ty.ref=true;
+    return ty;
+  }
+  function parseParams(){
+    const ps=[];exp("(");
+    if(!isV(")")){do{
+      if(isV("void")&&isV(")",1)){next();break;}
+      const ty=parseType();let nm="";if(peek().t==="id")nm=ident();
+      let arr=false;if(isV("[")){next();while(!isV("]")&&peek().t!=="eof")next();exp("]");arr=true;}
+      let def=null;if(acc("="))def=parseAssign();
+      ps.push({type:ty,name:nm,arr:arr,def:def});
+    }while(acc(","));}
+    exp(")");return ps;
+  }
+  // ---- expressions ----
+  function parseExpr(){return parseAssign();}
+  function parseAssign(){
+    const l=parseTernary();const t=peek();
+    if(t.t==="op"&&["=","+=","-=","*=","/=","%="].includes(t.v)){next();const r=parseAssign();return {n:"asg",op:t.v,l:l,r:r,line:t.line};}
+    return l;
+  }
+  function parseTernary(){const c=parseBin(0);if(isV("?")){const line=next().line;const a=parseAssign();exp(":");const b=parseAssign();return {n:"tern",c:c,a:a,b:b,line:line};}return c;}
+  const LV=[["||"],["&&"],["==","!="],["<","<=",">",">="],["<<",">>"],["+","-"],["*","/","%"]];
+  function parseBin(lv){
+    if(lv>=LV.length)return parseUnary();
+    let l=parseBin(lv+1);
+    for(;;){const t=peek();if(t.t==="op"&&LV[lv].includes(t.v)){next();const r=parseBin(lv+1);l={n:"bin",op:t.v,l:l,r:r,line:t.line};}else break;}
+    return l;
+  }
+  function parseUnary(){
+    const t=peek();
+    if(t.t==="op"&&["!","-","+"].includes(t.v)){next();return {n:"un",op:t.v,e:parseUnary(),line:t.line};}
+    if(t.t==="op"&&(t.v==="++"||t.v==="--")){next();return {n:"inc",op:t.v,pre:true,e:parseUnary(),line:t.line};}
+    if(t.v==="("&&t.t==="op"&&peek(1).t==="id"&&TYW.includes(peek(1).v)){let k=1;while(peek(k).t==="id"&&TYW.includes(peek(k).v))k++;if(isV(")",k)){next();const ty=parseType();exp(")");return {n:"cast",ty:ty.name,e:parseUnary(),line:t.line};}}
+    return parsePostfix();
+  }
+  function parsePostfix(){
+    let e=parsePrimary();
+    for(;;){
+      const t=peek();
+      if(t.v==="["&&t.t==="op"){next();const i=parseExpr();exp("]");e={n:"idx",a:e,i:i,line:t.line};}
+      else if((t.v==="++"||t.v==="--")&&t.t==="op"){next();e={n:"inc",op:t.v,pre:false,e:e,line:t.line};}
+      else if(t.v==="."&&t.t==="op"){next();const m=ident();exp("(");exp(")");e={n:"meth",o:e,m:m,line:t.line};}
+      else break;
+    }
+    return e;
+  }
+  function parsePrimary(){
+    const t=next();
+    if(t.t==="num")return {n:"num",v:t.v,f:t.f};
+    if(t.t==="str")return {n:"str",v:t.v};
+    if(t.t==="chr")return {n:"chr",v:t.v};
+    if(t.t==="op"&&t.v==="("){const e=parseExpr();exp(")");return e;}
+    if(t.t==="op"&&t.v==="::"){const nm=ident();return {n:"gid",name:nm,line:t.line};}
+    if(t.t==="id"){
+      if(t.v==="true")return {n:"num",v:1,b:true};if(t.v==="false")return {n:"num",v:0,b:true};
+      if(FN_STD.includes(t.v)&&!t.std&&!usingStd)sem("undeclared name","'"+t.v+"' was not declared in this scope. Write using namespace std; or std::"+t.v+".",t.line);
+      if(isV("(")&&!TYW.includes(t.v)){
+        next();const args=[];if(!isV(")")){do{args.push(parseAssign());}while(acc(","));}exp(")");
+        if(!funcs[t.v]&&!(FN_LIB[t.v])&&t.v!=="abs")sem("undeclared name","'"+t.v+"' was not declared in this scope. A function must be declared (a prototype) or defined before it is called.",t.line);
+        if(FN_LIB[t.v]&&!funcs[t.v])needHdr(t.v,t.line);
+        return {n:"call",name:t.v,args:args,line:t.line};
+      }
+      return {n:"id",name:t.v,line:t.line};
+    }
+    syn("expected an expression before '"+t.v+"'",t.line);
+  }
+  // ---- statements ----
+  function parseBlock(){exp("{");const b=[];while(!isV("}")){if(peek().t==="eof")syn("expected '}' at end of input");b.push(parseStmt());}exp("}");return {n:"blk",b:b};}
+  function parseDecl(ty,line){
+    const ds=[];
+    do{
+      const nm=ident();let size=null,init=null,ilist=null;
+      if(acc("[")){if(!isV("]"))size=parseExpr();exp("]");}
+      if(acc("=")){if(isV("{")){next();ilist=[];if(!isV("}")){do{ilist.push(parseAssign());}while(acc(","));}exp("}");}else init=parseAssign();}
+      ds.push({name:nm,size:size,init:init,ilist:ilist});
+    }while(acc(","));
+    exp(";");return {n:"decl",ty:ty,ds:ds,line:line};
+  }
+  function parseStmt(){
+    const t=peek();
+    if(isV("{"))return parseBlock();
+    if(acc(";"))return {n:"blk",b:[]};
+    if(t.t==="id"){
+      if(t.v==="if"){next();exp("(");const c=parseExpr();exp(")");const a=parseStmt();let b=null;if(isV("else")){next();b=parseStmt();}return {n:"if",c:c,a:a,b:b,line:t.line};}
+      if(t.v==="while"){next();exp("(");const c=parseExpr();exp(")");return {n:"while",c:c,b:parseStmt(),line:t.line};}
+      if(t.v==="do"){next();const b=parseStmt();if(!isV("while"))syn("expected 'while' before '"+peek().v+"'");next();exp("(");const c=parseExpr();exp(")");exp(";");return {n:"dowhile",c:c,b:b,line:t.line};}
+      if(t.v==="for"){next();exp("(");let init=null;if(!isV(";")){if(isTypeStart()){const ty=parseType();init=parseDecl(ty,t.line);}else{init={n:"expr",e:parseExpr()};exp(";");}}else next();let c=null;if(!isV(";"))c=parseExpr();exp(";");let u=null;if(!isV(")"))u=parseExpr();exp(")");return {n:"for",init:init,c:c,u:u,b:parseStmt(),line:t.line};}
+      if(t.v==="return"){next();let e=null;if(!isV(";"))e=parseExpr();exp(";");return {n:"ret",e:e,line:t.line};}
+      if(t.v==="break"){next();exp(";");return {n:"brk"};}
+      if(t.v==="continue"){next();exp(";");return {n:"cnt"};}
+      if(TYW.includes(t.v)){const ty=parseType();return parseDecl(ty,t.line);}
+    }
+    const e=parseExpr();exp(";");return {n:"expr",e:e,line:t.line};
+  }
+  // ---- program ----
+  const sigOf=ps=>ps.map(q=>q.type.name+(q.arr?"[]":"")).join(",");
+  while(peek().t!=="eof"){
+    if(acc(";"))continue;
+    if(isV("using")){next();if(isV("namespace")){next();ident();usingStd=true;}else{while(!isV(";"))next();}exp(";");continue;}
+    const line=peek().line;
+    if(!isTypeStart())syn("expected a declaration but found '"+peek().v+"'",line);
+    const ty=parseType();const nm=ident();
+    if(isV("(")){
+      const ps=parseParams();
+      // defaults must run right to left
+      let seen=false;ps.forEach((q,k)=>{if(q.def)seen=true;else if(seen)sem("declaration","default argument missing for parameter "+(k+1)+" of '"+nm+"'. Defaults must be given from right to left.",line);});
+      const list=funcs[nm]||(funcs[nm]=[]);
+      const sig=sigOf(ps);let f=list.find(x=>sigOf(x.params)===sig);
+      if(!f){
+        const clash=list.find(x=>x.params.length===ps.length&&sigOf(x.params)===sig);
+        f={name:nm,ret:ty,params:ps,body:null,line:line};list.push(f);
+      }else{
+        if(f.ret.name!==ty.name)sem("declaration","conflicting return type: '"+nm+"' is already declared with a different return type. Overloads cannot differ only in return type.",line);
+        ps.forEach((q,k)=>{if(q.def){if(f.params[k].def)sem("declaration","default argument given for parameter "+(k+1)+" of '"+nm+"' after a previous specification. A default belongs in the declaration only once.",line);f.params[k].def=q.def;}});
+      }
+      // same name and same parameter types but different return type handled above; also different types but all equal arity are valid overloads
+      if(isV("{")){
+        if(f.body)sem("redefinition","redefinition of '"+nm+"'. A function can be defined only once.",line);
+        ps.forEach((q,k)=>{f.params[k].name=q.name;f.params[k].arr=q.arr;});
+        f.body=true;f.bodyNode=null;f.nm=nm;
+        const par=ps;
+        f.bodyNode=parseBlock();f.body=true;
+      }else{
+        if(!isV(";"))syn("expected ';' or '{' before '"+peek().v+"' (a declaration ends with a semicolon; a definition has a body and no semicolon)",peek().line);
+        next();
+      }
+      continue;
+    }
+    // global variable(s)
+    p-=1;const ds=[];
+    do{
+      const name=ident();let size=null,init=null,ilist=null;
+      if(acc("[")){if(!isV("]"))size=parseExpr();exp("]");}
+      if(acc("=")){if(isV("{")){next();ilist=[];if(!isV("}")){do{ilist.push(parseAssign());}while(acc(","));}exp("}");}else init=parseAssign();}
+      ds.push({name:name,size:size,init:init,ilist:ilist});
+    }while(acc(",")&&(true));
+    exp(";");
+    if(ty.ext&&!ty.stat){ds.forEach(d=>externs[d.name]={ty:ty,line:line});}
+    else globals.push({n:"decl",ty:ty,ds:ds,line:line});
+  }
+  return {funcs:funcs,globals:globals,externs:externs,usingStd:usingStd,inc:inc};
+}
+/* ---------- runtime ---------- */
+function fnFmtD(x){
+  if(!isFinite(x))return isNaN(x)?"nan":(x<0?"-inf":"inf");
+  if(x===0)return "0";
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  let s=x.toPrecision(6);
+  if(e<-5||e>=6){s=x.toExponential(5).replace(/\.?0+e/,"e");s=s.replace(/e([+-])(\d)$/,"e$10$2");return s;}
+  if(s.includes("e")){s=Number(s).toString();}
+  if(s.includes("."))s=s.replace(/0+$/,"").replace(/\.$/,"");
+  return s;
+}
+function fnRun(src,inp){
+  const out=[],warn=[];let steps=0,depth=0;
+  const tok=(inp||"").split(/\s+/).filter(Boolean);let tp=0;
+  let randSeed=1;
+  const MAXD=900;
+  function rt(title,detail,line){throw new FnErr("run","Run-time error: "+title,detail,line);}
+  const isNumK=k=>k==="int"||k==="long"||k==="double"||k==="bool"||k==="char";
+  const wrap32=x=>(x|0);
+  function coerce(k,val,line){
+    if(k==="auto")return {k:val.k,v:val.v};
+    if(k==="string"){if(val.k==="string")return {k:"string",v:val.v};if(val.k==="arr")return {k:"string",v:cstr(val)};rt("invalid conversion","cannot convert a number to string",line);}
+    if(!isNumK(val.k))rt("invalid conversion","cannot convert '"+val.k+"' to "+k,line);
+    let v=val.v;
+    if(k==="double")return {k:"double",v:Number(v)};
+    if(k==="bool")return {k:"bool",v:v?1:0};
+    if(k==="char"){return {k:"char",v:((Math.trunc(v)%256)+256)%256};}
+    v=Math.trunc(v);if(!isFinite(v))v=0;
+    if(k==="int")return {k:"int",v:wrap32(v)};
+    return {k:"long",v:v};
+  }
+  function cstr(a){let s="";for(const c of a.v){if(c.v===0)break;s+=String.fromCharCode(c.v);}return s;}
+  function sOf(x,line){if(x.k==="string")return x.v;if(x.k==="arr")return cstr(x);rt("invalid argument","a string was expected",line);}
+  function fmt(x){
+    if(x.k==="double")return fnFmtD(x.v);
+    if(x.k==="bool")return x.v?"1":"0";
+    if(x.k==="char")return String.fromCharCode(x.v);
+    if(x.k==="string")return x.v;
+    if(x.k==="arr")return x.ek==="char"?cstr(x):"0x7ffc";
+    return String(x.v);
+  }
+  const G={vars:new Map(),parent:null};
+  function look(env,name,line){for(let e=env;e;e=e.parent){if(e.vars.has(name))return e.vars.get(name);}rt("undeclared name","'"+name+"' was not declared in this scope.",line);}
+  let P=null;
+  function mkCell(ty,line,d,env){
+    const k=ty.name;
+    if(d.size!==null||d.ilist!==null){
+      let n=d.size?Math.trunc(evalE(d.size,env).v):(d.ilist?d.ilist.length:0);
+      if(d.init&&d.init.n==="str"&&d.size===null)n=d.init.v.length+1;
+      const cells=[];for(let i=0;i<n;i++)cells.push({k:k,v:0});
+      if(d.ilist)d.ilist.forEach((e,i)=>{if(i<n)cells[i]=coerce(k,evalE(e,env),line);});
+      if(d.init&&d.init.n==="str"){const s=d.init.v;if(s.length+1>n)rt("array too small","initialiser string is longer than the array",line);for(let i=0;i<s.length;i++)cells[i]={k:"char",v:s.charCodeAt(i)};}
+      return {k:"arr",ek:k,v:cells};
+    }
+    if(d.init){const val=evalE(d.init,env);return coerce(k==="auto"?val.k:k,val,line);}
+    return {k:k==="auto"?"int":k,v:k==="string"?"":0};
+  }
+  function declare(node,env,isGlobal){
+    for(const d of node.ds){
+      if(node.ty.stat&&!isGlobal){
+        const key=node;
+        node.statics=node.statics||new Map();
+        if(!node.statics.has(d.name))node.statics.set(d.name,mkCell(node.ty,node.line,d,env));
+        env.vars.set(d.name,node.statics.get(d.name));
+      }else env.vars.set(d.name,mkCell(node.ty,node.line,d,env));
+    }
+  }
+  const isLv=n=>n.n==="id"||n.n==="idx"||n.n==="gid";
+  function lv(n,env){
+    if(n.n==="id")return look(env,n.name,n.line);
+    if(n.n==="gid"){if(!G.vars.has(n.name))rt("undeclared name","'::"+n.name+"' was not declared in the global scope.",n.line);return G.vars.get(n.name);}
+    if(n.n==="idx"){const a=evalE(n.a,env);const i=Math.trunc(evalE(n.i,env).v);if(a.k!=="arr")rt("invalid use","subscript used on a non-array",n.line);if(i<0||i>=a.v.length)rt("array index out of range","index "+i+" is outside an array of "+a.v.length+" elements (undefined behaviour in real C++).",n.line);return a.v[i];}
+    rt("invalid assignment","the left side must be a variable",n.line);
+  }
+  function arith(op,a,b,line){
+    if(a.k==="string"||b.k==="string"){
+      if(a.k!=="string"&&a.k!=="arr"||b.k!=="string"&&b.k!=="arr")rt("invalid operands","a string cannot be combined with a number here",line);
+      const x=sOf(a,line),y=sOf(b,line);
+      if(op==="+")return {k:"string",v:x+y};
+      if(op==="==")return {k:"bool",v:x===y?1:0};if(op==="!=")return {k:"bool",v:x!==y?1:0};
+      if(op==="<")return {k:"bool",v:x<y?1:0};if(op===">")return {k:"bool",v:x>y?1:0};
+      if(op==="<=")return {k:"bool",v:x<=y?1:0};if(op===">=")return {k:"bool",v:x>=y?1:0};
+      rt("invalid operands","operator "+op+" is not defined for strings",line);
+    }
+    if(a.k==="arr"||b.k==="arr"){if(op==="=="||op==="!=")return {k:"bool",v:((a===b)===(op==="=="))?1:0};rt("invalid operands","arrays cannot be combined with "+op,line);}
+    const dbl=a.k==="double"||b.k==="double",lng=a.k==="long"||b.k==="long";
+    const x=a.v,y=b.v;
+    switch(op){
+      case "+":case "-":case "*":{
+        let r=op==="+"?x+y:op==="-"?x-y:x*y;
+        if(dbl)return {k:"double",v:r};
+        if(lng)return {k:"long",v:r};
+        if(op==="*")r=Number(BigInt.asIntN(32,BigInt(x)*BigInt(y)));
+        return {k:"int",v:wrap32(r)};}
+      case "/":
+        if(dbl)return {k:"double",v:x/y};
+        if(y===0)rt("division by zero","An integer division by zero crashes the program (the compiler cannot detect it).",line);
+        return {k:lng?"long":"int",v:Math.trunc(x/y)};
+      case "%":
+        if(dbl)rt("invalid operands","% needs integer operands",line);
+        if(y===0)rt("division by zero","A remainder by zero crashes the program.",line);
+        return {k:lng?"long":"int",v:x%y};
+      case "==":return {k:"bool",v:x===y?1:0};case "!=":return {k:"bool",v:x!==y?1:0};
+      case "<":return {k:"bool",v:x<y?1:0};case ">":return {k:"bool",v:x>y?1:0};
+      case "<=":return {k:"bool",v:x<=y?1:0};case ">=":return {k:"bool",v:x>=y?1:0};
+    }
+    rt("unsupported operator",op,line);
+  }
+  function tick(line){if(++steps>1500000)throw new FnErr("run","Time limit exceeded","The program ran for too long: probably an infinite loop or a recursion that never reaches its base case.",line);}
+  function evalE(n,env){
+    switch(n.n){
+      case "num":return n.b?{k:"bool",v:n.v}:{k:n.f?"double":"int",v:n.v};
+      case "str":return {k:"string",v:n.v};
+      case "chr":return {k:"char",v:n.v};
+      case "id":{if(n.name==="endl")return {k:"endl"};if(n.name==="cout"||n.name==="cin")return {k:"stream",s:n.name};return look(env,n.name,n.line);}
+      case "gid":return lv(n,env);
+      case "idx":return lv(n,env);
+      case "un":{const e=evalE(n.e,env);if(n.op==="!")return {k:"bool",v:e.v?0:1};if(n.op==="-")return e.k==="double"?{k:"double",v:-e.v}:{k:e.k==="long"?"long":"int",v:-e.v};return e;}
+      case "inc":{const c=lv(n.e,env);const old={k:c.k,v:c.v};const nv=coerce(c.k,{k:"int",v:c.v+(n.op==="++"?1:-1)});if(c.k==="double")nv.v=c.v+(n.op==="++"?1:-1);c.v=nv.v;return n.pre?{k:c.k,v:c.v}:old;}
+      case "cast":{const e=evalE(n.e,env);return coerce(n.ty,e,n.line);}
+      case "tern":return evalE(evalE(n.c,env).v?n.a:n.b,env);
+      case "meth":{const o=evalE(n.o,env);const s=sOf(o,n.line);if(n.m==="length"||n.m==="size")return {k:"int",v:s.length};rt("unsupported","string method '"+n.m+"' is not supported by this runner",n.line);}
+      case "asg":{
+        const c=lv(n.l,env);let r=evalE(n.r,env);
+        if(n.op!=="=")r=arith(n.op[0],{k:c.k,v:c.v},r,n.line);
+        if(c.k==="arr")rt("invalid assignment","an array cannot be assigned as a whole",n.line);
+        const nv=coerce(c.k,r,n.line);c.v=nv.v;return {k:c.k,v:c.v};}
+      case "bin":{
+        if(n.op==="&&"){const a=evalE(n.l,env);if(!a.v)return {k:"bool",v:0};return {k:"bool",v:evalE(n.r,env).v?1:0};}
+        if(n.op==="||"){const a=evalE(n.l,env);if(a.v)return {k:"bool",v:1};return {k:"bool",v:evalE(n.r,env).v?1:0};}
+        if(n.op==="<<"||n.op===">>"){
+          const a=evalE(n.l,env);
+          if(a.k==="stream"){
+            if(n.op==="<<"&&a.s==="cout"){const b=evalE(n.r,env);out.push(b.k==="endl"?"\n":fmt(b));return a;}
+            if(n.op===">>"&&a.s==="cin"){const c=lv(n.r,env);if(tp>=tok.length)rt("input","cin ran out of input: type the values in the keyboard input box.",n.line);const t=tok[tp++];if(c.k==="string")c.v=t;else{const x=Number(t);if(isNaN(x))rt("input","'"+t+"' is not a number",n.line);c.v=coerce(c.k,{k:"double",v:x}).v;}return a;}
+            rt("invalid stream operation","wrong direction for the stream",n.line);
+          }
+          const b=evalE(n.r,env);return {k:"int",v:n.op==="<<"?a.v<<b.v:a.v>>b.v};
+        }
+        return arith(n.op,evalE(n.l,env),evalE(n.r,env),n.line);}
+      case "call":return callFn(n,env);
+    }
+    rt("unsupported","expression",n.line);
+  }
+  function cost(par,arg){
+    const pk=par.type.name;
+    if(par.arr)return arg.k==="arr"?0:null;
+    if(pk==="string")return arg.k==="string"?0:(arg.k==="arr"?1:null);
+    if(!isNumK(arg.k))return null;
+    if(par.type.ref&&!par.type.isConst&&!arg.cell)return null;
+    if(par.type.ref&&!par.type.isConst&&arg.cell&&arg.cell.k!==pk)return null;
+    if(pk===arg.k)return 0;
+    if((arg.k==="char"||arg.k==="bool")&&pk==="int")return 0.5;
+    if(arg.k==="int"&&pk==="long")return 0.5;
+    return 1;
+  }
+  function callFn(n,env){
+    tick(n.line);
+    const args=n.args.map(a=>{const c=isLv(a)?lv(a,env):null;if(c&&c.k!=="arr")return {k:c.k,v:c.v,cell:c};if(c)return c;return evalE(a,env);});
+    const lib=builtin(n.name,args,n.line);
+    const list=P.funcs[n.name];
+    if(!list){if(lib)return lib;rt("undeclared name","'"+n.name+"' was not declared.",n.line);}
+    let best=[],bc=Infinity;
+    for(const f of list){
+      const req=f.params.filter(q=>!q.def).length;
+      if(args.length<req||args.length>f.params.length)continue;
+      let tot=0,ok=true;
+      for(let i=0;i<args.length;i++){const c=cost(f.params[i],args[i]);if(c===null){ok=false;break;}tot+=c;}
+      if(!ok)continue;
+      if(tot<bc){bc=tot;best=[f];}else if(tot===bc)best.push(f);
+    }
+    const sigStr=args.map(a=>a.k==="long"?"long long":a.k==="arr"?(a.ek+"*"):a.k).join(", ");
+    if(!best.length)throw new FnErr("compile","Compile-time error (no matching function)","Line "+n.line+": no version of '"+n.name+"' accepts the arguments ("+sigStr+"). Check the number and types of the arguments (a non-const reference needs a variable).",n.line);
+    if(best.length>1)throw new FnErr("compile","Compile-time error (ambiguous call)","Line "+n.line+": the call of overloaded '"+n.name+"("+sigStr+")' is ambiguous: "+best.length+" versions fit equally well, each needing a conversion.",n.line);
+    const f=best[0];
+    if(!f.body)throw new FnErr("link","Linker error: undefined reference to '"+n.name+"'","The function '"+n.name+"' was declared (a prototype) but never defined. The compiler accepts a prototype; the linker needs the definition (Lesson 12).",n.line);
+    if(++depth>MAXD){depth=0;throw new FnErr("run","Run-time error: stack overflow","The call stack ran out of memory after about "+MAXD+" nested calls: usually a recursion with no reachable base case. Real programs crash with a segmentation fault.",n.line);}
+    const fenv={vars:new Map(),parent:G};
+    f.params.forEach((q,i)=>{
+      let a=args[i];
+      if(!a){a=evalE(q.def,G);}
+      if(q.arr){fenv.vars.set(q.name,a);return;}
+      if(q.type.ref&&a.cell){fenv.vars.set(q.name,a.cell);return;}
+      fenv.vars.set(q.name,coerce(q.type.name,{k:a.k,v:a.v,}));
+    });
+    let sig=execBlock(f.bodyNode,fenv);
+    depth--;
+    if(sig&&sig.t==="ret"){if(f.ret.name==="void")return {k:"void"};return f.ret.name==="auto"?sig.v:coerce(f.ret.name,sig.v,n.line);}
+    if(f.ret.name!=="void"&&f.name!=="main"){warn.push("control reaches the end of non-void function '"+f.name+"' without a return (undefined behaviour)");return {k:f.ret.name==="double"?"double":"int",v:0};}
+    return {k:"void"};
+  }
+  function builtin(name,a,line){
+    const lib=FN_LIB[name];const num=i=>{if(!a[i]||!isNumK(a[i].k))rt("invalid argument","argument "+(i+1)+" of "+name+" must be a number",line);return a[i].v;};
+    const D=v=>({k:"double",v:v}),I=v=>({k:"int",v:v});
+    if(P.funcs[name])return null;
+    switch(name){
+      case "sqrt":return D(Math.sqrt(num(0)));case "pow":return D(Math.pow(num(0),num(1)));
+      case "fabs":return D(Math.abs(num(0)));case "floor":return D(Math.floor(num(0)));case "ceil":return D(Math.ceil(num(0)));
+      case "round":{const x=num(0);return D(x<0?-Math.round(-x):Math.round(x));}
+      case "sin":return D(Math.sin(num(0)));case "cos":return D(Math.cos(num(0)));case "tan":return D(Math.tan(num(0)));
+      case "log":return D(Math.log(num(0)));case "log10":return D(Math.log10(num(0)));case "exp":return D(Math.exp(num(0)));
+      case "abs":{const x=num(0);return a[0].k==="double"?D(Math.abs(x)):I(Math.abs(x));}
+      case "isalpha":{const c=num(0);return I(/[A-Za-z]/.test(String.fromCharCode(c))?1:0);}
+      case "isdigit":{const c=num(0);return I(c>=48&&c<=57?1:0);}
+      case "isalnum":{const c=num(0);return I(/[A-Za-z0-9]/.test(String.fromCharCode(c))?1:0);}
+      case "isspace":{const c=num(0);return I(c===32||(c>=9&&c<=13)?1:0);}
+      case "isupper":{const c=num(0);return I(c>=65&&c<=90?1:0);}case "islower":{const c=num(0);return I(c>=97&&c<=122?1:0);}
+      case "toupper":{const c=num(0);return I(c>=97&&c<=122?c-32:c);}case "tolower":{const c=num(0);return I(c>=65&&c<=90?c+32:c);}
+      case "strlen":return I(sOf(a[0],line).length);
+      case "strcmp":{const x=sOf(a[0],line),y=sOf(a[1],line);return I(x===y?0:(x<y?-1:1));}
+      case "strcpy":case "strcat":{
+        const d=a[0];if(d.k!=="arr")rt("invalid argument","the destination of "+name+" must be a character array",line);
+        const s=sOf(a[1],line);const base=name==="strcat"?cstr(d):"";const res=base+s;
+        if(res.length+1>d.v.length)rt("buffer overflow","'"+name+"' wrote "+(res.length+1)+" characters (including the null terminator) into an array of "+d.v.length+". In real C++ this overwrites neighbouring memory: a buffer overflow.",line);
+        for(let i=0;i<res.length;i++)d.v[i]={k:"char",v:res.charCodeAt(i)};d.v[res.length]={k:"char",v:0};return d;}
+      case "rand":{randSeed=(randSeed*1103515245+12345)%2147483648;return I(randSeed);}
+      case "srand":{randSeed=Math.abs(Math.trunc(num(0)))%2147483648;return {k:"void"};}
+      case "time":return {k:"long",v:Math.floor(Date.now()/1000)};
+      case "atoi":{const m=/^\s*[+-]?\d+/.exec(sOf(a[0],line));return I(m?parseInt(m[0],10):0);}
+      case "atof":{const m=/^\s*[+-]?(\d+\.?\d*|\.\d+)/.exec(sOf(a[0],line));return D(m?parseFloat(m[0]):0);}
+      case "exit":throw new ExitSig(a[0]?a[0].v:0);
+    }
+    return null;
+  }
+  function execBlock(b,env){const e={vars:new Map(),parent:env};for(const s of b.b){const r=exec(s,e);if(r)return r;}return null;}
+  function exec(s,env){
+    switch(s.n){
+      case "blk":return execBlock(s,env);
+      case "decl":declare(s,env,false);return null;
+      case "expr":evalE(s.e,env);return null;
+      case "if":return evalE(s.c,env).v?exec(s.a,env):(s.b?exec(s.b,env):null);
+      case "while":while(evalE(s.c,env).v){tick(s.line);const r=exec(s.b,env);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}}return null;
+      case "dowhile":do{tick(s.line);const r=exec(s.b,env);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}}while(evalE(s.c,env).v);return null;
+      case "for":{const e={vars:new Map(),parent:env};if(s.init){if(s.init.n==="decl")declare(s.init,e,false);else evalE(s.init.e,e);}
+        while(!s.c||evalE(s.c,e).v){tick(s.line);const r=exec(s.b,e);if(r){if(r.t==="brk")break;if(r.t==="ret")return r;}if(s.u)evalE(s.u,e);}return null;}
+      case "ret":return {t:"ret",v:s.e?evalE(s.e,env):{k:"void"}};
+      case "brk":return {t:"brk"};case "cnt":return {t:"cnt"};
+    }
+    rt("unsupported","statement",s.line);
+  }
+  let code=0;
+  try{
+    P=fnParse(fnLex(src.replace(/\r/g,"")));
+    for(const g of P.globals)declare(g,G,true);
+    for(const nm in P.externs)if(!G.vars.has(nm))throw new FnErr("link","Linker error: undefined reference to '"+nm+"'","'"+nm+"' is declared extern here but no file defines it. An extern declaration allocates no memory; the linker must find exactly one definition (Lesson 12).",P.externs[nm].line);
+    const mains=P.funcs.main;if(!mains||!mains[0].body)throw new FnErr("link","Linker error: undefined reference to 'main'","Every program needs a main() function.",0);
+    const r=callFn({name:"main",args:[],line:0},G);code=r&&r.k!=="void"?r.v:0;
+  }catch(e){
+    if(e instanceof ExitSig)return {ok:true,out:out.join(""),code:e.c,warn:warn};
+    if(e instanceof FnErr)return {ok:false,out:e.kind==="run"?out.join(""):"",cls:e.kind==="link"?"note":"bad",title:e.title,detail:e.detail,line:e.line,warn:warn};
+    if(e instanceof RangeError)return {ok:false,out:out.join(""),cls:"bad",title:"Run-time error: stack overflow",detail:"The call stack ran out of memory: usually a recursion with no reachable base case.",warn:warn};
+    return {ok:false,out:out.join(""),cls:"note",title:"The runner could not run this program",detail:String(e&&e.message||e).slice(0,200),warn:warn};
+  }
+  return {ok:true,out:out.join(""),code:code,warn:warn};
+}
+function runCpp(src,inp){
+  const r=fnRun(src,inp||"");
+  if(r.ok&&r.warn&&r.warn.length)r.note=r.warn.join("; ");
+  return r;
+}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to execute the program. Output appears here.</p>';
+  let h="";
+  if(r.ok){h+='<pre class="outpre">'+(r.out?esc(r.out):'<span class="dim">(no output)</span>')+'</pre>'+(r.note?'<div class="rs note"><b>Warning.</b> '+esc(r.note)+'</div>':'')+'<div class="rs ok">Finished normally (exit code '+r.code+')</div>';}
+  else{if(r.out)h+='<pre class="outpre">'+esc(r.out)+'</pre>';h+='<div class="rs '+r.cls+'"><b>'+esc(r.title)+'.</b> '+esc(r.detail)+'</div>';}
+  return h;
+}
+/* ============ CODE WIDGET ============ */
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const needIn=spec.inp!==undefined||/\bcin\b/.test(src);
+  const inp=CS.inp[id]!==undefined?CS.inp[id]:(spec.inp||"");
+  const rows=Math.min(22,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">C++ program</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="C++ code editor">'+esc(src)+'</textarea>';
+  if(needIn)h+='<div class="cw-in"><label class="lab" for="in-'+id+'">Keyboard input for cin</label><input type="text" class="cin" id="in-'+id+'" data-iid="'+id+'" value="'+esc(inp)+'" autocomplete="off"></div>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id),ii=document.getElementById("in-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const inp=ii?ii.value:(CS.inp[id]||spec.inp||"");CS.inp[id]=inp;
+  const r=runCpp(src,inp);
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ rmode:"val",rop:"swap",rx:"10",ry:"20",
+ cf:"fact",cn:"4",
+ ov:["int","none"],
+ sk:"static",sn:"4",
+ lib:"sqrt(144)",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run code"],["pred","Predict the output"],["fix","Fix the bug"],["ref","Value or reference"],["rec","Call-stack tracer"],["ovl","Overload resolver"],["sc","Storage tracer"],["lib","Library explorer"],["sort","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank program",spec:{c:"#include <iostream>\nusing namespace std;\n\nint square(int n)\n{\n    return n * n;\n}\n\nint main()\n{\n    cout << square(6) << endl;\n    return 0;\n}",tr:"Write your own functions here."}});
+function labView(){
+  let h='<p class="hint">Functions are learned by tracing what is copied and what is shared. Run each listing, predict the output before you press Run, then change one parameter or one call and predict again. The tracers show the tables that examiners mark.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,ref:labRef,rec:labRec,ovl:labOvl,sc:labSc,lib:labLib,sort:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s programs</h3><label class="lab" for="exsel">Choose a listing</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">This runner is written for this chapter: it supports functions, prototypes, reference parameters, default arguments, overloading, inline, recursion, global and static variables, ::, auto, and the cmath, cctype, cstring and cstdlib functions. A program that real C++ would reject gives the same kind of error message. Infinite recursion is stopped as a stack overflow.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your prediction (what the program prints; separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected output: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to execute the code and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+const FIX=[
+{t:"Swap that changes nothing",kind:"Logical error",goal:"The program should print: 20 10",exp:"20 10",hint:"What does a function receive when a parameter is passed by value?",sol:"Declare both parameters as references: void swapValues(int &a, int &b).",why:"By value, the function swaps copies. A reference parameter is an alias of the caller's variable.",src:R`#include <iostream>
+using namespace std;
+
+void swapValues(int a, int b)
+{
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+int main()
+{
+    int x = 10, y = 20;
+    swapValues(x, y);
+    cout << x << " " << y;
+    return 0;
+}`},
+{t:"Function used before it is declared",kind:"Compile-time error",goal:"The program should print: 8",exp:"8",hint:"The compiler reads from the top. What does it know about add when it reaches main?",sol:"Add the prototype int add(int, int); above main (or move the definition above main).",why:"A function must be declared or defined before it is called; a prototype lets the definition come later.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    cout << add(5, 3);
+    return 0;
+}
+
+int add(int a, int b)
+{
+    return a + b;
+}`},
+{t:"Default argument in the wrong position",kind:"Compile-time error",goal:"area(2, 3) should print 30 (length 2, height 3, breadth defaults to 5)",exp:"30",hint:"Defaults must run from the right. Which parameter has a default while one to its right does not?",sol:"Reorder the parameters: int area(int l, int h, int b = 5).",why:"Once a parameter has a default, every parameter to its right needs one.",src:R`#include <iostream>
+using namespace std;
+
+int area(int l, int b = 5, int h)
+{
+    return l * b * h;
+}
+
+int main()
+{
+    cout << area(2, 3);
+    return 0;
+}`},
+{t:"Recursion with no base case",kind:"Run-time error",goal:"The program should print: 120",exp:"120",hint:"What stops the calls when n reaches 0?",sol:"Add if (n == 0) return 1; before the recursive return.",why:"Without a base case the calls never stop and the stack overflows.",src:R`#include <iostream>
+using namespace std;
+
+int factorial(int n)
+{
+    return n * factorial(n - 1);
+}
+
+int main()
+{
+    cout << factorial(5);
+    return 0;
+}`},
+{t:"A counter that never counts",kind:"Logical error",goal:"The program should print: 1 2 3",exp:"1 2 3",hint:"Is the variable created afresh on every call?",sol:"Declare it static: static int n = 0;",why:"A static local is initialised once and keeps its value between calls.",src:R`#include <iostream>
+using namespace std;
+
+void next()
+{
+    int n = 0;
+    n++;
+    cout << n << " ";
+}
+
+int main()
+{
+    next();
+    next();
+    next();
+    return 0;
+}`},
+{t:"sqrt is not declared",kind:"Compile-time error",goal:"The program should print: 12",exp:"12",hint:"Which header declares sqrt?",sol:"Add #include <cmath>.",why:"Library functions are declared in their own headers.",src:R`#include <iostream>
+using namespace std;
+
+int main()
+{
+    cout << sqrt(144);
+    return 0;
+}`},
+{t:"Ambiguous overloaded call",kind:"Compile-time error",goal:"The program should print: 8.5",exp:"8.5",hint:"Neither add(int, int) nor add(double, double) matches add(5, 3.5) exactly.",sol:"Make the call exact: add(5.0, 3.5).",why:"Both overloads need one conversion, so the call is ambiguous. An exact match removes the ambiguity.",src:R`#include <iostream>
+using namespace std;
+
+int add(int a, int b)
+{
+    return a + b;
+}
+
+double add(double a, double b)
+{
+    return a + b;
+}
+
+int main()
+{
+    cout << add(5, 3.5);
+    return 0;
+}`},
+{t:"toupper prints a number",kind:"Logical error",goal:"The program should print: A",exp:"A",hint:"What type does toupper return?",sol:"Cast the result: cout << (char)toupper(c);",why:"toupper returns an int, so cout prints its character code unless it is cast to char.",src:R`#include <iostream>
+#include <cctype>
+using namespace std;
+
+int main()
+{
+    char c = 'a';
+    cout << toupper(c);
+    return 0;
+}`},
+{t:"Constant given to a reference parameter",kind:"Compile-time error",goal:"The program should print: 6",exp:"6",hint:"A reference needs something to refer to. What is 5?",sol:"Pass a variable: int n = 5; increment(n); cout << n;",why:"A non-const reference parameter needs a variable, not a constant.",src:R`#include <iostream>
+using namespace std;
+
+void increment(int &x)
+{
+    x++;
+}
+
+int main()
+{
+    increment(5);
+    cout << 6;
+    return 0;
+}`}
+];
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts,idx){
+  return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'"'+(idx!==undefined?' data-idx="'+idx+'"':"")+' style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+((idx!==undefined?L[key][idx]:L[key])===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";
+}
+/* ---------- Value or reference ---------- */
+const ROPS={swap:{n:"swapValues(a, b)",body:"int t = a; a = b; b = t;",two:true},inc:{n:"addTen(a)",body:"a = a + 10;",two:false},dbl:{n:"doubleIt(a)",body:"a = a * 2;",two:false}};
+function refSim(){
+  const x=parseInt(L.rx,10),y=parseInt(L.ry,10);
+  if(isNaN(x)||(ROPS[L.rop].two&&isNaN(y)))return {err:"Enter whole numbers."};
+  const op=L.rop;let a=x,b=y;
+  if(op==="swap"){const t=a;a=b;b=t;}else if(op==="inc")a=a+10;else a=a*2;
+  const ref=L.rmode==="ref";
+  const two=ROPS[op].two;
+  const fa=a,fb=b;
+  const after=ref?[fa,fb]:[x,y];
+  return {x:x,y:y,fa:fa,fb:fb,two:two,after:ref?after:[x,y],ref:ref};
+}
+function refCode(){
+  const amp=L.rmode==="ref"?"&":"";const op=ROPS[L.rop];
+  const sig=op.two?"void swapValues(int "+amp+"a, int "+amp+"b)":"void "+(L.rop==="inc"?"addTen":"doubleIt")+"(int "+amp+"a)";
+  const call=op.two?"swapValues(x, y);":(L.rop==="inc"?"addTen(x);":"doubleIt(x);");
+  return sig+"\n{\n    "+op.body+"\n}\n\n// in main:\nint x = "+L.rx+(op.two?", y = "+L.ry:"")+";\n"+call;
+}
+function refRes(){
+  const r=refSim();if(r.err)return '<div class="rs bad">'+esc(r.err)+"</div>";
+  const rows=[["Before the call",String(r.x),r.two?String(r.y):"-"],["Inside the function (parameters)",String(r.fa),r.two?String(r.fb):"-"],["After the call (caller's variables)",String(r.after[0]),r.two?String(r.after[1]):"-"]];
+  const changed=r.after[0]!==r.x||(r.two&&r.after[1]!==r.y);
+  return '<pre class="codeview">'+esc(refCode())+"</pre>"+tbl(["Moment","x","y"],rows)+'<div class="rs '+(r.ref?"ok":"note")+'"><b>'+(r.ref?"Call by reference.":"Call by value.")+"</b> "+(r.ref?"The parameters are aliases of x"+(r.two?" and y":"")+", so the caller's variables "+(changed?"changed.":"keep the same values (the function produced the same values).")+" The argument must be a variable.":"The parameters are copies, so the caller's variables are unchanged ("+(r.two?"x = "+r.x+", y = "+r.y:"x = "+r.x)+") even though the copies changed inside the function.")+"</div>";
+}
+function labRef(){
+  return '<div class="panel"><h3>Value or reference</h3><p class="hint">Choose how the parameters are passed and what the function does. The table shows the variables before, inside and after the call.</p>'+chips("rmode",[["val","Call by value"],["ref","Call by reference"]])+chips("rop",[["swap","Swap two values"],["inc","Add ten"],["dbl","Double"]])+'<div class="row"><div><label class="lab" for="rx">x =</label><input type="text" id="rx" data-lin="ref" class="mono" value="'+esc(L.rx)+'" style="max-width:5rem"></div>'+(ROPS[L.rop].two?'<div><label class="lab" for="ry">y =</label><input type="text" id="ry" data-lin="ref" class="mono" value="'+esc(L.ry)+'" style="max-width:5rem"></div>':"")+'</div><div id="rres">'+refRes()+"</div></div>";
+}
+/* ---------- Call-stack tracer ---------- */
+const RECS={fact:{n:"factorial(n)",max:10,code:"int factorial(int n)\n{\n    if (n == 0)\n        return 1;\n    return n * factorial(n - 1);\n}"},
+ fib:{n:"fibonacci(n)",max:7,code:"int fibonacci(int n)\n{\n    if (n <= 1)\n        return n;\n    return fibonacci(n - 1) + fibonacci(n - 2);\n}"},
+ sum:{n:"sum(n)",max:12,code:"int sum(int n)\n{\n    if (n == 0)\n        return 0;\n    return n + sum(n - 1);\n}"},
+ gcd:{n:"gcdOf(a, b)",max:0,code:"int gcdOf(int a, int b)\n{\n    if (b == 0)\n        return a;\n    return gcdOf(b, a % b);\n}"}};
+function recSim(){
+  const k=L.cf,ev=[];let calls=0,maxd=0;
+  let args=L.cn.split(/[ ,]+/).filter(Boolean).map(Number);
+  if(args.some(x=>!Number.isInteger(x)||x<0))return {err:"Enter whole numbers that are not negative."};
+  const lim=RECS[k].max;
+  if(k==="gcd"){if(args.length!==2)return {err:"Enter two numbers, such as 48, 18."};if(args.some(x=>x>10000))return {err:"Use numbers up to 10000."};}
+  else{if(args.length!==1)return {err:"Enter one number."};if(args[0]>lim)return {err:"Use n up to "+lim+" so the trace stays readable."};}
+  function go(a,d){
+    calls++;maxd=Math.max(maxd,d);
+    const nm=k==="fact"?"factorial":k==="fib"?"fibonacci":k==="sum"?"sum":"gcdOf";
+    const label=nm+"("+a.join(", ")+")";
+    ev.push([d,"call",label,""]);
+    let v;
+    if(k==="fact")v=a[0]===0?1:a[0]*go([a[0]-1],d+1);
+    else if(k==="fib")v=a[0]<=1?a[0]:go([a[0]-1],d+1)+go([a[0]-2],d+1);
+    else if(k==="sum")v=a[0]===0?0:a[0]+go([a[0]-1],d+1);
+    else v=a[1]===0?a[0]:go([a[1],a[0]%a[1]],d+1);
+    ev.push([d,"return",label,v]);return v;
+  }
+  const res=go(args,0);return {ev:ev,calls:calls,maxd:maxd+1,res:res};
+}
+function recRes(){
+  const r=recSim();if(r.err)return '<div class="rs bad">'+esc(r.err)+"</div>";
+  const rows=r.ev.slice(0,80).map((e,i)=>[i+1,"  ".repeat(e[0])+(e[1]==="call"?"→ call "+e[2]:"← "+e[2]+" returns "+e[3]),e[1]==="call"?"frame "+(e[0]+1)+" created":"frame "+(e[0]+1)+" removed"]);
+  return '<pre class="codeview">'+esc(RECS[L.cf].code)+"</pre>"+tbl(["Step","Event (indented by depth)","Stack"],rows)+(r.ev.length>80?'<p class="hint">Only the first 80 steps are shown.</p>':"")+'<div class="rs ok"><b>Result '+r.res+".</b> Total calls: "+r.calls+". Greatest number of frames on the stack at once: "+r.maxd+"."+(L.cf==="fib"?" Increase n and watch the number of calls grow much faster than n.":"")+"</div>";
+}
+function labRec(){
+  return '<div class="panel"><h3>Call-stack tracer</h3><p class="hint">Each call pushes a stack frame; each return pops it. Choose a recursive function and an input.</p>'+chips("cf",[["fact","Factorial"],["fib","Fibonacci"],["sum","Sum of 1 to n"],["gcd","gcd"]])+'<div class="row"><div><label class="lab" for="cn">'+(L.cf==="gcd"?"a, b =":"n =")+'</label><input type="text" id="cn" data-lin="rec" class="mono" value="'+esc(L.cn)+'" style="max-width:8rem"></div></div><div id="cres">'+recRes()+"</div></div>";
+}
+/* ---------- Overload resolver ---------- */
+const OVLS=[["int",["int"]],["double",["double"]],["int",["int","int"]],["double",["double","double"]],["int",["int","int","int"]]];
+const OVT=["none","int","double","char","long long","bool"];
+function ovCost(p,a){if(p===a)return 0;if((a==="char"||a==="bool")&&p==="int")return 0.5;if(a==="int"&&p==="long long")return 0.5;return 1;}
+function ovSim(){
+  const args=L.ov.filter(x=>x!=="none");
+  const rows=[];let best=[],bc=Infinity;
+  OVLS.forEach(o=>{
+    const sig=o[1];
+    if(sig.length!==args.length){rows.push([o[0]+" f("+sig.join(", ")+")","-","Not viable: needs "+sig.length+" argument"+(sig.length===1?"":"s")]);return;}
+    let tot=0;args.forEach((a,i)=>tot+=ovCost(sig[i],a));
+    rows.push([o[0]+" f("+sig.join(", ")+")",String(tot),tot===0?"Exact match":args.some((a,i)=>ovCost(sig[i],a)===0.5)&&tot<1?"Promotion":"Conversion needed"]);
+    if(tot<bc){bc=tot;best=[o];}else if(tot===bc)best.push(o);
+  });
+  return {rows:rows,best:best,args:args};
+}
+function ovlRes(){
+  const r=ovSim();
+  let v;
+  if(!r.args.length)v='<div class="rs note"><b>No arguments.</b> No version of f takes zero arguments, so this is a compile-time error: no matching function.</div>';
+  else if(!r.best.length)v='<div class="rs bad"><b>Compile-time error: no matching function.</b> No version of f takes '+r.args.length+" argument(s).</div>";
+  else if(r.best.length>1)v='<div class="rs bad"><b>Compile-time error: ambiguous call.</b> '+r.best.length+" versions fit equally well, each needing the same kind of conversion. Make one argument match exactly, for example by writing 5.0 instead of 5.</div>";
+  else v='<div class="rs ok"><b>Calls f('+r.best[0][1].join(", ")+").</b> It is the best match: the lowest conversion cost.</div>";
+  return '<pre class="codeview">'+esc(OVLS.map(o=>o[0]+" f("+o[1].join(", ")+");").join("\n")+"\n\nf("+r.args.join(", ")+");   // argument types")+"</pre>"+tbl(["Overload","Conversion cost","Verdict"],r.rows)+v;
+}
+function labOvl(){
+  return '<div class="panel"><h3>Overload resolver</h3><p class="hint">Five overloads of f exist. Choose the types of the arguments in a call and see which version the compiler selects. An exact match costs 0, a promotion (char or bool to int) less than a conversion, and a tie is ambiguous.</p><div class="row">'+selHtml("ov0","First argument","ov",OVT,0)+selHtml("ov1","Second argument","ov",OVT,1)+selHtml("ov2","Third argument","ov",OVT,2)+'</div><div id="ores">'+ovlRes()+"</div></div>";
+}
+/* ---------- Storage tracer ---------- */
+function scRows(){
+  const n=Math.max(1,Math.min(10,parseInt(L.sn,10)||1));const k=L.sk,rows=[];
+  let st=0,gl=0;
+  for(let i=1;i<=n;i++){
+    if(k==="local")rows.push([i,"int c = 0 (created again)","1","destroyed at return"]);
+    else if(k==="static"){st++;rows.push([i,i===1?"static int c = 0 (initialised once)":"c keeps its value",String(st),"kept after return"]);}
+    else{gl++;rows.push([i,"global c (not created by the call)",String(gl),"kept for the whole program"]);}
+  }
+  return rows;
+}
+function scCode(){
+  const k=L.sk;
+  if(k==="local")return "void count()\n{\n    int c = 0;\n    c++;\n    cout << c << \" \";\n}";
+  if(k==="static")return "void count()\n{\n    static int c = 0;\n    c++;\n    cout << c << \" \";\n}";
+  return "int c = 0;          // global\nvoid count()\n{\n    c++;\n    cout << c << \" \";\n}";
+}
+function scRes(){
+  const rows=scRows();
+  const note=L.sk==="local"?"A local variable is created on each call and destroyed on return, so every call prints 1.":L.sk==="static"?"A static local is initialised once and persists, but only the function can use it.":"A global persists as well, but every function can change it, which makes bugs harder to find.";
+  return '<pre class="codeview">'+esc(scCode())+"</pre>"+tbl(["Call","c at the start","Printed","Lifetime of c"],rows)+'<div class="rs ok"><b>Output: '+esc(rows.map(r=>r[2]).join(" "))+".</b> "+esc(note)+"</div>";
+}
+function labSc(){
+  return '<div class="panel"><h3>Storage tracer</h3><p class="hint">Choose how the counter c is declared and the number of calls.</p>'+chips("sk",[["local","Ordinary local"],["static","Static local"],["global","Global"]])+'<div class="row"><div><label class="lab" for="sn">Number of calls</label><input type="text" id="sn" data-lin="sc" class="mono" value="'+esc(L.sn)+'" style="max-width:5rem"></div></div><div id="sres">'+scRes()+"</div></div>";
+}
+/* ---------- Library explorer ---------- */
+const LIBP=["sqrt(144)","pow(2, 10)","floor(3.7)","ceil(3.2)","round(3.5)","fabs(-7.5)","(char)toupper('a')","toupper('a')","isdigit('7')","isalpha('7')","strlen(\"Hello\")","strcmp(\"abc\", \"abd\")","atoi(\"42\") + 1","rand() % 6 + 1"];
+function libRun(){
+  const e=L.lib.trim();
+  if(!e)return {ok:false,cls:"note",title:"Type an expression",detail:"For example sqrt(144) or (char)toupper('a')."};
+  const src="#include <iostream>\n#include <cmath>\n#include <cctype>\n#include <cstring>\n#include <cstdlib>\nusing namespace std;\nint main()\n{\n    cout << ("+e+");\n    return 0;\n}";
+  return runCpp(src,"");
+}
+function libRes(){
+  const r=libRun();
+  if(!r.ok)return '<div class="rs '+(r.cls||"bad")+'"><b>'+esc(r.title)+".</b> "+esc(r.detail||"")+"</div>";
+  return '<div class="rs ok"><b>cout << ('+esc(L.lib.trim())+") prints:</b> <code>"+esc(r.out)+"</code></div>";
+}
+function labLib(){
+  return '<div class="panel"><h3>Library explorer</h3><p class="hint">Type any expression that uses the functions of cmath, cctype, cstring or cstdlib, or choose an example. Notice what toupper prints without the (char) cast.</p><div class="subnav">'+LIBP.map(p=>'<button class="chip" data-act="lset2" data-v="'+esc(p)+'">'+esc(p)+"</button>").join("")+'</div><label class="lab" for="libx">Expression</label><input type="text" id="libx" data-lin="lib" class="mono" value="'+esc(L.lib)+'" autocomplete="off"><div id="lres">'+libRes()+"</div></div>";
+}
+/* ---------- Sorting drill ---------- */
+const DIMS=[
+{n:"Value or reference?",o:["Call by value","Call by reference"],it:[["void f(int x)",0],["void f(int &x)",1],["The function can change the caller's variable",1],["The function works on a copy",0],["The argument must be a variable",1],["Used to swap two numbers",1],["Constants can be passed",0]]},
+{n:"Parameter or argument?",o:["Parameter","Argument"],it:[["The variable a in int add(int a, int b)",0],["The value 5 in add(5, 3)",1],["Appears in the function header",0],["Appears in the function call",1],["Receives a value",0],["Supplies a value",1]]},
+{n:"Which header?",o:["cmath","cctype","cstring","cstdlib"],it:[["sqrt",0],["toupper",1],["strlen",2],["rand",3],["isdigit",1],["strcmp",2],["pow",0],["srand",3],["floor",0],["atoi",3],["strcat",2],["isalpha",1]]},
+{n:"Which storage class?",o:["auto","register","static","extern"],it:[["Keeps its value between calls",2],["Type is deduced from the initialiser",0],["Deprecated in C++11 and removed in C++17",1],["Declares a variable defined in another file",3],["Initialised only once",2],["Allocates no memory",3],["Request to use a CPU register",1]]},
+{n:"Recursion: which part?",o:["Base case","Recursive case"],it:[["if (n == 0) return 1;",0],["return n * factorial(n - 1);",1],["Stops the calls",0],["Moves toward the base case",1],["Missing in a stack overflow",0],["return gcdOf(b, a % b);",1]]},
+{n:"Local or global?",o:["Local","Global"],it:[["Declared outside every function",1],["Destroyed when the function returns",0],["Initialised to zero by default",1],["Contains garbage if uninitialised",0],["Can be shadowed",1],["Reached with ::",1]]}
+];
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "lset2":L.lib=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const r=runCpp(src,"");CS.out[id]=r;
+      const got=(r.out||"").replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"“"+it[0]+"”: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="ref"){if(el.id==="rx")L.rx=el.value;else L.ry=el.value;set("rres",refRes());}
+  else if(k==="rec"){L.cn=el.value;set("cres",recRes());}
+  else if(k==="sc"){L.sn=el.value;set("sres",scRes());}
+  else if(k==="lib"){L.lib=el.value;set("lres",libRes());}
+  else if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});}
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){const key=el.dataset.key;if(el.dataset.idx!==undefined)L[key][+el.dataset.idx]=el.value;else L[key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
