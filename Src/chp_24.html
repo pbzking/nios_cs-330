@@ -1,0 +1,2331 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>HTML Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 4 · Database Concepts & Web Designing · Lesson 24</div>
+    <h1>Web Designing using HTML</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Table 1.1: Common HTTP status codes",c:["Code","Meaning","Typical cause"],r:[
+["200","OK","The page was found and sent"],
+["301","Moved Permanently","The page has a new address"],
+["403","Forbidden","The page exists but you may not see it"],
+["404","Not Found","Wrong address, or the file was deleted"],
+["500","Internal Server Error","A fault in the server's own program"]]},
+/*1*/{s:0,t:"Table 1.2: The parts of a URL",c:["Part","Meaning"],r:[
+["Scheme","The protocol: https (or http)"],
+["Host","The domain name of the server: www.example.com"],
+["Port","The server's door number: 443 for HTTPS and 80 for HTTP are the defaults and are usually left out"],
+["Path","Which file or page on that server: /products/laptop.html"],
+["Query","Extra data for the server as name=value pairs after ?: id=5 (this is how forms send GET data)"],
+["Fragment","A position inside the page, after #: a bookmark; the browser uses it and does not send it to the server"]]},
+/*2*/{s:0,t:"The two HTTP messages",c:["Message","Sent by","Structure"],r:[
+["Request","The client (browser)","Request line (method, path, protocol version) followed by headers such as Host and User-Agent"],
+["Response","The server","Status line (for example HTTP/1.1 200 OK), headers (Content-type, Content-Length), a blank line, then the body: the HTML itself"]]},
+/*3*/{s:0,t:"Who does what on the web",c:["Item","Role"],r:[
+["Web page","A single HTML document fetched by its URL"],
+["Website","A collection of related pages under one domain name, linked by navigation"],
+["Home page","The page served when only the domain is typed, often index.html"],
+["Browser (client)","Fetches, interprets and displays pages: Chrome, Firefox, Safari, Edge"],
+["Web server","A computer running server software that stores a site's files and answers requests"],
+["HTTP and HTTPS","The protocol browser and server use; HTTPS is the encrypted form"]]},
+/*4*/{s:1,t:"History of HTML",c:["Year","Version","Note"],r:[
+["1991","HTML","Invented by Tim Berners-Lee at CERN as part of the World Wide Web project"],
+["1995","HTML 2.0","Second version"],
+["1997","HTML 3.2","Third version"],
+["1999","HTML 4.01","Fourth version"],
+["2000","XHTML 1.0","A stricter, XML-based version"],
+["2014","HTML5","W3C recommendation: semantic tags, audio, video, canvas; now a living standard kept up to date by the WHATWG"]]},
+/*5*/{s:1,t:"Table 1.3: The parts of the skeleton",c:["Part","Purpose"],r:[
+["<!DOCTYPE html>","Not a tag but an instruction: this document is HTML5"],
+["<html lang=\"en\">","The root: everything else is inside; lang names the language"],
+["<head>","Metadata: information about the page, not shown in the page area"],
+["<meta charset=\"UTF-8\">","The character encoding, so that all letters and symbols display correctly"],
+["<meta name=\"viewport\" …>","Makes the page fit a phone screen instead of being shrunk"],
+["<title>","The text on the browser tab, in bookmarks and in search results"],
+["<body>","Everything the user sees in the window"]]},
+/*6*/{s:1,t:"Head compared with body",c:["Feature","head","body"],r:[
+["Holds","Information about the page (metadata)","The content displayed to the user"],
+["Visible in the page area","No","Yes"],
+["Typical children","title, meta, link, script","h1, p, img, table, form"],
+["Number per page","One","One"]]},
+/*7*/{s:1,t:"Table 1.17: Skeleton to memorise",c:["Task","Code"],r:[
+["Page skeleton","<!DOCTYPE html><html><head><title>T</title></head><body>…</body></html>"],
+["Heading, paragraph","<h1>Title</h1><p>Text</p>"],
+["Link","<a href=\"page.html\">Go</a>"],
+["Bookmark","<a href=\"#top\">Top</a> … <h2 id=\"top\">"],
+["Table","<table><tr><th>A</th></tr><tr><td>1</td></tr></table>"],
+["Form","<form action=\"s\" method=\"post\"><input type=\"text\" name=\"n\"><input type=\"submit\"></form>"]]},
+/*8*/{s:2,t:"Container and void elements",c:["Kind","Has content","Closing tag","Examples"],r:[
+["Container element","Yes","Yes: </p>","p, h1, a, table, form, div"],
+["Void element (empty, self-closing)","No","No","br, hr, img, input, meta, link"]]},
+/*9*/{s:2,t:"Table 1.4: Common attributes",c:["Attribute","Purpose"],r:[
+["id","A unique name for one element on the page (used by bookmarks and styles)"],
+["class","A group name that many elements can share (used by CSS)"],
+["src","The address of the file to load, for example for <img>"],
+["href","The destination of a link"],
+["alt","Text that describes an image: read by screen readers and shown if the image fails"],
+["style","Inline CSS for that one element"],
+["lang","The language of the content"]]},
+/*10*/{s:2,t:"Table 1.5: Elements used inside the head",c:["Element","Purpose"],r:[
+["<title>","The title on the browser tab and in search results"],
+["<meta charset=\"UTF-8\">","The character encoding"],
+["<meta name=\"description\" content=\"…\">","A summary that search engines may show"],
+["<link rel=\"stylesheet\" href=\"style.css\">","Attaches an external CSS file"],
+["<\u0073cript src=\"app.js\"><\/script>","Attaches an external JavaScript file"]]},
+/*11*/{s:2,t:"Headings, paragraphs, breaks, rules and comments",c:["Markup","Effect"],r:[
+["<h1> to <h6>","Six heading levels: h1 is the most important and largest, h6 the least"],
+["<p>","A paragraph; the browser adds space above and below it"],
+["<br>","Breaks the line inside a paragraph (void)"],
+["<hr>","Draws a horizontal rule (void)"],
+["<!-- text -->","A comment: ignored by the browser, visible only in the source"]]},
+/*12*/{s:2,t:"Obsolete elements and their replacements",c:["Obsolete element","Replacement"],r:[
+["<center>","CSS"],
+["<strike>","<s> or <del>"],
+["<font>","CSS"]]},
+/*13*/{s:2,t:"Whitespace and nesting rules",c:["Rule","Meaning"],r:[
+["Whitespace collapses","Any run of spaces, tabs and new lines in the source is shown as a single space; <pre> is the exception"],
+["Proper nesting","The element opened last must be closed first: <b><i>text</i></b>, not <b><i>text</b></i>"],
+["One h1","A page should have one <h1>, its main topic; choose headings by importance, never by size"],
+["Quotes","Attribute values are written in quotes: name=\"value\""]]},
+/*14*/{s:3,t:"Table 1.6: Text formatting elements",c:["Element","Effect","Meaning"],r:[
+["<b>","Bold","Draws attention, no extra importance"],
+["<strong>","Bold","Strong importance"],
+["<i>","Italic","Alternate voice or mood (a term, a thought)"],
+["<em>","Italic","Stress emphasis"],
+["<u>","Underline","Unarticulated annotation, such as a misspelling mark"],
+["<s>","Strikethrough","Content no longer accurate or relevant"],
+["<sub>","Subscript (H₂O)","Lowered below the baseline"],
+["<sup>","Superscript (r²)","Raised above the baseline"]]},
+/*15*/{s:3,t:"Visual and semantic pairs",c:["Visual","Semantic","Difference"],r:[
+["<b>","<strong>","Same look; strong carries importance (screen readers raise their voice, search engines notice)"],
+["<i>","<em>","Same look; em carries stress emphasis"]]},
+/*16*/{s:3,t:"Table 1.7: Elements for quotations and code",c:["Element","Use"],r:[
+["<blockquote>","A long quotation, set as an indented block; the optional cite attribute holds its source address"],
+["<q>","A short inline quotation; the browser adds the quotation marks"],
+["<cite>","The title of a work (a book, a film)"],
+["<code>","Computer code, in a monospace font"],
+["<pre>","Preformatted text: spaces and line breaks are kept exactly as typed"]]},
+/*17*/{s:3,t:"Table 1.8: Common character entities",c:["Entity","Shows","Meaning"],r:[
+["&lt;","<","Less-than sign"],
+["&gt;",">","Greater-than sign"],
+["&amp;","&","Ampersand"],
+["&copy;","©","Copyright"],
+["&pi;","π","The letter pi"],
+["&nbsp;","(a space)","A space that is not collapsed and never wraps"]]},
+/*18*/{s:3,t:"Block and inline elements",c:["Kind","Behaviour","Examples"],r:[
+["Block","Starts on a new line","p, h1, blockquote, pre, div"],
+["Inline","Formats a stretch of text inside a line","b, i, em, strong, sub, sup, q, code, a"]]},
+/*19*/{s:4,t:"Table 1.9: Relative and absolute addresses (current page /site/index.html)",c:["href value","Goes to"],r:[
+["about.html","about.html in the same folder (/site/about.html)"],
+["products/laptop.html","A file in the sub-folder products"],
+["../index.html","The folder above (.. means one level up): /index.html"],
+["/contact.html","From the root of the site, whatever the current folder"],
+["https://www.wikipedia.org","An absolute URL: another site altogether"]]},
+/*20*/{s:4,t:"Table 1.10: The five kinds of link",c:["Kind","Example"],r:[
+["External","<a href=\"https://www.wikipedia.org\">"],
+["Internal","<a href=\"about.html\">"],
+["New tab","<a href=\"…\" target=\"_blank\" rel=\"noopener\">"],
+["E-mail","<a href=\"mailto:info@example.com\">"],
+["Bookmark","<a href=\"#contact\"> + <h2 id=\"contact\">"]]},
+/*21*/{s:4,t:"The target attribute",c:["Value","Effect"],r:[
+["_self","The default: the destination replaces the current page"],
+["_blank","The destination opens in a new tab; add rel=\"noopener\" for an external site"]]},
+/*22*/{s:4,t:"External compared with internal links",c:["Feature","External link","Internal link"],r:[
+["Points to","Another website","Another page of the same site"],
+["Address form","Absolute URL with https://","Relative path"],
+["Example","https://www.wikipedia.org","about.html"],
+["If the site moves","Still works","Keeps working"]]},
+/*23*/{s:5,t:"Table 1.11: Table elements",c:["Element","Purpose"],r:[
+["<table>","The container for the whole table"],
+["<tr>","A table row: one horizontal line of cells"],
+["<th>","A table header cell: bold and centred by default"],
+["<td>","A table data cell: an ordinary cell"],
+["<caption>","A title for the table"],
+["<thead>, <tbody>, <tfoot>","Group the header rows, body rows and footer rows"]]},
+/*24*/{s:5,t:"Table 1.12: Old attribute and its modern replacement",c:["Obsolete attribute","CSS replacement"],r:[
+["border=\"1\"","border: 1px solid black;"],
+["cellpadding=\"5\"","padding: 5px; on th, td"],
+["cellspacing=\"0\"","border-collapse: collapse; on table"]]},
+/*25*/{s:5,t:"colspan compared with rowspan",c:["Attribute","Stretches the cell","Effect on the other rows"],r:[
+["colspan=\"3\"","Across 3 columns","The row needs fewer cells"],
+["rowspan=\"2\"","Down 2 rows","The next row omits the cell already covered"]]},
+/*26*/{s:6,t:"Table 1.13: Input types used in the form",c:["type","Control"],r:[
+["text","A one-line text box"],
+["password","Text box whose characters are hidden as dots"],
+["email","Text box that checks the e-mail format before submission"],
+["number","Numeric box; min and max set the limits"],
+["checkbox","A tick box: any number can be ticked"],
+["radio","A round button: only one of a group can be chosen"],
+["submit","Sends the form"],
+["reset","Clears all the fields to their starting values"]]},
+/*27*/{s:6,t:"The three attributes of every control",c:["Attribute","Purpose"],r:[
+["name","Identifies the field's data when the form is submitted; a control with no name sends nothing"],
+["value","The starting value; for buttons, checkboxes and radio buttons, the value that is sent"],
+["placeholder","Grey hint text shown while the box is empty"]]},
+/*28*/{s:6,t:"Other form elements",c:["Element","Purpose"],r:[
+["<form action method>","The container: action is the address that receives the data, method is get or post"],
+["<label for=\"id\">","Attaches a caption to a control; for must equal the control's id; the caption becomes clickable"],
+["<select> and <option>","A drop-down list; the value of the option is sent, its text is shown"],
+["<textarea rows cols>","A multi-line box; its text goes between the tags; it has a closing tag"],
+["<button>","A clickable button that may contain other HTML; type=\"submit\" sends, type=\"button\" does nothing by itself"]]},
+/*29*/{s:6,t:"How form data is encoded",c:["Character","Becomes","Example in the chapter"],r:[
+["Space","+","Asha Rao → Asha+Rao"],
+["@","%40","asha@example.com → asha%40example.com"],
+["&","%26","Hello & welcome → Hello+%26+welcome"],
+["Pairs joined by","&","fullname=Asha+Rao&city=mum"]]},
+/*30*/{s:6,t:"Table 1.14: GET compared with POST",c:["Feature","GET","POST"],r:[
+["Data placed in","The URL (after ?)","The request body"],
+["Visible in address bar","Yes","No"],
+["Bookmarkable and repeatable","Yes","No"],
+["Size of data","Limited by URL length","Much larger"],
+["Use for","Searches and filters (read-only)","Logins, registrations, uploads (changes data)"]]},
+/*31*/{s:6,t:"What a form sends",c:["Control state","Sent?"],r:[
+["Text box left empty","Yes, as name= with an empty value"],
+["Option list with the first option selected","Yes: the first option's value (city=del)"],
+["Checkbox not ticked","No"],
+["Radio group with nothing chosen","No"],
+["Control with no name attribute","No"],
+["Two ticked checkboxes with the same name","Two pairs: subject=math&subject=eng"]]},
+/*32*/{s:7,t:"Table 1.15: HTML5 semantic layout elements",c:["Element","Purpose"],r:[
+["<header>","Introductory content of the page or a section: logo, site name, main menu; a page can have several"],
+["<nav>","A block of navigation links (main menu, table of contents, breadcrumbs)"],
+["<main>","The primary content unique to this page; only one per page"],
+["<section>","A thematic group of content, normally with its own heading"],
+["<article>","Self-contained content that makes sense on its own: a blog post, a news story, a product card"],
+["<aside>","Related but separable content: a sidebar, pull quote, advertisement, related links"],
+["<footer>","Closing content of the page or section: copyright, contact, policy links"]]},
+/*33*/{s:7,t:"Table 1.16: Meaningless against meaningful containers",c:["Old style","Semantic HTML5"],r:[
+["<div id=\"header\">","<header>"],
+["<div id=\"nav\">","<nav>"],
+["<div id=\"content\">","<main>"],
+["<div class=\"post\">","<article>"],
+["<div id=\"sidebar\">","<aside>"],
+["<div id=\"footer\">","<footer>"]]},
+/*34*/{s:7,t:"Benefits of semantic HTML",c:["Benefit","Meaning"],r:[
+["Accessibility","Screen readers announce \"navigation\" or \"main content\" and let users jump between regions"],
+["SEO","Search engines understand the structure and the importance of each part"],
+["Readability","A developer reading <footer> knows at once what it is"]]},
+/*35*/{s:7,t:"Choosing the element",c:["Content","Element"],r:[
+["A blog post with its own title and author","<article>"],
+["The chapters of a long guide","<section>"],
+["A box of related links beside the text","<aside>"],
+["The menu bar","<nav>"],
+["Something with no meaning, only holding styles","<div>"]]}
+];
+
+const NOTES=[
+["1.1 Web fundamentals","A {{web page}} is a single document, written in HTML, that a browser can fetch from the World Wide Web by its address, the {{URL}}. A {{website}} is a collection of related pages kept under one domain name and linked together by navigation. The page served when only the domain is typed is the {{home page}}, often index.html. A web {{browser}} (Chrome, Firefox, Safari, Edge) is the program that fetches, interprets and displays pages. A web {{server}} is a computer, running server software, that stores a site's files and answers browsers' requests. The two talk using {{HTTP}} (HyperText Transfer Protocol), or {{HTTPS}}, its encrypted form. Web communication follows the {{client-server}} model: the browser (the client) sends an HTTP {{request}}; the server finds the file and returns an HTTP {{response}} holding the HTML and its status; the browser then {{renders}} the HTML. Pictures, style sheets and scripts named in the HTML are fetched by further requests. The first line of a request is the {{request line}}: the method (GET), the path of the file and the protocol version; the following lines are {{headers}} such as Host. The first line of a response is the {{status line}}; 200 means {{OK}}, 301 {{Moved Permanently}}, 403 {{Forbidden}}, 404 {{Not Found}} and 500 {{Internal Server Error}}. After the headers comes a blank line and then the {{body}}: the HTML itself. A URL such as https://www.example.com:443/products/laptop.html?id=5#specs has a {{scheme}} (https), a {{host}} (www.example.com), a {{port}} (443, usually left out), a {{path}} (/products/laptop.html), a {{query}} of name=value pairs after ? (id=5) and a {{fragment}} after # (specs) which the browser uses and does not send to the server. The web (the linked pages) is not the same as the {{Internet}} (the network of networks that carries them)."],
+["1.2 HTML basics and document structure","{{HTML}} (HyperText Markup Language) is the standard language for creating web pages. It uses {{tags}}, keywords in angle brackets < >, to mark up plain text and describe its structure and meaning. {{Hypertext}} is text that contains links to other text; {{markup}} means labelling the parts of a document. HTML is not a {{programming}} language: it has no variables, loops or decisions; it only describes a document, and the browser decides how to draw it. HTML was invented by {{Tim Berners-Lee}} at {{CERN}}, first described in {{1991}}. The versions were HTML 2.0 (1995), 3.2 (1997), 4.01 (1999), {{XHTML}} 1.0 (2000, stricter and XML-based) and {{HTML5}} (a W3C recommendation in 2014, now a living standard kept up to date by the {{WHATWG}}). HTML5 added semantic elements, built-in audio and video, drawing with canvas and better form controls. Every HTML5 document starts with <!DOCTYPE html>, which is {{not a tag}} but an instruction that the document is HTML5; without it browsers switch to {{quirks mode}}. The {{html}} element is the root and its lang attribute names the language. The {{head}} holds metadata that is not shown; the {{body}} holds everything the user sees. Inside the head, <meta charset=\"UTF-8\"> sets the {{character encoding}}, the viewport meta makes the page fit a phone screen, and the {{title}} appears on the browser tab, in bookmarks and in search results. Content other than the title placed in the head never appears."],
+["1.3 HTML elements","An {{element}} usually has three parts: an {{opening tag}} <p>, the content and a {{closing tag}} </p>. Elements can be {{nested}} inside one another, like boxes within boxes. A {{void}} element (also called empty or self-closing) has no content and no closing tag: {{br}}, {{hr}}, {{img}}, {{input}}, {{meta}} and {{link}}. {{Attributes}} give extra information and are written name=\"value\" inside the opening tag. The {{id}} attribute is a unique name for one element; {{class}} is a group name many elements can share; {{src}} is the address of the file to load; {{href}} is the destination of a link; {{alt}} describes an image for screen readers; {{style}} holds inline CSS; {{lang}} gives the language. In the head, <link rel=\"stylesheet\" href=\"style.css\"> attaches a CSS file and <\u0073cript src=\"app.js\"> attaches a JavaScript file; <meta name=\"description\"> gives a summary for search engines. HTML has six levels of {{headings}}, h1 (most important) to h6 (least); a page should have {{one}} h1 and headings are chosen by importance, never by size. The {{p}} element makes a paragraph, {{br}} breaks a line and {{hr}} draws a horizontal rule. A {{comment}} is written <!-- text --> and is ignored by the browser. The browser treats any run of spaces, tabs and new lines as a {{single space}}, except inside <pre>. Elements must be properly nested: the element opened {{last}} must be closed {{first}}. Obsolete elements are replaced: <center> and <font> by {{CSS}}, <strike> by {{<s> or <del>}}. An <img> always needs an {{alt}}."],
+["1.4 Text formatting","Inline elements format a stretch of text inside a paragraph, whereas {{block}} elements such as <p> and <h1> start on a new line. {{<b>}} and {{<strong>}} both display bold but <strong> means {{strong importance}}; <i> and {{<em>}} both display italic but <em> means {{stress emphasis}}. Screen readers and search engines notice strong and em, so prefer the meaningful pair and use CSS for pure decoration. <u> underlines (an unarticulated annotation) and <s> draws a {{strikethrough}} (content no longer accurate). {{<sub>}} lowers text below the baseline (H<sub>2</sub>O) and {{<sup>}} raises it (x<sup>2</sup>). <blockquote> is a {{long}} quotation set as an indented block (its cite attribute holds the source); <q> is a {{short}} inline quotation to which the browser adds quotation marks; <cite> is the title of a {{work}}; <code> shows computer code in a {{monospace}} font; <pre> keeps spaces and line breaks {{exactly}} as typed. Because < and > start and end tags, special characters are written as {{entities}}: an ampersand, a name and a semicolon. &lt; shows <, &gt; shows >, {{&amp;}} shows &, {{&copy;}} shows the copyright sign, &pi; shows the letter pi and {{&nbsp;}} is a space that is not collapsed and never wraps."],
+["1.5 Hyperlinks","A hyperlink is made with the {{<a>}} (anchor) element; its {{href}} attribute gives the destination and the text between the tags is what the user clicks. An {{external}} link points to another website and uses the full, {{absolute}} URL including https://. An {{internal}} link points to another page of the same site and uses a {{relative}} path. With the current page /site/index.html, about.html is in the {{same folder}}, products/laptop.html is in a {{sub-folder}}, ../index.html means one level {{up}} and /contact.html starts from the {{root}} of the site. The {{target}} attribute says where the destination opens: _self (the default) replaces the page and {{_blank}} opens a new tab; for an external site also write {{rel=\"noopener\"}} as a security precaution. An e-mail link uses the {{mailto:}} scheme, as in href=\"mailto:info@example.com\", and the subject can be preset with ?subject=. A {{bookmark}} jumps to a place on the same page and takes two steps: give the target element an {{id}} and link to it with href=\"{{#id}}\". Ids are {{case-sensitive}}, so #Contact will not find id=\"contact\". The same mechanism links to a bookmark on another page: guide.html#chapter3. Link text should be {{descriptive}}; never write http:// for an internal page."],
+["1.6 Tables","A table arranges data in rows and columns. {{<table>}} is the container, {{<tr>}} is a row, {{<th>}} is a header cell (bold and centred by default), {{<td>}} is a data cell, {{<caption>}} is a title and {{<thead>}}, {{<tbody>}} and {{<tfoot>}} group the header, body and footer rows. The HTML 4 attributes {{border}}, {{cellpadding}} and {{cellspacing}} still work but are {{obsolete}}; in HTML5 presentation belongs to CSS: border: 1px solid black; replaces border, {{padding}}: 5px; replaces cellpadding and {{border-collapse}}: collapse; replaces cellspacing=\"0\". {{colspan}} makes a cell stretch across several {{columns}}; {{rowspan}} makes it stretch down several {{rows}}. In a table of 3 columns whose first row is one <th colspan=\"3\"> and whose second row has a cell with rowspan=\"2\", the third row has {{2}} cells (3 - 1), because one column is already covered. Every row must account for the {{same}} number of columns, counting merged cells. Tables are for {{data}}, not for page layout; layout is done with CSS. Header cells should be <th>, not bold <td>."],
+["1.7 Forms","A form collects input from the user and sends it to a server. The {{<form>}} element is the container; its {{action}} attribute is the address that receives the data and {{method}} is the HTTP method, get or post. <input> is a {{void}} element whose look depends on its {{type}}: text, {{password}} (characters hidden as dots), {{email}} (checks the format), {{number}} (min and max set the limits), {{checkbox}} (any number can be ticked), {{radio}} (only one of a group), submit and reset. The {{name}} attribute identifies the data when the form is submitted and a control with no name sends {{nothing}}; {{value}} is the starting or sent value; {{placeholder}} is grey hint text. <label for=\"x\"> attaches a caption to the control whose {{id}} is x, and clicking the caption focuses the control. Radio buttons form a group by sharing the {{same name}}; checkboxes are independent. <select> makes a drop-down list of <option>s: the {{value}} of the option is sent and the text is shown. <textarea> is a multi-line box sized by {{rows}} and {{cols}}; <button> is a clickable button that can contain other HTML. With method=\"get\" the data travels in the {{URL}} after ?, as name=value pairs joined by {{&}}; a space becomes {{+}}, @ becomes {{%40}} and & becomes {{%26}}. With method=\"post\" the pairs travel in the request {{body}} and the address stays clean. GET is visible, bookmarkable and limited by URL length, so it suits {{searches}}; POST suits {{logins}} and registrations. Never send a {{password}} with GET. Unticked checkboxes and unchosen radio groups are {{not sent}}; empty text boxes are sent with {{empty}} values; the first option of a select is sent by default. HTML5 controls check their own input, but the {{server}} must still check the data."],
+["1.8 Semantic HTML","{{Semantic}} HTML uses elements whose names say what the content is, instead of anonymous {{<div>}} and <span> containers. Its benefits are {{accessibility}} (screen readers announce regions), {{SEO}} (search engines understand the structure) and {{readability}}. {{<header>}} holds introductory content such as the site name and menu, and a page may have several. {{<nav>}} holds a block of navigation links. {{<main>}} holds the primary content unique to the page and only {{one}} is allowed. {{<section>}} is a thematic group of content, normally with its own heading. {{<article>}} is self-contained content that makes sense on its own, such as a blog post. {{<aside>}} holds related but separable content such as a sidebar. {{<footer>}} holds closing content such as copyright and policy links. Old layouts used <div id=\"header\">, <div id=\"nav\"> and <div id=\"footer\">, which become <header>, <nav> and <footer>. A page reads top to bottom: header and nav, main (with sections and articles), aside, footer. Choose an element for what the content {{is}}, not for how it looks; use <div> only as a last resort."]
+];
+const DUMPS=[
+{t:"Web fundamentals",p:["Page = one HTML document; website = pages under one domain; home page index.html","Browser = client, displays; server = stores files, answers","HTTP request line: method, path, version; then headers","Response: status line, headers, blank line, body","200 OK, 301 Moved, 403 Forbidden, 404 Not Found, 500 server error","URL parts: scheme, host, port, path, query, fragment","Web is not the Internet"]},
+{t:"HTML basics and structure",p:["HTML = HyperText Markup Language; markup, not programming","Tim Berners-Lee, CERN, 1991","Versions: 2.0, 3.2, 4.01, XHTML 1.0, HTML5 (2014, WHATWG living standard)","Skeleton: DOCTYPE, html lang, head, body","DOCTYPE is not a tag; missing it gives quirks mode","Head: meta charset, viewport, title; body: visible content"]},
+{t:"Elements, tags and attributes",p:["Element = opening tag + content + closing tag","Void: br, hr, img, input, meta, link","Attributes: id, class, src, href, alt, style, lang","Head items: title, meta, link, script","h1 to h6, one h1; p, br, hr","Comment <!-- -->; whitespace collapses; close last opened first","Obsolete: center, font, strike"]},
+{t:"Text formatting",p:["b and strong bold; i and em italic; prefer strong and em","u underline, s strikethrough","sub below, sup above","blockquote long, q short, cite title, code monospace, pre keeps spaces","Entities: &lt; &gt; &amp; &copy; &pi; &nbsp;","Block starts a new line; inline stays in the line"]},
+{t:"Hyperlinks",p:["a href; text between tags is clicked","External absolute URL; internal relative path","about.html, products/laptop.html, ../index.html, /contact.html","target=_blank with rel=noopener","mailto:address?subject=","Bookmark: id=x and href=#x; case-sensitive"]},
+{t:"Tables",p:["table, tr, th, td, caption, thead, tbody, tfoot","border, cellpadding, cellspacing obsolete: CSS border, padding, border-collapse","colspan across columns; rowspan down rows","Later rows omit covered cells","Tables for data, not layout"]},
+{t:"Forms",p:["form action and method (get or post)","Input types: text, password, email, number, checkbox, radio, submit, reset","name, value, placeholder; no name means not sent","label for = control id","Radio group shares a name","select value sent, text shown; textarea rows cols; button","GET in URL after ?, + for space, %40, %26; POST in body","Never a password with GET"]},
+{t:"Semantic HTML",p:["Elements named for meaning, not div","header, nav, main (one only), section, article, aside, footer","Benefits: accessibility, SEO, readability","div id=header becomes header, and so on","Choose by meaning, not looks"]}
+];
+
+const SECS=["Web fundamentals","HTML basics and document structure","Elements, tags and attributes","Text formatting","Hyperlinks","Tables","Forms","Semantic HTML"];
+const CORE=[
+[0,"Distinguish a web page from a website.","A web page is a single HTML document fetched by its URL; a website is a collection of related pages under one domain name, linked by navigation."],
+[0,"What is the home page?","The page served when only the domain is typed, often index.html."],
+[0,"What is a web browser?","The client program (Chrome, Firefox, Safari, Edge) that fetches, interprets and displays web pages."],
+[0,"What is a web server?","A computer running server software that stores a site's files and answers browsers' requests."],
+[0,"Expand HTTP and say what HTTPS is.","HyperText Transfer Protocol; HTTPS is its encrypted form."],
+[0,"Describe the client-server request-response cycle in three steps.","1. The browser (client) sends an HTTP request. 2. The server returns an HTTP response with the HTML and a status. 3. The browser renders the HTML as a page."],
+[0,"What fetches the pictures, style sheets and scripts named in a page?","Further requests of the same kind, made by the browser."],
+[0,"What are the parts of the first line of an HTTP request?","The request line: the method (GET), the path of the file and the protocol version, e.g. GET /h01.html HTTP/1.1."],
+[0,"What are headers?","Extra information lines in a request or response, such as Host or Content-type."],
+[0,"What is the first line of an HTTP response called, and what does 200 OK mean?","The status line; 200 OK means the page was found and sent."],
+[0,"What follows the headers in a response?","A blank line and then the body: the HTML itself."],
+[0,"What does Content-type: text/html tell the browser?","That the body is HTML."],
+[0,"Which status line is returned for a page that does not exist?","HTTP/1.1 404 File not found (404 Not Found)."],
+[0,"Why is the web not the same as the Internet?","The web is the set of linked pages; the Internet is the network of networks that carries them."],
+[0,"Name the six parts of a URL.","Scheme, host, port, path, query and fragment."],
+[0,"Name the parts of https://www.example.com:443/products/laptop.html?id=5#specs.","Scheme https; host www.example.com; port 443; path /products/laptop.html; query id=5; fragment specs."],
+[0,"Which part of a URL is not sent to the server?","The fragment (after #): the browser uses it to position the page."],
+[0,"What is the default port of HTTP and HTTPS?","80 for HTTP and 443 for HTTPS; they are usually left out."],
+[0,"What does the address 127.0.0.1 mean?","The computer's own home address: requests travel no further than the machine itself."],
+[1,"Expand HTML and define it.","HyperText Markup Language: the standard language for creating web pages, using tags in angle brackets to mark up text and describe its structure and meaning."],
+[1,"Why is HTML not a programming language?","It has no variables, loops or decisions; it only describes a document and the browser decides how to draw it."],
+[1,"Define hypertext and markup.","Hypertext is text containing links to other text; markup means labelling the parts of a document."],
+[1,"Who invented HTML, where and when?","Tim Berners-Lee at CERN; first described in 1991."],
+[1,"List the versions of HTML with their years.","HTML 2.0 (1995), 3.2 (1997), 4.01 (1999), XHTML 1.0 (2000), HTML5 (W3C recommendation 2014)."],
+[1,"What is XHTML 1.0?","A stricter, XML-based version of HTML (2000)."],
+[1,"What did HTML5 add?","Semantic elements, built-in audio and video, drawing with canvas, better form controls and offline abilities."],
+[1,"What is meant by HTML5 being a living standard?","It is continually updated by the WHATWG and all browsers follow it."],
+[1,"Write the skeleton of an HTML5 document.","<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>T</title></head><body>…</body></html>"],
+[1,"What is <!DOCTYPE html>?","Not a tag but an instruction: this document is HTML5. Without it browsers use quirks mode."],
+[1,"What is quirks mode?","Browsers imitating the 1990s when the DOCTYPE is missing, which breaks layouts."],
+[1,"What is the html element and its lang attribute?","The root element, containing everything else; lang names the language of the page."],
+[1,"What does the head hold?","Metadata: information about the page (title, charset, links), not shown in the page area."],
+[1,"What does the body hold?","Everything the user sees in the window."],
+[1,"What does <meta charset=\"UTF-8\"> do?","Sets the character encoding so that all letters and symbols display correctly."],
+[1,"What does the viewport meta element do?","Makes the page fit a phone screen instead of being shrunk."],
+[1,"Where does the text of <title> appear?","On the browser tab, in bookmarks and in search results; not in the page area."],
+[1,"Differentiate head and body.","Head = information about the page; body = content displayed."],
+[1,"What happens to content other than the title placed in the head?","It never appears; visible content belongs in the body."],
+[1,"Which validator checks HTML?","The W3C Nu HTML Checker."],
+[2,"What are the three parts of an element?","An opening tag <p>, the content and a closing tag </p>."],
+[2,"What does nesting mean?","Placing elements inside one another, like boxes within boxes."],
+[2,"What is a void element? Give examples.","An element with no content and no closing tag: br, hr, img, input, meta, link."],
+[2,"What is an attribute and how is it written?","Extra information about an element, written name=\"value\" inside the opening tag."],
+[2,"Name the parts of <a href=\"about.html\" target=\"_blank\">About Us</a>.","Attributes href and target with values about.html and _blank; the content is About Us."],
+[2,"What does the id attribute do?","Gives one element a unique name on the page; used by bookmarks and styles."],
+[2,"What does the class attribute do?","Gives a group name that many elements can share; used by CSS."],
+[2,"What do src, href, alt, style and lang do?","src: file address to load; href: link destination; alt: image description; style: inline CSS; lang: language of the content."],
+[2,"Why does an image need alt?","Screen readers announce it and it is shown if the image fails; <img> always needs alt."],
+[2,"Name the elements used inside the head.","title, meta charset, meta description, link rel=\"stylesheet\", script src."],
+[2,"How are headings numbered?","h1 (most important, largest) to h6 (least important, smallest); a page should have one h1."],
+[2,"Why choose a heading by level and not by size?","Headings are for structure: search engines and screen-reader users navigate by them; CSS controls size."],
+[2,"What do p, br and hr do?","p makes a paragraph; br breaks a line inside a paragraph; hr draws a horizontal rule."],
+[2,"How is a comment written and what does the browser do with it?","<!-- text -->; the browser ignores it, it appears only in the source."],
+[2,"What uses do comments have?","Document sections, leave notes for developers, temporarily disable markup."],
+[2,"How does the browser treat spaces and new lines in the source?","Any run of spaces, tabs and new lines is shown as a single space; <pre> is the exception."],
+[2,"State the nesting rule.","The element opened last must be closed first: <b><i>text</i></b>."],
+[2,"Name three obsolete elements and their replacements.","center and font: CSS; strike: <s> or <del>."],
+[2,"Why do browsers show wrongly nested pages differently?","They are forgiving and repair broken markup in their own way, which is why valid HTML matters."],
+[3,"Distinguish inline and block elements.","Block elements (p, h1) start on a new line; inline elements format a stretch of text inside a line."],
+[3,"Distinguish <b> from <strong>.","Same bold look; <strong> adds strong importance (screen readers, search engines), <b> only draws attention."],
+[3,"Distinguish <i> from <em>.","Same italic look; <em> means stress emphasis, <i> an alternate voice or mood."],
+[3,"What is the rule of good practice for b and i?","Prefer strong and em because they carry meaning; use CSS for pure decoration."],
+[3,"What do <u> and <s> do?","<u> underlines (an annotation); <s> strikes through content no longer accurate."],
+[3,"Write H2O and x2 in HTML.","H<sub>2</sub>O and x<sup>2</sup>."],
+[3,"Memory aid for sub and sup.","sub sits submerged below the baseline; sup stands superior above it."],
+[3,"What do blockquote, q and cite do?","blockquote: long quotation as an indented block (cite attribute holds source); q: short inline quote with marks added; cite: title of a work."],
+[3,"What do code and pre do?","code: computer code in monospace; pre: keeps spaces and line breaks exactly as typed."],
+[3,"Why must < be written as &lt;?","< starts a tag; written bare, the browser would think a tag has begun."],
+[3,"What is an entity?","A coded special character: an ampersand, a name and a semicolon, e.g. &lt; or &copy;."],
+[3,"Give the entities for <, >, &, © and π.","&lt; &gt; &amp; &copy; &pi;."],
+[3,"What is &nbsp;?","A space that is not collapsed and never wraps."],
+[3,"Why not use <u> for emphasis or <blockquote> to indent?","Users expect underlined text to be a link; <u> is for annotations and blockquote only for quotations."],
+[4,"Which element makes a link and which attribute gives the destination?","<a> (anchor); href."],
+[4,"Distinguish external and internal links.","External: another website, absolute URL with https://. Internal: another page of the same site, relative path."],
+[4,"Distinguish absolute and relative URLs with an example of each.","Absolute: complete address https://www.wikipedia.org. Relative: path from the current page, about.html or ../index.html."],
+[4,"What does ../index.html mean?","The file index.html in the folder above the current one."],
+[4,"What does a link starting with / mean?","A path from the root of the site, whatever the current folder."],
+[4,"What does target=\"_blank\" do?","Opens the destination in a new tab; _self (the default) replaces the current page."],
+[4,"Why add rel=\"noopener\"?","It stops the new page from gaining access to the old one: a security precaution."],
+[4,"Write an e-mail link to info@example.com.","<a href=\"mailto:info@example.com\">Email Us</a>"],
+[4,"How is the subject of an e-mail link preset?","With ?subject=, e.g. mailto:info@example.com?subject=Enquiry."],
+[4,"What is a bookmark and its two steps?","A link to a place on the same page: give the target an id, then link with href=\"#id\"."],
+[4,"Write the HTML for a link to a heading Contact on the same page.","<a href=\"#contact\">Contact</a> … <h2 id=\"contact\">Contact</h2>"],
+[4,"Why does href=\"#Contact\" not find id=\"contact\"?","Ids are case-sensitive."],
+[4,"How is a bookmark on another page linked?","<a href=\"guide.html#chapter3\">."],
+[4,"Why is \"click here\" poor link text?","Screen-reader users hear a list of links; text should describe the destination."],
+[4,"Why never write http:// for an internal page?","Use a relative path; it keeps working if the site moves."],
+[5,"Name the table elements.","table, tr (row), th (header cell), td (data cell), caption, thead/tbody/tfoot."],
+[5,"What are th and td?","th: header cell, bold and centred by default; td: ordinary data cell."],
+[5,"Which HTML 4 attributes draw a simple table and why are they not recommended?","border, cellpadding, cellspacing: they work, but are obsolete in HTML5; presentation belongs to CSS."],
+[5,"Give the CSS replacements for border, cellpadding and cellspacing.","border: 1px solid black; padding: 5px; border-collapse: collapse;"],
+[5,"What do thead and tbody do?","Say which rows are headings and which are data."],
+[5,"What do colspan and rowspan do?","colspan stretches a cell across several columns; rowspan stretches it down several rows."],
+[5,"Write a title cell across all three columns.","<th colspan=\"3\">Title</th>"],
+[5,"Why does a row covered by rowspan have fewer cells?","The space in its column is already occupied by the cell above."],
+[5,"How many cells does row 3 have in a 3-column table where row 2 has a rowspan=\"2\" cell?","3 - 1 = 2."],
+[5,"Why not use tables for layout?","Tables are for data; layout tables break on phones and confuse screen readers; use CSS."],
+[6,"What does the form element's action and method do?","action: address that receives the data; method: get or post."],
+[6,"Why is input a void element and what decides its look?","It has no content or closing tag; its type attribute decides the control."],
+[6,"List the input types used in the lesson.","text, password, email, number, checkbox, radio, submit, reset."],
+[6,"What do name, value and placeholder do?","name identifies the data; value is the starting or sent value; placeholder is grey hint text."],
+[6,"What happens to a control with no name?","Nothing is sent for it."],
+[6,"What is the purpose of <label for>?","It attaches a caption to a control and makes the caption clickable; for must equal the control's id."],
+[6,"How do radio buttons form a group?","By sharing the same name; choosing one clears the others. Checkboxes are independent."],
+[6,"What do select and option send and show?","The option's value is sent; the text between the tags is shown."],
+[6,"What are the attributes of textarea?","rows and cols set its visible size; its text goes between the tags; it has a closing tag."],
+[6,"How does button differ from input?","button can contain other HTML; type=\"submit\" sends, type=\"button\" does nothing by itself."],
+[6,"What is a GET submission?","Data travels in the URL after ?, as name=value pairs joined by &."],
+[6,"What is a POST submission?","The pairs travel in the request body and the address stays clean."],
+[6,"How are space, @ and & encoded in form data?","Space becomes +, @ becomes %40, & becomes %26."],
+[6,"What address does a GET form to /s with q=html and n=5 produce?","/s?q=html&n=5"],
+[6,"Distinguish GET from POST.","GET: data in URL, visible, bookmarkable, limited size, for searches. POST: data in body, not visible, larger, for logins and registrations."],
+[6,"Why never send a password with GET?","It ends up in the address bar, browser history and server logs."],
+[6,"Does type=\"password\" encrypt the password?","No, it only hides characters on screen; HTTPS protects the journey."],
+[6,"What is sent for two ticked checkboxes with name subject?","Two pairs: subject=math&subject=eng."],
+[6,"What is sent for an unticked checkbox or an unchosen radio group?","Nothing."],
+[6,"What is sent for an empty text box?","The name with an empty value, e.g. email=."],
+[6,"Why does city=del appear when nothing was chosen?","The first option of a select is selected by default."],
+[6,"Why must the server still check the data after built-in checking?","The browser's check is a convenience; a user can bypass the browser."],
+[7,"What is semantic HTML?","Elements whose names describe the meaning of their content, instead of anonymous div and span."],
+[7,"State three benefits of semantic HTML.","Accessibility, SEO and readability."],
+[7,"Name the seven semantic layout elements.","header, nav, main, section, article, aside, footer."],
+[7,"Which semantic element is allowed only once per page?","main."],
+[7,"Distinguish section and article.","section: a thematic group of content with its own heading; article: self-contained content that makes sense on its own."],
+[7,"What is aside?","Related but separable content: a sidebar, pull quote, advertisement, related links."],
+[7,"What are header and footer used for?","Introductory content (logo, menu) and closing content (copyright, policy links); also usable inside an article."],
+[7,"Rewrite <div id=\"nav\"> semantically.","<nav>"],
+[7,"What is the reading order of a semantic page?","header and nav, main (sections and articles), aside, footer."],
+[7,"When is a plain div still right?","As a meaningless container, only needed to hold styles; the last resort."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const R=String.raw;
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["A web page is best described as:",["A collection of related sites","A single HTML document fetched by its URL","A program that displays sites","A computer that stores files"],1,"A site is the collection; a page is one document."],
+["A website is:",["One HTML file","A collection of related pages under one domain","A browser","A protocol"],1,"One-to-many: a site is a set of pages."],
+["The program that fetches and displays pages is the:",["Web server","Web browser","Compiler","Database"],1,"The browser is the client."],
+["Which protocol is the encrypted form of HTTP?",["FTP","HTTPS","SMTP","HTML"],1,"HTTPS."],
+["Which is the correct order of the request-response cycle?",["Render, request, response","Request, response, render","Response, request, render","Request, render, response"],1,"Request, response, render."],
+["In GET /h01.html HTTP/1.1 the word GET is the:",["Path","Header","Method","Status"],2,"The request line is method, path, version."],
+["Which status code means the page was not found?",["200","301","404","500"],2,"404 Not Found."],
+["Status 500 means:",["Success","Moved permanently","Forbidden","Internal server error"],3,"A fault in the server's own program."],
+["In https://www.example.com/a.html?id=5#top the query is:",["a.html","id=5","top","https"],1,"After ? comes the query."],
+["Which part of a URL is not sent to the server?",["Path","Query","Fragment","Host"],2,"The browser uses the fragment."],
+["HTML stands for:",["HyperText Markup Language","High Text Machine Language","HyperText Making Language","Home Tool Markup Language"],0,"HyperText Markup Language."],
+["HTML is:",["A programming language","A markup language","A database language","An operating system"],1,"It has no variables, loops or decisions."],
+["HTML was invented by:",["Dennis Ritchie","Tim Berners-Lee","E. F. Codd","Bill Gates"],1,"At CERN, 1991."],
+["Which version of HTML added semantic elements and built-in audio and video?",["HTML 2.0","HTML 4.01","XHTML 1.0","HTML5"],3,"HTML5."],
+["Which line declares an HTML5 document?",["<html5>","<!DOCTYPE html>","<doctype>","<?html?>"],1,"The DOCTYPE instruction."],
+["Where does the text of the <title> element appear?",["In the page area","On the browser tab","Below the heading","Nowhere"],1,"Tab, bookmarks and search results."],
+["Which element holds the content the user sees?",["<head>","<body>","<meta>","<title>"],1,"The body."],
+["<meta charset=\"UTF-8\"> sets the:",["Page title","Character encoding","Language","Image size"],1,"So letters and symbols display correctly."],
+["Which of these is a void element?",["<p>","<h1>","<br>","<a>"],2,"br has no closing tag."],
+["Which attribute names the destination of a link?",["src","href","alt","id"],1,"href."],
+["The alt attribute of an image:",["Sets its width","Describes it for screen readers","Gives its address","Makes it a link"],1,"It also shows if the image fails."],
+["Which tag makes the largest heading?",["<h6>","<head>","<h1>","<heading>"],2,"h1."],
+["The browser treats several consecutive spaces in the source as:",["Several spaces","One space","A new paragraph","An error"],1,"Whitespace collapses."],
+["Which element keeps spaces and line breaks exactly as typed?",["<code>","<pre>","<q>","<cite>"],1,"pre."],
+["<strong> differs from <b> in that it:",["Looks italic","Carries strong importance","Is obsolete","Is a void element"],1,"Same look, different meaning."],
+["Which pair is written H2O?",["H<sup>2</sup>O","H<sub>2</sub>O","H<b>2</b>O","H<i>2</i>O"],1,"sub lowers the 2."],
+["Which entity displays the less-than sign?",["&gt;","&lt;","&amp;","&copy;"],1,"&lt;."],
+["Which element is obsolete in HTML5?",["<s>","<em>","<center>","<code>"],2,"Use CSS."],
+["Which link opens the e-mail program?",["href=\"email:a@b.c\"","href=\"mailto:a@b.c\"","href=\"mail=a@b.c\"","href=\"@a@b.c\""],1,"The mailto: scheme."],
+["To jump to <h2 id=\"top\"> on the same page use:",["href=\"top\"","href=\"#top\"","href=\"id=top\"","href=\"/top\""],1,"# plus the id."],
+["From /site/index.html, the href ../about.html goes to:",["/site/about.html","/about.html","/site/../site/about.html","/site/index.html"],1,".. means one level up."],
+["target=\"_blank\" makes the link:",["Replace the page","Open in a new tab","Download","Be disabled"],1,"Add rel=\"noopener\"."],
+["In a table, which element is a header cell?",["<td>","<th>","<tr>","<caption>"],1,"th."],
+["colspan=\"3\" makes a cell:",["Three rows tall","Three columns wide","Three times bold","Appear three times"],1,"It stretches across columns."],
+["In a table of 3 columns, row 2 has a rowspan=\"2\" cell. Row 3 has how many cells?",["1","2","3","4"],1,"3 - 1 = 2."],
+["Which CSS replaces cellspacing=\"0\"?",["padding: 0;","border-collapse: collapse;","margin: 0;","border: none;"],1,"border-collapse."],
+["Which input type hides the characters typed?",["text","password","email","hidden label"],1,"password."],
+["Radio buttons form a group when they have the same:",["id","name","value","label"],1,"The same name."],
+["A form control with no name attribute:",["Is sent with an empty name","Is not sent","Causes an error","Is sent last"],1,"No name, nothing sent."],
+["<label for=\"pwd\"> must match the control's:",["name","id","value","type"],1,"for = id."],
+["In a select, what is sent when the user chooses Mumbai (value mum)?",["Mumbai","mum","city","Delhi"],1,"The value is sent; the text is shown."],
+["With method=\"get\" the data travels:",["In the request body","In the URL after ?","In a cookie","Not at all"],1,"Visible in the address."],
+["Which method suits a login form?",["GET","POST","Either, the same","Neither"],1,"POST keeps the password out of the address."],
+["In form data a space becomes:",["%20 only","+","&","@"],1,"+ (or %20 in a URL)."],
+["Which semantic element holds the main menu links?",["<header>","<nav>","<aside>","<footer>"],1,"nav."],
+["How many <main> elements may a page have?",["Any number","Exactly one","Two","None"],1,"Only one."],
+["A self-contained blog post should be an:",["<section>","<article>","<aside>","<nav>"],1,"article makes sense on its own."],
+["A sidebar of related links is best marked up as:",["<aside>","<main>","<header>","<article>"],0,"Related but separable content."],
+["<div id=\"footer\"> becomes in semantic HTML:",["<footer>","<foot>","<end>","<bottom>"],0,"footer."]
+];
+const FILL=[
+["A ___ is a single HTML document fetched by its URL.",["web page","page","webpage"],"A web page."],
+["The browser is the ___ and the web server answers its requests.",["client"],"Client-server."],
+["The first line of an HTTP response is the ___ line.",["status"],"For example HTTP/1.1 200 OK."],
+["The status code ___ means Not Found.",["404"],"404."],
+["In a URL, the part after ? is the ___.",["query"],"name=value pairs."],
+["In a URL, the part after # is the ___.",["fragment"],"It is not sent to the server."],
+["HTML was invented by Tim Berners-Lee at ___.",["cern"],"CERN."],
+["The first line of an HTML5 page is <!___ html>.",["doctype"],"DOCTYPE."],
+["The ___ element holds metadata, and the body holds the visible content.",["head"],"Head."],
+["An element with no content and no closing tag is called a ___ element.",["void","empty"],"br, hr, img, input."],
+["Extra information inside an opening tag is called an ___.",["attribute"],"name=\"value\"."],
+["A unique name for one element is given by its ___ attribute.",["id"],"Used by bookmarks."],
+["The ___ element draws a horizontal rule.",["hr"],"hr is void."],
+["A comment is written <!-- text ___.",["-->"],"The browser ignores it."],
+["The element opened ___ must be closed first.",["last"],"Proper nesting."],
+["<em> means stress ___.",["emphasis"],"em is the semantic pair of i."],
+["Subscript is written with the <___> element.",["sub"],"H2O."],
+["A short inline quotation uses <___>.",["q"],"The browser adds quotes."],
+["The entity ___ displays the copyright sign.",["&copy;","copy"],"&copy;."],
+["A link to another website uses an ___ URL.",["absolute"],"Including https://."],
+["The href \"../index.html\" goes one level ___.",["up"],"Parent folder."],
+["To open a link in a new tab write target=\"___\".",["_blank","blank"],"With rel=\"noopener\"."],
+["A bookmark link is written href=\"#___\" where the target has that id.",["id"],"Match the id."],
+["The ___ attribute of a table cell stretches it across columns.",["colspan"],"colspan."],
+["The ___ element is a table header cell.",["th"],"th."],
+["A radio group shares the same ___ attribute.",["name"],"One name."],
+["In a select, the ___ of the option is what is sent.",["value"],"The text is shown."],
+["With POST the data travels in the request ___.",["body"],"The address stays clean."],
+["Never send a ___ with GET.",["password"],"It shows in the address."],
+["Only one ___ element is allowed per page.",["main"],"The primary content."]
+];
+const TF=[
+["A website is one HTML page.",false,"It is a set of related pages."],
+["The browser is the client and the server answers it.",true,"Client-server."],
+["HTTPS is the encrypted form of HTTP.",true,"Yes."],
+["The web and the Internet are the same thing.",false,"The web is the linked pages; the Internet carries them."],
+["404 means the server has a fault.",false,"That is 500; 404 is not found."],
+["The fragment of a URL is sent to the server.",false,"The browser uses it."],
+["HTML is a programming language.",false,"A markup language."],
+["The title appears in the page area.",false,"On the tab."],
+["The DOCTYPE is a tag.",false,"It is an instruction."],
+["Content in the head (other than title) never appears.",true,"Visible content belongs in the body."],
+["<br> needs a closing tag.",false,"Void element."],
+["A page should normally have one h1.",true,"Its main topic."],
+["Heading levels should be chosen for their size.",false,"By importance."],
+["Extra spaces in the source appear in the browser.",false,"Collapsed."],
+["<b><i>text</b></i> is correctly nested.",false,"Close in reverse order."],
+["<strike> is obsolete in HTML5.",true,"Use s or del."],
+["<strong> and <b> mean exactly the same.",false,"Different meaning."],
+["<pre> keeps spaces and line breaks.",true,"Yes."],
+["The < character must be written &lt; in text.",true,"Or the browser sees a tag."],
+["A relative link works on any website.",false,"Only within the same site."],
+["A bookmark #Contact finds id=\"contact\".",false,"Case-sensitive."],
+["<img> needs an alt attribute.",true,"Always."],
+["<th> is bold and centred by default.",true,"Yes."],
+["Tables are the best way to lay out a page.",false,"Use CSS."],
+["border, cellpadding and cellspacing are obsolete in HTML5.",true,"Use CSS."],
+["A cell with rowspan=\"2\" makes the next row need an extra cell.",false,"It needs one fewer."],
+["GET shows the form data in the address.",true,"After ?."],
+["A control with no name is sent to the server.",false,"Not sent."],
+["Radio buttons in one group have different names.",false,"The same name."],
+["Clicking a label can focus its control.",true,"for matches id."],
+["type=\"password\" encrypts the password.",false,"It only hides the characters."],
+["A page may have several <main> elements.",false,"One."],
+["<header> may appear only once on a page.",false,"A page and each article can have one."],
+["Semantic HTML helps screen readers and search engines.",true,"Accessibility and SEO."]
+];
+const VSA=[
+["Expand HTML and HTTP.",["hypertext","markup","transfer","protocol"],"HyperText Markup Language; HyperText Transfer Protocol.",1],
+["Which line declares an HTML5 document?",["doctype","html"],"<!DOCTYPE html>.",1],
+["Name the two main parts of an HTML page.",["head","body"],"head and body.",1],
+["What is a void element? Give two examples.",["no closing","br","hr","img"],"An element with no content and no closing tag: br, hr.",1],
+["Which tag makes the largest heading?",["h1"],"<h1>.",1],
+["Which tag inserts a line break?",["br"],"<br>.",1],
+["Which attribute gives the destination of a link?",["href"],"href.",1],
+["Which element is a table header cell?",["th"],"<th>.",1],
+["Which input type hides the characters typed?",["password"],"type=\"password\".",1],
+["Name the semantic element that holds the main menu links.",["nav"],"<nav>.",1],
+["What does a 404 status mean?",["not found"],"The page was not found.",1],
+["Name the six parts of a URL.",["scheme","host","port","path","query","fragment"],"Scheme, host, port, path, query, fragment.",1],
+["What does the alt attribute do?",["describes","image"],"Describes an image for screen readers and when it fails to load.",1],
+["Write water's formula in HTML.",["h<sub>2</sub>o","sub"],"H<sub>2</sub>O.",1],
+["Which element is a long quotation?",["blockquote"],"<blockquote>.",1],
+["Which attribute opens a link in a new tab?",["target","_blank"],"target=\"_blank\".",1],
+["Which scheme opens the e-mail program?",["mailto"],"mailto:.",1],
+["Which attribute makes a cell span two rows?",["rowspan"],"rowspan=\"2\".",1],
+["Which attribute links a label to a control?",["for","id"],"for, matching the control's id.",1],
+["Which element may appear only once per page?",["main"],"<main>.",1]
+];
+const CALC=[
+{q:"What text lines does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Welcome</h1>
+    <p>Hello<br>World</p>
+</body>
+</html>`,alts:[["welcomehelloworld"]],ex:1,model:"Welcome / Hello / World",e:"The page displays: Welcome / Hello / World"},
+{q:"How does the browser display the paragraph? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p>One     two
+
+
+       three</p>
+</body>
+</html>`,alts:[["onetwothree"]],ex:1,model:"One two three",e:"The page displays: One two three"},
+{q:"A horizontal rule is shown as a line of dashes. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <!-- hidden note -->
+    <p>Shown</p>
+    <hr>
+    <p>Also shown</p>
+</body>
+</html>`,alts:[["shownalsoshown"]],ex:1,model:"Shown / ------ / Also shown",e:"The page displays: Shown / ------ / Also shown"},
+{q:"What does the paragraph display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p>Fish &amp; chips &copy; 2024</p>
+</body>
+</html>`,alts:[["fishchips2024"]],ex:1,model:"Fish & chips © 2024",e:"The page displays: Fish & chips © 2024"},
+{q:"The browser adds curly quotation marks to <q>. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p>Press <q>Enter</q> now.</p>
+</body>
+</html>`,alts:[["pressenternow"]],ex:1,model:"Press “Enter” now.",e:"The page displays: Press “Enter” now."},
+{q:"What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p>This is <strong>very</strong> <em>important</em>.</p>
+</body>
+</html>`,alts:[["thisisveryimportant"]],ex:1,model:"This is very important.",e:"The page displays: This is very important."},
+{q:"What lines does the page display (ignore the indentation)? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <pre>
+A
+   B
+</pre>
+    <p>C
+      D</p>
+</body>
+</html>`,alts:[["abcd"]],ex:1,model:"A /  B / C D",e:"The page displays: A /  B / C D"},
+{q:"Each table row is shown on one line with its cells separated by |. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <table>
+        <tr><th>Name</th><th>Marks</th></tr>
+        <tr><td>Ramesh</td><td>85</td></tr>
+    </table>
+</body>
+</html>`,alts:[["namemarksramesh85"]],ex:1,model:"Name | Marks / Ramesh | 85",e:"The page displays: Name | Marks / Ramesh | 85"},
+{q:"Each table row is shown on one line with its cells separated by |. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <table>
+        <tr><th colspan="2">Marks</th></tr>
+        <tr><td>Maths</td><td>90</td></tr>
+    </table>
+</body>
+</html>`,alts:[["marksmaths90"]],ex:1,model:"Marks / Maths | 90",e:"The page displays: Marks / Maths | 90"},
+{q:"What lines does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <header><h1>Site</h1><nav><a href="a.html">Home</a> | <a href="b.html">News</a></nav></header>
+    <main><article><h2>Post</h2><p>Text</p></article></main>
+    <footer><p>End</p></footer>
+</body>
+</html>`,alts:[["sitehomenewsposttextend"]],ex:1,model:"Site / Home | News / Post / Text / End",e:"The page displays: Site / Home | News / Post / Text / End"},
+{q:"An image is shown as [image: its alt text]. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <img src="map.png" alt="Map">
+    <p>Caption</p>
+</body>
+</html>`,alts:[["imagemapcaption"]],ex:1,model:"[image: Map] / Caption",e:"The page displays: [image: Map] / Caption"},
+{q:"A text box is shown as [its value] and a submit button as [its label]. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form>
+        <p>Name: <input type="text" value="Asha"></p>
+        <p><input type="submit" value="Send"></p>
+    </form>
+</body>
+</html>`,alts:[["nameashasend"]],ex:1,model:"Name: [Asha] / [Send]",e:"The page displays: Name: [Asha] / [Send]"},
+{q:"The table has 4 columns. How many td cells does the third row contain?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <table>
+        <tr><th colspan="4">Timetable</th></tr>
+        <tr><td rowspan="2">Mon</td><td>Maths</td><td>Art</td><td>PE</td></tr>
+        <tr><td>Science</td><td>Music</td><td>Hindi</td></tr>
+    </table>
+</body>
+</html>`,alts:[["3"]],ex:1,model:"3",e:"Answer: 3"},
+{q:"After pressing Go, what address (path and query) does the browser request?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="get">
+        <input type="text" name="q" value="html">
+        <input type="text" name="n" value="5">
+        <input type="submit" value="Go">
+    </form>
+</body>
+</html>`,alts:[["sqhtmln5"]],ex:1,model:"/s?q=html&n=5",e:"Answer: /s?q=html&n=5"},
+{q:"After pressing Send, what address does the browser request? Remember how a space and the @ are encoded.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/go" method="get">
+        <input type="text" name="who" value="Asha Rao">
+        <input type="text" name="mail" value="a@b.c">
+        <input type="submit" value="Send">
+    </form>
+</body>
+</html>`,alts:[["gowhoasharaomaila40bc"]],ex:1,model:"/go?who=Asha+Rao&mail=a%40b.c",e:"Answer: /go?who=Asha+Rao&mail=a%40b.c"},
+{q:"After pressing Save, what address does the browser show, and what is in the request body? Give the address, then the body, separated by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/save" method="post">
+        <input type="text" name="user" value="Bilal">
+        <input type="submit" value="Save">
+    </form>
+</body>
+</html>`,alts:[["saveuserbilal"]],ex:1,model:"/save / user=Bilal",e:"Answer: /save / user=Bilal"},
+{q:"Which data is sent for the checkboxes? Write the name=value pairs joined by &.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="get">
+        <input type="checkbox" name="subject" value="math" checked>
+        <input type="checkbox" name="subject" value="sci">
+        <input type="checkbox" name="subject" value="eng" checked>
+        <input type="submit" value="Go">
+    </form>
+</body>
+</html>`,alts:[["subjectmathsubjecteng"]],ex:1,model:"subject=math&subject=eng",e:"Answer: subject=math&subject=eng"},
+{q:"The user does not touch the list. Which pair is sent?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="get">
+        <select name="city">
+            <option value="del">Delhi</option>
+            <option value="mum">Mumbai</option>
+        </select>
+        <input type="submit" value="Go">
+    </form>
+</body>
+</html>`,alts:[["citydel"]],ex:1,model:"city=del",e:"Answer: city=del"},
+{q:"The user types nothing and chooses nothing. Which address is requested?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="get">
+        <input type="text" name="a" value="">
+        <input type="radio" name="g" value="m">
+        <input type="submit" value="Go">
+    </form>
+</body>
+</html>`,alts:[["sa"]],ex:1,model:"/s?a=",e:"Answer: /s?a="},
+{q:"This page is /site/info/about.html. To which path does the link go?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <a href="../index.html">Home</a>
+</body>
+</html>`,alts:[["siteindexhtml"]],ex:1,model:"/site/index.html",e:"Answer: /site/index.html"},
+{q:"This page is /site/index.html. To which path does the link go?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <a href="products/laptop.html">Laptop</a>
+</body>
+</html>`,alts:[["siteproductslaptophtml"]],ex:1,model:"/site/products/laptop.html",e:"Answer: /site/products/laptop.html"},
+{q:"This page is /site/info/about.html. To which path does the link go?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <a href="/contact.html">Contact</a>
+</body>
+</html>`,alts:[["contacthtml"]],ex:1,model:"/contact.html",e:"Answer: /contact.html"},
+{q:"The link is a bookmark. What does the address bar end with after the link is clicked?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Top</h1>
+    <p><a href="#end">Jump</a></p>
+    <h2 id="end">End</h2>
+</body>
+</html>`,alts:[["end"]],ex:1,model:"#end",e:"Answer: #end"}
+];
+const SHORT=[
+["Distinguish a web page from a website, and a browser from a web server.","A web page is a single HTML document fetched by its URL; a website is a collection of related pages under one domain, linked by navigation. A browser is the client program that requests, interprets and displays pages; a web server is a computer running server software that stores a site's files and answers requests.",["page one document","website many pages","browser client","server stores"]],
+["What is a status code? What do 200 and 404 mean?","A status code is a number in the status line of an HTTP response that tells the browser what happened. 200 OK means the page was found and sent; 404 Not Found means a wrong address or a deleted file.",["status code number","200 ok","404 not found"]],
+["Name the parts of a URL.","Scheme (https), host (www.example.com), port (443, usually omitted), path (/products/laptop.html), query (id=5, after ?) and fragment (specs, after #, not sent to the server).",["scheme","host","path","query","fragment"]],
+["Distinguish head and body.","The head holds information about the page (metadata such as the title and character set) and is not shown in the page area; the body holds the content that is displayed to the user.",["head metadata","body content"]],
+["What is a void element? Give two examples.","An element with no content and no closing tag, such as <br> and <hr> (also img, input, meta, link).",["no closing tag","br hr"]],
+["Distinguish a tag, an element and an attribute.","A tag is a keyword in angle brackets, such as <p> or </p>. An element is the opening tag, the content and the closing tag together. An attribute is a name=\"value\" pair inside the opening tag giving extra information, such as href.",["tag angle brackets","element opening content closing","attribute name value"]],
+["What does a browser do with several consecutive spaces in the source? How can they be kept?","It collapses any run of spaces, tabs and new lines into a single space. They can be kept by placing the text in <pre>, or by writing &nbsp; for each space.",["single space","pre"]],
+["Distinguish <strong> from <b>, and <em> from <i>.","<strong> and <b> both look bold, but <strong> means strong importance and <b> only draws attention; <em> and <i> both look italic, but <em> means stress emphasis. Screen readers and search engines notice strong and em, so they are preferred.",["strong importance","em emphasis","same look"]],
+["Write H2O and x2 in HTML. Why must < be written &lt;?","H<sub>2</sub>O and x<sup>2</sup>. The character < starts a tag, so a bare < in text would make the browser think a tag had begun; the entity &lt; displays it safely.",["sub","sup","starts a tag"]],
+["Distinguish an absolute from a relative URL with an example of each.","An absolute URL is complete, with the scheme: https://www.wikipedia.org, used for external links. A relative URL is a path from the current page, such as about.html or ../index.html, used for internal links; it keeps working if the site moves.",["absolute complete","relative path","example"]],
+["What does target=\"_blank\" do? Why add rel=\"noopener\"?","target=\"_blank\" opens the destination in a new tab. rel=\"noopener\" stops the new page from gaining access to the old one, a security precaution.",["new tab","security"]],
+["What do colspan and rowspan do?","colspan stretches a cell across several columns and rowspan stretches it down several rows; each takes the number of columns or rows to cover. Rows below a rowspan omit the cells already covered.",["colspan columns","rowspan rows"]],
+["Why are cellpadding and cellspacing not recommended in HTML5? What replaces them?","They are obsolete because presentation belongs to CSS. padding: 5px; on th and td replaces cellpadding and border-collapse: collapse; on table replaces cellspacing=\"0\"; border: 1px solid black; replaces border.",["obsolete css","padding","border-collapse"]],
+["Distinguish GET from POST. Which is correct for a login form, and why?","GET puts the data in the URL after ?, visible in the address bar, bookmarkable, limited by URL length, for searches. POST puts it in the request body, not visible, larger, for logins and registrations. A login uses POST because a password with GET would show in the address, history and server logs.",["get url","post body","login post"]],
+["Why is the name attribute essential on a form control? How do radio buttons form a group?","The name identifies the field's data when the form is submitted; a control with no name sends nothing. Radio buttons form a group by sharing the same name, so choosing one clears the others, unlike independent checkboxes.",["name identifies data","same name"]],
+["What is the purpose of <label for>? What must it match?","It attaches a caption to a control and makes the caption clickable, moving the cursor into the control; helps touch-screen and screen-reader users. Its for attribute must equal the control's id (not its name).",["caption","for id"]],
+["What is semantic HTML? Give three benefits.","Semantic HTML uses elements whose names describe the meaning of their content (header, nav, main) instead of anonymous div and span. Benefits: accessibility, SEO and readability.",["names meaning","accessibility","seo","readability"]],
+["Distinguish <section> from <article>.","A section is a thematic group of content, normally with its own heading (a chapter of a guide). An article is self-contained content that makes sense on its own, such as a blog post or a product card.",["section thematic","article self-contained"]]
+];
+const LONG=[
+["Explain how a web page is delivered, from typing a URL to seeing the page, naming the parts of the URL.","The URL, e.g. https://www.example.com:443/products/laptop.html?id=5#specs, has a scheme (https), host (www.example.com), port (443, usually omitted), path (/products/laptop.html), query (id=5) and fragment (specs). The browser (client) sends an HTTP request: a request line such as GET /products/laptop.html HTTP/1.1 and headers such as Host. The web server finds the file and returns an HTTP response: a status line (200 OK), headers (Content-type: text/html), a blank line and the HTML body. The browser renders the HTML as a page, and fetches pictures, style sheets and scripts by further requests. A missing page gives 404 Not Found. The fragment is used by the browser and not sent. Three labelled steps: request, response, render.",["url parts","request","response","render","status code"]],
+["Explain the structure of an HTML5 document, with an annotated example and the role of each part.","<!DOCTYPE html> declares an HTML5 document (not a tag; without it browsers use quirks mode). <html lang=\"en\"> is the root, lang names the language. <head> holds metadata not shown: <meta charset=\"UTF-8\"> sets the encoding, the viewport meta makes the page fit a phone, <title> is the text on the tab, in bookmarks and in search results. <body> holds everything the user sees, such as <h1> and <p>. Example: <!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>My Page</title></head><body><h1>Welcome</h1><p>Text</p></body></html>. Head = information about the page; body = displayed content.",["doctype","html lang","head","body","title"]],
+["Explain elements, attributes and void elements with five examples of each kind of tag.","An element is an opening tag, content and a closing tag, e.g. <p>text</p>, and elements nest properly (last opened, first closed). Container elements with closing tags: p, h1, a, table, form. Void elements have no content or closing tag: br, hr, img, input, meta. Attributes are name=\"value\" pairs in the opening tag: id (unique name), class (shared group name), src (file address), href (link destination), alt (image text), style (inline CSS), lang (language). Example: <a href=\"about.html\" target=\"_blank\">About Us</a>.",["element opening closing","void","attribute name value","examples"]],
+["Explain every text-formatting element, distinguishing visual from semantic pairs, and the use of entities.","<b> bold (attention) and <strong> bold (strong importance); <i> italic (alternate voice) and <em> italic (stress emphasis): same look, different meaning; prefer strong and em, use CSS for decoration. <u> underline (annotation), <s> strikethrough (no longer accurate), <sub> below the baseline (H2O), <sup> above (x2). <blockquote> long indented quotation with a cite attribute, <q> short inline quotation with marks added, <cite> title of a work, <code> monospace code, <pre> keeps spaces and line breaks. Entities write special characters: &lt; &gt; &amp; &copy; &pi; &nbsp;, so that < and > are not taken for tags.",["b strong","i em","sub sup","blockquote q","pre","entities"]],
+["Explain the five kinds of hyperlink, with the HTML for each, and the use of relative paths.","External: <a href=\"https://www.wikipedia.org\">Visit</a>, an absolute URL. Internal: <a href=\"about.html\">About</a>, a relative path (products/laptop.html for a sub-folder, ../index.html for the folder above, /contact.html from the site root). New tab: target=\"_blank\" with rel=\"noopener\". E-mail: <a href=\"mailto:info@example.com\">, optionally ?subject=. Bookmark: give the target an id, <h2 id=\"contact\">, and link with <a href=\"#contact\">; ids are case-sensitive. Relative paths keep working if the site moves.",["external absolute","internal relative","mailto","bookmark id","target"]],
+["Explain how to build a table with merged cells, and why layout tables are discouraged.","Use <table> with a <tr> for each row, <th> for header cells and <td> for data cells, optionally <caption>, <thead>, <tbody>. colspan=\"3\" stretches a cell across three columns, so the row needs only one cell; rowspan=\"2\" stretches a cell down two rows, so the next row omits the covered cell. First count the columns, mark the spans, then write row by row. Every row must account for the same number of columns. Style with CSS (border, padding, border-collapse), not the obsolete attributes. Layout tables are discouraged because tables are for data; they break on phones and confuse screen readers; CSS does layout.",["tr th td","colspan","rowspan","same number of columns","layout css"]],
+["Explain the form controls with an example, and describe exactly what data is sent for each.","<form action=\"/submit\" method=\"get\"> contains controls. Text (name fullname) sends fullname=Asha+Rao; password hides characters but is sent as typed; email checks the format; number has min and max; checkboxes (same name subject) send one pair per ticked box, subject=math&subject=eng; radio buttons with the same name send only the chosen value; <select> sends the value of the chosen option (mum), and the first option by default; <textarea> sends its text; submit sends and reset clears. A control with no name, an unticked checkbox or an unchosen radio group sends nothing; empty text boxes send name= with an empty value. <label for> must equal the id.",["text password","checkbox","radio same name","select value","name"]],
+["Compare GET and POST with an example of the address or request produced by each.","GET puts the pairs in the URL: /submit?fullname=Asha+Rao&email=asha%40example.com&city=mum, visible in the address bar, bookmarkable, limited by URL length, for searches and filters. POST sends POST /submit with the same pairs in the request body and the address stays /submit; not bookmarkable, larger data, for logins, registrations and uploads. Encoding: space becomes +, @ becomes %40, & becomes %26. A password with GET shows in the address, history and logs; type=\"password\" only hides it on screen and HTTPS protects the journey.",["get url","post body","encoding","password"]],
+["Explain the seven semantic elements and redraw a page layout using them.","header: introductory content (site name, menu); nav: navigation links; main: the unique primary content, only one per page; section: a thematic group with a heading; article: self-contained content such as a blog post; aside: related separable content such as a sidebar; footer: closing content such as copyright. Layout top to bottom: header with nav, main containing sections with articles and an aside, then footer. They replace <div id=\"header\"> and so on. Benefits: accessibility, SEO, readability.",["header nav","main one","section article","aside","footer","benefits"]],
+["Describe how the W3C validator and a browser can be used to test HTML.","Save the page with a .html extension and open it in a browser: the browser shows what is really drawn, for example that comments are hidden, whitespace collapses and the bookmark scrolls the page. The W3C Nu HTML Checker reads the source and reports errors and warnings with line numbers, such as obsolete elements (center, strike, font), a p inside a b, a wrong end tag, an img without alt or obsolete table attributes; it prints no errors or warnings when the page is valid. Browsers are forgiving and repair broken markup differently, so valid HTML matters.",["browser","validator","errors","valid"]]
+];
+const APP=[
+["A page has several lines of poetry which all appear on a single line in the browser. Explain why and give two fixes.","The browser collapses new lines and spaces in the source into a single space. Fixes: put <br> at the end of each line, or wrap the poem in <pre> to keep the line breaks exactly (or use one <p> per stanza).",["collapses","br","pre"]],
+["A link <a href=\"Contact\"> written to jump to <h2 id=\"contact\"> does nothing. Find the bug.","A bookmark link needs the # before the id and the same case: href=\"#contact\". Without # the browser looks for a file called Contact; and ids are case-sensitive.",["#","case"]],
+["A web designer lays out three columns with a table. Give two reasons this is poor practice and the modern alternative.","Tables are for data, not layout; layout tables break on phones and confuse screen readers. The modern alternative is CSS (and semantic elements such as main, aside).",["data","phones screen readers","css"]],
+["A login form uses GET. What risk follows, as the measured address showed? What change fixes it?","The password appears in the address bar, the browser history and the server logs. Change the method to post so the data travels in the request body, and use HTTPS to protect the journey.",["password visible","post","https"]],
+["A user ticks no subject checkbox and submits. What does the server receive for subject?","Nothing: unticked checkboxes are not sent, so no subject pair appears at all.",["nothing","not sent"]],
+["Clicking the word Password next to the box does not focus the box. What two attributes are probably wrong or missing?","The label's for attribute and the input's id: for must equal the control's id (not its name).",["for","id"]],
+["The page uses <div id=\"nav\">, <div id=\"main\"> and <div id=\"footer\">. Rewrite the skeleton semantically and explain the gain for a blind user.","<nav>…</nav><main>…</main><footer>…</footer>. A screen reader announces navigation, main content and footer, and lets the user jump between those regions instead of listening through anonymous blocks.",["nav main footer","screen reader"]],
+["A site's about.html sits in /site/info/ and the home page is /site/index.html. Write the link from the about page to the home page in two ways.","Relative: <a href=\"../index.html\">Home</a>. From the root: <a href=\"/site/index.html\">Home</a>.",["../index.html","/site/index.html"]],
+["A page has <b><p>Wrongly nested </b></p>. What does the validator report and how is it fixed?","A p cannot be a child of b, and the end tag </b> arrives while p is open. Fix: put the inline element inside the block, <p><b>Wrongly nested</b></p>, closing in reverse order.",["p not allowed in b","reverse order"]],
+["A table of 3 columns has a title cell across all columns and a cell A that spans two rows in column 1. How many cells are in the second row of A, and how is the title written?","The second of those rows has 3 - 1 = 2 cells, because A already covers its first column. The title is <th colspan=\"3\">Title</th>.",["2 cells","colspan"]]
+];
+MCQ.forEach((m,i)=>{const r=(i*3+1)%4;const ans=m[1][m[2]];const rot=m[1].slice(r).concat(m[1].slice(0,r));m[1]=rot;m[2]=rot.indexOf(ans);});
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson24-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Web fundamentals",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Page, site, browser and server",d:"A web page is one HTML document; a website is a set of related pages under one domain. The browser is the client; the web server stores the files.",t:T[3]},
+ {h:"The request and the response",d:"The browser sends a request; the server answers with a response. Learn the three steps: request, response, render.",t:T[2],p:["Request: GET /h01.html HTTP/1.1, then headers such as Host. Response: HTTP/1.1 200 OK, headers, a blank line, then the HTML."]},
+ {h:"Status codes",d:"The number in the status line tells the browser what happened.",t:T[0]},
+ {h:"The parts of a URL",d:"Use the URL tool of the Code lab to split any address into its parts.",t:T[1],p:["Example: https://www.example.com:443/products/laptop.html?id=5#specs"]}
+]},
+{t:"HTML basics and document structure",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"What HTML is, and its history",d:"HTML is a markup language, not a programming language. It was invented by Tim Berners-Lee at CERN.",t:T[4]},
+ {h:"The skeleton of every page",d:"Run the page, then change the title and the heading text. Only the heading and the paragraph appear in the page area; the title is on the tab.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Web Page</title>
+</head>
+<body>
+    <h1>Welcome to HTML</h1>
+    <p>This is my first web page.</p>
+</body>
+</html>`,tr:"Move the <p> line into the <head> and run it again: the paragraph disappears from the page area."}},
+ {h:"The parts of the skeleton",d:"Each line of the skeleton has one job.",t:T[5]},
+ {h:"Head against body",d:"Information about the page against content for the user.",t:T[6]},
+ {h:"Skeleton to memorise",d:"Learn this table of one-line patterns.",t:T[7]}
+]},
+{t:"Elements, tags and attributes",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Container and void elements",d:"Elements with content need a closing tag; void elements never have one.",t:T[8]},
+ {h:"Attributes",d:"Attributes sit in the opening tag as name=\"value\" pairs.",t:T[9]},
+ {h:"An image and a link",d:"The image has src, alt and width; the link has href, target and rel. Only the alt text is shown by this lab, because there is no photo file.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image and Link</title>
+</head>
+<body>
+    <img src="photo.jpg" alt="A scenic view" width="400">
+    <p><a href="https://www.google.com" target="_blank" rel="noopener">Visit Google</a></p>
+</body>
+</html>`,tr:"Delete the alt attribute and run: the checker reports an error."}},
+ {h:"Elements of the head",d:"Everything in the head is invisible in the page area.",t:T[10]},
+ {h:"Headings, paragraphs, breaks, rules and comments",d:"The comment is ignored and the br starts a new line inside the same paragraph.",t:T[11],code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Headings and Paragraphs</title>
+</head>
+<body>
+    <h1>Main Page Heading</h1>
+    <h2>Section Heading</h2>
+    <h3>Subsection Heading</h3>
+    <h4>Level 4</h4>
+    <h5>Level 5</h5>
+    <h6>Level 6</h6>
+    <!-- This comment is not displayed -->
+    <p>This is a paragraph with some text.<br>This is on a new line within the same paragraph.</p>
+    <hr>
+    <p>This paragraph is after the horizontal rule.</p>
+</body>
+</html>`,tr:"Change <h3> to <h6> in the third line and read the result again."}},
+ {h:"Whitespace collapses",d:"Many spaces and new lines in the source become one space.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Whitespace</title>
+</head>
+<body>
+    <p>One     two
+
+
+
+
+    three</p>
+    <p>First line<br>Second line</p>
+</body>
+</html>`,tr:"Replace the blank lines by <br> and see the lines break."}},
+ {h:"Nesting and obsolete markup",d:"The checker names every mistake: obsolete elements, a p inside a b, a stray end tag, an img without alt and obsolete table attributes.",t:T[13],code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Obsolete and misplaced markup</title>
+</head>
+<body>
+    <center>Centred the old way</center>
+    <p>This is <strike>old</strike> and <font color="red">red</font>.</p>
+    <b><p>Wrongly nested </b></p>
+    <img src="photo.jpg">
+    <table border="1" cellpadding="5"><tr><td>x</td></tr></table>
+</body>
+</html>`,tr:"Fix one error at a time until the checker shows no problems."}},
+ {h:"Obsolete elements",d:"These three were removed from HTML5.",t:T[12]}
+]},
+{t:"Text formatting",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Block and inline",d:"Inline elements format text inside a line.",t:T[18]},
+ {h:"Every formatting element in one page",d:"The lab shows only the text; the real browser would show bold, italic, subscripts and so on. Read the markup against Table 1.6.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Formatting</title>
+</head>
+<body>
+    <p>This is <b>bold</b> and this is <strong>strongly important</strong>.</p>
+    <p>This is <i>italic</i> and this is <em>emphasized</em>.</p>
+    <p>Water is H<sub>2</sub>O and Area = &pi;r<sup>2</sup>.</p>
+    <p>This item is <s>discontinued</s> and this text is <u>underlined</u>.</p>
+    <blockquote cite="https://source.com">
+        To be or not to be, that is the question.
+    </blockquote>
+    <p>He said <q>learn by doing</q> in <cite>The Practice Book</cite>.</p>
+    <p>The function uses <code>console.log()</code> for output.</p>
+    <pre>
+Line one
+     Line two, indented
+          Line three
+    </pre>
+</body>
+</html>`,tr:"Add <mark>, <small> or <del> around a word: the text stays but the checker still passes."}},
+ {h:"The formatting elements",d:"Eight inline elements and their meanings.",t:T[14]},
+ {h:"Visual and semantic pairs",d:"The same look, a different meaning.",t:T[15],p:["Prefer strong and em; use CSS for pure decoration."]},
+ {h:"Quotations, code and preformatted text",d:"Without pre the browser would collapse the three indented lines into one.",t:T[16]},
+ {h:"Special characters",d:"Write < and > as entities, or the browser will think a tag has begun.",t:T[17],code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Entities</title>
+</head>
+<body>
+    <p>Write &lt;p&gt; to start a paragraph.</p>
+    <p>Fish &amp; chips &copy; 2024</p>
+    <p>A&nbsp;&nbsp;&nbsp;B</p>
+</body>
+</html>`,tr:"Replace &lt;p&gt; by <p> and read the checker."}}
+]},
+{t:"Hyperlinks",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"All the kinds of link in one page",d:"External, internal, sub-folder, e-mail and bookmark. The last link jumps to the heading whose id is contact.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hyperlinks</title>
+</head>
+<body>
+    <h1>Links</h1>
+    <p><a href="https://www.wikipedia.org">Visit Wikipedia</a> (external)</p>
+    <p><a href="about.html">About Us</a> (internal, same folder)</p>
+    <p><a href="products/laptop.html">Laptop</a> (internal, in a sub-folder)</p>
+    <p><a href="mailto:info@example.com">Email Us</a> (opens the mail program)</p>
+    <p><a href="#contact">Jump to Contact</a> (bookmark on this page)</p>
+    <div style="height:600px">Lots of content here...</div>
+    <h2 id="contact">Contact Section</h2>
+    <p>You jumped here.</p>
+</body>
+</html>`,tr:"Change #contact to #Contact and read the checker: ids are case-sensitive."}},
+ {h:"Relative and absolute addresses",d:"Use the Path resolver of the Code lab to try your own.",t:T[19]},
+ {h:"External against internal",d:"Different address forms for different destinations.",t:T[22]},
+ {h:"The target attribute",d:"Where the link opens.",t:T[21]},
+ {h:"The five kinds of link",d:"One pattern for each.",t:T[20]}
+]},
+{t:"Tables",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"The table elements",d:"One element per level: table, row, cell.",t:T[23]},
+ {h:"A table with HTML 4 attributes",d:"The page works but the checker warns that three attributes are obsolete.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Table (HTML 4 style)</title>
+</head>
+<body>
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>StudentID</th>
+        <th>Name</th>
+        <th>Marks</th>
+    </tr>
+    <tr>
+        <td>101</td>
+        <td>Ramesh</td>
+        <td>85</td>
+    </tr>
+    <tr>
+        <td>102</td>
+        <td>Priya</td>
+        <td>92</td>
+    </tr>
+</table>
+</body>
+</html>`,tr:"Count the warnings, then run table5 (next block) and compare."}},
+ {h:"The modern replacements",d:"Presentation belongs to CSS.",t:T[24]},
+ {h:"The same table in HTML5 style",d:"This version has thead and tbody and a style block, and the checker is silent.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Table (HTML5 style)</title>
+    <style>
+        table, th, td { border: 1px solid black; }
+        table { border-collapse: collapse; }
+        th, td { padding: 5px; }
+    </style>
+</head>
+<body>
+<table>
+    <thead>
+        <tr><th>StudentID</th><th>Name</th><th>Marks</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>101</td><td>Ramesh</td><td>85</td></tr>
+        <tr><td>102</td><td>Priya</td><td>92</td></tr>
+    </tbody>
+</table>
+</body>
+</html>`,tr:"Add a <caption> as the first child of <table>."}},
+ {h:"colspan and rowspan",d:"The title cell spans 3 columns; 101 spans 2 rows, so the third row has only two cells.",t:T[25],code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>colspan and rowspan</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    </style>
+</head>
+<body>
+<table>
+    <tr>
+        <th colspan="3">Student Report Card</th> <!-- Header spans 3 columns -->
+    </tr>
+    <tr>
+        <td rowspan="2">101</td> <!-- This cell spans 2 rows -->
+        <td>Mathematics</td>
+        <td>85</td>
+    </tr>
+    <tr>
+        <!-- No StudentID cell here: covered by rowspan above -->
+        <td>Science</td>
+        <td>90</td>
+    </tr>
+</table>
+</body>
+</html>`,tr:"Add a third cell to the last row and read the checker: the row is now too wide."}}
+]},
+{t:"Forms",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"The form and its controls",d:"One form with every common control.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Form</title>
+</head>
+<body>
+<h1>Registration</h1>
+<form action="submit" method="get">
+    <p><label for="name">Full Name:</label>
+        <input type="text" id="name" name="fullname" placeholder="Enter your name"></p>
+    <p><label for="pwd">Password:</label>
+        <input type="password" id="pwd" name="password"></p>
+    <p><label for="mail">Email:</label>
+        <input type="email" id="mail" name="email" placeholder="you@example.com"></p>
+    <p><label for="age">Age:</label>
+        <input type="number" id="age" name="age" min="1" max="120"></p>
+    <p>Subjects:
+        <input type="checkbox" id="m" name="subject" value="math"><label for="m">Mathematics</label>
+        <input type="checkbox" id="s" name="subject" value="sci"><label for="s">Science</label>
+        <input type="checkbox" id="e" name="subject" value="eng"><label for="e">English</label></p>
+    <p>Gender:
+        <input type="radio" id="g1" name="gender" value="male"><label for="g1">Male</label>
+        <input type="radio" id="g2" name="gender" value="female"><label for="g2">Female</label></p>
+    <p><label for="city">City:</label>
+        <select id="city" name="city">
+            <option value="del">Delhi</option>
+            <option value="mum">Mumbai</option>
+            <option value="che">Chennai</option>
+        </select></p>
+    <p><label for="msg">Message:</label><br>
+        <textarea id="msg" name="message" rows="4" cols="40"
+                  placeholder="Enter your message here..."></textarea></p>
+    <p><input type="submit" value="Submit Form">
+        <input type="reset" value="Clear">
+        <button type="button">Click Me</button></p>
+</form>
+</body>
+</html>`,tr:"Remove name=\"email\" and read the checker: nothing from that box will be sent."}},
+ {h:"Input types",d:"The type decides the control.",t:T[26]},
+ {h:"The three attributes of every control",d:"name, value, placeholder.",t:T[27]},
+ {h:"The other form elements",d:"label, select, textarea, button.",t:T[28]},
+ {h:"Radio buttons form a group",d:"Both buttons share name=\"gender\". Change one name and the checker warns that they no longer form a group.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Radio group</title>
+</head>
+<body>
+<form action="/save" method="post">
+    <p>Gender:
+        <input type="radio" id="g1" name="gender" value="male"><label for="g1">Male</label>
+        <input type="radio" id="g2" name="gender" value="female"><label for="g2">Female</label></p>
+    <input type="submit" value="Save">
+</form>
+</body>
+</html>`,tr:"Change name=\"gender\" in the second button to name=\"sex\"."}},
+ {h:"How the data is encoded",d:"Use the Form sender of the Code lab to see the address or body.",t:T[29]},
+ {h:"A GET form",d:"Pressing Go would request /s?q=html&n=5. The Form sender shows this.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+</head>
+<body>
+<form action="/s" method="get">
+    <input type="text" name="q" value="html">
+    <input type="text" name="n" value="5">
+    <input type="submit" value="Go">
+</form>
+</body>
+</html>`,tr:"Change method=\"get\" to method=\"post\": the address would stay /s."}},
+ {h:"GET against POST",d:"Two ways to send the same data.",t:T[30]},
+ {h:"What is actually sent",d:"Some controls send nothing.",t:T[31]}
+]},
+{t:"Semantic HTML",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Benefits of semantic HTML",d:"Meaningful elements help people and programs.",t:T[34]},
+ {h:"The semantic elements",d:"Seven elements to name from memory.",t:T[32]},
+ {h:"A page that uses all seven",d:"The lab shows the text only; read the markup and match each element to Table 1.15.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Semantic Page Layout</title>
+</head>
+<body>
+
+    <header>
+        <h1>NIOS Computer Science</h1>
+        <nav>
+            <a href="index.html">Home</a> |
+            <a href="modules.html">Modules</a> |
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Module 1: Basic Computing</h2>
+            <article>
+                <h3>Lesson 1: Computer Fundamentals</h3>
+                <p>A computer is an electronic device ...</p>
+            </article>
+            <article>
+                <h3>Lesson 2: Binary Logic</h3>
+                <p>Binary is the language of computers ...</p>
+            </article>
+        </section>
+
+        <aside>
+            <h3>Quick Links</h3>
+            <a href="syllabus.pdf">Download Syllabus</a>
+        </aside>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 NIOS. All rights reserved.</p>
+        <a href="privacy.html">Privacy Policy</a>
+    </footer>
+
+</body>
+</html>`,tr:"Add a second <main> and read the checker."}},
+ {h:"From div to semantic element",d:"Replace each meaningless container by its meaningful element.",t:T[33]},
+ {h:"Choosing the element",d:"Choose by meaning, not by looks.",t:T[35]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* Mini HTML checker and text renderer (no DOM needed) */
+const H_VOID=new Set(["br","hr","img","input","meta","link","area","base","col","embed","source","track","wbr"]);
+const H_OBS={center:"Use CSS instead.",font:"Use CSS instead.",strike:"Use del or s element instead.",big:"Use CSS instead.",tt:"Use CSS instead.",marquee:"Use CSS instead.",frame:"Use iframe and CSS instead."};
+const H_OBSATTR={border:["table","img"],cellpadding:["table"],cellspacing:["table"],bgcolor:["*"],align:["*"]};
+const H_INLINE=new Set(["b","i","u","s","em","strong","span","sub","sup","q","cite","code","small","mark","label","a_"]);
+const H_BLOCK=new Set(["p","div","h1","h2","h3","h4","h5","h6","ul","ol","table","form","blockquote","pre","section","article","header","footer","nav","main","aside","hr","li"]);
+const H_CLOSEP=new Set(["p","div","h1","h2","h3","h4","h5","h6","ul","ol","table","form","blockquote","pre","section","article","header","footer","nav","main","aside","hr"]);
+const H_OPT=new Set(["p","li","td","th","tr","option","thead","tbody","tfoot","dt","dd"]);
+const H_HEADOK=new Set(["title","meta","link","style","script","base"]);
+const H_ENT={lt:"<",gt:">",amp:"&",quot:'"',apos:"'",copy:"©",reg:"®",pi:"π",nbsp:" ",hellip:"…",euro:"€",times:"×"};
+function hDecode(s){return s.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g,(m,n)=>{if(n[0]==="#"){const c=n[1]==="x"||n[1]==="X"?parseInt(n.slice(2),16):parseInt(n.slice(1),10);return isNaN(c)?m:String.fromCodePoint(c);}return H_ENT[n]!==undefined?H_ENT[n]:m;});}
+function hParse(src){
+  const root={tag:"#root",attrs:{},kids:[],line:1};
+  const msgs=[];
+  const lineOf=i=>src.slice(0,i).split("\n").length;
+  let stack=[root];let doctype=false;
+  const re=/<!--[\s\S]*?-->|<!doctype[^>]*>|<\/?[a-zA-Z][^>]*>/gi;
+  let last=0,m;
+  const text=(t,pos)=>{
+    if(!t)return;
+    if(t.indexOf("<")>=0)msgs.push(["E",lineOf(pos+t.indexOf("<")),"Bad character < in text. Write &lt; for a less-than sign."]);
+    stack[stack.length-1].kids.push({text:t});
+  };
+  const top=()=>stack[stack.length-1];
+  while((m=re.exec(src))){
+    text(src.slice(last,m.index),last);last=m.index+m[0].length;
+    const tok=m[0],ln=lineOf(m.index);
+    if(tok.startsWith("<!--")){top().kids.push({comment:tok});continue;}
+    if(/^<!doctype/i.test(tok)){doctype=true;continue;}
+    const cm=/^<(\/?)([a-zA-Z][a-zA-Z0-9]*)([\s\S]*?)\/?>$/.exec(tok);
+    const closing=!!cm[1],name=cm[2].toLowerCase();
+    if(closing){
+      if(H_VOID.has(name)){msgs.push(["E",ln,"Stray end tag "+name+"."]);continue;}
+      let ix=-1;for(let i=stack.length-1;i>0;i--)if(stack[i].tag===name){ix=i;break;}
+      if(ix<0){msgs.push(["E",ln,"Stray end tag "+name+"."]);continue;}
+      const open=stack.slice(ix+1).filter(n=>!H_OPT.has(n.tag)||(n.tag==="p"&&H_INLINE.has(name)));
+      if(open.length)msgs.push(["E",ln,"End tag "+name+" violates nesting rules: "+open.map(n=>n.tag).join(", ")+" is still open."]);
+      stack=stack.slice(0,ix);
+      continue;
+    }
+    const attrs={};const ar=/([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;let am;
+    while((am=ar.exec(cm[3]))){attrs[am[1].toLowerCase()]=am[2]!==undefined?am[2]:am[3]!==undefined?am[3]:am[4]!==undefined?am[4]:"";}
+    if(H_CLOSEP.has(name)&&top().tag==="p")stack.pop();
+    if(name==="li"&&top().tag==="li")stack.pop();
+    if((name==="td"||name==="th")&&(top().tag==="td"||top().tag==="th"))stack.pop();
+    if(name==="tr"&&(top().tag==="td"||top().tag==="th")){stack.pop();}
+    if(name==="tr"&&top().tag==="tr")stack.pop();
+    if(name==="option"&&top().tag==="option")stack.pop();
+    const par=top();
+    const node={tag:name,attrs,kids:[],line:ln,parent:par};
+    par.kids.push(node);
+    if(!H_VOID.has(name)&&!tok.endsWith("/>"))stack.push(node);
+  }
+  text(src.slice(last),last);
+  stack.slice(1).filter(n=>!H_OPT.has(n.tag)&&n.tag!=="html"&&n.tag!=="body").forEach(n=>msgs.push(["E",n.line,"Unclosed element "+n.tag+"."]));
+  return {root,msgs,doctype,lineOf};
+}
+function hWalk(n,f){if(n.tag)f(n);(n.kids||[]).forEach(k=>hWalk(k,f));}
+function hText(n){return (n.kids||[]).map(k=>k.text!==undefined?k.text:k.tag?hText(k):"").join("");}
+function hCheck(src){
+  const P=hParse(src),msgs=P.msgs.slice();
+  const all=[];hWalk(P.root,n=>all.push(n));
+  if(!P.doctype)msgs.push(["E",1,"Start tag seen without seeing a doctype first. Expected <!DOCTYPE html>."]);
+  const htmlN=all.find(n=>n.tag==="html");
+  if(htmlN&&!htmlN.attrs.lang)msgs.push(["W",htmlN.line,"Consider adding a lang attribute to the html start tag."]);
+  if(!all.some(n=>n.tag==="title"))msgs.push(["E",1,"Element head is missing a required instance of child element title."]);
+  const ids={};const idList=[];
+  all.forEach(n=>{
+    if(H_OBS[n.tag])msgs.push(["E",n.line,"The "+n.tag+" element is obsolete. "+H_OBS[n.tag]]);
+    for(const a in n.attrs){const w=H_OBSATTR[a];if(w&&(w[0]==="*"||w.indexOf(n.tag)>=0))msgs.push(["W",n.line,"The "+a+" attribute on the "+n.tag+" element is obsolete. Use CSS instead."]);}
+    if(n.tag==="img"&&n.attrs.alt===undefined)msgs.push(["E",n.line,"An img element must have an alt attribute, except under certain conditions."]);
+    if(n.attrs.id!==undefined){if(ids[n.attrs.id])msgs.push(["E",n.line,"Duplicate ID "+n.attrs.id+"."]);ids[n.attrs.id]=n;}
+    const p=n.parent;
+    if(p&&H_INLINE.has(p.tag)&&H_BLOCK.has(n.tag)&&n.tag!=="li")msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element "+p.tag+" in this context."]);
+    if(p&&p.tag==="head"&&!H_HEADOK.has(n.tag))msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element head in this context."]);
+    if((n.tag==="td"||n.tag==="th")&&p&&p.tag!=="tr")msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="tr"&&p&&["table","thead","tbody","tfoot"].indexOf(p.tag)<0)msgs.push(["E",n.line,"Element tr not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="li"&&p&&p.tag!=="ul"&&p.tag!=="ol")msgs.push(["E",n.line,"Element li not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="option"&&p&&p.tag!=="select")msgs.push(["E",n.line,"Element option not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="a"&&n.attrs.target==="_blank"&&!/noopener/.test(n.attrs.rel||""))msgs.push(["W",n.line,"Advice: add rel=\"noopener\" to a link with target=\"_blank\"."]);
+    if(n.tag==="a"&&/^\s*(click here|here)\s*$/i.test(hText(n)))msgs.push(["W",n.line,"Advice: link text should describe the destination, not say \"click here\"."]);
+  });
+  all.forEach(n=>{
+    if(n.tag==="a"&&n.attrs.href&&n.attrs.href[0]==="#"&&n.attrs.href.length>1){const id=n.attrs.href.slice(1);if(!ids[id])msgs.push(["E",n.line,"Same-document reference to "+id+" was not found. (Ids are case-sensitive.)"]);}
+    if(n.tag==="label"&&n.attrs["for"]!==undefined){const t=ids[n.attrs["for"]];if(!t||["input","select","textarea","button"].indexOf(t.tag)<0)msgs.push(["E",n.line,"The for attribute of the label element must refer to a form control (no element has the id "+n.attrs["for"]+")."]);}
+    if(n.tag==="input"){const ty=(n.attrs.type||"text").toLowerCase();if(["submit","reset","button"].indexOf(ty)<0&&!n.attrs.name)msgs.push(["W",n.line,"Advice: this "+ty+" input has no name attribute, so nothing from it is sent."]);}
+    if(n.tag==="select"&&!n.attrs.name)msgs.push(["W",n.line,"Advice: the select has no name attribute, so nothing from it is sent."]);
+    if(n.tag==="textarea"&&!n.attrs.name)msgs.push(["W",n.line,"Advice: the textarea has no name attribute, so nothing from it is sent."]);
+    if(n.tag==="form"){
+      const rs=[];hWalk(n,x=>{if(x.tag==="input"&&(x.attrs.type||"").toLowerCase()==="radio")rs.push(x);});
+      const nm=new Set(rs.map(x=>x.attrs.name||""));
+      if(rs.length>1&&nm.size===rs.length)msgs.push(["W",n.line,"Advice: these radio buttons have different names, so they do not form a group."]);
+    }
+    if(n.tag==="table"){
+      const rows=[];hWalk(n,x=>{if(x.tag==="tr"&&(x.parent===n||["thead","tbody","tfoot"].indexOf(x.parent.tag)>=0)&&(x.parent===n||x.parent.parent===n))rows.push(x);});
+      const occ=[];let wid=0;const w=[];
+      rows.forEach((r,ri)=>{let col=0,used=0;occ[ri]=occ[ri]||[];
+        r.kids.filter(c=>c.tag==="td"||c.tag==="th").forEach(c=>{while(occ[ri][col])col++;const cs=Math.max(1,parseInt(c.attrs.colspan||"1",10)||1),rsn=Math.max(1,parseInt(c.attrs.rowspan||"1",10)||1);
+          for(let dr=0;dr<rsn;dr++){occ[ri+dr]=occ[ri+dr]||[];for(let dc=0;dc<cs;dc++)occ[ri+dr][col+dc]=1;}col+=cs;});
+        w[ri]=occ[ri].length;wid=Math.max(wid,w[ri]);});
+      rows.forEach((r,ri)=>{if(w[ri]!==wid)msgs.push(["E",r.line,"Table row "+(ri+1)+" covers "+w[ri]+" column"+(w[ri]===1?"":"s")+" but the table is "+wid+" columns wide."]);});
+    }
+  });
+  const mains=all.filter(n=>n.tag==="main");
+  if(mains.length>1)msgs.push(["E",mains[1].line,"A document must not include more than one visible main element."]);
+  const h1=all.filter(n=>n.tag==="h1");
+  if(h1.length>1)msgs.push(["W",h1[1].line,"Advice: a page should have one h1; this is the "+h1.length+" h1."]);
+  msgs.sort((a,b)=>a[1]-b[1]);
+  return {P,msgs,all};
+}
+function hRender(P){
+  const L=[];let cur="";
+  const flush=()=>{const t=cur.replace(/[ \t\n\r]+/g," ").trim();if(t)L.push(t);cur="";};
+  const inline=n=>{let s="";(n.kids||[]).forEach(k=>{s+=k.text!==undefined?hDecode(k.text):k.tag?node(k,true):"";});return s;};
+  const node=(n,asStr)=>{
+    const t=n.tag;let s="";
+    if(["head","script","style","title"].indexOf(t)>=0)return "";
+    if(t==="br"){if(asStr)return " ";flush();return "";}
+    if(t==="hr"){if(asStr)return " ------ ";flush();L.push("------");return "";}
+    if(t==="img")return "[image: "+(n.attrs.alt||"")+"]";
+    if(t==="input"){const ty=(n.attrs.type||"text").toLowerCase();
+      if(ty==="checkbox")return n.attrs.checked!==undefined?"[x]":"[ ]";
+      if(ty==="radio")return n.attrs.checked!==undefined?"(o)":"( )";
+      if(ty==="submit")return "["+(n.attrs.value||"Submit")+"]";
+      if(ty==="reset")return "["+(n.attrs.value||"Reset")+"]";
+      if(ty==="button")return "["+(n.attrs.value||"")+"]";
+      if(ty==="password")return "[******]";
+      if(ty==="hidden")return "";
+      return "["+(n.attrs.value||"______")+"]";}
+    if(t==="button")return "["+hDecode(hText(n)).replace(/\s+/g," ").trim()+"]";
+    if(t==="select"){const o=n.kids.filter(k=>k.tag==="option");const sel=o.find(x=>x.attrs.selected!==undefined)||o[0];return "["+(sel?hDecode(hText(sel)).trim():"")+" v]";}
+    if(t==="textarea")return "["+(hText(n).trim()||"......")+"]";
+    if(t==="q")return "“"+inline(n)+"”";
+    if(t==="table"){
+      const rows=[];hWalk(n,x=>{if(x.tag==="tr")rows.push(x);});
+      const out=[];
+      const cap=n.kids.find(k=>k.tag==="caption");if(cap)out.push(hDecode(hText(cap)).replace(/\s+/g," ").trim());
+      rows.forEach(r=>out.push(r.kids.filter(c=>c.tag==="td"||c.tag==="th").map(c=>inline(c).replace(/\s+/g," ").trim()).join(" | ")));
+      if(asStr)return " "+out.join(" / ")+" ";
+      flush();out.forEach(x=>{if(x)L.push(x);});return "";
+    }
+    if(t==="pre"){
+      let raw=hDecode(hText(n));raw=raw.replace(/^\n/,"");
+      if(asStr)return raw;
+      flush();raw.split("\n").forEach(x=>{if(x.trim())L.push(x.replace(/\s+$/,""));});return "";
+    }
+    const blk=H_BLOCK.has(t)||["header","footer","nav","main","section","article","aside","body","html","form","caption","ul","ol","blockquote","tr"].indexOf(t)>=0;
+    if(asStr||!blk){s=inline(n);return s;}
+    flush();
+    if(t==="li")cur="• ";
+    (n.kids||[]).forEach(k=>{
+      if(k.text!==undefined)cur+=hDecode(k.text);
+      else if(k.tag){const r=node(k);if(r)cur+=r;}
+    });
+    flush();
+    return "";
+  };
+  const html=P.root.kids.find(k=>k.tag==="html")||P.root;
+  const body=html.kids&&html.kids.find&&html.kids.find(k=>k.tag==="body");
+  const target=body||P.root;
+  const hasHtml=html!==P.root;
+  (target.kids||[]).forEach(k=>{
+    if(k.text!==undefined)cur+=hDecode(k.text);
+    else if(k.tag){const r=node(k);if(r)cur+=r;}
+  });
+  if(!body&&hasHtml)(html.kids||[]).forEach(k=>{if(k.tag&&k.tag!=="head"){const r=node(k);if(r)cur+=r;}});
+  flush();
+  return L.map(x=>x.replace(/ /g," ").replace(/[ ]{2,}/g," "));
+}
+function fnRun(src){
+  const C=hCheck(src);
+  const E=C.msgs.filter(m=>m[0]==="E"),W=C.msgs.filter(m=>m[0]==="W");
+  const lines=hRender(C.P);
+  let n=0;C.P.root.kids.forEach(function w(k){if(k.tag){n++;(k.kids||[]).forEach(w);}});
+  let out="Checker: "+E.length+" error"+(E.length===1?"":"s")+", "+W.length+" warning"+(W.length===1?"":"s")+(C.msgs.length?"":" (no errors or warnings to show)")+"\n";
+  C.msgs.forEach(m=>{out+=(m[0]==="E"?"Error":"Warning")+" (line "+m[1]+"): "+m[2]+"\n";});
+  out+="\nThe page displays:\n"+(lines.length?lines.join("\n"):"(nothing visible)");
+  return {ok:true,out:out,errors:E.length,warns:W.length,stmts:n,html:src,lines:lines,msgs:C.msgs,brief:"problems "+C.msgs.length+" | "+lines.join(" / ")};
+}
+
+function runCpp(src,inp){return fnRun(src);}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to show the page and the checker report here.</p>';
+  const cls=r.errors?"bad":(r.warns?"note":"ok");
+  return '<iframe class="prev" sandbox title="Page as a browser draws it" style="width:100%;height:200px;border:1px solid #9994;border-radius:8px;background:#fff" srcdoc="'+esc(r.html)+'"></iframe><pre class="outpre">'+esc(r.out)+'</pre><div class="rs '+cls+'">Checker: '+r.errors+" error"+(r.errors===1?"":"s")+", "+r.warns+" warning"+(r.warns===1?"":"s")+".</div>";
+}
+/* ============ CODE WIDGET ============ */
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const rows=Math.min(24,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">HTML page</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="HTML editor">'+esc(src)+'</textarea>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const r=runCpp(src,"");
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ ut:"https://www.example.com:443/products/laptop.html?id=5#specs",
+ pb:"/site/index.html",ph:"../about.html",
+ fn:"Asha Rao",fp:"s3cret",fe:"asha@example.com",fa:"17",fmath:true,fsci:false,feng:true,fg:"female",fc:"mum",fmsg:"Hello & welcome",fmeth:"get",fnm:"yes",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run HTML"],["pred","Predict the page"],["fix","Fix the bug"],["url","URL splitter"],["path","Path resolver"],["send","Form sender"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank page",spec:{c:"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>My Page</title>\n</head>\n<body>\n    <h1>Welcome</h1>\n    <p>Write your own HTML here and press Run.</p>\n</body>\n</html>",tr:"Add a link, a table or a form, break a rule on purpose and read the checker."}});
+function labView(){
+  let h='<p class="hint">HTML is learned by writing it. Each page below is drawn in a sandboxed preview, as a browser would draw it, and a checker in the style of the W3C validator lists the errors and warnings with line numbers. The report also shows the text the page displays, which is what the Predict tool asks about. Predict, then run.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,url:labUrl,path:labPath,send:labSend,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s pages</h3><label class="lab" for="exsel">Choose a page</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">The preview is a real browser window drawing your HTML (scripts and form submission are switched off, and images have no files). The checker below it knows the rules of the chapter: DOCTYPE, title, obsolete elements and attributes, nesting, alt on images, bookmarks and ids, label and id, radio groups, table row widths, a single main, and controls without a name. The displayed-text lines are how this lab writes down what the page shows.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your answer (separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected answer: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to draw the page and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+
+const FIX=[
+{t:"Missing DOCTYPE",kind:"Validator error",goal:"The checker should report no problems; the page already shows the heading Welcome.",exp:"problems 0 | Welcome",hint:"What must be the first line of an HTML5 page?",sol:"<!DOCTYPE html> as the first line",why:"Without the DOCTYPE browsers switch to quirks mode and the validator complains.",src:R`<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Welcome</h1>
+</body>
+</html>`},
+{t:"Missing title",kind:"Validator error",goal:"The checker should report no problems.",exp:"problems 0 | Welcome",hint:"Which head element names the browser tab?",sol:"<title>My Page</title> inside the head",why:"Every page needs a title: it appears on the tab, in bookmarks and in search results.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Welcome</h1>
+</body>
+</html>`},
+{t:"Image without alt",kind:"Validator error",goal:"The checker should report no problems and the image should be described as Map.",exp:"problems 0 | [image: Map] / Caption",hint:"Which attribute describes an image for screen readers?",sol:"<img src=\"map.png\" alt=\"Map\">",why:"An img always needs alt: screen readers announce it and it is shown if the image fails.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <img src="map.png">
+    <p>Caption</p>
+</body>
+</html>`},
+{t:"Wrong nesting",kind:"Validator error",goal:"The checker should report no problems; the text should be bold italic.",exp:"problems 0 | Important",hint:"Close the element opened last first.",sol:"<b><i>text</i></b>",why:"Elements must be properly nested: the last opened is the first closed.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p><b><i>Important</b></i></p>
+</body>
+</html>`},
+{t:"Obsolete center element",kind:"Validator error",goal:"The checker should report no problems; the text Hello should still be shown.",exp:"problems 0 | Hello",hint:"center is obsolete; style the paragraph instead.",sol:"<p style=\"text-align:center\">Hello</p>",why:"Presentation belongs to CSS in HTML5; center was removed.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <center>Hello</center>
+</body>
+</html>`},
+{t:"Bookmark with the wrong case",kind:"Validator error",goal:"The link should reach the heading: the checker should report no problems.",exp:"problems 0 | Jump / Contact",hint:"Ids are case-sensitive.",sol:"href=\"#contact\"",why:"The fragment of the link must match the id exactly, including case.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p><a href="#Contact">Jump</a></p>
+    <h2 id="contact">Contact</h2>
+</body>
+</html>`},
+{t:"Label that does not match",kind:"Validator error",goal:"Clicking Name should focus the box: the checker should report no problems.",exp:"problems 0 | Name: [______]",hint:"for must equal the control's id.",sol:"<label for=\"nm\">",why:"The for attribute of a label must equal the id of its control (not its name).",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="get">
+        <label for="name">Name:</label>
+        <input type="text" id="nm" name="fullname">
+    </form>
+</body>
+</html>`},
+{t:"Radio buttons that do not exclude each other",kind:"Advice",goal:"The two radio buttons should form a group: the checker should report no problems.",exp:"problems 0 | ( )Male ( )Female",hint:"How do radio buttons form a group?",sol:"Give both the same name, for example name=\"male\" on both",why:"Radio buttons in one group share the same name; with different names several can be chosen.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="post">
+        <input type="radio" id="m" name="male" value="m"><label for="m">Male</label>
+        <input type="radio" id="f" name="female" value="f"><label for="f">Female</label>
+    </form>
+</body>
+</html>`},
+{t:"A row that is too wide",kind:"Validator error",goal:"Every row should cover 3 columns: the checker should report no problems.",exp:"problems 0 | Report / 101 | Maths | 85 / Science | 90",hint:"The cell with rowspan already covers the first column of the next row.",sol:"Delete the extra <td>101</td> in the last row",why:"A rowspan cell occupies its column in the rows below, so those rows omit that cell.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <table>
+        <tr><th colspan="3">Report</th></tr>
+        <tr><td rowspan="2">101</td><td>Maths</td><td>85</td></tr>
+        <tr><td>101</td><td>Science</td><td>90</td></tr>
+    </table>
+</body>
+</html>`},
+{t:"A paragraph inside bold",kind:"Validator error",goal:"The checker should report no problems; the text should be bold.",exp:"problems 0 | Bold text",hint:"Put the inline element inside the block element.",sol:"<p><b>Bold text</b></p>",why:"A block element such as p is not allowed inside an inline element such as b.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <b><p>Bold text</p></b>
+</body>
+</html>`},
+{t:"Two main elements",kind:"Validator error",goal:"The checker should report no problems.",exp:"problems 0 | First / Second",hint:"A page may have only one main element.",sol:"Change the second <main> into a <section>",why:"Only one main element is allowed per page.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <main><h1>First</h1></main>
+    <main><p>Second</p></main>
+</body>
+</html>`},
+{t:"A bare less-than sign",kind:"Validator error",goal:"The page should display the text 3 < 5 and the checker should report no problems.",exp:"problems 0 | 3 < 5",hint:"Write the special character as an entity.",sol:"3 &lt; 5",why:"A bare < in text may start a tag; the entity &lt; displays it safely.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p>3 < 5</p>
+</body>
+</html>`},
+{t:"An unclosed element",kind:"Validator error",goal:"The checker should report no problems.",exp:"problems 0 | This is Important.",hint:"Every container element needs its closing tag.",sol:"<strong>Important</strong>",why:"An element opened and never closed is reported as unclosed.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <p>This is <strong>Important.</p>
+</body>
+</html>`},
+{t:"A form control with no name",kind:"Advice",goal:"The e-mail box should be sent when the form is submitted: the checker should report no problems.",exp:"problems 0 | [______] [Send]",hint:"Which attribute identifies the data of a control?",sol:"name=\"email\"",why:"A control with no name attribute sends nothing.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <form action="/s" method="post">
+        <input type="email" id="mail">
+        <input type="submit" value="Send">
+    </form>
+</body>
+</html>`}
+];
+
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+
+/* ---------- URL splitter ---------- */
+function labUrl(){
+  return '<div class="panel"><h3>URL splitter</h3><p class="hint">Type any web address. The tool splits it into scheme, host, port, path, query and fragment, as in Table 1.2.</p><div class="row">'+numIn("urlin","Address","ut",34,"url")+'</div><div id="urlres">'+urlRes()+"</div></div>";
+}
+function urlRes(){
+  const u=String(L.ut).trim();
+  const m=/^([a-zA-Z][a-zA-Z0-9+.-]*):\/\/([^\/:?#]+)(?::(\d+))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?$/.exec(u);
+  if(!m)return '<div class="rs bad">This is not a full web address. Write it like https://www.example.com/page.html?id=5#top</div>';
+  const sch=m[1].toLowerCase(),def=sch==="https"?"443":sch==="http"?"80":"";
+  const rows=[["Scheme",sch+(sch==="https"?" (encrypted HTTP)":sch==="http"?" (plain HTTP)":"")],["Host",m[2]],["Port",m[3]?m[3]:(def?"(not written; the default for "+sch+" is "+def+")":"(not written)")],["Path",m[4]||"/ (the home page)"],["Query",m[5]!==undefined?m[5]:"(none)"],["Fragment",m[6]!==undefined?m[6]+" (used by the browser, never sent to the server)":"(none)"]];
+  let h=tbl(["Part","Value"],rows);
+  if(m[5]){const pairs=m[5].split("&").map(p=>{const i=p.indexOf("=");return i<0?[p,""]:[p.slice(0,i),p.slice(i+1)];});h+='<p class="hint">The query holds '+pairs.length+" name=value pair"+(pairs.length===1?"":"s")+": "+pairs.map(p=>esc(p[0]+" = "+p[1])).join("; ")+".</p>";}
+  return h;
+}
+/* ---------- Path resolver ---------- */
+function resolvePath(base,href){
+  href=String(href).trim();base=String(base).trim()||"/";
+  if(!href)return {kind:"empty",to:"",why:"Type an href value."};
+  if(/^mailto:/i.test(href))return {kind:"E-mail link",to:"",why:"Opens the visitor's e-mail program with the address in the To box."};
+  if(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(href))return {kind:"External link (absolute URL)",to:href,why:"A complete address with the scheme: another website altogether."};
+  if(href[0]==="#")return {kind:"Bookmark",to:base+href,why:"Stays on the same page and scrolls to the element whose id is "+href.slice(1)+" (ids are case-sensitive)."};
+  let frag="";const hi=href.indexOf("#");if(hi>=0){frag=href.slice(hi);href=href.slice(0,hi);}
+  let parts;let kind;
+  if(href[0]==="/"){parts=href.split("/").filter(x=>x);kind="Internal link, from the root of the site";}
+  else{parts=base.split("/").filter(x=>x);parts.pop();parts=parts.concat(href.split("/").filter(x=>x));kind="Internal link, relative path";}
+  const out=[];let above=false;
+  parts.forEach(p=>{if(p===".")return;if(p===".."){if(out.length)out.pop();else above=true;}else out.push(p);});
+  return {kind:kind,to:"/"+out.join("/")+frag,why:above?"The path tries to climb above the root of the site.":"Relative paths are measured from the folder of the current page; .. means one level up."};
+}
+function labPath(){
+  return '<div class="panel"><h3>Path resolver</h3><p class="hint">Give the path of the current page and the href of a link. The tool names the kind of link and the path it reaches, as in Table 1.9.</p><div class="row">'+numIn("pbin","Current page","pb",16,"path")+numIn("phin","href value","ph",22,"path")+'</div><div id="pathres">'+pathRes()+"</div></div>";
+}
+function pathRes(){
+  const r=resolvePath(L.pb,L.ph);
+  if(r.kind==="empty")return '<div class="rs bad">'+esc(r.why)+"</div>";
+  return tbl(["Item","Result"],[["Kind",r.kind],["Reaches",r.to||"(no page: it starts a message)"],["Why",r.why]]);
+}
+/* ---------- Form sender ---------- */
+function formEnc(s){return encodeURIComponent(String(s)).replace(/[!'()~]/g,c=>"%"+c.charCodeAt(0).toString(16).toUpperCase()).replace(/%20/g,"+");}
+function sendPairs(){
+  const p=[["fullname",L.fn],["password",L.fp]];
+  if(L.fnm==="yes")p.push(["email",L.fe]);
+  p.push(["age",L.fa]);
+  if(L.fmath)p.push(["subject","math"]);if(L.fsci)p.push(["subject","sci"]);if(L.feng)p.push(["subject","eng"]);
+  if(L.fg==="male"||L.fg==="female")p.push(["gender",L.fg]);
+  p.push(["city",L.fc]);p.push(["message",L.fmsg]);
+  return p;
+}
+function sendRes(){
+  const q=sendPairs().map(x=>x[0]+"="+formEnc(x[1])).join("&");
+  let h='<div class="outbox"><pre class="outpre">';
+  if(L.fmeth==="get")h+="Address bar after Submit (GET):\nGET /submit?"+esc(q.split("&").join("\n   &"))+"\n";
+  else h+="Request line:   POST /submit\nRequest body:\n   "+esc(q.split("&").join("\n   &"))+"\n\nAddress bar:    /submit   (nothing visible)\n";
+  h+="</pre></div>";
+  const notes=[];
+  if(L.fmeth==="get"&&L.fp)notes.push("The password is plainly visible in the address: never send a password with GET.");
+  if(L.fnm!=="yes")notes.push("The e-mail box has no name attribute, so nothing from it is sent.");
+  if(!L.fmath&&!L.fsci&&!L.feng)notes.push("No checkbox is ticked, so no subject is sent at all.");
+  if(L.fg!=="male"&&L.fg!=="female")notes.push("No radio button is chosen, so no gender is sent.");
+  if(/[ @&]/.test(L.fn+L.fe+L.fmsg))notes.push("Spaces become +, @ becomes %40 and & becomes %26.");
+  if(notes.length)h+='<ul class="hint">'+notes.map(n=>"<li>"+esc(n)+"</li>").join("")+"</ul>";
+  return h;
+}
+function labSend(){
+  const tog=(k,t)=>'<button class="chip" data-act="ltog" data-key="'+k+'" aria-pressed="'+!!L[k]+'">'+t+"</button>";
+  let h='<div class="panel"><h3>Form sender</h3><p class="hint">This is the registration form of Section 1.7. Fill it in and see exactly what the browser sends, with GET and with POST.</p>';
+  h+='<div class="row">'+numIn("fnin","Full name (fullname)","fn",12,"send")+numIn("fpin","Password (password)","fp",10,"send")+numIn("fein","E-mail (email)","fe",16,"send")+numIn("fain","Age (age)","fa",4,"send")+"</div>";
+  h+='<div class="row">'+numIn("fmin","Message (message)","fmsg",18,"send")+selHtml("fcsel","City (city)","fc",["del","mum","che"])+"</div>";
+  h+='<p class="lab">Subjects (checkboxes, name subject)</p><div class="subnav">'+tog("fmath","Mathematics")+tog("fsci","Science")+tog("feng","English")+"</div>";
+  h+='<p class="lab">Gender (radio buttons, name gender)</p>'+chips("fg",[["male","Male"],["female","Female"],["none","Neither"]]);
+  h+='<p class="lab">Does the e-mail box have a name attribute?</p>'+chips("fnm",[["yes","Yes"],["no","No"]]);
+  h+='<p class="lab">method</p>'+chips("fmeth",[["get","get"],["post","post"]]);
+  h+='<div id="sendres">'+sendRes()+"</div></div>";
+  return h;
+}
+/* ---------- Sorting drill ---------- */
+const DIMS=[
+{n:"Void or container?",o:["Void","Container"],it:[["<br>",0],["<hr>",0],["<img>",0],["<input>",0],["<meta>",0],["<link>",0],["<p>",1],["<h1>",1],["<a>",1],["<table>",1],["<form>",1],["<div>",1],["<button>",1],["<td>",1]]},
+{n:"Head or body?",o:["head","body"],it:[["<title>",0],["<meta charset=\"UTF-8\">",0],["<link rel=\"stylesheet\" href=\"style.css\">",0],["<\u0073cript src=\"app.js\">",0],["The viewport meta element",0],["<h1>Welcome</h1>",1],["<p>Text</p>",1],["<table>",1],["<form>",1],["<img src=\"a.png\" alt=\"A\">",1]]},
+{n:"Which formatting element?",o:["<b>","<strong>","<i>","<em>","<sub>","<sup>","<s>","<u>"],it:[["Bold with strong importance",1],["Bold, only draws attention",0],["Italic with stress emphasis",3],["Italic, an alternate voice",2],["Lowered below the baseline (H2O)",4],["Raised above the baseline (x2)",5],["Strikethrough: no longer accurate",6],["Underline as an annotation",7]]},
+{n:"Which kind of link?",o:["External","Internal","E-mail","Bookmark","New tab"],it:[["href=\"https://www.wikipedia.org\"",0],["href=\"about.html\"",1],["href=\"../index.html\"",1],["href=\"products/laptop.html\"",1],["href=\"mailto:info@example.com\"",2],["href=\"#contact\"",3],["<h2 id=\"contact\"> with a link to it",3],["target=\"_blank\" rel=\"noopener\"",4]]},
+{n:"GET or POST?",o:["GET","POST"],it:[["Data placed in the URL after ?",0],["Data placed in the request body",1],["Visible in the address bar",0],["Address stays /submit",1],["Bookmarkable and repeatable",0],["For logins and registrations",1],["For searches and filters",0],["Much larger data",1],["Limited by URL length",0],["Never use it for a password",0]]},
+{n:"Which semantic element?",o:["header","nav","main","section","article","aside","footer"],it:[["Site name and logo at the top",0],["A block of navigation links",1],["The primary content, only one per page",2],["A thematic group with its own heading",3],["A self-contained blog post",4],["A sidebar of related links",5],["Copyright and policy links",6],["<div id=\"nav\">",1],["<div class=\"post\">",4],["<div id=\"sidebar\">",5],["<div id=\"footer\">",6],["<div id=\"content\">",2]]},
+{n:"colspan or rowspan?",o:["colspan","rowspan"],it:[["Stretches a cell across 3 columns",0],["Stretches a cell down 2 rows",1],["The next row needs one cell fewer",1],["A title cell over all the columns",0],["<th colspan=\"3\">Title</th>",0],["<td rowspan=\"2\">101</td>",1],["The row itself needs only one cell",0]]}
+];
+
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "ltog":L[el.dataset.key]=!L[el.dataset.key];render();return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.brief!==undefined?r.brief:(r.out||"")).replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="url")set("urlres",urlRes());
+  else if(k==="path")set("pathres",pathRes());
+  else if(k==="send")set("sendres",sendRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
