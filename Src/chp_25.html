@@ -1,0 +1,2410 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Images and Multimedia Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 4 · Database Concepts & Web Designing · Lesson 25</div>
+    <h1>Images, Lists and Multimedia</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Table 1.1: Web image formats",c:["Format","Compression","Best for"],r:[
+["JPEG (.jpg)","Lossy, small files","Photographs and pictures with smooth gradients; no transparency"],
+["PNG (.png)","Lossless; alpha channel (transparency)","Logos, icons, screenshots, illustrations"],
+["GIF (.gif)","Lossless, but only 256 colours","Very simple graphics and short animations"],
+["WebP (.webp)","Lossy or lossless, smaller than JPEG and PNG","Any picture, where the browser supports it (all modern ones)"],
+["SVG (.svg)","Vector: shapes as text, no pixels","Logos and icons that must stay sharp at any size"]]},
+/*1*/{s:0,t:"Table 1.2: Measured file sizes (bytes)",c:["File","Size","Remark"],r:[
+["photo.jpg","14 299","Lossy"],
+["photo.png","5 899","Lossless"],
+["photo.webp","4 952","Smallest of the four"],
+["photo.gif","15 427","256 colours: the banding is visible in the gradient"],
+["logo.png","1 599","Transparent corners"],
+["logo_flat.jpg","6 902","White corners (no transparency)"],
+["logo.svg","196","196 bytes of text, scales to any size"]]},
+/*2*/{s:0,t:"Lossy compared with lossless compression",c:["Feature","Lossy","Lossless"],r:[
+["What happens","Throws away detail the eye is unlikely to miss","Shrinks the file without losing anything"],
+["Can the original be restored exactly","No","Yes"],
+["Formats","JPEG (and WebP lossy)","PNG, GIF (and WebP lossless)"]]},
+/*3*/{s:0,t:"What the format test showed",c:["Observation","Reason"],r:[
+["Transparency","The PNG logo is a clean circle on yellow, but the JPEG has a black square: JPEG cannot store transparency"],
+["Scaling","A 32-pixel PNG enlarged to 120 pixels is blurred; the SVG is redrawn at the new size and is crisp"],
+["Size","WebP was the smallest; GIF the largest and lowest in quality"],
+["PNG smaller than JPEG here","The test picture is a flat-coloured drawing; for a real photograph JPEG is far smaller"]]},
+/*4*/{s:1,t:"Table 1.3: Attributes of <img>",c:["Attribute","Purpose"],r:[
+["src","The path or URL of the image file (required)"],
+["alt","Alternative text, shown if the image fails and read aloud by screen readers (required in practice)"],
+["width, height","Display size in pixels; the browser can reserve the space before the file arrives, so the page does not jump"],
+["title","Tooltip text shown when the mouse hovers over the image"]]},
+/*5*/{s:1,t:"Table 1.4: Image paths, for a page at /site/pages/page.html",c:["src value","Looks for the file in"],r:[
+["logo.png","The same folder: /site/pages/logo.png"],
+["images/photo.jpg","The sub-folder: /site/pages/images/photo.jpg"],
+["../images/photo.jpg","One folder up, then images: /site/images/photo.jpg"],
+["/images/logo.png","From the root of the web server"],
+["https://host/pic.jpg","An absolute URL on another server"]]},
+/*6*/{s:1,t:"Why an image is not shown",c:["Cause","Notes"],r:[
+["Wrong path","image/ for images/, or forgetting ../; no error message, only a broken-image icon"],
+["Wrong file name or extension","Spelling counts; file names can be case-sensitive on a server"],
+["File not uploaded","The file is missing from the server"],
+["Result","The browser draws a broken-image icon and the alt text; natural size 0 × 0"]]},
+/*7*/{s:1,t:"Rules for alt text",c:["Situation","alt"],r:[
+["A meaningful picture","Text that describes it: alt=\"A mountain landscape\""],
+["A purely decorative picture","An empty alt=\"\""],
+["An image inside a link","Text that says where the link goes: alt=\"Visit the target page\""],
+["A useless value such as image1","Never: a blind user learns nothing"]]},
+/*8*/{s:1,t:"Width, height and the picture's ratio",c:["Item","Meaning"],r:[
+["Natural size","The real size of the file: 600 × 400 for photo.jpg"],
+["Displayed size","Set by width and height: 300 × 200"],
+["Ratio","600 : 400 = 3 : 2 and 300 : 200 = 3 : 2, so the picture is not distorted"],
+["Wrong ratio","width=\"300\" height=\"300\" would squash the picture"],
+["An image as a link","Place the <img> inside <a>; clicking it follows the href"]]},
+/*9*/{s:2,t:"Table 1.5: The three list types",c:["List","Container and items","Use"],r:[
+["Ordered","<ol> with <li>","Items whose order matters: steps, rankings"],
+["Unordered","<ul> with <li>","Items of equal importance, no sequence"],
+["Description","<dl> with <dt>, <dd>","Term and meaning pairs: glossary, FAQ"]]},
+/*10*/{s:2,t:"Table 1.6: The type values of <ol>",c:["type","Markers","Equivalent CSS value"],r:[
+["1","1, 2, 3 (default)","decimal"],
+["A","A, B, C","upper-alpha"],
+["a","a, b, c","lower-alpha"],
+["I","I, II, III","upper-roman"],
+["i","i, ii, iii","lower-roman"]]},
+/*11*/{s:2,t:"Attributes of <ol>",c:["Attribute","Effect"],r:[
+["type","Chooses the marker style: 1, A, a, I, i"],
+["start","The first number (always a number: type=\"A\" start=\"3\" begins at C)"],
+["reversed","Counts downwards: three items count 3, 2, 1"]]},
+/*12*/{s:2,t:"Bullets of an unordered list",c:["ul type attribute","Marker used","Status"],r:[
+["(none)","disc","Default"],
+["circle","circle","type on ul is obsolete: use CSS list-style-type: circle;"],
+["square","square","type on ul is obsolete: use CSS list-style-type: square;"]]},
+/*13*/{s:2,t:"Elements of a description list",c:["Element","Holds"],r:[
+["<dl>","The description list container"],
+["<dt>","A term (description term)"],
+["<dd>","The details (description) of a term; one term may have several, and several terms may share one"]]},
+/*14*/{s:2,t:"Nested lists and menus",c:["Rule","Meaning"],r:[
+["Where the inner list goes","Inside an <li>, before its closing </li>, not between two items"],
+["Markers","Filled disc, then hollow circle for the second level; an ordered inner list shows numbers"],
+["Allowed children","Only <li> directly inside <ul> or <ol>; a stray <p> or text is invalid"],
+["A menu","A list of links inside <nav>; CSS list-style: none and display: flex turn it into a row of buttons"]]},
+/*15*/{s:3,t:"Table 1.7: Attributes of <audio> and <video>",c:["Attribute","Effect"],r:[
+["controls","Shows the browser's play, pause, volume and seek controls; without it nothing is visible"],
+["autoplay","Starts playing when the page loads; browsers block it unless the sound is muted"],
+["loop","Repeats the clip endlessly"],
+["muted","Starts with the sound off"],
+["width, height","(video only) the size of the player"],
+["poster","(video only) a picture shown before the video plays"]]},
+/*16*/{s:3,t:"Table 1.8: Common media types",c:["File","type value"],r:[
+["MP3 audio","audio/mpeg"],
+["Ogg audio","audio/ogg"],
+["MP4 video","video/mp4"],
+["WebM video","video/webm"]]},
+/*17*/{s:3,t:"The browser's choice of source (measured in Chromium)",c:["Item","Result"],r:[
+["audio/mpeg (MP3)","probably: plays"],
+["audio/ogg (Vorbis)","probably: plays"],
+["video/mp4 (H.264)","no (this Chromium build has no H.264 decoder)"],
+["video/webm (VP8)","probably: plays"],
+["Audio file chosen","music.mp3, the first source"],
+["Video file chosen","video.webm: the first source was skipped, the second used"]]},
+/*18*/{s:3,t:"The role of source and the fallback text",c:["Item","Role"],r:[
+["<source src type>","One file in one format; the browser plays the first it can handle"],
+["Why several sources","No single format plays everywhere"],
+["Fallback text","Only for browsers that do not know the element at all; a modern browser never shows it"],
+["Unusable source","networkState 3 (no source): the browser draws a greyed-out player, not the fallback text"],
+["Before HTML5","A plugin such as Adobe Flash was needed to play sound or video"]]},
+/*19*/{s:4,t:"Frames compared with iframes",c:["Feature","<frameset> / <frame>","<iframe>"],r:[
+["Status in HTML5","Obsolete (the validator reports errors)","Valid"],
+["What it does","Divides the window into rectangles, each loading a page","Puts another page in a window inside the current page"],
+["Problems","Break bookmarks, the Back button, accessibility and search indexing","Embedded page may track users; many sites refuse embedding"],
+["Uses","Old sites only","Maps, videos, payment forms, advertisements, widgets"]]},
+/*20*/{s:4,t:"Table 1.9: Attributes of <iframe>",c:["Attribute","Purpose"],r:[
+["src","The address of the page to embed"],
+["width, height","The size of the window in pixels"],
+["title","A short description for screen-reader users"],
+["allowfullscreen","Lets an embedded video go full screen"],
+["frameborder=\"0\"","Removes the border; obsolete, use style=\"border: 0;\""]]},
+/*21*/{s:4,t:"The border of an iframe (measured)",c:["Iframe","Width","border-top"],r:[
+["style=\"border: 0;\"","300 px","0 px"],
+["Default","304 px","2 px (4 pixels wider)"]]},
+/*22*/{s:5,t:"Table 1.10: The <link> attributes for an icon",c:["Attribute","Meaning"],r:[
+["rel=\"icon\"","This file is the site's icon"],
+["href=\"favicon.ico\"","The path to the file (relative or absolute, as for images)"],
+["type=\"image/x-icon\"","The file's MIME type; image/png for a PNG; optional, helps the browser choose"]]},
+/*23*/{s:5,t:"What the server's log showed",c:["Page","Requests received"],r:[
+["v01.html (names two icons)","GET /v01.html, GET /favicon.png, GET /favicon.ico"],
+["v02.html (no link)","GET /v02.html, GET /favicon.ico: the browser asks for the root file anyway"]]},
+/*24*/{s:5,t:"Favicon facts and mistakes",c:["Item","Detail"],r:[
+["What it is","A small picture shown in the browser tab, in the bookmarks list and in the history"],
+["Usual files","16×16 or 32×32 pixel .ico files; modern browsers also accept PNG and SVG"],
+["Where the link goes","In the <head>; <link> is a void element"],
+["Mistake 1","The <link> placed in the <body>"],
+["Mistake 2","A wrong href: no error, the tab keeps a generic icon"],
+["Mistake 3","Browsers cache icons: reload with the cache cleared to see a change"]]},
+/*25*/{s:6,t:"Responsive web design and the viewport",c:["Item","Meaning"],r:[
+["Responsive web design","One page that looks good on every screen, using fluid layouts, flexible images and CSS media queries"],
+["Before it","Two copies of the site, desktop and mobile: double work"],
+["Viewport","The visible area of the page in the browser window"],
+["Without the viewport tag","A phone lays the page out about 980 px wide and shrinks it: tiny text"],
+["width=device-width","Makes the layout width equal the real width of the screen"],
+["initial-scale=1.0","Starts at 100% zoom"]]},
+/*26*/{s:6,t:"Measured in a 360-pixel phone",c:["Page","window.innerWidth"],r:[
+["No viewport tag","980 CSS px"],
+["With viewport tag","360 CSS px"]]},
+/*27*/{s:6,t:"Table 1.11: Fixed against fluid image on a 360-pixel phone",c:["Item","width=\"600\"","max-width: 100%"],r:[
+["Page width (px)","608 (scrolls sideways)","360 (fits)"],
+["Image drawn (px)","600 × 400","344 × 229"]]},
+/*28*/{s:6,t:"The fluid image rule",c:["Part","Effect"],r:[
+["max-width: 100%","The image may be as wide as its container but never wider; never enlarged beyond its natural width"],
+["height: auto","Keeps the proportions as the width shrinks"],
+["Where the container width comes from","360 - 16 = 344 px (8-pixel margin each side); height 344 × 400/600 = 229"],
+["Pitfall","A fixed pixel height together with max-width: 100% squashes the picture"]]},
+/*29*/{s:6,t:"Table 1.12: Snippets to memorise",c:["Task","Code"],r:[
+["Image","<img src=\"images/logo.png\" alt=\"Logo\" width=\"100\" height=\"100\">"],
+["Image link","<a href=\"page.html\"><img src=\"b.jpg\" alt=\"Visit\"></a>"],
+["Numbered list","<ol type=\"A\" start=\"3\"><li>C</li><li>D</li></ol>"],
+["Glossary","<dl><dt>HTML</dt><dd>Markup language</dd></dl>"],
+["Audio","<audio controls><source src=\"a.mp3\" type=\"audio/mpeg\"></audio>"],
+["Iframe","<iframe src=\"page.html\" width=\"300\" height=\"200\" title=\"T\"></iframe>"],
+["Favicon","<link rel=\"icon\" href=\"favicon.ico\" type=\"image/x-icon\">"],
+["Viewport","<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"]]}
+];
+
+const NOTES=[
+["1.1 Image formats","An image file is a set of dots called {{pixels}} or, for vector formats, a set of instructions for drawing shapes. The format decides the file size, the quality and whether parts of the picture can be {{transparent}}. {{Lossy}} compression throws away detail the eye is unlikely to miss, so the file shrinks but cannot be restored exactly; {{lossless}} compression shrinks without losing anything. {{JPEG}} (.jpg) is lossy with small files and suits photographs and smooth gradients; it has no transparency. {{PNG}} (.png) is lossless with an alpha channel and suits logos, icons, screenshots and illustrations. {{GIF}} (.gif) is lossless but has only 256 colours and suits very simple graphics and short animations. {{WebP}} (.webp) is lossy or lossless and smaller than JPEG and PNG, for any picture where the browser supports it. {{SVG}} (.svg) is a vector format: shapes written as text, no pixels, so logos and icons stay sharp at any size. In the test a JPEG logo showed a black square where the PNG was transparent; a 32-pixel PNG enlarged to 120 pixels was blurred while the SVG stayed crisp; WebP was the smallest file and GIF the largest. For a real photograph JPEG is far smaller than PNG."],
+["1.1 The img element, paths and links","{{<img>}} is a {{void}} element: it has no content and no closing tag. Its {{src}} attribute gives the path or URL of the file (required); {{alt}} is the alternative text shown if the image fails and read aloud by screen readers; {{width}} and {{height}} give the display size in pixels so the browser can reserve space and the page does not jump; {{title}} is the tooltip shown on hover. If the file cannot be found the browser draws a broken-image icon and the alt text, and the natural size is {{0 x 0}}. For a purely decorative picture write {{alt=\"\"}}. A {{relative}} path starts from the folder of the current page and is used for local images; an {{absolute}} path is a full URL. For a page at /site/pages/page.html, logo.png is in the {{same folder}}, images/photo.jpg is in a {{sub-folder}}, ../images/photo.jpg is {{one folder up}} then images, /images/logo.png starts at the {{root}} of the server and https://host/pic.jpg is on another server. An image becomes a link when placed inside {{<a>}}. Causes of a broken image: wrong path, wrong file name or extension, file not uploaded. A picture 600 by 400 shown at 300 by 200 keeps its {{3 : 2}} ratio; 300 by 300 would squash it."],
+["1.2 Lists","HTML has three kinds of list. An {{ordered}} list <ol> numbers items whose order matters; an {{unordered}} list <ul> shows bullets for items of equal importance; a {{description}} list <dl> pairs terms with details. Each item of <ol> and <ul> is an {{<li>}} (list item). The {{type}} attribute of <ol> chooses the markers: 1, {{A}}, a, I, {{i}}; {{start}} gives the first number and is always a {{number}} (type=\"A\" start=\"3\" begins at C); {{reversed}} counts downwards. <ol type=\"I\" start=\"4\"> shows IV and V. An unordered list shows a {{disc}} by default; the type attribute (circle, square) on <ul> is {{obsolete}} and the CSS property {{list-style-type}} replaces it. In a description list {{<dt>}} holds the term and {{<dd>}} the details; one term may have several descriptions. A {{nested}} list is placed {{inside}} an <li>, before its closing </li>; the markers change automatically (disc, then circle). Only <li> may be a direct child of <ul> or <ol>. A navigation menu is a list of links inside <nav>, styled with CSS list-style: none and display: flex."],
+["1.3 Audio and video","Before HTML5 a page needed a plugin such as {{Adobe Flash}} to play sound or video. HTML5 added {{<audio>}} and {{<video>}}, so the browser plays the files itself. {{controls}} shows the play, pause, volume and seek controls and without it nothing is visible; {{autoplay}} starts playing at load (browsers block it unless the media is {{muted}}); {{loop}} repeats the clip; muted starts silent; width and height size a video; {{poster}} is the picture shown before the video plays. No single format plays everywhere, so the element holds several {{<source>}} children, each with a {{src}} and a {{type}} (the MIME type): audio/mpeg for MP3, audio/ogg for Ogg, video/mp4 for MP4 and video/webm for WebM. The browser plays the {{first}} source it can handle; in the test Chromium skipped MP4 (no H.264 decoder) and used {{WebM}}. The text between the tags is a {{fallback}} for browsers that do not know the element at all, so a modern browser almost never shows it; with an unusable source it draws a greyed-out player (networkState 3). Videos from other sites are embedded with an {{iframe}}."],
+["1.4 Frames and iframes","Early HTML used {{<frameset>}} and {{<frame>}} to divide the window into rectangles, each loading a separate page. Frames are {{obsolete}} in HTML5 because they broke {{bookmarks}}, the Back button, accessibility and search-engine indexing; Chromium still draws them but the validator reports every element as an error. An {{<iframe>}} (inline frame) puts another page in a rectangular window inside the current page and is valid HTML5; uses are maps, videos, payment forms, advertisements and widgets. Its attributes: {{src}} (the page), width and height, {{title}} (for screen-reader users) and {{allowfullscreen}}. The attribute {{frameborder}}=\"0\" is obsolete; use style=\"{{border: 0;}}\". A default iframe has a 2-pixel border, which makes it 4 pixels wider. Embed only trusted sources, because an embedded page can track users and many sites refuse to be embedded. A navigation bar common to every page is better generated by a template or server-side include than by frames."],
+["1.5 Favicons","A {{favicon}} (favourites icon) is the small picture shown in the browser tab beside the title, in the bookmarks list and in the history. Favicons are usually .ico files of 16×16 or 32×32 pixels, but modern browsers also accept {{PNG}} and SVG. It is linked from the {{head}} with <{{link}} rel=\"icon\" href=\"favicon.ico\" type=\"image/x-icon\">; <link> is a {{void}} element. The {{rel}} attribute says this file is the icon, href is the path and {{type}} is the MIME type (image/png for a PNG). If no favicon is given, browsers still request {{/favicon.ico}} from the root of the server; without the file the answer is {{404}} and the tab shows a generic icon. Mistakes: the link placed in the body, a wrong href (no error message) and browser {{caching}}, so reload with the cache cleared to see a new icon."],
+["1.6 Responsive design","{{Responsive web design}} makes one page look good and work well on every screen using {{fluid}} layouts, flexible images and CSS {{media queries}}; before it, many sites kept two copies, a desktop and a mobile site. The {{viewport}} is the visible area of the page in the browser window. A phone that is not told otherwise lays the page out about {{980}} pixels wide and shrinks it, so the text is tiny. The remedy is <meta name=\"viewport\" content=\"{{width=device-width}}, {{initial-scale=1.0}}\"> in the head: the first makes the layout width equal the screen's real width and the second starts at 100% zoom. An image with width=\"600\" makes the page 608 pixels wide on a 360-pixel phone (scrolls sideways). The fluid image rule is img { {{max-width: 100%}}; {{height: auto}}; }: the image is never wider than its container, keeps its proportions and is never enlarged. In the 360-pixel phone the container is 360 - 16 = {{344}} pixels and the height 344 × 400/600 = {{229}}. Without the viewport tag every other technique fails."]
+];
+const DUMPS=[
+{t:"Image formats",p:["JPEG lossy, photographs, no transparency","PNG lossless, transparency, logos and icons","GIF 256 colours, simple animation","WebP smaller than JPEG and PNG","SVG vector, sharp at any size","Lossy discards detail; lossless keeps everything"]},
+{t:"The img element, paths and links",p:["img is void: src, alt, width, height, title","Broken image: icon plus alt text, natural size 0 x 0","Decorative image: alt=\"\"","logo.png, images/a.jpg, ../images/a.jpg, /images/a.jpg, https://host/a.jpg","Image inside a gives an image link","Keep the ratio: 600x400 shown at 300x200"]},
+{t:"Lists",p:["ol order matters, ul bullets, dl term and details","type 1 A a I i; start number; reversed","ul type obsolete: CSS list-style-type","dl, dt term, dd details","Nested list inside an li","Only li directly inside ul and ol","Menu: list of links in nav"]},
+{t:"Audio and video",p:["audio and video replaced Flash plugins","controls, autoplay (muted), loop, muted, poster","source src type: first playable is used","audio/mpeg, audio/ogg, video/mp4, video/webm","Fallback text almost never shown","No controls, no player"]},
+{t:"Frames and iframes",p:["frameset and frame obsolete","Broke bookmarks, Back, accessibility, SEO","iframe valid: src, width, height, title, allowfullscreen","frameborder obsolete: style border 0","Uses: maps, videos, widgets","Embed trusted sources only"]},
+{t:"Favicons",p:["Small icon in tab, bookmarks, history","link rel icon href type in the head","16x16 or 32x32 ico; PNG and SVG accepted","No link: browser asks for /favicon.ico","Mistakes: body, wrong href, cache"]},
+{t:"Responsive design",p:["One page for all screens: fluid layouts, flexible images, media queries","No viewport tag: 980 px layout shrunk","width=device-width, initial-scale=1.0","img max-width 100% and height auto","Never enlarged; proportions kept","344 x 229 on a 360 phone"]}
+];
+
+const SECS=["Image formats","The img element, paths and links","Lists","Audio and video","Frames and iframes","Favicons","Responsive design"];
+const CORE=[
+[0,"What is a pixel-based image and what is a vector image?","A pixel image is a set of dots; a vector image is a set of instructions for drawing shapes."],
+[0,"What does the image format decide?","The file size, the quality and whether parts of the picture can be transparent."],
+[0,"Distinguish lossy from lossless compression.","Lossy throws away detail the eye is unlikely to miss, so the file cannot be restored exactly; lossless shrinks the file without losing anything."],
+[0,"Which format suits photographs and why?","JPEG: lossy with small files, good for smooth gradients; but no transparency."],
+[0,"Which format suits logos, icons and screenshots?","PNG: lossless with an alpha channel (transparency)."],
+[0,"What are the limits and uses of GIF?","Lossless but only 256 colours; for very simple graphics and short animations."],
+[0,"What is WebP?","A lossy or lossless format smaller than JPEG and PNG, supported by all modern browsers."],
+[0,"What is SVG?","A vector format: shapes stored as text, no pixels, so logos and icons stay sharp at any size."],
+[0,"Name the image format that supports transparency with lossless compression.","PNG."],
+[0,"Why did a JPEG logo show a black square on a coloured background?","JPEG cannot store transparency, so the transparent corners became solid."],
+[0,"What happens when a small PNG is enlarged?","The browser stretches the dots and the edges blur; an SVG is redrawn and stays crisp."],
+[0,"Which format gave the smallest file in the test?","WebP (4 952 bytes); GIF was the largest."],
+[0,"Why did PNG beat JPEG in the test?","The test picture was a flat-coloured drawing; for a real photograph JPEG is far smaller."],
+[1,"Is <img> a void element? What attributes does it use?","Yes, no content and no closing tag; src, alt, width, height, title."],
+[1,"What does src hold?","The path or URL of the image file (required)."],
+[1,"What does alt do?","Alternative text shown if the image fails and read aloud by screen readers."],
+[1,"What should alt be for a purely decorative picture?","An empty alt=\"\"."],
+[1,"Why give width and height?","The browser can reserve the space before the file arrives, so the page does not jump."],
+[1,"What does the title attribute of an image do?","Shows tooltip text when the mouse hovers over the image."],
+[1,"What does the browser show for an image whose file is missing?","A broken-image icon followed by the alt text; its natural size is 0 x 0."],
+[1,"Give three causes of a missing image.","Wrong path, wrong file name or extension, file not uploaded."],
+[1,"Write the HTML to display logo.png from the images folder with alt Company Logo.","<img src=\"images/logo.png\" alt=\"Company Logo\">"],
+[1,"Distinguish relative and absolute image paths.","Relative: from the folder of the current page (images/a.jpg); absolute: a full URL (https://host/pic.jpg)."],
+[1,"What does ../images/photo.jpg mean?","Go one folder up, then into the images folder."],
+[1,"What does /images/logo.png mean?","Start from the root of the web server."],
+[1,"A page in /site/pages/ needs /site/images/a.jpg. Write the src.","../images/a.jpg"],
+[1,"Why does images/a.jpg work from index.html but not from pages/about.html?","From pages/ it looks in pages/images/; use ../images/a.jpg."],
+[1,"How is an image made a link?","Place the <img> inside an <a href=\"…\">."],
+[1,"What is the ratio of a 600 × 400 picture and how must it be shown?","3 : 2; 300 × 200 keeps it, 300 × 300 would squash it."],
+[1,"What alt text suits an image link?","Text that says where the link goes, e.g. Visit the target page."],
+[2,"Name the three list types and their elements.","Ordered <ol>, unordered <ul>, description <dl>; items <li>, or <dt> and <dd>."],
+[2,"When is an ordered list used?","For items whose order matters: steps, rankings."],
+[2,"When is an unordered list used?","For items of equal importance with no sequence."],
+[2,"What is a description list for?","Term and meaning pairs: a glossary or FAQ."],
+[2,"What does <li> mean?","A list item inside ol or ul."],
+[2,"Name the type values of <ol>.","1, A, a, I, i (decimal, upper-alpha, lower-alpha, upper-roman, lower-roman)."],
+[2,"What does start do in <ol type=\"A\" start=\"3\">?","start is a number, converted to the letter: the list begins at C."],
+[2,"What does reversed do?","Counts downwards: three items count 3, 2, 1."],
+[2,"What markers has <ol type=\"I\" start=\"4\"> with two items?","IV and V."],
+[2,"What are the markers of <ol type=\"i\" start=\"2\"> with three items?","ii, iii, iv."],
+[2,"Which bullet does <ul> use by default?","A disc."],
+[2,"Why is type on <ul> not recommended and what replaces it?","It is obsolete in HTML5; use CSS list-style-type: circle; or square;."],
+[2,"What do dt and dd hold?","dt: the term; dd: the details; one term may have several dd and several terms may share one."],
+[2,"Where does a nested list go?","Inside an <li>, before its closing </li>, not between two items."],
+[2,"How do markers change in a nested unordered list?","Filled disc at the first level, hollow circle at the second."],
+[2,"What may be a direct child of <ul> or <ol>?","Only <li>; a stray <p> or text is invalid."],
+[2,"How is a navigation menu built?","A list of links inside <nav>; CSS list-style: none and display: flex make a row of buttons."],
+[2,"Why not use <br> to fake a list?","A real list gives structure to screen readers and search engines."],
+[3,"What did pages need before HTML5 to play sound or video?","A plugin such as Adobe Flash."],
+[3,"Which elements does HTML5 offer for media?","<audio> and <video>."],
+[3,"What does controls do?","Shows play, pause, volume and seek controls; without it nothing is visible."],
+[3,"What do autoplay, loop, muted do?","autoplay starts at load (blocked unless muted); loop repeats the clip; muted starts silent."],
+[3,"What is poster?","A picture shown before the video plays."],
+[3,"What does <source> hold?","A file name (src) and its MIME type (type), as a child of audio or video."],
+[3,"Why use several <source> elements?","No single format plays everywhere; the browser uses the first one it can play."],
+[3,"Give the type values for MP3, Ogg, MP4 and WebM.","audio/mpeg, audio/ogg, video/mp4, video/webm."],
+[3,"Why did Chromium choose video.webm?","It has no H.264 decoder, so it skipped the MP4 source and used WebM."],
+[3,"Why is the fallback text seldom seen?","It is for browsers that do not know the element; modern browsers draw a player even if the file is unusable."],
+[3,"What does the browser draw for an unusable source?","A greyed-out player (networkState 3, no source)."],
+[3,"Why is an <audio> without controls invisible?","With no controls attribute and no script there is no player to see."],
+[3,"Which element embeds a YouTube video?","An <iframe> with the embed code the site gives."],
+[4,"What were <frameset> and <frame>?","Obsolete elements that divided the window into rectangles, each loading a separate page."],
+[4,"Why are frames no longer used?","Obsolete in HTML5: they broke bookmarks, the Back button, accessibility and search indexing."],
+[4,"What is an iframe and what are two uses?","An inline frame that embeds another page in a window: a map, a video."],
+[4,"Name the attributes of <iframe>.","src, width, height, title, allowfullscreen."],
+[4,"Why give an iframe a title?","For screen-reader users."],
+[4,"Why is frameborder obsolete and what replaces it?","Presentation belongs to CSS: style=\"border: 0;\"."],
+[4,"How wide is a default iframe of width 300?","304 pixels: the default border is 2 pixels each side."],
+[4,"What is a risk of iframes?","An embedded page can track users or run content you do not control; embed only trusted sources."],
+[4,"What is the best way to share a navigation bar on every page?","A template or server-side include, not frames."],
+[5,"What is a favicon?","The small picture shown in the browser tab, in bookmarks and in history."],
+[5,"Which file types are used for favicons?","Usually .ico of 16×16 or 32×32 pixels; PNG and SVG also accepted."],
+[5,"How is a favicon added?","<link rel=\"icon\" href=\"favicon.ico\" type=\"image/x-icon\"> in the head."],
+[5,"What do rel, href and type mean in the favicon link?","rel=\"icon\": this is the icon; href: the path; type: the MIME type."],
+[5,"What happens with no favicon link?","The browser still requests /favicon.ico from the root of the server."],
+[5,"What status comes back if /favicon.ico does not exist?","404; the tab shows a generic icon."],
+[5,"Is <link> void?","Yes: no closing tag."],
+[5,"Name three favicon mistakes.","Link in the body; wrong href (no error); cached icon not refreshed."],
+[6,"Define responsive web design.","One page that adapts to every screen size using fluid layouts, flexible images and CSS media queries."],
+[6,"What did sites do before responsive design?","Kept two copies, a desktop and a mobile site."],
+[6,"What is the viewport?","The visible area of the page in the browser window."],
+[6,"What happens on a phone without the viewport tag?","The page is laid out about 980 pixels wide and shrunk, so the text is tiny."],
+[6,"Write the viewport meta tag.","<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"],
+[6,"What does width=device-width do?","Sets the layout width equal to the real screen width."],
+[6,"What does initial-scale=1.0 do?","Starts the page at 100% zoom."],
+[6,"Why does width=\"600\" break a 360-pixel phone?","The page becomes 608 pixels wide and scrolls sideways."],
+[6,"Write the fluid image rule.","img { max-width: 100%; height: auto; }"],
+[6,"What does max-width: 100% do?","The image may be as wide as its container but never wider, and is never enlarged."],
+[6,"What does height: auto do?","Keeps the proportions as the width shrinks."],
+[6,"What size is the image on a 360-pixel phone with the fluid rule?","344 × 229: container 360 - 16 = 344, height 344 × 400/600 = 229."],
+[6,"Why must height not be fixed with max-width: 100%?","The picture would be squashed when the width shrinks."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const R=String.raw;
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["Which image format is lossy and best for photographs?",["PNG","JPEG","SVG","GIF"],1,"JPEG."],
+["Which format is lossless and supports transparency?",["JPEG","PNG","MP3","None"],1,"PNG has an alpha channel."],
+["Which format is limited to 256 colours?",["GIF","PNG","WebP","SVG"],0,"GIF."],
+["Which is a vector format?",["JPEG","GIF","SVG","PNG"],2,"SVG shapes are text."],
+["Which format is smaller than JPEG and PNG and modern?",["BMP","WebP","GIF","TIFF"],1,"WebP."],
+["Lossy compression:",["Keeps every detail","Discards detail the eye may not miss","Is only for text","Needs transparency"],1,"The original cannot be restored exactly."],
+["A JPEG logo on a coloured background shows a box because JPEG:",["Is lossless","Cannot store transparency","Has 256 colours","Is a vector"],1,"No alpha channel."],
+["An enlarged small PNG looks blurred because:",["It is vector","The dots are stretched","It is lossy","It is a GIF"],1,"Pixels are stretched; an SVG is redrawn."],
+["The img element is:",["A container with a closing tag","A void element","A list","A frame"],1,"No content, no closing tag."],
+["Which attribute gives the path of an image?",["alt","src","href","title"],1,"src."],
+["The alt attribute is shown when:",["The mouse hovers","The image fails or for screen readers","The page prints","The image loads"],1,"Alternative text."],
+["The tooltip on hover comes from:",["alt","title","src","width"],1,"title."],
+["The natural size of a broken image is:",["Its width attribute","0 x 0","100 x 100","600 x 400"],1,"Nothing loaded."],
+["For a purely decorative picture write:",["alt=\"image\"","alt=\"\"","no src","alt=\"decor.png\""],1,"An empty alt."],
+["From /site/pages/page.html, src=\"../images/a.jpg\" looks in:",["/site/pages/images/","/site/images/","/images/","/site/pages/"],1,"One up, then images."],
+["src=\"/images/logo.png\" starts from:",["The current folder","The root of the server","One folder up","Another site"],1,"A leading slash."],
+["A page is /site/index.html. Which src reaches /site/images/a.jpg?",["../images/a.jpg","images/a.jpg","/a.jpg","images.a.jpg"],1,"The sub-folder of the page's folder."],
+["To make an image a link, put the <img> inside:",["<p>","<a>","<link>","<nav>"],1,"The anchor."],
+["A 600 × 400 picture shown 300 high keeps its ratio at width:",["300","450","200","600"],1,"3 : 2 gives 450 × 300."],
+["Which element makes a numbered list?",["<ul>","<ol>","<dl>","<li>"],1,"ol."],
+["Which element holds a term in a description list?",["<dd>","<dt>","<dl>","<li>"],1,"dt."],
+["Which list suits a glossary?",["<ol>","<ul>","<dl>","<nav>"],2,"Term and details."],
+["<ol type=\"A\" start=\"3\"> begins at:",["A","C","3","I"],1,"3 becomes C."],
+["<ol type=\"i\"> with four items shows:",["1 2 3 4","i ii iii iv","a b c d","I II III IV"],1,"Lower Roman."],
+["<ol reversed> with three items counts:",["1 2 3","3 2 1","A B C","0 1 2"],1,"Downwards."],
+["The type attribute of <ul> is:",["Recommended","Obsolete","Required","A void element"],1,"Use CSS list-style-type."],
+["Which CSS property changes bullets?",["list-style-type","bullet","marker-type","type"],0,"list-style-type."],
+["A nested list goes:",["Between two li","Inside an li","After the ul","In the head"],1,"Inside the li."],
+["What may be a direct child of <ul>?",["<p>","<li>","text","<a>"],1,"Only li."],
+["Which two properties turn a nav list into a row of buttons?",["list-style: none and display: flex","float and clear","font and color","margin only"],0,"As in the menu page."],
+["Which element plays sound without plugins?",["<sound>","<audio>","<music>","<bgsound>"],1,"audio."],
+["Which attribute shows the play button?",["play","controls","buttons","show"],1,"controls."],
+["Browsers ignore autoplay unless the media is:",["Looped","Muted","Large","Short"],1,"Muted."],
+["The poster attribute belongs to:",["audio","video","img","iframe"],1,"A picture before play."],
+["The type of an MP3 source is:",["audio/mp3","audio/mpeg","sound/mp3","mp3"],1,"audio/mpeg."],
+["Several <source> elements exist because:",["It is faster","No format plays everywhere","Each is a track","It is required"],1,"The first playable is used."],
+["The fallback text of audio is seldom seen because:",["It is hidden by CSS","Modern browsers know the element","It is too long","It needs a poster"],1,"Only old browsers show it."],
+["<frameset> in HTML5 is:",["Valid","Obsolete","Required","A void element"],1,"Use iframe."],
+["Which element embeds another page in a window?",["<frame>","<iframe>","<embedpage>","<object>"],1,"iframe."],
+["The modern way to remove an iframe border is:",["frameborder=\"0\"","style=\"border: 0;\"","border=\"none\"","noborder"],1,"CSS."],
+["Which attribute describes an iframe for screen readers?",["alt","title","name","src"],1,"title."],
+["A favicon link goes in the:",["body","head","footer","nav"],1,"head."],
+["The rel value of a favicon link is:",["shortcut","icon","image","favicon"],1,"rel=\"icon\"."],
+["With no favicon link the browser requests:",["Nothing","/favicon.ico","/icon.png","/index.ico"],1,"The root file."],
+["Without the viewport tag a phone lays the page out about:",["360 px","980 px","1920 px","100 px"],1,"Then shrinks it."],
+["Which line makes a page mobile-friendly?",["<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">","<link rel=\"mobile\">","<meta charset=\"UTF-8\">","<title>Mobile</title>"],0,"The viewport meta tag."],
+["Which rule makes an image fluid?",["img { width: 600px; }","img { max-width: 100%; height: auto; }","img { float: left; }","img { height: 100px; }"],1,"Never wider than its container."]
+];
+const FILL=[
+["A ___ compression discards detail that cannot be restored.",["lossy"],"Lossy."],
+["___ is the vector image format.",["svg"],"SVG."],
+["The ___ format supports only 256 colours.",["gif"],"GIF."],
+["The ___ attribute of img gives the file path.",["src"],"src."],
+["The ___ attribute of img gives the alternative text.",["alt"],"alt."],
+["A purely decorative image should have an ___ alt attribute.",["empty"],"alt=\"\"."],
+["In ../images/a.jpg the ../ means go one folder ___.",["up"],"Parent folder."],
+["A path starting with / begins at the ___ of the server.",["root"],"Root."],
+["An image becomes a link when placed inside an ___ element.",["a","<a>","anchor"],"The anchor."],
+["The ___ list element holds terms and details.",["dl","description"],"dl."],
+["Each item of a list is an ___ element.",["li","<li>"],"li."],
+["The ___ attribute of ol chooses the marker style.",["type"],"type."],
+["The ___ attribute of ol sets the first number.",["start"],"start."],
+["The ___ attribute makes an ordered list count downwards.",["reversed"],"reversed."],
+["The CSS property ___ replaces type on ul.",["list-style-type"],"list-style-type."],
+["A nested list is placed inside an ___.",["li","<li>"],"li."],
+["In a description list <dt> holds the ___.",["term"],"Term."],
+["The ___ attribute shows the browser's play controls.",["controls"],"controls."],
+["The ___ attribute repeats a clip.",["loop"],"loop."],
+["The ___ attribute of video shows a picture before play.",["poster"],"poster."],
+["A <source> has src and ___ attributes.",["type"],"MIME type."],
+["The MIME type of Ogg audio is audio/___.",["ogg"],"audio/ogg."],
+["The MIME type of WebM video is video/___.",["webm"],"video/webm."],
+["Before HTML5 sound and video needed a ___ such as Flash.",["plugin"],"Plugin."],
+["<frameset> is ___ in HTML5.",["obsolete"],"Use iframe."],
+["An ___ embeds another page in a rectangular window.",["iframe"],"iframe."],
+["A favicon is added with <link rel=\"___\" href=\"favicon.ico\">.",["icon"],"rel=icon."],
+["Browsers ask for /favicon.ico in the ___ of the server when no link is given.",["root"],"Root."],
+["Without the viewport tag a phone lays out the page about ___ pixels wide.",["980"],"980."],
+["The fluid image rule is max-width: ___; height: auto;",["100%"],"100%."]
+];
+const TF=[
+["JPEG supports transparency.",false,"It does not."],
+["PNG is lossless.",true,"Yes."],
+["GIF can show millions of colours.",false,"Only 256."],
+["SVG images lose quality when enlarged.",false,"They are redrawn."],
+["WebP files are usually smaller than JPEG.",true,"Yes."],
+["<img> needs a closing tag.",false,"Void element."],
+["A broken image shows its alt text.",true,"With a broken-image icon."],
+["Width and height help the browser reserve space.",true,"The page does not jump."],
+["A relative path is preferred for local images.",true,"It survives a move."],
+["../ moves up one folder.",true,"Yes."],
+["Setting width 300 and height 300 on a 600 × 400 picture keeps its ratio.",false,"It squashes it."],
+["An <img> inside <a> makes a link.",true,"Yes."],
+["An image named image1 is a good alt text.",false,"Useless to a blind user."],
+["The start attribute of <ol> takes a letter for type=\"A\".",false,"A number."],
+["<ol reversed> counts downwards.",true,"Yes."],
+["The type attribute of <ul> is recommended in HTML5.",false,"Obsolete."],
+["A nested list is placed between two <li> elements.",false,"Inside an li."],
+["A <p> may be a direct child of <ul>.",false,"Only li."],
+["<dd> holds the term of a description list.",false,"dt holds the term."],
+["A menu is a list of links.",true,"Inside nav."],
+["<audio> without controls shows a player.",false,"It is invisible."],
+["The browser plays the first <source> it can handle.",true,"Yes."],
+["The fallback text of audio is always shown.",false,"Seldom shown."],
+["autoplay works in browsers even when the sound is on.",false,"Blocked unless muted."],
+["<frameset> is valid in HTML5.",false,"Obsolete."],
+["frameborder is the modern way to remove an iframe border.",false,"Use CSS."],
+["An iframe should have a title.",true,"For screen readers."],
+["Embed only trusted sources in an iframe.",true,"They can track users."],
+["The favicon link belongs in the body.",false,"In the head."],
+["A browser asks for /favicon.ico when no link is given.",true,"Yes."],
+["Without the viewport tag a phone lays out the page about 980 pixels wide.",true,"Yes."],
+["max-width: 100% enlarges small images to fill the container.",false,"It never enlarges."],
+["height: auto keeps the proportions of a fluid image.",true,"Yes."]
+];
+const VSA=[
+["Name the lossless format with transparency.",["png"],"PNG.",1],
+["Which format is best for photographs?",["jpeg","jpg"],"JPEG.",1],
+["Which format is a vector format?",["svg"],"SVG.",1],
+["Which attribute gives the text shown when an image cannot load?",["alt"],"alt.",1],
+["Is img a void element?",["yes","void"],"Yes.",1],
+["Which element makes a numbered list? A bulleted list?",["ol","ul"],"ol and ul.",1],
+["Which element holds a term in a description list?",["dt"],"dt.",1],
+["Which attribute adds play and pause buttons to audio?",["controls"],"controls.",1],
+["Which tag embeds another web page inside a page?",["iframe"],"<iframe>.",1],
+["Which element links a favicon, and where does it go?",["link","head"],"<link>, in the head.",1],
+["What does ../ mean in a path?",["up","one","folder"],"Go up one folder.",1],
+["What is lossy compression?",["discard","detail"],"It discards detail that cannot be restored.",1],
+["What does the poster attribute do?",["picture","before"],"Shows a picture before the video plays.",1],
+["Which CSS property replaces type on ul?",["list-style-type"],"list-style-type.",1],
+["Why are frames obsolete?",["bookmark","accessib"],"They break bookmarks, Back and accessibility.",1],
+["Which tag makes a page mobile-friendly?",["viewport","meta"],"The viewport meta tag.",1],
+["What does max-width: 100% do to an image?",["never","wider","container"],"It is never wider than its container.",1],
+["What does height: auto do?",["proportion","ratio"],"Keeps the proportions.",1],
+["What does the type attribute of source hold?",["mime"],"The MIME type, e.g. audio/mpeg.",1],
+["Which element holds the details of a term?",["dd"],"dd.",1]
+];
+const CALC=[
+{q:"Each list item is shown with its marker; a marker of an ordered list is followed by a full stop. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ol type="A" start="3">
+        <li>Third</li>
+        <li>Fourth</li>
+    </ol>
+</body>
+</html>`,alts:[["cthirddfourth"]],ex:1,model:"C. Third / D. Fourth",e:"The page displays: C. Third / D. Fourth"},
+{q:"Each list item is shown with its marker; a marker of an ordered list is followed by a full stop. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ol type="I" start="4">
+        <li>A</li>
+        <li>B</li>
+    </ol>
+</body>
+</html>`,alts:[["ivavb"]],ex:1,model:"IV. A / V. B",e:"The page displays: IV. A / V. B"},
+{q:"Each list item is shown with its marker; a marker of an ordered list is followed by a full stop. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ol type="i" start="2">
+        <li>x</li>
+        <li>y</li>
+        <li>z</li>
+    </ol>
+</body>
+</html>`,alts:[["iixiiiyivz"]],ex:1,model:"ii. x / iii. y / iv. z",e:"The page displays: ii. x / iii. y / iv. z"},
+{q:"Each list item is shown with its marker; a marker of an ordered list is followed by a full stop. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ol reversed>
+        <li>Bronze</li>
+        <li>Silver</li>
+        <li>Gold</li>
+    </ol>
+</body>
+</html>`,alts:[["3bronze2silver1gold"]],ex:1,model:"3. Bronze / 2. Silver / 1. Gold",e:"The page displays: 3. Bronze / 2. Silver / 1. Gold"},
+{q:"Each list item is shown with its marker; a marker of an ordered list is followed by a full stop. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ol>
+        <li>Open</li>
+        <li>Click</li>
+    </ol>
+</body>
+</html>`,alts:[["1open2click"]],ex:1,model:"1. Open / 2. Click",e:"The page displays: 1. Open / 2. Click"},
+{q:"An unordered list shows a disc at the first level and a hollow circle at the second. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ul>
+        <li>HTML</li>
+        <li>CSS
+            <ul>
+                <li>Box</li>
+            </ul>
+        </li>
+    </ul>
+</body>
+</html>`,alts:[["htmlcssbox"]],ex:1,model:"• HTML / • CSS / ◦ Box",e:"The page displays: • HTML / • CSS / ◦ Box"},
+{q:"What does the page display (one line for each dt and dd)? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <dl>
+        <dt>HTML</dt>
+        <dd>Markup language</dd>
+        <dt>CSS</dt>
+        <dd>Style sheets</dd>
+    </dl>
+</body>
+</html>`,alts:[["htmlmarkuplanguagecssstylesheets"]],ex:1,model:"HTML / Markup language / CSS / Style sheets",e:"The page displays: HTML / Markup language / CSS / Style sheets"},
+{q:"An image is shown as [image: its alt text]. What does the page display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="logo.png" alt="Logo">
+    <p>Welcome</p>
+</body>
+</html>`,alts:[["imagelogowelcome"]],ex:1,model:"[image: Logo] / Welcome",e:"The page displays: [image: Logo] / Welcome"},
+{q:"An image is shown as [image: its alt text]. What does the page display?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <a href="next.html"><img src="go.png" alt="Next page"></a>
+</body>
+</html>`,alts:[["imagenextpage"]],ex:1,model:"[image: Next page]",e:"The page displays: [image: Next page]"},
+{q:"A player is shown as [audio player]. Which text does a modern browser display?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <audio controls>
+        <source src="a.mp3" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+</body>
+</html>`,alts:[["audioplayer"]],ex:1,model:"[audio player]",e:"The page displays: [audio player]"},
+{q:"A video with controls is shown as [video player]. What does a modern browser display? Write each line the page displays, separating the lines by a slash.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <video width="320" height="180" controls poster="p.jpg">
+        <source src="v.mp4" type="video/mp4">
+        Fallback sentence.
+    </video>
+    <p>After</p>
+</body>
+</html>`,alts:[["videoplayerafter"]],ex:1,model:"[video player] / After",e:"The page displays: [video player] / After"},
+{q:"An iframe is shown as [embedded page: its title]. What does the page display?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <iframe src="map.html" width="300" height="200" title="School map"></iframe>
+</body>
+</html>`,alts:[["embeddedpageschoolmap"]],ex:1,model:"[embedded page: School map]",e:"The page displays: [embedded page: School map]"},
+{q:"How many li elements does this list contain, and what marker has each? Write the count.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ul>
+        <li>A</li>
+        <li>B</li>
+        <li>C</li>
+    </ul>
+</body>
+</html>`,alts:[["3"]],ex:1,model:"3",e:"Answer: 3"},
+{q:"This page is /site/pages/about.html. Which file does the browser look for? Write the path.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="images/a.jpg" alt="A">
+</body>
+</html>`,alts:[["sitepagesimagesajpg"]],ex:1,model:"/site/pages/images/a.jpg",e:"Answer: /site/pages/images/a.jpg"},
+{q:"This page is /site/pages/about.html. Which file does the browser look for? Write the path.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="../images/a.jpg" alt="A">
+</body>
+</html>`,alts:[["siteimagesajpg"]],ex:1,model:"/site/images/a.jpg",e:"Answer: /site/images/a.jpg"},
+{q:"This page is /site/pages/about.html. Which file does the browser look for? Write the path.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="/images/a.jpg" alt="A">
+</body>
+</html>`,alts:[["imagesajpg"]],ex:1,model:"/images/a.jpg",e:"Answer: /images/a.jpg"},
+{q:"This page is /site/pages/about.html. Which file does the browser look for? Write the path.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="logo.png" alt="Logo">
+</body>
+</html>`,alts:[["sitepageslogopng"]],ex:1,model:"/site/pages/logo.png",e:"Answer: /site/pages/logo.png"},
+{q:"photo.jpg is 600 × 400 pixels. Is the picture distorted? Answer yes or no.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="photo.jpg" alt="P" width="300" height="200">
+</body>
+</html>`,alts:[["no"]],ex:1,model:"no",e:"Answer: no"},
+{q:"photo.jpg is 600 × 400 pixels. Is the picture distorted? Answer yes or no.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="photo.jpg" alt="P" width="300" height="300">
+</body>
+</html>`,alts:[["yes"]],ex:1,model:"yes",e:"Answer: yes"},
+{q:"photo.jpg is 600 × 400 pixels. On a phone 360 pixels wide the container is 360 - 16 wide. How wide is the picture drawn, in pixels?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <img src="photo.jpg" alt="P">
+</body>
+</html>`,alts:[["344"]],ex:1,model:"344",e:"Answer: 344"},
+{q:"photo.jpg is 600 × 400 pixels. On a phone 360 pixels wide (container 344 wide) how high is the picture drawn? Round to a whole number.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <img src="photo.jpg" alt="P">
+</body>
+</html>`,alts:[["229"]],ex:1,model:"229",e:"Answer: 229"},
+{q:"On a 1000-pixel desktop (container wider than 600) how wide is the 600-pixel picture drawn?",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <img src="photo.jpg" alt="P">
+</body>
+</html>`,alts:[["600"]],ex:1,model:"600",e:"Answer: 600"},
+{q:"A browser can play both formats. Which file does it choose? Write the file name.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <audio controls>
+        <source src="a.ogg" type="audio/ogg">
+        <source src="a.mp3" type="audio/mpeg">
+    </audio>
+</body>
+</html>`,alts:[["aogg"]],ex:1,model:"a.ogg",e:"Answer: a.ogg"},
+{q:"A browser has no H.264 decoder, so it cannot play MP4. Which file does it play? Write the file name.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <video controls>
+        <source src="v.mp4" type="video/mp4">
+        <source src="v.webm" type="video/webm">
+    </video>
+</body>
+</html>`,alts:[["vwebm"]],ex:1,model:"v.webm",e:"Answer: v.webm"}
+];
+const SHORT=[
+["Distinguish lossy from lossless compression.","Lossy compression throws away detail the eye is unlikely to miss, so the file shrinks but cannot be restored exactly (JPEG). Lossless compression shrinks the file without losing anything (PNG, GIF).",["lossy discards","lossless nothing lost"]],
+["Give one use each of JPEG, PNG, GIF and SVG.","JPEG: photographs. PNG: logos, icons and screenshots with transparency. GIF: very simple graphics and short animations (256 colours). SVG: logos and icons that must stay sharp at any size.",["jpeg photographs","png logos","gif animation","svg sharp"]],
+["Why should width and height be given on an image?","The browser can reserve the space before the file arrives, so the page does not jump while it loads; they also set the displayed size, which should keep the picture's ratio.",["reserve space","page does not jump"]],
+["Why is alt important? What should it be for a purely decorative image?","alt is shown if the image fails and is read aloud by screen readers, so a blind user learns what the picture shows. For a purely decorative picture write alt=\"\".",["screen readers","empty alt"]],
+["Distinguish a relative from an absolute path with an example of each.","A relative path starts from the folder of the current page, e.g. images/photo.jpg or ../images/photo.jpg, and keeps working if the site moves. An absolute path is a full URL, e.g. https://www.example.com/images/photo.jpg, used for other servers.",["relative","absolute","example"]],
+["What does ../images/logo.png mean?","Go up one folder from the current page's folder, then into the images folder and take logo.png.",["up one folder","images"]],
+["Distinguish the type and start attributes of <ol>.","type chooses the marker style (1, A, a, I, i); start gives the first number, always a number: type=\"A\" start=\"3\" begins at C.",["type marker","start number"]],
+["Why is type on <ul> not recommended? What replaces it?","It is obsolete in HTML5 and the validator warns; the CSS property list-style-type (circle, square) replaces it.",["obsolete","list-style-type"]],
+["How is a nested list written?","The inner <ul> or <ol> is placed inside an <li> of the outer list, before its closing </li>, not between two items; the markers change automatically.",["inside li","before closing"]],
+["What is the purpose of several <source> elements?","No single format plays everywhere. Each source names a file and its MIME type and the browser plays the first one it can handle, so a second format protects the browsers that cannot play the first.",["first it can play","formats"]],
+["Why is the fallback text of <audio> seldom seen?","It is for browsers that do not know the element at all; modern browsers know it, so even with an unusable file they draw a greyed-out player instead of the text.",["old browsers","player instead"]],
+["Why are frames no longer used?","Frames (frameset and frame) are obsolete in HTML5: they broke bookmarks, the Back button, accessibility and search-engine indexing; the validator reports them as errors.",["obsolete","bookmarks","accessibility"]],
+["State two uses of an iframe.","Embedding a map from another site, and embedding a video such as a YouTube player (also payment forms, advertisements and widgets).",["map","video"]],
+["What happens if a page has no favicon link?","The browser still requests /favicon.ico from the root of the server; if the file exists it is used, otherwise the answer is 404 and the tab shows a generic icon.",["favicon.ico root","404 generic"]],
+["What is the viewport? What does width=device-width do?","The viewport is the visible area of the page in the browser window. width=device-width makes the layout width equal the real width of the screen, instead of the 980 pixels a phone assumes.",["visible area","layout width screen"]],
+["What do max-width: 100% and height: auto do for an image?","max-width: 100% lets the image be as wide as its container but never wider (and never enlarged); height: auto keeps its proportions as the width shrinks.",["never wider","proportions"]],
+["Name three causes of a broken image.","A wrong path (image/ for images/, or forgetting ../), a wrong file name or extension, and a file that was not uploaded.",["wrong path","file name","not uploaded"]],
+["Distinguish <dt> and <dd> in a description list.","<dt> holds the term; <dd> holds its details or description; one term may have several dd and several terms may share one.",["dt term","dd details"]]
+];
+const LONG=[
+["Compare the five web image formats, with the use of each and the idea of lossy and lossless compression.","JPEG: lossy, small files, photographs and gradients, no transparency. PNG: lossless with an alpha channel, logos, icons, screenshots. GIF: lossless but only 256 colours, simple graphics and short animations. WebP: lossy or lossless, smaller than JPEG and PNG, any picture on modern browsers. SVG: vector, shapes as text, no pixels, sharp at any size. Lossy compression discards detail so the file cannot be restored exactly; lossless keeps everything. In the test JPEG could not keep transparency, a 32-pixel PNG blurred when enlarged while SVG stayed crisp, and WebP was smallest.",["jpeg","png","gif","webp","svg","lossy lossless"]],
+["Explain the <img> element and its attributes, with what happens when the path is wrong.","<img> is void: no content and no closing tag. src gives the path or URL (required); alt gives alternative text shown if the image fails and read aloud by screen readers (alt=\"\" for decoration); width and height give the display size so the browser reserves space; title is the hover tooltip. Example: <img src=\"images/photo.jpg\" alt=\"A mountain landscape\" width=\"300\" height=\"200\">. If the path is wrong there is no error message: the browser draws a broken-image icon and the alt text, and the natural size is 0 × 0. Check the folder, the spelling and the upload.",["void","src alt","width height","broken image"]],
+["Explain relative and absolute paths with the folder structure of a small site and an example for each case.","Site: /site/index.html, /site/images/photo.jpg, /site/pages/page.html. From the page /site/pages/page.html: logo.png is the same folder (/site/pages/logo.png); images/photo.jpg is the sub-folder (/site/pages/images/photo.jpg); ../images/photo.jpg goes one folder up then images (/site/images/photo.jpg); /images/logo.png starts at the root of the server; https://host/pic.jpg is an absolute URL on another server. Local images should use relative paths, which keep working if the site moves.",["same folder","sub-folder","../","root","absolute"]],
+["Explain ordered, unordered and description lists with an example of each, and the attributes of <ol>.","<ol> numbers items whose order matters: <ol><li>Open</li><li>Click</li></ol>. <ul> shows bullets for items of equal importance. <dl> pairs terms and details: <dl><dt>HTML</dt><dd>Markup language</dd></dl>. Attributes of ol: type (1, A, a, I, i), start (a number: type=\"A\" start=\"3\" begins at C) and reversed (counts down). The type of ul is obsolete; CSS list-style-type is used.",["ol","ul","dl dt dd","type start reversed"]],
+["Explain nested lists and the use of a list to build a navigation menu.","A nested list is placed inside an <li> of another list, before its closing </li>; the inner list may be a different type, and the markers change automatically (disc, circle, numbers). Only li may be a direct child of ul or ol. A menu is a list of links inside <nav>: <nav><ul><li><a href=\"a.html\">A</a></li></ul></nav>; CSS list-style: none, margin and padding 0 and display: flex turn it into a row of buttons while the HTML stays unchanged.",["inside li","nav","list-style none","display flex"]],
+["Explain the <audio> and <video> elements, their attributes and the role of <source>.","HTML5 plays media without plugins such as Flash. <audio controls> and <video width height controls poster> embed players. controls shows the browser's play, pause, volume and seek controls (without it nothing is visible); autoplay starts at load but is blocked unless muted; loop repeats; muted starts silent; poster is the picture shown before play. Each <source src type> names one file and its MIME type (audio/mpeg, audio/ogg, video/mp4, video/webm); the browser plays the first it can handle. The text between the tags is a fallback seldom shown.",["controls","autoplay loop muted","poster","source type","first"]],
+["Explain frames and iframes and why one is obsolete and the other is not.","<frameset> and <frame> divided the window into rectangles, each loading a page. They are obsolete in HTML5 because they broke bookmarks, the Back button, accessibility and search indexing; Chromium still draws them but the validator reports errors. An <iframe src width height title allowfullscreen> embeds another page in a window inside the current page and is valid; uses are maps, videos, payment forms and widgets. frameborder is obsolete: use style=\"border: 0;\". Embed only trusted sources, because embedded pages can track users.",["frameset obsolete","bookmarks","iframe valid","map video"]],
+["Explain favicons: what they are, how they are added, and what the browser does when none is given.","A favicon is the small picture in the browser tab, bookmarks list and history; usually .ico of 16×16 or 32×32 pixels, though PNG and SVG work. It is added in the head with <link rel=\"icon\" href=\"favicon.ico\" type=\"image/x-icon\">; link is void; rel says it is the icon, href is the path and type is the MIME type. With no link the browser requests /favicon.ico from the root of the server (200 if it exists, else 404 and a generic icon). Mistakes: link in the body, wrong href, cached icon.",["tab bookmarks","link rel icon","favicon.ico root","mistakes"]],
+["Explain responsive web design, the viewport meta tag and the fluid-image rule.","Responsive web design makes one page work on every screen using fluid layouts, flexible images and CSS media queries, instead of separate desktop and mobile sites. The viewport is the visible area of the page. Without <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> a phone lays the page out about 980 pixels wide and shrinks it. width=device-width sets the layout width to the screen width; initial-scale=1.0 starts at 100% zoom. A fixed width=\"600\" image makes the page 608 pixels wide on a 360-pixel phone. The rule img { max-width: 100%; height: auto; } keeps the image within its container (344 × 229 on the phone), keeps its proportions and never enlarges it.",["responsive","viewport","980","max-width 100%","height auto"]],
+["Describe how you would test whether a page is correct and mobile-friendly.","Validate the HTML with the W3C checker (no errors or warnings); open the page in a browser and check that every image loads (broken images show the alt text), that lists, media and iframes behave, and that the favicon is requested; check that the viewport meta tag is present; view the page in a phone-sized window (emulation) to see that the layout width equals the screen, that the text is readable and that nothing scrolls sideways; check the fluid image rule.",["validator","browser","phone size","viewport"]]
+];
+const APP=[
+["A page shows the words Company Logo with a small broken icon instead of the logo. Give three possible causes.","The src path is wrong (for example image/ for images/, or ../ forgotten), the file name or extension is wrong (case counts on a server), or the file was not uploaded.",["wrong path","file name","not uploaded"]],
+["<img src=\"images/a.jpg\"> works on index.html but not on pages/about.html. Explain and fix.","From pages/about.html the browser looks in pages/images/. Fix: climb one folder with ../images/a.jpg, or use the root path /images/a.jpg.",["pages/images","../images/a.jpg"]],
+["A logo saved as JPEG shows a white box on a coloured background. What went wrong and what should be done?","JPEG cannot store transparency, so the transparent corners became solid white. Save the logo as PNG (or SVG), which keep the transparency.",["no transparency","png"]],
+["A steps list shows 1, 2, 3 but the designer wants it to begin at 5. Which attribute is used?","The start attribute of the ol element: <ol start=\"5\">.",["start","ol"]],
+["A student wrote <ul><p>Item</p></ul>. What is wrong?","Only <li> may be a direct child of <ul>; the item must be <li>Item</li> (a paragraph can go inside the li).",["only li","li"]],
+["A video plays in one browser but a blank box appears in another. How can you make it work in both?","The second browser cannot play the format. Add a second <source> with another format and type (for example WebM after MP4); the browser uses the first it can play.",["second source","another format"]],
+["A school wants a map of its location on its page. Which element is suitable, and what is one risk?","An <iframe> with the embed code of the map service (with a title, width and height). Risk: the embedded page can track users or run content you do not control, and some sites refuse to be embedded; use trusted sources only.",["iframe","risk track"]],
+["A page looks tiny on a phone although the text is 16 pixels. Find the cause and write the fix.","The viewport meta tag is missing, so the phone lays the page out about 980 pixels wide and shrinks it. Fix: <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> in the head.",["viewport missing","980","meta tag"]],
+["A 600-pixel banner makes a phone page scroll sideways. Give the fix with the two CSS lines.","The fixed width makes the page wider than the screen. Remove the width and height attributes and add img { max-width: 100%; height: auto; } so the image shrinks to the container and keeps its proportions.",["max-width 100%","height auto"]],
+["The favicon does not appear. Give three possible causes.","The link is in the body instead of the head; the href path is wrong (no error message); the browser cached the old icon, so reload with the cache cleared.",["head","href","cache"]]
+];
+MCQ.forEach((m,i)=>{const r=(i*3+1)%4;const ans=m[1][m[2]];const rot=m[1].slice(r).concat(m[1].slice(0,r));m[1]=rot;m[2]=rot.indexOf(ans);});
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson25-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Image formats",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Five formats",d:"A format decides the file size, the quality and whether parts of the picture can be transparent.",t:T[0]},
+ {h:"Lossy and lossless",d:"Compression either discards detail or keeps everything.",t:T[2]},
+ {h:"One picture in five formats",d:"The lab shows only the alt text of each image, because the files are not here; read the markup against Table 1.1.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formats</title>
+</head>
+<body>
+    <h1>One picture, five formats</h1>
+    <p>
+        <img src="images/photo.jpg" alt="JPEG version" width="120">
+        <img src="images/photo.png" alt="PNG version" width="120">
+        <img src="images/photo.webp" alt="WebP version" width="120">
+        <img src="images/photo.gif" alt="GIF version" width="120">
+    </p>
+    <div style="background: #f4c430; padding: 8px;">
+        <img src="images/logo.png" alt="PNG logo with transparency" width="90">
+        <img src="images/logo_flat.jpg" alt="JPEG logo with white corners" width="90">
+        <img src="images/logo.svg" alt="SVG logo" width="90">
+    </div>
+</body>
+</html>`,tr:"Change the alt of the JPEG logo to describe a white box and think why it appears."}},
+ {h:"Measured file sizes",d:"Sizes of the test files in bytes.",t:T[1]},
+ {h:"What the test showed",d:"Transparency, scaling and size.",t:T[3]}
+]},
+{t:"The img element, paths and links",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"The attributes of img",d:"img is void: it has no closing tag.",t:T[4]},
+ {h:"Three images",d:"Two load and one does not: the browser would show a broken-image icon and the alt text.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images</title>
+</head>
+<body>
+    <h1>Images</h1>
+    <img src="images/photo.jpg" alt="A mountain landscape" width="300" height="200">
+    <img src="images/logo.png" alt="Company Logo" title="Hover tooltip text" width="100" height="100">
+    <img src="images/missing.jpg" alt="A picture that failed to load" width="220" height="40">
+</body>
+</html>`,tr:"Remove alt from the first image and read the checker."}},
+ {h:"Width, height and ratio",d:"Keep the picture's proportions.",t:T[8]},
+ {h:"Alt text",d:"What to write in alt.",t:T[7]},
+ {h:"Image paths",d:"Table 1.4 for a page at /site/pages/page.html. Use the Path resolver of the Code lab to try your own.",t:T[5]},
+ {h:"Four paths from a page in the site folder",d:"One of the four is wrong on purpose: image/ instead of images/.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paths</title>
+</head>
+<body>
+    <h1>Paths</h1>
+    <p><img src="images/photo.jpg" alt="Same-folder-tree path" width="90">
+        <img src="/images/logo.png" alt="Root-relative path" width="90">
+        <img src="http://127.0.0.1:8766/images/logo.svg" alt="Absolute URL" width="90">
+        <img src="image/photo.jpg" alt="Wrong folder name" width="140" height="30"></p>
+    <p><a href="pages/i03b.html">Open a page one folder deeper</a></p>
+</body>
+</html>`,tr:"Correct the fourth path to images/photo.jpg."}},
+ {h:"Paths from a sub-folder",d:"The page in pages/ needs ../ to climb out.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paths from a sub-folder</title>
+</head>
+<body>
+    <h1>One folder deeper</h1>
+    <p><img src="../images/photo.jpg" alt="One level up, then images" width="90">
+        <img src="logo.png" alt="Same folder" width="90">
+        <img src="images/photo.jpg" alt="Forgot the .. (broken)" width="140" height="30"></p>
+</body>
+</html>`,tr:"Delete ../ from the first image and think what the browser would look for."}},
+ {h:"Why an image is not shown",d:"Check the path, the name and the upload.",t:T[6]},
+ {h:"An image as a link",d:"Place the image inside the anchor.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image link</title>
+</head>
+<body>
+    <h1>An image as a link</h1>
+    <a href="i04target.html">
+        <img src="images/photo.jpg" alt="Visit the target page" width="200">
+    </a>
+</body>
+</html>`,tr:"Change the alt text to something useless such as image1 and think why that is a bug."}}
+]},
+{t:"Lists",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Three list types",d:"Ordered, unordered and description.",t:T[9]},
+ {h:"Four ordered lists",d:"Predict the markers before you read the report: default, A from 3, lower roman, reversed.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordered lists</title>
+</head>
+<body>
+    <h1>Ordered lists</h1>
+    <h2>Default (numbers)</h2>
+    <ol type="1">
+        <li>Open your web browser</li>
+        <li>Navigate to the website</li>
+        <li>Click the Login button</li>
+    </ol>
+    <h2>Capital letters, starting at C</h2>
+    <ol type="A" start="3">
+        <li>Third item (C)</li>
+        <li>Fourth item (D)</li>
+    </ol>
+    <h2>Lower-case Roman</h2>
+    <ol type="i">
+        <li>First</li>
+        <li>Second</li>
+        <li>Third</li>
+        <li>Fourth</li>
+    </ol>
+    <h2>Counting down (reversed)</h2>
+    <ol reversed>
+        <li>Bronze</li>
+        <li>Silver</li>
+        <li>Gold</li>
+    </ol>
+</body>
+</html>`,tr:"Change type=\"A\" start=\"3\" to type=\"I\" start=\"4\" and read the markers."}},
+ {h:"The type values",d:"Five marker styles.",t:T[10]},
+ {h:"Attributes of ol",d:"type, start and reversed.",t:T[11]},
+ {h:"Unordered lists with the type attribute",d:"The browser obeys type on ul, but the checker warns that it is obsolete.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unordered lists</title>
+</head>
+<body>
+    <h1>Unordered lists</h1>
+    <h2>Default</h2>
+    <ul>
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>JavaScript</li>
+    </ul>
+    <h2>type="circle" and type="square"</h2>
+    <ul type="circle">
+        <li>HTML</li>
+        <li>CSS</li>
+    </ul>
+    <ul type="square">
+        <li>HTML</li>
+        <li>CSS</li>
+    </ul>
+</body>
+</html>`,tr:"Count the warnings, then run the next page."}},
+ {h:"Bullets and the obsolete attribute",d:"Disc, circle and square.",t:T[12]},
+ {h:"The same bullets with CSS",d:"list-style-type is the modern way.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unordered lists with CSS</title>
+</head>
+<body>
+    <h1>Unordered lists</h1>
+    <h2>list-style-type in CSS</h2>
+    <ul style="list-style-type: circle;">
+        <li>HTML</li>
+        <li>CSS</li>
+    </ul>
+    <ul style="list-style-type: square;">
+        <li>HTML</li>
+        <li>CSS</li>
+    </ul>
+</body>
+</html>`,tr:"Change square to circle."}},
+ {h:"A glossary as a description list",d:"Two terms (Browser and Web client) share two descriptions.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Description list</title>
+</head>
+<body>
+    <h1>Glossary</h1>
+    <dl>
+        <dt>HTML</dt>
+        <dd>HyperText Markup Language: used for structuring web pages.</dd>
+
+        <dt>CSS</dt>
+        <dd>Cascading Style Sheets: used for styling web pages.</dd>
+
+        <dt>Browser</dt>
+        <dt>Web client</dt>
+        <dd>A program that requests and displays web pages.</dd>
+        <dd>Examples: Chrome, Firefox, Safari.</dd>
+    </dl>
+</body>
+</html>`,tr:"Add a term CSS Cascading Style Sheets of your own."}},
+ {h:"The elements of a description list",d:"dl, dt, dd.",t:T[13]},
+ {h:"Nested lists",d:"The inner list goes inside the li. Read the markers in the report: disc, circle, numbers.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nested lists</title>
+</head>
+<body>
+    <ul>
+        <li>Module 1: Basic Computing
+            <ul>
+                <li>Lesson 1: Computer Fundamentals</li>
+                <li>Lesson 2: Binary Logic</li>
+            </ul>
+        </li>
+        <li>Module 2: Office Automation
+            <ol>
+                <li>OpenOffice Writer</li>
+                <li>OpenOffice Calc</li>
+                <li>OpenOffice Impress</li>
+            </ol>
+        </li>
+    </ul>
+</body>
+</html>`,tr:"Move the inner <ul> after the </li> and read the checker."}},
+ {h:"Nested lists and menus",d:"Rules for nesting and for menus.",t:T[14]},
+ {h:"A menu is a list of links",d:"The HTML is a list inside nav; CSS makes it a row of buttons. The preview shows the styled menu.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <style>
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
+        nav a { display: block; padding: 6px 12px; background: #13294B; color: #fff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="l01.html">Ordered</a></li>
+            <li><a href="l02.html">Unordered</a></li>
+            <li><a href="l03.html">Description</a></li>
+        </ul>
+    </nav>
+</body>
+</html>`,tr:"Remove list-style: none from the style block and see the bullets return."}}
+]},
+{t:"Audio and video",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Attributes of audio and video",d:"controls, autoplay, loop, muted, poster.",t:T[15]},
+ {h:"An audio and a video player",d:"Each has two sources: the browser plays the first it can handle.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio and video</title>
+</head>
+<body>
+    <h1>Audio</h1>
+    <audio id="a" controls>
+        <source src="media/music.mp3" type="audio/mpeg">
+        <source src="media/music.ogg" type="audio/ogg">
+        Your browser does not support the audio element.
+    </audio>
+    <h1>Video</h1>
+    <video id="v" width="320" height="180" controls poster="media/thumbnail.jpg">
+        <source src="media/video.mp4" type="video/mp4">
+        <source src="media/video.webm" type="video/webm">
+        Your browser does not support the video element.
+    </video>
+</body>
+</html>`,tr:"Remove controls from the audio and read the checker."}},
+ {h:"Media types",d:"The type value of each file.",t:T[16]},
+ {h:"What Chromium chose",d:"Measured with canPlayType.",t:T[17]},
+ {h:"Audio with controls, loop, muted and autoplay",d:"autoplay worked because the clip was muted.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio attributes</title>
+</head>
+<body>
+    <audio id="a" controls loop muted autoplay>
+        <source src="media/music.ogg" type="audio/ogg">
+        Your browser does not support the audio element.
+    </audio>
+</body>
+</html>`,tr:"Remove muted and read the checker."}},
+ {h:"Source and fallback",d:"The fallback text is almost never seen.",t:T[18]},
+ {h:"An unusable source",d:"A modern browser draws a greyed-out player, not the fallback text.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fallback</title>
+</head>
+<body>
+    <audio controls>
+        <source src="media/music.xyz" type="audio/xyz">
+        Your browser does not support the audio element.
+    </audio>
+</body>
+</html>`,tr:"Change the type to audio/mpeg and the file to music.mp3."}}
+]},
+{t:"Frames and iframes",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Frames and iframes compared",d:"One is obsolete and one is valid.",t:T[19]},
+ {h:"A frameset",d:"Chromium still draws it, but the checker reports every element as an error.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frames (legacy)</title>
+</head>
+<frameset cols="30%,70%">
+    <frame src="sidebar.html">
+    <frame src="i04target.html">
+</frameset>
+</html>`,tr:"Count the errors."}},
+ {h:"An iframe with frameborder",d:"The attribute works but is obsolete.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe (as in the source)</title>
+</head>
+<body>
+    <h1>Main page</h1>
+    <p>The box on the right is another HTML file.</p>
+    <iframe src="sidebar.html" width="300" height="140" frameborder="0" title="Sidebar"></iframe>
+</body>
+</html>`,tr:"Replace frameborder=\"0\" by style=\"border: 0;\"."}},
+ {h:"Two iframes",d:"One with border 0 and one with the default border.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe</title>
+</head>
+<body>
+    <h1>Main page</h1>
+    <p>The box below is another HTML file.</p>
+    <iframe src="sidebar.html" width="300" height="140" style="border: 0;" title="Sidebar"
+            allowfullscreen></iframe>
+    <iframe src="sidebar.html" width="300" height="140" title="Sidebar with the default border"></iframe>
+</body>
+</html>`,tr:"Remove the title from the second iframe and read the checker."}},
+ {h:"Attributes of iframe",d:"src, size, title, allowfullscreen.",t:T[20]},
+ {h:"Border measured",d:"The default border adds 4 pixels.",t:T[21]}
+]},
+{t:"Favicons",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"A page that names two icons",d:"The link elements go in the head.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+    <h1>A page with a favicon</h1>
+</body>
+</html>`,tr:"Move one link into the body and read the checker."}},
+ {h:"The link attributes",d:"rel, href, type.",t:T[22]},
+ {h:"What the browser fetches",d:"The server's log.",t:T[23]},
+ {h:"Facts and mistakes",d:"Where the link goes and what can go wrong.",t:T[24]}
+]},
+{t:"Responsive design",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Responsive web design and the viewport",d:"One page for every screen.",t:T[25]},
+ {h:"Without the viewport tag",d:"The checker's advice reminds you that a phone lays the page out 980 pixels wide.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>No viewport tag</title>
+</head>
+<body>
+    <h1>Hello</h1>
+    <p>This paragraph is written in ordinary-size text.</p>
+</body>
+</html>`,tr:"Add the viewport meta tag to the head."}},
+ {h:"With the viewport tag",d:"The only difference between the two pages is one line.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>With viewport tag</title>
+</head>
+<body>
+    <h1>Hello</h1>
+    <p>This paragraph is written in ordinary-size text.</p>
+</body>
+</html>`,tr:"Read the report: no advice remains."}},
+ {h:"Measured widths",d:"In an emulated 360-pixel phone.",t:T[26]},
+ {h:"A 600-pixel image on a phone",d:"Fixed width makes the page wider than the screen. Use the Responsive calculator of the Code lab.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed width image</title>
+</head>
+<body>
+    <h1>Banner</h1>
+    <img src="images/photo.jpg" alt="Banner" width="600" height="400">
+</body>
+</html>`,tr:"Delete width and height from the img."}},
+ {h:"The fluid image",d:"Two lines of CSS in a style block.",code:{c:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid image</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Banner</h1>
+    <img src="images/photo.jpg" alt="Banner">
+</body>
+</html>`,tr:"Add a fixed height: 100px; to the rule and think what happens."}},
+ {h:"Fixed against fluid",d:"Measured on the phone.",t:T[27]},
+ {h:"The rule explained",d:"Where 344 and 229 come from.",t:T[28]},
+ {h:"Snippets to memorise",d:"Eight one-line patterns.",t:T[29]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* Mini HTML checker and text renderer (no DOM needed) */
+const H_VOID=new Set(["br","hr","img","input","meta","link","area","base","col","embed","source","track","wbr","frame"]);
+const H_OBS={center:"Use CSS instead.",font:"Use CSS instead.",strike:"Use del or s element instead.",big:"Use CSS instead.",tt:"Use CSS instead.",marquee:"Use CSS instead.",frame:"Use iframe and CSS instead.",frameset:"Use the iframe element and CSS instead, or use server-side includes."};
+const H_OBSATTR={border:["table","img"],cellpadding:["table"],cellspacing:["table"],bgcolor:["*"],align:["*"],type:["ul"],frameborder:["iframe"]};
+const H_INLINE=new Set(["b","i","u","s","em","strong","span","sub","sup","q","cite","code","small","mark","label","a_"]);
+const H_BLOCK=new Set(["p","div","h1","h2","h3","h4","h5","h6","ul","ol","table","form","blockquote","pre","section","article","header","footer","nav","main","aside","hr","li"]);
+const H_CLOSEP=new Set(["p","div","h1","h2","h3","h4","h5","h6","ul","ol","table","form","blockquote","pre","section","article","header","footer","nav","main","aside","hr"]);
+const H_OPT=new Set(["p","li","td","th","tr","option","thead","tbody","tfoot","dt","dd"]);
+const H_HEADOK=new Set(["title","meta","link","style","script","base"]);
+const H_ENT={lt:"<",gt:">",amp:"&",quot:'"',apos:"'",copy:"©",reg:"®",pi:"π",nbsp:" ",hellip:"…",euro:"€",times:"×"};
+function hDecode(s){return s.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g,(m,n)=>{if(n[0]==="#"){const c=n[1]==="x"||n[1]==="X"?parseInt(n.slice(2),16):parseInt(n.slice(1),10);return isNaN(c)?m:String.fromCodePoint(c);}return H_ENT[n]!==undefined?H_ENT[n]:m;});}
+function hParse(src){
+  const root={tag:"#root",attrs:{},kids:[],line:1};
+  const msgs=[];
+  const lineOf=i=>src.slice(0,i).split("\n").length;
+  let stack=[root];let doctype=false;
+  const re=/<!--[\s\S]*?-->|<!doctype[^>]*>|<\/?[a-zA-Z][^>]*>/gi;
+  let last=0,m;
+  const text=(t,pos)=>{
+    if(!t)return;
+    if(t.indexOf("<")>=0)msgs.push(["E",lineOf(pos+t.indexOf("<")),"Bad character < in text. Write &lt; for a less-than sign."]);
+    stack[stack.length-1].kids.push({text:t});
+  };
+  const top=()=>stack[stack.length-1];
+  while((m=re.exec(src))){
+    text(src.slice(last,m.index),last);last=m.index+m[0].length;
+    const tok=m[0],ln=lineOf(m.index);
+    if(tok.startsWith("<!--")){top().kids.push({comment:tok});continue;}
+    if(/^<!doctype/i.test(tok)){doctype=true;continue;}
+    const cm=/^<(\/?)([a-zA-Z][a-zA-Z0-9]*)([\s\S]*?)\/?>$/.exec(tok);
+    const closing=!!cm[1],name=cm[2].toLowerCase();
+    if(closing){
+      if(H_VOID.has(name)){msgs.push(["E",ln,"Stray end tag "+name+"."]);continue;}
+      let ix=-1;for(let i=stack.length-1;i>0;i--)if(stack[i].tag===name){ix=i;break;}
+      if(ix<0){msgs.push(["E",ln,"Stray end tag "+name+"."]);continue;}
+      const open=stack.slice(ix+1).filter(n=>!H_OPT.has(n.tag)||(n.tag==="p"&&H_INLINE.has(name)));
+      if(open.length)msgs.push(["E",ln,"End tag "+name+" violates nesting rules: "+open.map(n=>n.tag).join(", ")+" is still open."]);
+      stack=stack.slice(0,ix);
+      continue;
+    }
+    const attrs={};const ar=/([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;let am;
+    while((am=ar.exec(cm[3]))){attrs[am[1].toLowerCase()]=am[2]!==undefined?am[2]:am[3]!==undefined?am[3]:am[4]!==undefined?am[4]:"";}
+    if(H_CLOSEP.has(name)&&top().tag==="p")stack.pop();
+    if(name==="li"&&top().tag==="li")stack.pop();
+    if((name==="td"||name==="th")&&(top().tag==="td"||top().tag==="th"))stack.pop();
+    if(name==="tr"&&(top().tag==="td"||top().tag==="th")){stack.pop();}
+    if(name==="tr"&&top().tag==="tr")stack.pop();
+    if(name==="option"&&top().tag==="option")stack.pop();
+    if((name==="dt"||name==="dd")&&(top().tag==="dt"||top().tag==="dd"))stack.pop();
+    const par=top();
+    const node={tag:name,attrs,kids:[],line:ln,parent:par};
+    par.kids.push(node);
+    if(!H_VOID.has(name)&&!tok.endsWith("/>"))stack.push(node);
+  }
+  text(src.slice(last),last);
+  stack.slice(1).filter(n=>!H_OPT.has(n.tag)&&n.tag!=="html"&&n.tag!=="body").forEach(n=>msgs.push(["E",n.line,"Unclosed element "+n.tag+"."]));
+  return {root,msgs,doctype,lineOf};
+}
+function hWalk(n,f){if(n.tag)f(n);(n.kids||[]).forEach(k=>hWalk(k,f));}
+function hText(n){return (n.kids||[]).map(k=>k.text!==undefined?k.text:k.tag?hText(k):"").join("");}
+function hCheck(src){
+  const P=hParse(src),msgs=P.msgs.slice();
+  const all=[];hWalk(P.root,n=>all.push(n));
+  if(!P.doctype)msgs.push(["E",1,"Start tag seen without seeing a doctype first. Expected <!DOCTYPE html>."]);
+  const htmlN=all.find(n=>n.tag==="html");
+  if(htmlN&&!htmlN.attrs.lang)msgs.push(["W",htmlN.line,"Consider adding a lang attribute to the html start tag."]);
+  if(!all.some(n=>n.tag==="title"))msgs.push(["E",1,"Element head is missing a required instance of child element title."]);
+  const ids={};const idList=[];
+  all.forEach(n=>{
+    if(H_OBS[n.tag])msgs.push(["E",n.line,"The "+n.tag+" element is obsolete. "+H_OBS[n.tag]]);
+    for(const a in n.attrs){const w=H_OBSATTR[a];if(w&&(w[0]==="*"||w.indexOf(n.tag)>=0))msgs.push(["W",n.line,"The "+a+" attribute on the "+n.tag+" element is obsolete. Use CSS instead."]);}
+    if(n.tag==="img"&&n.attrs.alt===undefined)msgs.push(["E",n.line,"An img element must have an alt attribute, except under certain conditions."]);
+    if(n.attrs.id!==undefined){if(ids[n.attrs.id])msgs.push(["E",n.line,"Duplicate ID "+n.attrs.id+"."]);ids[n.attrs.id]=n;}
+    const p=n.parent;
+    if(p&&H_INLINE.has(p.tag)&&H_BLOCK.has(n.tag)&&n.tag!=="li")msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element "+p.tag+" in this context."]);
+    if(p&&p.tag==="head"&&!H_HEADOK.has(n.tag))msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element head in this context."]);
+    if((n.tag==="td"||n.tag==="th")&&p&&p.tag!=="tr")msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="tr"&&p&&["table","thead","tbody","tfoot"].indexOf(p.tag)<0)msgs.push(["E",n.line,"Element tr not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="li"&&p&&p.tag!=="ul"&&p.tag!=="ol")msgs.push(["E",n.line,"Element li not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="option"&&p&&p.tag!=="select")msgs.push(["E",n.line,"Element option not allowed as child of element "+p.tag+" in this context."]);
+    if(p&&(p.tag==="ul"||p.tag==="ol")&&n.tag!=="li")msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element "+p.tag+" in this context."]);
+    if(p&&p.tag==="dl"&&["dt","dd","div"].indexOf(n.tag)<0)msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element dl in this context."]);
+    if((n.tag==="dt"||n.tag==="dd")&&p&&p.tag!=="dl")msgs.push(["E",n.line,"Element "+n.tag+" not allowed as child of element "+p.tag+" in this context."]);
+    if(n.tag==="ol"&&n.attrs.start!==undefined&&!/^-?\d+$/.test(n.attrs.start))msgs.push(["E",n.line,"Bad value "+n.attrs.start+" for attribute start on element ol: expected an integer."]);
+    if(n.tag==="ol"&&n.attrs.type!==undefined&&["1","A","a","I","i"].indexOf(n.attrs.type)<0)msgs.push(["E",n.line,"Bad value "+n.attrs.type+" for attribute type on element ol."]);
+    if(n.tag==="source"&&(!p||(p.tag!=="audio"&&p.tag!=="video")))msgs.push(["E",n.line,"Element source not allowed as child of element "+(p?p.tag:"")+" in this context."]);
+    if(n.tag==="source"&&(!n.attrs.src||!n.attrs.type))msgs.push(["W",n.line,"Advice: a source needs both src and type (its MIME type)."]);
+    if((n.tag==="audio"||n.tag==="video")&&n.attrs.controls===undefined&&n.attrs.autoplay===undefined)msgs.push(["W",n.line,"Advice: this "+n.tag+" has no controls attribute, so the user sees no player."]);
+    if((n.tag==="audio"||n.tag==="video")&&n.attrs.autoplay!==undefined&&n.attrs.muted===undefined)msgs.push(["W",n.line,"Advice: browsers ignore autoplay unless the media is muted."]);
+    if(n.tag==="iframe"&&!n.attrs.title)msgs.push(["W",n.line,"Advice: an iframe needs a title attribute for screen-reader users."]);
+    if(n.tag==="link"&&/icon/.test(n.attrs.rel||"")&&p&&p.tag!=="head")msgs.push(["E",n.line,"Element link not allowed as child of element "+p.tag+" in this context: the icon link belongs in the head."]);
+    if(n.tag==="a"&&n.attrs.target==="_blank"&&!/noopener/.test(n.attrs.rel||""))msgs.push(["W",n.line,"Advice: add rel=\"noopener\" to a link with target=\"_blank\"."]);
+    if(n.tag==="a"&&/^\s*(click here|here)\s*$/i.test(hText(n)))msgs.push(["W",n.line,"Advice: link text should describe the destination, not say \"click here\"."]);
+  });
+  all.forEach(n=>{
+    if(n.tag==="a"&&n.attrs.href&&n.attrs.href[0]==="#"&&n.attrs.href.length>1){const id=n.attrs.href.slice(1);if(!ids[id])msgs.push(["E",n.line,"Same-document reference to "+id+" was not found. (Ids are case-sensitive.)"]);}
+    if(n.tag==="label"&&n.attrs["for"]!==undefined){const t=ids[n.attrs["for"]];if(!t||["input","select","textarea","button"].indexOf(t.tag)<0)msgs.push(["E",n.line,"The for attribute of the label element must refer to a form control (no element has the id "+n.attrs["for"]+")."]);}
+    if(n.tag==="input"){const ty=(n.attrs.type||"text").toLowerCase();if(["submit","reset","button"].indexOf(ty)<0&&!n.attrs.name)msgs.push(["W",n.line,"Advice: this "+ty+" input has no name attribute, so nothing from it is sent."]);}
+    if(n.tag==="select"&&!n.attrs.name)msgs.push(["W",n.line,"Advice: the select has no name attribute, so nothing from it is sent."]);
+    if(n.tag==="textarea"&&!n.attrs.name)msgs.push(["W",n.line,"Advice: the textarea has no name attribute, so nothing from it is sent."]);
+    if(n.tag==="form"){
+      const rs=[];hWalk(n,x=>{if(x.tag==="input"&&(x.attrs.type||"").toLowerCase()==="radio")rs.push(x);});
+      const nm=new Set(rs.map(x=>x.attrs.name||""));
+      if(rs.length>1&&nm.size===rs.length)msgs.push(["W",n.line,"Advice: these radio buttons have different names, so they do not form a group."]);
+    }
+    if(n.tag==="table"){
+      const rows=[];hWalk(n,x=>{if(x.tag==="tr"&&(x.parent===n||["thead","tbody","tfoot"].indexOf(x.parent.tag)>=0)&&(x.parent===n||x.parent.parent===n))rows.push(x);});
+      const occ=[];let wid=0;const w=[];
+      rows.forEach((r,ri)=>{let col=0,used=0;occ[ri]=occ[ri]||[];
+        r.kids.filter(c=>c.tag==="td"||c.tag==="th").forEach(c=>{while(occ[ri][col])col++;const cs=Math.max(1,parseInt(c.attrs.colspan||"1",10)||1),rsn=Math.max(1,parseInt(c.attrs.rowspan||"1",10)||1);
+          for(let dr=0;dr<rsn;dr++){occ[ri+dr]=occ[ri+dr]||[];for(let dc=0;dc<cs;dc++)occ[ri+dr][col+dc]=1;}col+=cs;});
+        w[ri]=occ[ri].length;wid=Math.max(wid,w[ri]);});
+      rows.forEach((r,ri)=>{if(w[ri]!==wid)msgs.push(["E",r.line,"Table row "+(ri+1)+" covers "+w[ri]+" column"+(w[ri]===1?"":"s")+" but the table is "+wid+" columns wide."]);});
+    }
+  });
+  if(htmlN&&!all.some(n=>n.tag==="frameset")&&!all.some(n=>n.tag==="meta"&&n.attrs.name==="viewport"))msgs.push(["W",1,"Advice: there is no viewport meta tag, so a phone lays the page out about 980 pixels wide and shrinks it."]);
+  const mains=all.filter(n=>n.tag==="main");
+  if(mains.length>1)msgs.push(["E",mains[1].line,"A document must not include more than one visible main element."]);
+  const h1=all.filter(n=>n.tag==="h1");
+  if(h1.length>1)msgs.push(["W",h1[1].line,"Advice: a page should have one h1; this is the "+h1.length+" h1."]);
+  msgs.sort((a,b)=>a[1]-b[1]);
+  return {P,msgs,all};
+}
+function hRender(P){
+  const L=[];let cur="";
+  const flush=()=>{const t=cur.replace(/[ \t\n\r]+/g," ").trim();if(t)L.push(t);cur="";};
+  const rom=x=>{const m=[[1000,"m"],[900,"cm"],[500,"d"],[400,"cd"],[100,"c"],[90,"xc"],[50,"l"],[40,"xl"],[10,"x"],[9,"ix"],[5,"v"],[4,"iv"],[1,"i"]];let r="";m.forEach(a=>{while(x>=a[0]){r+=a[1];x-=a[0];}});return r;};
+  const fmt=(x,ty)=>{if(ty==="a"||ty==="A"){if(x<1||x>26)return x+".";const c=String.fromCharCode(96+x);return (ty==="A"?c.toUpperCase():c)+".";}if(ty==="i"||ty==="I"){if(x<1)return x+".";const r=rom(x);return (ty==="I"?r.toUpperCase():r)+".";}return x+".";};
+  const listR=n=>{
+    if(n.tag==="dl"){n.kids.forEach(k=>{if(k.tag==="dt"||k.tag==="dd"){flush();cur=inline(k);flush();}});return;}
+    let depth=0;for(let p=n.parent;p;p=p.parent)if(p.tag==="ul"||p.tag==="ol")depth++;
+    const items=n.kids.filter(k=>k.tag==="li");
+    const rev=n.tag==="ol"&&n.attrs.reversed!==undefined;
+    let num=n.tag==="ol"?(/^-?\d+$/.test(n.attrs.start||"")?parseInt(n.attrs.start,10):(rev?items.length:1)):0;
+    items.forEach(li=>{
+      flush();
+      let mk;
+      if(n.tag==="ol")mk=fmt(num,n.attrs.type||"1");
+      else{const ty=n.attrs.type||["disc","circle","square"][Math.min(depth,2)];mk={disc:"\u2022",circle:"\u25e6",square:"\u25aa"}[ty]||"\u2022";}
+      cur=mk+" ";
+      li.kids.forEach(k=>{if(k.text!==undefined)cur+=hDecode(k.text);else if(k.tag==="ul"||k.tag==="ol"||k.tag==="dl"){flush();listR(k);}else{const r=node(k);if(r)cur+=r;}});
+      flush();
+      if(n.tag==="ol")num+=rev?-1:1;
+    });
+  };
+  const inline=n=>{let s="";(n.kids||[]).forEach(k=>{s+=k.text!==undefined?hDecode(k.text):k.tag?node(k,true):"";});return s;};
+  const node=(n,asStr)=>{
+    const t=n.tag;let s="";
+    if(["head","script","style","title"].indexOf(t)>=0)return "";
+    if(t==="br"){if(asStr)return " ";flush();return "";}
+    if(t==="hr"){if(asStr)return " ------ ";flush();L.push("------");return "";}
+    if(t==="frameset"){flush();L.push("[frameset with "+n.kids.filter(k=>k.tag==="frame").length+" frames]");return "";}
+    if(t==="frame")return "";
+    if(t==="iframe")return "[embedded page: "+(n.attrs.title||"")+"]";
+    if(t==="audio")return n.attrs.controls!==undefined?"[audio player]":"";
+    if(t==="video")return n.attrs.controls!==undefined?"[video player]":"[video]";
+    if(t==="source"||t==="link"||t==="meta")return "";
+    if((t==="ul"||t==="ol"||t==="dl")&&!asStr){flush();listR(n);return "";}
+    if(t==="img")return "[image: "+(n.attrs.alt||"")+"]";
+    if(t==="input"){const ty=(n.attrs.type||"text").toLowerCase();
+      if(ty==="checkbox")return n.attrs.checked!==undefined?"[x]":"[ ]";
+      if(ty==="radio")return n.attrs.checked!==undefined?"(o)":"( )";
+      if(ty==="submit")return "["+(n.attrs.value||"Submit")+"]";
+      if(ty==="reset")return "["+(n.attrs.value||"Reset")+"]";
+      if(ty==="button")return "["+(n.attrs.value||"")+"]";
+      if(ty==="password")return "[******]";
+      if(ty==="hidden")return "";
+      return "["+(n.attrs.value||"______")+"]";}
+    if(t==="button")return "["+hDecode(hText(n)).replace(/\s+/g," ").trim()+"]";
+    if(t==="select"){const o=n.kids.filter(k=>k.tag==="option");const sel=o.find(x=>x.attrs.selected!==undefined)||o[0];return "["+(sel?hDecode(hText(sel)).trim():"")+" v]";}
+    if(t==="textarea")return "["+(hText(n).trim()||"......")+"]";
+    if(t==="q")return "“"+inline(n)+"”";
+    if(t==="table"){
+      const rows=[];hWalk(n,x=>{if(x.tag==="tr")rows.push(x);});
+      const out=[];
+      const cap=n.kids.find(k=>k.tag==="caption");if(cap)out.push(hDecode(hText(cap)).replace(/\s+/g," ").trim());
+      rows.forEach(r=>out.push(r.kids.filter(c=>c.tag==="td"||c.tag==="th").map(c=>inline(c).replace(/\s+/g," ").trim()).join(" | ")));
+      if(asStr)return " "+out.join(" / ")+" ";
+      flush();out.forEach(x=>{if(x)L.push(x);});return "";
+    }
+    if(t==="pre"){
+      let raw=hDecode(hText(n));raw=raw.replace(/^\n/,"");
+      if(asStr)return raw;
+      flush();raw.split("\n").forEach(x=>{if(x.trim())L.push(x.replace(/\s+$/,""));});return "";
+    }
+    const blk=H_BLOCK.has(t)||["header","footer","nav","main","section","article","aside","body","html","form","caption","ul","ol","blockquote","tr"].indexOf(t)>=0;
+    if(asStr||!blk){s=inline(n);return s;}
+    flush();
+    if(t==="li")cur="• ";
+    (n.kids||[]).forEach(k=>{
+      if(k.text!==undefined)cur+=hDecode(k.text);
+      else if(k.tag){const r=node(k);if(r)cur+=r;}
+    });
+    flush();
+    return "";
+  };
+  const html=P.root.kids.find(k=>k.tag==="html")||P.root;
+  const body=html.kids&&html.kids.find&&html.kids.find(k=>k.tag==="body");
+  const target=body||P.root;
+  const hasHtml=html!==P.root;
+  (target.kids||[]).forEach(k=>{
+    if(k.text!==undefined)cur+=hDecode(k.text);
+    else if(k.tag){const r=node(k);if(r)cur+=r;}
+  });
+  flush();
+  return L.map(x=>x.replace(/ /g," ").replace(/[ ]{2,}/g," "));
+}
+function fnRun(src){
+  const C=hCheck(src);
+  const E=C.msgs.filter(m=>m[0]==="E"),W=C.msgs.filter(m=>m[0]==="W");
+  const lines=hRender(C.P);
+  let n=0;C.P.root.kids.forEach(function w(k){if(k.tag){n++;(k.kids||[]).forEach(w);}});
+  let out="Checker: "+E.length+" error"+(E.length===1?"":"s")+", "+W.length+" warning"+(W.length===1?"":"s")+(C.msgs.length?"":" (no errors or warnings to show)")+"\n";
+  C.msgs.forEach(m=>{out+=(m[0]==="E"?"Error":"Warning")+" (line "+m[1]+"): "+m[2]+"\n";});
+  out+="\nThe page displays:\n"+(lines.length?lines.join("\n"):"(nothing visible)");
+  return {ok:true,out:out,errors:E.length,warns:W.length,stmts:n,html:src,lines:lines,msgs:C.msgs,brief:"problems "+C.msgs.length+" | "+lines.join(" / ")};
+}
+
+function runCpp(src,inp){return fnRun(src);}
+function safeDoc(h){const m=/<head[^>]*>/i.exec(h);const csp='<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'">';return m?h.slice(0,m.index+m[0].length)+csp+h.slice(m.index+m[0].length):h;}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to show the page and the checker report here.</p>';
+  const cls=r.errors?"bad":(r.warns?"note":"ok");
+  return '<iframe class="prev" sandbox title="Page as a browser draws it" style="width:100%;height:200px;border:1px solid #9994;border-radius:8px;background:#fff" srcdoc="'+esc(safeDoc(r.html))+'"></iframe><pre class="outpre">'+esc(r.out)+'</pre><div class="rs '+cls+'">Checker: '+r.errors+" error"+(r.errors===1?"":"s")+", "+r.warns+" warning"+(r.warns===1?"":"s")+".</div>";
+}
+/* ============ CODE WIDGET ============ */
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const rows=Math.min(24,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">HTML page</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="HTML editor">'+esc(src)+'</textarea>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const r=runCpp(src,"");
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ pb:"/site/pages/page.html",ph:"../images/photo.jpg",
+ lk:"ol",lt:"A",ls:"3",lc:"3",lr:false,lu:"disc",
+ mk:"video",mo:"1",mp3:true,ogg:true,mp4:false,webm:true,
+ fw:"360",fnw:"600",fnh:"400",fv:"yes",fm:"fluid",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run HTML"],["pred","Predict the page"],["fix","Fix the bug"],["path","Path resolver"],["mark","List markers"],["media","Source chooser"],["fluid","Responsive calculator"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank page",spec:{c:"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>My Page</title>\n</head>\n<body>\n    <h1>Welcome</h1>\n    <p>Write your own HTML here and press Run.</p>\n</body>\n</html>",tr:"Add a link, a table or a form, break a rule on purpose and read the checker."}});
+function labView(){
+  let h='<p class="hint">HTML is learned by writing it. Each page below is drawn in a sandboxed preview, as a browser would draw it, and a checker in the style of the W3C validator lists the errors and warnings with line numbers. The report also shows the text the page displays (images, players and iframes appear as [image: alt], [audio player], [video player] and [embedded page: title]), which is what the Predict tool asks about. Predict, then run.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,path:labPath,mark:labMark,media:labMedia,fluid:labFluid,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s pages</h3><label class="lab" for="exsel">Choose a page</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">The preview is a real browser window drawing your HTML (scripts are switched off, and image, audio, video and frame files do not exist here, so you see the alt text of images). The checker below it knows the rules of the chapter: DOCTYPE, title, obsolete elements and attributes (frames, type on ul, frameborder), nesting, alt on images, list children, media controls and sources, iframe titles, the favicon link in the head, and the viewport tag. The displayed-text lines are how this lab writes down what the page shows.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your answer (separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected answer: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to draw the page and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+
+const FIX=[
+{t:"Image without alt",kind:"Validator error",goal:"The checker should report no problems and the image should be described as Logo.",exp:"problems 0 | [image: Logo] / Welcome",hint:"Which attribute describes an image?",sol:"<img src=\"logo.png\" alt=\"Logo\">",why:"An img always needs alt: screen readers announce it and it is shown if the image fails.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <img src="logo.png">
+    <p>Welcome</p>
+</body>
+</html>`},
+{t:"The obsolete type on ul",kind:"Validator warning",goal:"The bullets should be squares and the checker should report no problems.",exp:"problems 0 | • HTML / • CSS",hint:"Use CSS instead of the type attribute.",sol:"<ul style=\"list-style-type: square;\">",why:"type on ul is obsolete; list-style-type replaces it.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ul type="square">
+        <li>HTML</li>
+        <li>CSS</li>
+    </ul>
+</body>
+</html>`},
+{t:"A paragraph directly in a list",kind:"Validator error",goal:"The list should show two items and the checker should report no problems.",exp:"problems 0 | • One / • Two",hint:"Only one element may be a direct child of ul.",sol:"<ul><li>Item</li></ul>",why:"Only li may be a direct child of ul or ol; a paragraph can go inside the li.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ul>
+        <li>One</li>
+        <p>Two</p>
+    </ul>
+</body>
+</html>`},
+{t:"Details outside a description list",kind:"Validator error",goal:"The glossary should show the term and its details and the checker should report no problems.",exp:"problems 0 | HTML / Markup language",hint:"dt and dd belong inside a container.",sol:"Wrap the dt and dd in <dl>…</dl>",why:"dt and dd are only valid inside a dl.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <dt>HTML</dt>
+    <dd>Markup language</dd>
+</body>
+</html>`},
+{t:"start with a letter",kind:"Validator error",goal:"The list should begin at C (type A) and the checker should report no problems.",exp:"problems 0 | C. Third / D. Fourth",hint:"start is always a number.",sol:"<ol type=\"A\" start=\"3\">",why:"start takes a number even for letters: 3 becomes C.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ol type="A" start="C">
+        <li>Third</li>
+        <li>Fourth</li>
+    </ol>
+</body>
+</html>`},
+{t:"A nested list in the wrong place",kind:"Validator error",goal:"The inner list should sit inside the first item; the checker should report no problems.",exp:"problems 0 | • Module 1 / ◦ Lesson 1",hint:"Where does a nested list go?",sol:"Put the inner <ul> inside the <li>, before </li>",why:"A list directly inside another list is invalid; nest it inside an li.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <ul>
+        <li>Module 1</li>
+        <ul>
+            <li>Lesson 1</li>
+        </ul>
+    </ul>
+</body>
+</html>`},
+{t:"A frameset",kind:"Validator error",goal:"The page should embed sidebar.html with an iframe and the checker should report no problems.",exp:"problems 0 | [embedded page: Sidebar]",hint:"Which element replaces frames?",sol:"<iframe src=\"sidebar.html\" title=\"Sidebar\"></iframe>",why:"Frames are obsolete in HTML5; the iframe is valid.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frames</title>
+</head>
+<frameset cols="30%,70%">
+    <frame src="sidebar.html">
+    <frame src="main.html">
+</frameset>
+</html>`},
+{t:"The obsolete frameborder",kind:"Validator warning",goal:"The iframe should have no border and the checker should report no problems.",exp:"problems 0 | [embedded page: Sidebar]",hint:"Use CSS for the border.",sol:"style=\"border: 0;\"",why:"frameborder is obsolete; CSS replaces it.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <iframe src="sidebar.html" width="300" height="140" frameborder="0" title="Sidebar"></iframe>
+</body>
+</html>`},
+{t:"An iframe without a title",kind:"Advice",goal:"The checker should report no problems.",exp:"problems 0 | [embedded page: School map]",hint:"Which attribute helps screen-reader users?",sol:"title=\"School map\"",why:"An iframe needs a title that describes it.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <iframe src="map.html" width="300" height="200"></iframe>
+</body>
+</html>`},
+{t:"A favicon link in the body",kind:"Validator error",goal:"The icon link should be accepted: the checker should report no problems.",exp:"problems 0 | Home",hint:"Where does the icon link belong?",sol:"Move the link into the head",why:"The favicon link belongs in the head.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <h1>Home</h1>
+</body>
+</html>`},
+{t:"No viewport tag",kind:"Advice",goal:"The page should be mobile-friendly: the checker should report no problems.",exp:"problems 0 | Hello",hint:"Which meta tag sets the layout width of a phone?",sol:"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",why:"Without it a phone lays the page out about 980 pixels wide and shrinks it.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Hello</h1>
+</body>
+</html>`},
+{t:"Audio without controls",kind:"Advice",goal:"The audio should show a player: the checker should report no problems.",exp:"problems 0 | [audio player]",hint:"Which attribute shows the play button?",sol:"<audio controls>",why:"Without controls nothing is visible.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <audio>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+</body>
+</html>`},
+{t:"autoplay without muted",kind:"Advice",goal:"The clip should start when the page loads: the checker should report no problems.",exp:"problems 0 | [audio player]",hint:"Browsers block autoplay unless the sound is off.",sol:"<audio controls autoplay muted>",why:"Browsers ignore autoplay unless the media is muted.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <audio controls autoplay>
+        <source src="music.ogg" type="audio/ogg">
+    </audio>
+</body>
+</html>`},
+{t:"A source without a type",kind:"Advice",goal:"The video should name both file and MIME type: the checker should report no problems.",exp:"problems 0 | [video player]",hint:"What does the type attribute of source hold?",sol:"<source src=\"video.webm\" type=\"video/webm\">",why:"A source needs src and its MIME type so the browser can skip formats it cannot play.",src:R`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <video controls>
+        <source src="video.webm">
+    </video>
+</body>
+</html>`}
+];
+
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+
+/* ---------- Path resolver ---------- */
+function resolvePath(base,href){
+  href=String(href).trim();base=String(base).trim()||"/";
+  if(!href)return {kind:"empty",to:"",why:"Type an src or href value."};
+  if(/^mailto:/i.test(href))return {kind:"E-mail link",to:"",why:"Opens the visitor's e-mail program with the address in the To box."};
+  if(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(href))return {kind:"External link (absolute URL)",to:href,why:"A complete address with the scheme: another website altogether."};
+  if(href[0]==="#")return {kind:"Bookmark",to:base+href,why:"Stays on the same page and scrolls to the element whose id is "+href.slice(1)+" (ids are case-sensitive)."};
+  let frag="";const hi=href.indexOf("#");if(hi>=0){frag=href.slice(hi);href=href.slice(0,hi);}
+  let parts;let kind;
+  if(href[0]==="/"){parts=href.split("/").filter(x=>x);kind="Internal link, from the root of the site";}
+  else{parts=base.split("/").filter(x=>x);parts.pop();parts=parts.concat(href.split("/").filter(x=>x));kind="Internal link, relative path";}
+  const out=[];let above=false;
+  parts.forEach(p=>{if(p===".")return;if(p===".."){if(out.length)out.pop();else above=true;}else out.push(p);});
+  return {kind:kind,to:"/"+out.join("/")+frag,why:above?"The path tries to climb above the root of the site.":"Relative paths are measured from the folder of the current page; .. means one level up."};
+}
+function labPath(){
+  return '<div class="panel"><h3>Path resolver</h3><p class="hint">Give the path of the current page and the src of an image (or the href of a link). The tool names the kind of path and the file it reaches, as in Table 1.4.</p><div class="row">'+numIn("pbin","Current page","pb",16,"path")+numIn("phin","src or href value","ph",22,"path")+'</div><div id="pathres">'+pathRes()+"</div></div>";
+}
+function pathRes(){
+  const r=resolvePath(L.pb,L.ph);
+  if(r.kind==="empty")return '<div class="rs bad">'+esc(r.why)+"</div>";
+  return tbl(["Item","Result"],[["Kind",r.kind],["Reaches",r.to||"(no page: it starts a message)"],["Why",r.why]]);
+}
+/* ---------- List markers ---------- */
+function romanOf(x){const m=[[1000,"m"],[900,"cm"],[500,"d"],[400,"cd"],[100,"c"],[90,"xc"],[50,"l"],[40,"xl"],[10,"x"],[9,"ix"],[5,"v"],[4,"iv"],[1,"i"]];let r="";m.forEach(a=>{while(x>=a[0]){r+=a[1];x-=a[0];}});return r;}
+function markerOf(x,ty){
+  if(ty==="a"||ty==="A"){if(x<1||x>26)return x+".";const c=String.fromCharCode(96+x);return (ty==="A"?c.toUpperCase():c)+".";}
+  if(ty==="i"||ty==="I"){if(x<1)return x+".";const r=romanOf(x);return (ty==="I"?r.toUpperCase():r)+".";}
+  return x+".";
+}
+function labMark(){
+  return '<div class="panel"><h3>List markers</h3><p class="hint">Choose the kind of list and its attributes. The tool shows the markers the browser draws and the equivalent HTML.</p>'+chips("lk",[["ol","ordered list"],["ul","unordered list"]])+
+  (L.lk==="ol"?'<p class="lab">type</p>'+chips("lt",[["1","1"],["A","A"],["a","a"],["I","I"],["i","i"]])+'<div class="row">'+numIn("lsin","start (a number)","ls",5,"mark")+numIn("lcin","number of items","lc",4,"mark")+'<button class="chip" data-act="ltog" data-key="lr" aria-pressed="'+!!L.lr+'">reversed</button></div>':'<p class="lab">ul type attribute (obsolete: CSS is the modern way)</p>'+chips("lu",[["disc","disc"],["circle","circle"],["square","square"]])+'<div class="row">'+numIn("lcin","number of items","lc",4,"mark")+"</div>")+
+  '<div id="markres">'+markRes()+"</div></div>";
+}
+function markRes(){
+  const n=Math.max(1,Math.min(12,parseInt(L.lc,10)||3));
+  let rows,html,note="";
+  if(L.lk==="ol"){
+    const rev=!!L.lr;let st=parseInt(L.ls,10);const hasStart=!isNaN(st);
+    if(!hasStart)st=rev?n:1;
+    rows=[];for(let i=0;i<n;i++)rows.push([String(i+1),markerOf(rev?st-i:st+i,L.lt)]);
+    html="<ol"+(L.lt!=="1"?' type="'+L.lt+'"':"")+(hasStart?' start="'+st+'"':"")+(rev?" reversed":"")+">"+"<li>…</li>".repeat(Math.min(n,3))+(n>3?" …":"")+"</ol>";
+    if(isNaN(parseInt(L.ls,10))&&String(L.ls).trim()!=="")note="start must be a number, not a letter: type=&quot;A&quot; start=&quot;3&quot; begins at C. The lab ignored your value.";
+  }else{
+    const m={disc:"\u2022",circle:"\u25e6",square:"\u25aa"}[L.lu];
+    rows=[];for(let i=0;i<n;i++)rows.push([String(i+1),m]);
+    html="<ul"+(L.lu!=="disc"?' type="'+L.lu+'"':"")+">…</ul>";
+    note=L.lu!=="disc"?"The type attribute on ul works but the validator calls it obsolete. Modern HTML: <ul style=\"list-style-type: "+L.lu+";\">.":"";
+  }
+  return tbl(["Item","Marker"],rows)+'<p class="hint"><code>'+esc(html)+"</code></p>"+(note?'<p class="hint">'+note.replace(/&quot;/g,'"')+"</p>":"");
+}
+/* ---------- Media chooser ---------- */
+function labMedia(){
+  const tog=(k,t)=>'<button class="chip" data-act="ltog" data-key="'+k+'" aria-pressed="'+!!L[k]+'">'+t+"</button>";
+  return '<div class="panel"><h3>Which source does the browser play?</h3><p class="hint">The browser goes down the list of source elements and plays the first file it can handle. Choose the element, the order of the sources and what this browser can play.</p>'+chips("mk",[["audio","audio: MP3 and Ogg"],["video","video: MP4 and WebM"]])+'<p class="lab">Order of the source elements</p>'+chips("mo",[["1","MP3 / MP4 first"],["2","Ogg / WebM first"]])+'<p class="lab">This browser can play</p><div class="subnav">'+(L.mk==="audio"?tog("mp3","MP3")+tog("ogg","Ogg"):tog("mp4","MP4 (H.264)")+tog("webm","WebM"))+'</div><div id="mediares">'+mediaRes()+"</div></div>";
+}
+function mediaRes(){
+  const au=L.mk==="audio";
+  let list=au?[["music.mp3","audio/mpeg",L.mp3],["music.ogg","audio/ogg",L.ogg]]:[["video.mp4","video/mp4",L.mp4],["video.webm","video/webm",L.webm]];
+  if(L.mo==="2")list=list.slice().reverse();
+  const html="<"+(au?"audio":"video")+" controls>\n"+list.map(x=>'  <source src="media/'+x[0]+'" type="'+x[1]+'">').join("\n")+"\n  Your browser does not support the "+(au?"audio":"video")+" element.\n</"+(au?"audio":"video")+">";
+  const ch=list.find(x=>x[2]);
+  let res=ch?"The browser plays "+ch[0]+(ch===list[0]?" (the first source).":": it skipped the earlier source it cannot play."):"No source can be played. A modern browser draws a greyed-out player (networkState 3); the fallback text is not shown.";
+  return '<pre class="outpre">'+esc(html)+'</pre><div class="rs '+(ch?"ok":"bad")+'">'+esc(res)+"</div>";
+}
+/* ---------- Responsive calculator ---------- */
+function labFluid(){
+  return '<div class="panel"><h3>Responsive calculator</h3><p class="hint">A picture of natural size 600 × 400 on a phone. The container is the layout width minus the 8-pixel margin on each side.</p><div class="row">'+numIn("fwin","Phone width (px)","fw",6,"fluid")+numIn("fnin","Picture natural width (px)","fnw",6,"fluid")+numIn("fhin","Natural height (px)","fnh",6,"fluid")+'</div><p class="lab">Viewport meta tag in the head?</p>'+chips("fv",[["yes","Yes"],["no","No"]])+'<p class="lab">Picture rule</p>'+chips("fm",[["fixed","width=\"natural width\" in the HTML"],["fluid","max-width: 100%; height: auto;"]])+'<div id="fluidres">'+fluidRes()+"</div></div>";
+}
+function fluidRes(){
+  const W=Math.max(100,parseInt(L.fw,10)||360),nw=Math.max(1,parseInt(L.fnw,10)||600),nh=Math.max(1,parseInt(L.fnh,10)||400);
+  const lay=L.fv==="yes"?W:Math.max(W,980),cont=lay-16;
+  let dw,dh,scroll;
+  if(L.fm==="fixed"){dw=nw;dh=nh;scroll=Math.max(lay,nw+8);}
+  else{dw=Math.min(nw,cont);dh=Math.round(dw*nh/nw);scroll=lay;}
+  const rows=[["Layout width of the page",lay+" px"+(L.fv==="yes"?" (width=device-width)":" (a phone assumes about 980)")],["Container width",cont+" px"],["Picture drawn",dw+" × "+dh+" px"],["Page scroll width",scroll+" px"]];
+  let note=scroll>W&&L.fv==="yes"?"The page is wider than the "+W+"-pixel screen, so the user must scroll sideways.":(L.fv==="no"?"The browser shrinks the "+lay+"-pixel layout to fit the "+W+"-pixel screen (scale "+(W/lay).toFixed(2)+"), so everything is tiny.":"The page fits the screen.");
+  return tbl(["Measure","Value"],rows)+'<div class="rs '+(scroll>W&&L.fv==="yes"?"bad":"ok")+'">'+esc(note)+"</div>";
+}
+/* ---------- Sorting drill ---------- */
+const DIMS=[
+{n:"Which image format?",o:["JPEG","PNG","GIF","WebP","SVG"],it:[["A photograph with smooth gradients",0],["A logo with transparent corners",1],["A simple animation of 256 colours",2],["Smaller than JPEG and PNG",3],["Vector: stays sharp at any size",4],["Lossy compression",0],["Lossless with an alpha channel",1],["Shapes stored as text",4],["Only 256 colours",2],["A screenshot",1]]},
+{n:"Lossy or lossless?",o:["Lossy","Lossless"],it:[["JPEG",0],["PNG",1],["GIF",1],["Discards detail the eye may not miss",0],["Can be restored exactly",1],["Cannot be restored exactly",0]]},
+{n:"Which path?",o:["Same folder","Sub-folder","One folder up","From the root","Absolute URL"],it:[["logo.png",0],["images/photo.jpg",1],["../images/photo.jpg",2],["/images/logo.png",3],["https://host/pic.jpg",4],["pictures/a.png",1],["../a.png",2],["photo.jpg",0]]},
+{n:"Which list?",o:["ol","ul","dl"],it:[["Steps of a procedure",0],["Items of equal importance",1],["A glossary",2],["Has type, start and reversed",0],["Uses dt and dd",2],["Shows bullets by default",1],["A ranking",0],["A FAQ of terms and meanings",2]]},
+{n:"Which media attribute?",o:["controls","autoplay","loop","muted","poster"],it:[["Shows play and pause buttons",0],["Starts when the page loads",1],["Repeats the clip",2],["Starts with the sound off",3],["A picture shown before play",4],["Without it nothing is visible",0],["Browsers block it unless the media is muted",1]]},
+{n:"Valid or obsolete?",o:["Valid","Obsolete"],it:[["<iframe>",0],["<frameset>",1],["<frame>",1],["frameborder=\"0\"",1],["style=\"border: 0;\"",0],["type on <ul>",1],["type on <ol>",0],["start on <ol>",0],["<link rel=\"icon\">",0]]},
+{n:"Responsive",o:["Viewport tag","Fluid image rule","Neither"],it:[["width=device-width",0],["max-width: 100%",1],["height: auto",1],["initial-scale=1.0",0],["A phone lays the page out 980 px wide",0],["width=\"600\" in the HTML",2],["Goes in the head",0],["Goes in CSS",1]]}
+];
+
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "ltog":L[el.dataset.key]=!L[el.dataset.key];render();return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.brief!==undefined?r.brief:(r.out||"")).replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="path")set("pathres",pathRes());
+  else if(k==="mark")set("markres",markRes());
+  else if(k==="fluid")set("fluidres",fluidRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
