@@ -1,0 +1,1529 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Venture Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 5 · Professional Skills · Lesson 28</div>
+    <h1>Entrepreneurship Skills</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Entrepreneur, enterprise, startup and unicorn",c:["Term","Meaning"],r:[
+["Entrepreneur","Spots an opportunity, takes calculated risks, organises resources and creates a venture that delivers value"],
+["Enterprise","The organised business entity the entrepreneur creates"],
+["Startup","A newly formed enterprise designed to grow fast with a scalable business model"],
+["Scalable","Can serve many more customers without costs rising in proportion"],
+["Unicorn","A startup valued at over one billion US dollars"]]},
+/*1*/{s:0,t:"Table 1.1: Entrepreneur, manager and employee compared",c:["Feature","Entrepreneur","Manager","Employee"],r:[
+["Main role","Creates the venture and its direction","Runs and improves an existing organisation","Does assigned work"],
+["Risk","Carries the financial risk","Limited","Limited"],
+["Reward","Profit (uncertain)","Salary and bonus","Salary"],
+["Decides","What to build, for whom","How to run it","How to do the task"]]},
+/*2*/{s:0,t:"Table 1.2: Qualities of an entrepreneur",c:["Quality","Meaning"],r:[
+["Passion and motivation","Genuine enthusiasm for the problem; sustains effort through setbacks"],
+["Risk tolerance","Taking calculated, informed risks and acting despite incomplete information"],
+["Resilience and persistence","Recovering from failure and rejection and carrying on"],
+["Problem-solving orientation","Seeing obstacles as problems to solve"],
+["Self-discipline and initiative","Setting and pursuing goals without anyone checking"],
+["Adaptability","Changing course quickly when evidence shows the plan is not working"]]},
+/*3*/{s:0,t:"Expected value of a venture",c:["Case","Calculation","Result"],r:[
+["30% chance of Rs 10 lakh, 70% chance of −Rs 1 lakh","0.30 × 10 00 000 + 0.70 × (−1 00 000)","Rs 2.3 lakh: a calculated risk"],
+["1% chance of Rs 10 lakh, 99% chance of −Rs 5 lakh","0.01 × 10 00 000 − 0.99 × 5 00 000","−Rs 4.85 lakh: a gamble"]]},
+/*4*/{s:1,t:"Creativity and innovation",c:["Term","Meaning"],r:[
+["Creativity","Producing new, original ideas by making unexpected connections"],
+["Innovation","The practical use of creative ideas to create value: an idea made to work"],
+["Link","Creativity gives the idea; innovation makes it work"]]},
+/*5*/{s:1,t:"Table 1.3: Incremental and disruptive innovation",c:["Feature","Incremental","Disruptive"],r:[
+["What it does","Improves an existing product, service or process","Introduces a new, simpler, more affordable product, starting with overlooked customers"],
+["Concept","The fundamental concept is unchanged","A new concept that later displaces established leaders"],
+["Examples","A faster phone, a new version of an app","Mobile banking against branch banking; digital cameras against film; streaming against video rental"],
+["Risk","Low","High, but may be a very large reward"]]},
+/*6*/{s:1,t:"Table 1.4: SCAMPER applied to a school notebook",c:["Letter","Question","Idea"],r:[
+["S","Substitute","Recycled or stone paper instead of wood pulp"],
+["C","Combine","A QR code on each page linking to the teacher's video lesson"],
+["A","Adapt","Tear-off weekly planner pages"],
+["M","Modify or magnify","A high-contrast version for low-vision students"],
+["P","Put to other uses","Blank pages as seed paper"],
+["E","Eliminate","Remove the binding: loose pages"],
+["R","Rearrange or reverse","Start from the back for revision notes"]]},
+/*7*/{s:1,t:"Techniques to cultivate creativity",c:["Technique","What it is"],r:[
+["Brainstorming","Many ideas without judging: defer judgement, aim for quantity, welcome wild ideas, build on others' ideas"],
+["SCAMPER","Seven questions applied to an existing product"],
+["Mind mapping","Central concept with branches and sub-branches"],
+["Cross-domain thinking","Carry a solution from a different field: game points used to motivate students"]]},
+/*8*/{s:1,t:"Table 1.5: Phases of design thinking",c:["Phase","What you do","Output"],r:[
+["Empathize","Observe and interview users in their own setting","Observations, interview notes"],
+["Define","Combine the research into a human-centred problem statement, often a 'How Might We' question","Problem statement"],
+["Ideate","Generate many solutions; postpone judgement","Many ideas, a short list"],
+["Prototype","Build quick, cheap, rough versions of the best ideas","Prototype"],
+["Test","Let real users try it; watch, listen and ask","Feedback and a refined solution"]]},
+/*9*/{s:1,t:"Table 1.6: Prototype fidelity and 'How Might We'",c:["Item","Content"],r:[
+["Low fidelity","Sketch, paper screens, cardboard: test the idea in minutes at almost no cost"],
+["Medium fidelity","Clickable wireframe: test the flow of screens"],
+["High fidelity","Working demo with real design: test details just before building"],
+["Good HMW question","Names who, what they need and why; neither too broad nor a solution in disguise"],
+["Bad HMW questions","'How might we improve education?' (too broad); 'build a mobile app for farmers' (a solution)"]]},
+/*10*/{s:2,t:"Table 1.7: Systematic approaches to ideas",c:["Approach","Method","Example"],r:[
+["Problem-first thinking","Find widespread, serious, frequent problems; look for workarounds and hacks","Students sharing handwritten notes on messaging apps: a note-sharing service"],
+["Trend analysis","Study technological, demographic, regulatory or behavioural trends","More regional-language internet users: learning content in local languages"],
+["Gap analysis","Look for unmet or underserved needs in a market","Few good tools for visually impaired students"],
+["Skill and passion mapping","List what you know, can do and love, then ask whom it can help","Chess and coding: a chess-training app"]]},
+/*11*/{s:2,t:"The five criteria for evaluating an idea",c:["Criterion","Question"],r:[
+["Significance of the problem","Do enough people have it, seriously enough to pay?"],
+["Market size","Are there enough customers for a viable business?"],
+["Competitive differentiation","Is it much better than existing solutions and hard to copy?"],
+["Feasibility","Can you build it with your resources and skills?"],
+["Profitability potential","Is there a believable path to revenue above costs?"]]},
+/*12*/{s:2,t:"Table 1.8: Scoring three ideas (weights 0.30, 0.20, 0.20, 0.20, 0.10)",c:["Criterion (weight)","A: Note-sharing","B: Chess trainer","C: Regional-language"],r:[
+["Problem significance (0.30)","5","3","4"],
+["Market size (0.20)","3","4","5"],
+["Differentiation (0.20)","3","2","4"],
+["Feasibility (0.20)","4","5","2"],
+["Profitability (0.10)","3","4","3"],
+["Weighted score","3.8","3.5","3.7"]]},
+/*13*/{s:2,t:"Table 1.9: Blocks of the Business Model Canvas",c:["Block","Meaning","Tutoring app example"],r:[
+["Value Proposition","Why customers choose you: the problem solved, need met, pain relieved","Affordable, personal practice and doubt-solving for Class 9–12"],
+["Customer Segments","The distinct groups served; no business serves everyone","Class 10 and 12 students; their parents"],
+["Channels","How you reach customers and deliver the value","App store, school visits, social media"],
+["Customer Relationships","The kind of relationship with each segment","Automated practice, community, live doubt sessions"],
+["Revenue Streams","How each segment generates income","Monthly subscription; school licence"],
+["Key Resources","The most important assets","Question bank, software, teachers"],
+["Key Activities","The most important things the company must do","Build and update the app; create content"],
+["Key Partnerships","Suppliers and partners that help","Payment gateway, cloud provider, schools"],
+["Cost Structure","All the costs of operating the model","Salaries, cloud hosting, marketing"]]},
+/*14*/{s:2,t:"Table 1.10: Common digital revenue models",c:["Model","How it earns","Example"],r:[
+["SaaS subscription","Monthly or annual fee for access to software","An accounting tool charged per month"],
+["Freemium","Free basic version, paid premium tier","Free practice questions, paid mock tests"],
+["Marketplace commission","A percentage of each transaction","A freelance platform keeping 10% of each job"],
+["Advertising","Displaying advertisements to users","A free video site showing ads"],
+["Licensing","A fee to use intellectual property","A school pays to use the content"]]},
+/*15*/{s:2,t:"Worked pricing: Rs 300 a month",c:["Model","Calculation","Revenue a month"],r:[
+["Subscription, 1000 students","1 000 × 300","Rs 3 00 000"],
+["Freemium, 10 000 free users, 8% pay","800 × 300","Rs 2 40 000"],
+["Freemium at 4% conversion","400 × 300","Rs 1 20 000: half"]]},
+/*16*/{s:3,t:"Table 1.11: Primary and secondary research",c:["Feature","Primary research","Secondary research"],r:[
+["What it is","New, original data collected directly","Analysis of data others have collected and published"],
+["Methods","Surveys, interviews, focus groups, observation","Industry reports (NASSCOM, FICCI), government statistics (Census), academic studies, competitors' reports"],
+["Strength","Specific and tailored to your question","Faster and cheaper"],
+["Weakness","Needs time and money","May not answer your exact question; may be out of date"]]},
+/*17*/{s:3,t:"Questions market research must answer, and surveys",c:["Item","Content"],r:[
+["Market","How large is it, and is it growing?"],
+["Competitors","Who are they, strengths and weaknesses, how will you differ?"],
+["Pain points","What are customers' biggest frustrations with current solutions?"],
+["Price","What price will customers pay?"],
+["Channels","Which channels do customers use to find and buy?"],
+["Good survey","Neutral questions, one idea each, short, tested first, a sample that resembles customers"],
+["Leading question","'Wouldn't you love a fun, cheap app?' biases the answer"]]},
+/*18*/{s:3,t:"TAM, SAM and SOM for the tutoring app",c:["Level","Meaning","Calculation","Result"],r:[
+["TAM","Total revenue if 100% of the market were captured","2 00 000 students × Rs 6 000","Rs 120 crore"],
+["SAM","The part your product, price and channels can reach","40% = 80 000 students × Rs 6 000","Rs 48 crore"],
+["SOM","The share of the SAM you can realistically win","5% of the SAM = 4 000 students × Rs 6 000","Rs 2.4 crore"],
+["Rule","TAM > SAM > SOM","Plan with the SOM, not the TAM",""]]},
+/*19*/{s:3,t:"Segmentation bases",c:["Base","Examples"],r:[
+["Demographic","Age, gender, income, education, location"],
+["Psychographic","Values, interests, lifestyle"],
+["Behavioural","How they buy and use products, how often"],
+["Needs-based","The problem they want solved"],
+["Beachhead","A narrow first segment, widened later"]]},
+/*20*/{s:3,t:"Table 1.12: Parts of a customer persona",c:["Part","Contents","Example (Aarav, 16)"],r:[
+["Demographic","Age, gender, education, income, location","16, Class 10, small town"],
+["Psychographic","Goals, values, interests, lifestyle","Wants 85% in the board exam; likes cricket and videos"],
+["Behavioural","How they solve the problem now, channels, how they decide to buy","Shares a phone; studies after 8 pm; parents pay"],
+["Pain points","Specific frustrations with current solutions","Expensive tuition; no help after 7 pm"]]},
+/*21*/{s:3,t:"Early adopters and the diffusion of innovations (Rogers)",c:["Group","Share"],r:[
+["Innovators","2.5%"],["Early adopters","13.5%"],["Early majority","34%"],["Late majority","34%"],["Laggards","16%"],
+["Chasm (Geoffrey Moore)","The gap between early adopters and the early majority"]]},
+/*22*/{s:4,t:"Table 1.13: Elements of a brand",c:["Element","What it is"],r:[
+["Name and logo","Memorable, short, easy to spell and say, free to register"],
+["Visual identity","Colours, fonts and style used everywhere"],
+["Voice and tone","How the brand speaks"],
+["Values and promise","What the brand stands for and promises"],
+["Experience","What it is actually like to use; the promise must be kept"]]},
+/*23*/{s:4,t:"Table 1.14: The 4Ps for the tutoring app",c:["P","Meaning","Example"],r:[
+["Product","The offer: features, quality, design, packaging","App with quizzes, videos and doubt chat"],
+["Price","What customers pay","Rs 300 a month; a free trial week"],
+["Place","Where and how it reaches customers","App stores, school tie-ups"],
+["Promotion","How the business communicates and persuades","Short videos, school talks, referral offers"]]},
+/*24*/{s:4,t:"Table 1.15: Digital marketing channels",c:["Channel","What it is","Typical use"],r:[
+["SEO","Improving visibility in unpaid (organic) search results","Long-term, free traffic"],
+["SEM / PPC","Paid adverts in search results; pay each time the ad is clicked","Immediate visibility"],
+["Social media marketing","Instagram, Facebook, YouTube, LinkedIn, WhatsApp, ShareChat","Awareness and community"],
+["Content marketing","Valuable blogs, videos, infographics, podcasts","Trust and organic reach"],
+["E-mail marketing","Personalised messages to the inbox","Keeping and re-engaging customers"],
+["Influencer marketing","Partnering with people with an engaged following","Reaching a niche quickly"]]},
+/*25*/{s:4,t:"Table 1.16: Marketing metrics",c:["Metric","Formula","This example"],r:[
+["CTR (click-through rate)","clicks ÷ impressions","4 000 ÷ 200 000 = 2%"],
+["Conversion rate","sign-ups ÷ clicks","200 ÷ 4 000 = 5%"],
+["CAC (customer acquisition cost)","marketing spend ÷ new customers","10 000 ÷ 40 = Rs 250"],
+["ROI (return on investment)","(revenue − spend) ÷ spend","(24 000 − 10 000) ÷ 10 000 = 140%"]]},
+/*26*/{s:4,t:"The marketing funnel of the campaign",c:["Stage","Number","Rate"],r:[
+["Impressions (awareness)","200 000",""],
+["Clicks (interest)","4 000","2% click-through"],
+["Sign-ups (consideration)","200","5% of clicks"],
+["Customers (conversion)","40","Rs 10 000 spent: CAC Rs 250; revenue Rs 24 000; ROI 140%"]]},
+/*27*/{s:5,t:"Table 1.17: Fixed and variable costs",c:["Kind","Meaning","Examples"],r:[
+["Fixed costs","Constant whatever the sales; paid even if nothing is sold","Rent, salaries, insurance, depreciation"],
+["Variable costs","Change in proportion to production or sales","Raw materials, packaging, transaction fees, shipping"],
+["Total costs","Fixed + variable",""],
+["Profit","Revenue − total costs",""]]},
+/*28*/{s:5,t:"Gross profit and net profit of the online shop",c:["Item","Amount"],r:[
+["Sales","Rs 5 00 000"],["Cost of goods sold","Rs 3 00 000"],["Gross profit","Rs 2 00 000"],
+["Operating expenses, interest, tax","Rs 1 20 000, Rs 10 000, Rs 15 000"],
+["Net profit","Rs 55 000"],["Net profit margin","55 000 ÷ 5 00 000 = 11%"]]},
+/*29*/{s:5,t:"Break-even of the coding workshop (fixed Rs 20 000; price Rs 200; variable Rs 120)",c:["Item","Calculation","Result"],r:[
+["Contribution per participant","200 − 120","Rs 80"],
+["Break-even","20 000 ÷ 80","250 participants"],
+["Profit at 400","400 × 80 − 20 000","Rs 12 000"],
+["Result at 150","150 × 80 − 20 000","−Rs 8 000: a loss"]]},
+/*30*/{s:5,t:"Table 1.18: Profitable, but out of cash (one month)",c:["Item","Amount","Note"],r:[
+["Opening cash","Rs 50 000",""],
+["Sales (customers pay in 60 days)","Rs 1 00 000","Revenue counted, no cash yet"],
+["Costs paid at once","Rs 90 000","Suppliers 60 000 + salaries 30 000"],
+["Profit for the month","Rs 10 000","1 00 000 − 90 000"],
+["Closing cash","−Rs 40 000","50 000 − 90 000: a shortfall"]]},
+/*31*/{s:6,t:"Table 1.19: Sources of startup funding",c:["Source","What it is","Type"],r:[
+["Bootstrapping","Personal savings and early customer revenue; full ownership","Own money"],
+["Friends and family","Informal early money","Equity or loan"],
+["Angel investors","Wealthy individuals investing in early startups","Equity"],
+["Venture capital (VC)","Professional funds in rounds (seed, Series A, B)","Equity"],
+["Bank loans","Debt repaid with interest","Debt"],
+["Government schemes","Startup India, MUDRA loans, state schemes","Grant, loan, support"]]},
+/*32*/{s:6,t:"Equity, debt and the angel investor example",c:["Item","Content"],r:[
+["Equity","Investors get a share of ownership; each round dilutes the founders"],
+["Debt","A loan repaid with interest; no ownership given up"],
+["Pre-money value","Rs 4 crore"],
+["Investment","Rs 1 crore from an angel"],
+["Post-money value","Rs 5 crore: the investor owns 1 ÷ 5 = 20%, founders 80%"]]},
+/*33*/{s:6,t:"MUDRA loan bands and Startup India",c:["Band","Loan size"],r:[
+["Shishu","Up to Rs 50 000"],
+["Kishor","Above Rs 50 000 up to Rs 5 lakh"],
+["Tarun","Above Rs 5 lakh up to Rs 10 lakh"],
+["Tarun Plus (since 2024)","Above Rs 10 lakh up to Rs 20 lakh"],
+["Startup India","DPIIT recognition gives access to benefits under conditions; collateral-free does not mean no checks"]]},
+/*34*/{s:7,t:"Table 1.20: Types of intellectual property in India",c:["Type","Protects","How obtained","Duration","Example"],r:[
+["Copyright","Original creative works: code, writing, music, art","Automatic on creation; registration optional","Author's lifetime + 60 years","Source code of an app"],
+["Trademark","A distinctive name, logo, slogan","Registration (Trade Marks Registry)","10 years, renewable indefinitely","The app's name and logo"],
+["Patent","A new, non-obvious, industrially applicable invention","Application and examination; publicly disclosed","20 years from filing","A new technical process"],
+["Trade secret","Confidential business information","Secrecy; no registration","No time limit while kept secret","A recommendation formula"]]},
+/*35*/{s:7,t:"Which protection?",c:["Asset","Protection"],r:[
+["Source code of the app","Copyright (automatic)"],
+["Name and logo","Trademark (register it)"],
+["A new method that halves grading time","Patent, if a novel technical process (an algorithm alone is not enough)"],
+["How questions are ranked for students","Trade secret: NDAs and access control"]]},
+/*36*/{s:8,t:"Four areas of business ethics",c:["Area","Meaning"],r:[
+["Honesty and transparency","Truthful advertising, accurate descriptions, clear terms; honest with employees, investors, suppliers"],
+["Customer protection","Fair treatment; Consumer Protection Act, 2019 (also covers e-commerce)"],
+["CSR","Responsibility beyond profit to employees, communities and the environment"],
+["Data ethics","Informed consent, use only for the stated purpose, protect against breaches; DPDP Act, 2023"]]},
+/*37*/{s:8,t:"The CSR rule and example",c:["Item","Content"],r:[
+["Rule (Companies Act, 2013)","Spend at least 2% of the average net profit of the previous three years"],
+["Applies if, in the preceding year,","Net worth Rs 500 crore or more, or turnover Rs 1 000 crore or more, or net profit Rs 5 crore or more"],
+["Example","Profits 8, 10, 12 crore: average Rs 10 crore; 2% = Rs 20 lakh"],
+["Small startup","Net profit Rs 2 crore, turnover Rs 40 crore, net worth Rs 30 crore: no legal duty"]]},
+/*38*/{s:8,t:"DPDP Rules, 2025: dates",c:["Date","What applies"],r:[
+["13 November 2025","DPDP Rules notified; provisions setting up the Data Protection Board take effect"],
+["12 November 2026","Rules for registered consent managers"],
+["12 May 2027","Most duties of businesses: notice and consent, children's data, data-principal rights, breach reporting, erasure"]]},
+/*39*/{s:9,t:"Career planning and career paths",c:["Item","Content"],r:[
+["Steps","Self-assessment, goal setting, skills development, portfolio building, networking, experience; review every year"],
+["Self-assessment","Strengths, weaknesses, interests, values"],
+["Skills","Online courses and certifications: AWS, Google Cloud, Cisco CCNA, CompTIA Security+, PMP"],
+["Portfolio","Personal projects, open source, hackathons, a GitHub profile"],
+["Experience","Internships, freelance work, entry-level jobs"]]},
+/*40*/{s:9,t:"Table 1.21: Career paths and typical roles",c:["Path","Roles"],r:[
+["Software development","Web, mobile, embedded and game developer"],
+["Data science and AI","Data analyst, machine-learning engineer, AI researcher"],
+["Cyber security","Security analyst, penetration tester, security engineer"],
+["Cloud and DevOps","Cloud architect, DevOps engineer, site reliability engineer"],
+["Databases and networks","Database administrator, network administrator"],
+["Management and design","IT project manager, UX/UI designer, technical writer"],
+["Business roles","IT sales, consulting"],
+["Entrepreneurship","Starting a technology product or service business"]]},
+/*41*/{s:9,t:"Freelancing and the gig economy",c:["Item","Content"],r:[
+["Advantages","Control of time and choices, varied clients, possibly higher income, growth of business skills"],
+["Risks","Irregular income, no paid leave or employer benefits, finding your own work"],
+["Platforms","Upwork, Freelancer, Toptal, Fiverr, Truelancer, WorknHire"],
+["Success needs","Personal brand, good work on time, professional communication, sensible pricing, orderly finances"],
+["Minimum hourly rate","(income + costs) ÷ billable hours = 70 000 ÷ 100 = Rs 700; dividing by 160 gives Rs 437, too low"]]},
+/*42*/{s:9,t:"Records, tax and GST",c:["Item","Rule"],r:[
+["GST registration, services","Annual turnover above Rs 20 lakh (Rs 10 lakh in special-category states)"],
+["GST registration, goods","Rs 40 lakh in most states"],
+["Always register","Some suppliers (inter-state sellers of goods, sellers through e-commerce platforms) whatever the turnover"],
+["Income tax","Income-tax Act, 2025, in force from 1 April 2026; keep records; advance tax; file a return"]]},
+/*43*/{s:9,t:"Table 1.22: Worked numbers to remember",c:["Example","Result"],r:[
+["Expected value: 30% of Rs 10 lakh, 70% of −Rs 1 lakh","Rs 2.3 lakh"],
+["Weighted scores of ideas A, B, C","3.8, 3.5, 3.7"],
+["TAM, SAM, SOM (Rs 6 000 a student)","Rs 120 crore, Rs 48 crore, Rs 2.4 crore"],
+["CTR, conversion, CAC, ROI","2%, 5%, Rs 250, 140%"],
+["Gross profit, net profit of the shop","Rs 2 00 000, Rs 55 000"],
+["Break-even of the workshop","250 participants"],
+["Angel investing Rs 1 crore at Rs 4 crore pre-money","Owns 20%"],
+["CSR on average net profit Rs 10 crore","Rs 20 lakh"],
+["Freelance rate for Rs 70 000 over 100 billable hours","Rs 700 per hour"]]}
+];
+
+const NOTES=[
+["1.1 and 1.2 Entrepreneurship fundamentals and qualities","An {{entrepreneur}} spots an opportunity, takes calculated risks, organises resources and creates a venture that delivers value. An {{enterprise}} is the organised entity created to pursue the opportunity. A {{startup}} is a newly formed enterprise designed to grow fast with a {{scalable}} business model: it can serve many more customers without costs rising in proportion. A {{unicorn}} is a startup valued at over one billion US dollars; a valuation is not the same as a successful business. A tutor with 20 students is a small business; an app that serves any number of students for a fee is startup-style. The qualities are passion and motivation, risk tolerance, resilience and persistence, problem-solving orientation, self-discipline and initiative, and adaptability; all can be developed. Risk is calculated, not reckless: the {{expected value}} is the sum of each result multiplied by its probability. 30% of Rs 10 lakh and 70% of −Rs 1 lakh give {{Rs 2.3 lakh}}; 1% of Rs 10 lakh and 99% of −Rs 5 lakh give −Rs 4.85 lakh, a gamble. Fail small and early."],
+["1.3 and 1.4 Innovation and design thinking","{{Creativity}} is producing new, original ideas; {{innovation}} is the practical use of creative ideas to create value. {{Incremental}} innovation improves an existing product (a faster phone); {{disruptive}} innovation (Clayton Christensen) introduces a simpler, cheaper product that starts with overlooked customers and later displaces leaders (mobile banking, streaming, UPI). Creativity techniques are {{brainstorming}} (defer judgement, aim for quantity), {{SCAMPER}} (Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Rearrange), mind mapping and cross-domain thinking. {{Design thinking}} is human-centred and iterative (IDEO and the Stanford d.school): {{Empathize}}, {{Define}}, {{Ideate}}, {{Prototype}}, {{Test}}. A good 'How Might We' question names who, what they need and why, and is neither too broad nor a solution in disguise. Prototypes may be low fidelity (paper), medium (clickable wireframe) or high (working demo). Test with real users: ask them to show how they would do it."],
+["1.5 and 1.6 Business ideas and business models","Ideas come from four approaches: {{problem-first}} thinking, {{trend}} analysis, {{gap}} analysis and {{skill and passion}} mapping. Evaluate with five criteria: significance of the problem, market size, differentiation, feasibility and profitability. A {{weighted scoring table}} multiplies each score (1 to 5) by its weight (the weights add up to 1): ideas A, B and C score {{3.8}}, 3.5 and 3.7; a score is a guide to discussion. A painkiller beats a vitamin. A {{business model}} describes how an organisation creates, delivers and captures value; the {{Business Model Canvas}} (Alexander Osterwalder) has nine blocks: Value Proposition, Customer Segments, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships and Cost Structure. The value proposition is the central block. Digital revenue models are SaaS subscription, freemium, marketplace commission, advertising and licensing. At Rs 300 a month, 1000 subscribers give Rs 3 00 000; 8% of 10 000 free users give 800 payers and {{Rs 2 40 000}}."],
+["1.7 and 1.8 Market research and customers","{{Market research}} gathers information about the market, customers, competitors, trends and regulation before launch. {{Primary}} research is new data collected directly (surveys, interviews, focus groups, observation); {{secondary}} research analyses existing data (reports, Census, studies); start with secondary. A leading question biases a survey. {{TAM}} is the total revenue if 100% of the market were captured, {{SAM}} the part you can reach and {{SOM}} the share you can realistically win: 2 00 000 students × Rs 6 000 = Rs 120 crore; 40% reachable = Rs 48 crore; 5% of that = {{Rs 2.4 crore}}. Plan with the SOM. Segments are demographic, psychographic, behavioural or needs-based; start with a narrow beachhead. A {{customer persona}} is a semi-fictional description built from research with four parts: demographic, psychographic, behavioural and pain points. {{Early adopters}} tolerate imperfection and give honest feedback; in Rogers' diffusion of innovations the groups are innovators 2.5%, early adopters 13.5%, early majority 34%, late majority 34% and laggards 16%. Moore's chasm lies between early adopters and the early majority. The person who pays may not be the user."],
+["1.9 and 1.10 Branding and digital marketing","A {{brand}} is the perception stakeholders hold of an organisation; its benefits are differentiation, loyalty and trust; a logo is only a small part. {{Marketing}} communicates the value of products to attract, win and keep customers; the marketing mix is the {{4Ps}}: Product, Price, Place and Promotion (services add people, process and physical evidence for the 7Ps). Digital marketing offers targeting precision, measurability, interactivity and cost efficiency. The channels are {{SEO}} (organic, free), {{SEM/PPC}} (paid, per click), social media, content, e-mail and influencer marketing. Metrics: CTR = clicks ÷ impressions; conversion rate = sign-ups ÷ clicks; CAC = spend ÷ new customers; ROI = (revenue − spend) ÷ spend. In the campaign 200 000 impressions gave 4 000 clicks ({{2%}}), 200 sign-ups (5%) and 40 customers; Rs 10 000 spent gives CAC {{Rs 250}} and, at Rs 600 each, ROI {{140%}}. Never buy fake followers or write fake reviews."],
+["1.11 Cost, profit, break-even and cash flow","{{Fixed costs}} stay constant whatever the sales (rent, salaries); {{variable costs}} change with volume (materials, shipping). Profit = revenue − total costs. {{Gross profit}} = revenue − cost of goods sold; {{net profit}} subtracts all expenses, interest and tax. The shop's gross profit is Rs 2 00 000 and net profit {{Rs 55 000}} (margin 11%). The {{break-even}} point is where revenue equals total cost: break-even units = fixed costs ÷ (price − variable cost per unit). With fixed Rs 20 000, price Rs 200 and variable Rs 120 the contribution is Rs 80 and break-even is {{250}} participants; at 400 the profit is Rs 12 000 and at 150 the loss is Rs 8 000. A {{budget}} is a forecast plan; a {{cash flow}} statement tracks actual cash. Profit is not cash: sales of Rs 1 00 000 paid in 60 days with Rs 90 000 of costs paid at once give a profit of Rs 10 000 but closing cash of −Rs 40 000."],
+["Funding and investment","{{Investment}} is money put in for future returns. {{Equity}} funding gives investors a share of ownership and dilutes founders; {{debt}} is a loan repaid with interest. The sources are {{bootstrapping}}, friends and family, {{angel investors}}, {{venture capital}} (seed, Series A, B), bank loans and government schemes (Startup India, MUDRA, state schemes). If a startup valued at Rs 4 crore before investment receives Rs 1 crore from an angel, the post-money value is Rs 5 crore and the investor owns {{20%}}, the founders 80%. MUDRA loans are collateral-free in four bands: Shishu up to Rs 50 000, Kishor up to Rs 5 lakh, Tarun up to Rs 10 lakh and, since 2024, Tarun Plus up to Rs 20 lakh; lenders still check repayment capacity. DPIIT recognition under Startup India gives benefits under conditions. Debt must be repaid whether or not the business succeeds."],
+["1.12 Intellectual property","{{Intellectual property}} is creations of the mind. {{Copyright}} protects the expression of an original work automatically from creation (software is a literary work under the Copyright Act, 1957) for the author's life plus {{60}} years; it does not protect ideas. A {{trademark}} identifies goods or services, is registered with the Controller General of Patents, Designs and Trade Marks and lasts {{10}} years, renewable. A {{patent}} gives an exclusive right to a novel, non-obvious, industrially applicable invention for {{20}} years from filing, in return for public disclosure; an algorithm as such is not patentable in India and a patent is territorial. A {{trade secret}} is confidential information protected by secrecy and NDAs, with no registration and no time limit while kept; it is lost if discovered independently or reverse-engineered. Source code is copyright, a name and logo are trademark, a novel technical process may be patented and a ranking method may be a trade secret. Open-source licences are permissions given by the copyright owner."],
+["1.13 Ethics in business","{{Business ethics}} applies honesty, fairness, integrity, respect, responsibility and accountability to business decisions; it is also a strategic necessity (legal liability, reputation, trust). The four areas are honesty and transparency, {{customer protection}} (the Consumer Protection Act, 2019, which also covers e-commerce), {{corporate social responsibility}} and {{data ethics}} (informed consent, use only for the stated purpose, protection against breaches; the Digital Personal Data Protection Act, 2023). Under the Companies Act, 2013 a company must spend at least {{2%}} of the average net profit of the previous three years on CSR if it has net worth of Rs 500 crore or more, or turnover of Rs 1 000 crore or more, or net profit of Rs 5 crore or more: profits of 8, 10 and 12 crore give an average of 10 crore and {{Rs 20 lakh}}. The DPDP Rules, 2025 were notified on 13 November 2025; most business duties apply from 12 May 2027. False urgency such as 'Only 2 left!' on every product is dishonest and may be an unfair trade practice."],
+["1.14 Careers and self-employment","{{Career planning}} sets goals that fit your interests, values and abilities: self-assessment, goal setting, skills development, portfolio building, networking and experience, reviewed every year. Paths for a computer science student include software development, data science and AI, cyber security, cloud and DevOps, databases and networks, management and design, business roles and entrepreneurship. Certifications include AWS, Google Cloud, CCNA, CompTIA Security+ and PMP. {{Freelancing}} gives control of time and varied clients but brings irregular income and no employer benefits; the gig economy uses platforms such as Upwork, Freelancer, Toptal, Fiverr, Truelancer and WorknHire. Price by value and billable hours: income Rs 60 000 plus costs Rs 10 000 over 100 billable hours is {{Rs 700}} an hour, not Rs 437. Keep records, pay income tax (advance tax if large) and register for {{GST}} above Rs 20 lakh turnover for services (Rs 10 lakh in special-category states; Rs 40 lakh for goods in most states). The Income-tax Act, 2025 applies from 1 April 2026."]
+];
+const DUMPS=[
+{t:"Entrepreneurship fundamentals",p:["Entrepreneur: opportunity, calculated risk, resources, value","Enterprise and startup; scalable; unicorn","Entrepreneur, manager, employee","Six qualities","Expected value: Rs 2.3 lakh against −Rs 4.85 lakh"]},
+{t:"Innovation and design thinking",p:["Creativity and innovation","Incremental and disruptive","Brainstorming rules; SCAMPER seven words","Mind map; cross-domain","Five phases of design thinking; HMW question","Prototype fidelity"]},
+{t:"Ideas and business models",p:["Four ways to generate ideas","Five criteria; weighted score 3.8, 3.5, 3.7","Nine blocks of the canvas","Five revenue models","Subscription and freemium arithmetic"]},
+{t:"Market research and customers",p:["Primary and secondary research with methods","Questions research answers; good survey","TAM, SAM, SOM: 120, 48, 2.4 crore","Four segmentation bases; beachhead","Persona's four parts","Early adopters; Rogers percentages; chasm"]},
+{t:"Branding and digital marketing",p:["Brand: perception; D-L-T","4Ps with examples","Six digital channels","CTR, conversion, CAC, ROI formulas and values","SEO against PPC; no fake reviews"]},
+{t:"Financial literacy",p:["Fixed and variable costs","Profit; gross and net: 2 lakh, 55 000","Break-even formula; 250 participants","Budget and cash flow","Profit is not cash: −Rs 40 000"]},
+{t:"Funding",p:["Equity and debt","Six sources of funding","Angel example: 20%","MUDRA bands; Startup India"]},
+{t:"Intellectual property",p:["Four types: what, how, duration","Copyright life + 60; trademark 10 years; patent 20 years","Algorithm not patentable; patents territorial","Trade secret lasts while secret","Which protection for what"]},
+{t:"Ethics in business",p:["Four areas","Consumer Protection Act 2019","CSR: 2% of the 3-year average net profit, thresholds","DPDP Act 2023 and Rules 2025 dates","False urgency example"]},
+{t:"Careers and freelancing",p:["Six steps of career planning","Career paths and certifications","Freelancing: advantages, risks, platforms","Rate: Rs 700 an hour","GST limits; Income-tax Act 2025"]}
+];
+
+const SECS=["Entrepreneurship fundamentals","Innovation and design thinking","Ideas and business models","Market research and customers","Branding and digital marketing","Financial literacy","Funding","Intellectual property","Ethics in business","Careers and freelancing"];
+const CORE=[
+[0,"Define an entrepreneur.","A person who spots an opportunity, takes calculated risks, organises resources and creates a venture that delivers value for profit or social impact."],
+[0,"Define an enterprise.","The organised business entity that the entrepreneur creates to pursue the opportunity."],
+[0,"Define a startup.","A newly formed enterprise designed to grow fast, with a scalable business model."],
+[0,"What does scalable mean?","It can serve many more customers without costs rising in proportion."],
+[0,"What is a unicorn?","A startup valued at over one billion US dollars."],
+[0,"Is a tutor teaching 20 students at home a startup?","No: a small business whose income grows only with her hours; an app with near-zero cost per extra subscriber is startup-style."],
+[0,"Compare the entrepreneur, manager and employee.","Entrepreneur creates the venture and carries the risk for uncertain profit; manager runs an existing organisation for salary and bonus; employee does assigned work for salary."],
+[0,"Name the six qualities of an entrepreneur.","Passion and motivation, risk tolerance, resilience and persistence, problem-solving orientation, self-discipline and initiative, adaptability."],
+[0,"What is calculated risk?","Acting when the expected value is positive, even though the outcome is uncertain."],
+[0,"Define expected value.","The sum of each possible result multiplied by its probability."],
+[0,"Expected value of a 30% chance of Rs 10 lakh and a 70% chance of −Rs 1 lakh?","0.30 × 10 00 000 − 0.70 × 1 00 000 = Rs 2.3 lakh."],
+[0,"Expected value of 1% of Rs 10 lakh and 99% of −Rs 5 lakh?","−Rs 4.85 lakh: a gamble, not an enterprise."],
+[0,"Is resilience the same as stubbornness?","No: a resilient entrepreneur keeps to the goal but adapts the method."],
+[0,"What does 'fail small and early' mean?","A cheap test that proves the idea wrong costs little; a large failed launch can end the venture."],
+[1,"Define creativity.","The ability to produce new, original ideas by making unexpected connections."],
+[1,"Define innovation.","The practical use of creative ideas to create value: turning a concept into a working product, process or service."],
+[1,"How are creativity and innovation linked?","Creativity gives the idea; innovation makes it work."],
+[1,"Define incremental innovation with an example.","Improves an existing product or process without changing the concept: a faster phone."],
+[1,"Define disruptive innovation with examples.","A new, simpler, cheaper product that starts with overlooked customers and later displaces leaders: mobile banking, digital cameras, streaming."],
+[1,"Who coined 'disruptive innovation'?","Clayton Christensen."],
+[1,"State the rules of brainstorming.","Defer judgement, aim for quantity, welcome wild ideas, build on others' ideas."],
+[1,"Expand SCAMPER.","Substitute, Combine, Adapt, Modify (magnify), Put to other uses, Eliminate, Rearrange (reverse)."],
+[1,"What is mind mapping?","A central concept with branches for related ideas and sub-branches for details."],
+[1,"What is cross-domain thinking?","Carrying a solution from a different field: game points to motivate students."],
+[1,"What is design thinking?","A human-centred, iterative way of solving complex, poorly defined problems, developed by IDEO and the Stanford d.school."],
+[1,"Name the five phases of design thinking.","Empathize, Define, Ideate, Prototype, Test."],
+[1,"What happens in Empathize?","Observe and interview users in their own setting to find real experiences and unmet needs."],
+[1,"What is a 'How Might We' question?","A problem statement naming who, what they need and why, leaving room for many answers."],
+[1,"Why is 'build a mobile app for farmers' a poor problem statement?","It is a solution, not a problem; a better one: How might we help small farmers know crop prices in nearby markets before they sell?"],
+[1,"Name the three levels of prototype fidelity.","Low (sketch, paper), medium (clickable wireframe), high (working demo)."],
+[1,"Why is design thinking iterative?","Testing often sends you back to an earlier phase."],
+[1,"What is a good test question for users?","'Show me how you would do it' rather than 'do you like it?'"],
+[2,"Name the four ways to generate business ideas.","Problem-first thinking, trend analysis, gap analysis, skill and passion mapping."],
+[2,"What is a sign that no good solution exists?","Widespread workarounds and hacks."],
+[2,"List the five criteria for evaluating an idea.","Significance of the problem, market size, competitive differentiation, feasibility, profitability potential."],
+[2,"How does a weighted scoring table work?","Weights add up to 1; each idea is scored 1 to 5 per criterion; multiply and add."],
+[2,"What scores did ideas A, B and C get?","3.8, 3.5 and 3.7."],
+[2,"What is a painkiller against a vitamin?","A painkiller solves a real, urgent pain; a vitamin is nice to have and sells less easily."],
+[2,"Define a business model.","How an organisation creates, delivers and captures value."],
+[2,"Who developed the Business Model Canvas?","Alexander Osterwalder."],
+[2,"Name the nine blocks of the canvas.","Value Proposition, Customer Segments, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, Cost Structure."],
+[2,"Which block is central and what is the layout?","The value proposition; right side: the customer; left side: what you must have and do; bottom: costs against revenue."],
+[2,"Distinguish channels from customer relationships.","Channels: how you reach and deliver; relationships: the type of bond (self-service, personal, community)."],
+[2,"Name the five digital revenue models.","SaaS subscription, freemium, marketplace commission, advertising, licensing."],
+[2,"What is freemium?","A free basic version with a paid premium tier."],
+[2,"Revenue of 800 payers at Rs 300? And at 4% conversion?","Rs 2 40 000; at 4% it halves to Rs 1 20 000."],
+[2,"What is a Lean Canvas?","A variant for early-stage ideas with problem, solution, key metrics and unfair advantage; each box is a hypothesis."],
+[3,"Define market research.","Systematic gathering and analysis of information about a target market, customers, competitors, trends and regulation."],
+[3,"Distinguish primary from secondary research.","Primary: new data collected directly (surveys, interviews, focus groups, observation); secondary: analysis of existing published data."],
+[3,"Strengths and weaknesses of primary and secondary research?","Primary: specific but costs time and money; secondary: fast and cheap but may not answer your question or be out of date."],
+[3,"Which research should come first?","Secondary, then primary to fill the gaps."],
+[3,"What questions must market research answer?","Market size and growth, competitors, pain points, price customers will pay, channels customers use."],
+[3,"What is a leading question?","One that pushes the answer, such as 'Wouldn't you love a fun, cheap app?'"],
+[3,"Define TAM.","Total addressable market: the total revenue opportunity if the product captured 100% of the market."],
+[3,"Define SAM and SOM.","SAM: the part of the TAM your product, price and channels can reach; SOM: the share of the SAM you can realistically win."],
+[3,"What were the TAM, SAM and SOM of the tutoring app?","Rs 120 crore, Rs 48 crore and Rs 2.4 crore."],
+[3,"Which figure should be used for planning?","The SOM, not the TAM."],
+[3,"Distinguish top-down from bottom-up estimates.","Top-down: take a share of a big published figure; bottom-up: count the customers you can serve and multiply by the price."],
+[3,"Name the bases of segmentation.","Demographic, psychographic, behavioural, needs-based."],
+[3,"What is a beachhead segment?","The narrow first segment a venture starts with."],
+[3,"What is a customer persona?","A detailed, semi-fictional description of the ideal customer based on research."],
+[3,"Name the four parts of a persona.","Demographic, psychographic, behavioural, pain points."],
+[3,"Who are early adopters and why target them first?","Customers willing to try an unproven product; they tolerate imperfection and give honest feedback."],
+[3,"State Rogers' five adopter groups and shares.","Innovators 2.5%, early adopters 13.5%, early majority 34%, late majority 34%, laggards 16%."],
+[3,"What is the chasm?","Geoffrey Moore's gap between early adopters and the early majority, crossed with a strong case study."],
+[4,"Define a brand.","The perception that stakeholders hold of an organisation or product."],
+[4,"State three benefits of a strong brand.","Differentiation, loyalty, trust."],
+[4,"Distinguish a brand from a logo.","The logo is a small part; the brand is what people think and feel from every experience."],
+[4,"Define marketing.","Activities that communicate the value of products to attract, win and keep customers."],
+[4,"Name the 4Ps.","Product, Price, Place, Promotion."],
+[4,"What are the 7Ps?","The 4Ps plus people, process and physical evidence for services."],
+[4,"Is advertising the same as marketing?","No: advertising is part of promotion, which is one of the 4Ps."],
+[4,"State the advantages of digital marketing.","Targeting precision, measurability, interactivity, cost efficiency."],
+[4,"Name the six digital channels.","SEO, SEM/PPC, social media, content, e-mail, influencer marketing."],
+[4,"Distinguish SEO from PPC.","SEO is unpaid (organic) visibility; PPC is paid per click."],
+[4,"State CTR and conversion rate.","CTR = clicks ÷ impressions; conversion = sign-ups ÷ clicks."],
+[4,"State CAC and ROI.","CAC = marketing spend ÷ new customers; ROI = (revenue − spend) ÷ spend."],
+[4,"Values of the campaign: 200 000 impressions, 4 000 clicks, 200 sign-ups, 40 customers, Rs 10 000, Rs 600 each?","CTR 2%, conversion 5%, CAC Rs 250, ROI 140%."],
+[4,"What if a customer pays only Rs 200?","Revenue Rs 8 000, ROI −20%: the campaign loses money."],
+[4,"Why avoid fake followers and fake reviews?","Dishonest, can break consumer-protection rules and destroys trust."],
+[5,"Define fixed costs.","Costs constant whatever the sales: rent, salaries, insurance, depreciation."],
+[5,"Define variable costs.","Costs that change with production or sales: materials, packaging, transaction fees, shipping."],
+[5,"State the profit formulas.","Profit = revenue − total costs; total costs = fixed + variable."],
+[5,"Distinguish gross profit from net profit.","Gross: revenue − cost of goods sold; net: after operating expenses, interest and tax."],
+[5,"Gross and net profit of the shop?","Gross Rs 2 00 000; net 2 00 000 − 1 20 000 − 10 000 − 15 000 = Rs 55 000 (11%)."],
+[5,"What is break-even?","The sales level where revenue equals total cost: no profit, no loss."],
+[5,"State the break-even formula.","Fixed costs ÷ (price − variable cost per unit)."],
+[5,"What is contribution per unit?","Price minus variable cost per unit."],
+[5,"Break-even of the workshop?","Contribution 200 − 120 = 80; 20 000 ÷ 80 = 250 participants."],
+[5,"Profit at 400 and result at 150 participants?","400 × 80 − 20 000 = Rs 12 000; 150 × 80 − 20 000 = −Rs 8 000."],
+[5,"How can a workshop be viable with fewer people?","Raise the price, cut a variable cost or reduce the fixed cost."],
+[5,"Distinguish a budget from a cash flow statement.","A budget forecasts revenue and spending; a cash flow statement tracks actual cash in and out."],
+[5,"Why can a profitable business run out of cash?","Customers pay late while suppliers and staff must be paid at once: profit of Rs 10 000 but closing cash −Rs 40 000."],
+[5,"What can a business do about a cash shortfall?","Borrow, ask customers to pay faster, delay suppliers."],
+[6,"Define investment.","Money put in with the expectation of future returns."],
+[6,"Distinguish equity from debt.","Equity: investors get a share of ownership; debt: a loan repaid with interest, no ownership given up."],
+[6,"What is dilution?","Each equity round reduces the founders' share."],
+[6,"List the six sources of startup funding.","Bootstrapping, friends and family, angel investors, venture capital, bank loans, government schemes."],
+[6,"What is bootstrapping?","Funding from personal savings and early customer revenue; you keep full ownership."],
+[6,"Who are angel investors?","Wealthy individuals investing their own money in early startups for equity."],
+[6,"What is venture capital?","Professional funds investing in high-growth startups in rounds (seed, Series A, B) for equity."],
+[6,"What does an angel get for Rs 1 crore at Rs 4 crore pre-money?","Post-money Rs 5 crore; 1 ÷ 5 = 20%; founders keep 80%."],
+[6,"Name the four MUDRA bands.","Shishu up to Rs 50 000; Kishor up to Rs 5 lakh; Tarun up to Rs 10 lakh; Tarun Plus up to Rs 20 lakh (since 2024)."],
+[6,"Does 'collateral-free' mean no checks?","No: lenders still assess repayment capacity."],
+[6,"What is DPIIT recognition?","Recognition under Startup India giving access to benefits subject to conditions."],
+[7,"Define intellectual property.","Creations of the mind: inventions, literary and artistic works, designs, symbols and names."],
+[7,"What does copyright protect, and how long?","The expression of an original work (not ideas), automatically; author's life plus 60 years."],
+[7,"How is software protected in India?","As a literary work under the Copyright Act, 1957."],
+[7,"What is a trademark and its duration?","A distinctive name or logo identifying goods or services; registered for 10 years, renewable."],
+[7,"What is a patent and its duration?","An exclusive right to a novel, non-obvious, industrially applicable invention; 20 years from filing, in return for disclosure."],
+[7,"Is an algorithm patentable in India?","Not as such; a novel technical process that uses software may be."],
+[7,"Is a patent valid worldwide?","No: it is territorial; other countries need separate applications."],
+[7,"What is a trade secret and how is it protected?","Confidential information with competitive value; secrecy, NDAs and the law of breach of confidence; no time limit while secret."],
+[7,"What is the danger of a trade secret?","Independent discovery or reverse engineering leaves no legal remedy."],
+[7,"Which IP for source code, name and logo, novel process, ranking method?","Copyright, trademark, patent (if a technical process), trade secret."],
+[7,"Is open source the absence of copyright?","No: licences are permissions given by the copyright owner."],
+[8,"Define business ethics.","Applying honesty, fairness, integrity, respect, responsibility and accountability to business decisions."],
+[8,"Why is ethics a business necessity?","Unethical conduct brings legal liability, destroys reputation and trust, and undermines survival."],
+[8,"Name the four areas of ethics.","Honesty and transparency, customer protection, CSR, data ethics."],
+[8,"Name the consumer-protection law.","The Consumer Protection Act, 2019 (also covers e-commerce)."],
+[8,"Define CSR.","Corporate social responsibility: responsibilities beyond profit to employees, communities and the environment."],
+[8,"State the CSR rule of the Companies Act, 2013.","At least 2% of the average net profit of the preceding three years, if net worth ≥ Rs 500 crore, or turnover ≥ Rs 1 000 crore, or net profit ≥ Rs 5 crore."],
+[8,"CSR for profits of 8, 10 and 12 crore?","Average 10 crore; 2% = Rs 20 lakh."],
+[8,"Does a company with net profit Rs 2 crore, turnover Rs 40 crore and net worth Rs 30 crore have a CSR duty?","No: none of the thresholds is met."],
+[8,"What does data ethics require?","Informed consent, use only for the stated purpose, protection against breaches."],
+[8,"Name the Indian data-protection law and its dates.","DPDP Act, 2023; Rules notified 13 Nov 2025; consent managers from 12 Nov 2026; most business duties from 12 May 2027."],
+[8,"Why is 'Only 2 left!' on every product unethical?","False urgency is dishonest, may be an unfair trade practice and destroys trust."],
+[9,"What is career planning?","Setting professional goals that fit your interests, values and abilities and building the skills and contacts to reach them."],
+[9,"Give the steps of career planning.","Self-assessment, goal setting, skills development, portfolio building, networking, experience; review every year."],
+[9,"What does self-assessment cover?","Strengths, weaknesses, interests and values."],
+[9,"Name career paths for a computer science student.","Software development, data science and AI, cyber security, cloud and DevOps, databases and networks, management and design, business roles, entrepreneurship."],
+[9,"Name useful certifications.","AWS, Google Cloud, Cisco CCNA, CompTIA Security+, PMP."],
+[9,"What is a portfolio?","Personal projects, open-source work, hackathons and a GitHub profile showing what you can do."],
+[9,"Define self-employment and the gig economy.","Working for yourself for several clients; short-term freelance work arranged through digital platforms."],
+[9,"State two advantages and two risks of freelancing.","Control of time and choices, varied clients; irregular income, no paid leave or employer benefits."],
+[9,"Name gig platforms.","Upwork, Freelancer, Toptal, Fiverr, Truelancer, WorknHire."],
+[9,"Minimum hourly rate for Rs 60 000 income, Rs 10 000 costs, 100 billable hours?","70 000 ÷ 100 = Rs 700; dividing by 160 hours would give only Rs 437."],
+[9,"What are the GST limits for services and goods?","Services Rs 20 lakh (Rs 10 lakh in special-category states); goods Rs 40 lakh in most states; some suppliers must register regardless."],
+[9,"Which income tax law applies from 1 April 2026?","The Income-tax Act, 2025, replacing the Act of 1961."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const R=String.raw;
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["An entrepreneur is best described as someone who:",["Works for a fixed salary in a large firm","Spots an opportunity and organises resources to create value","Avoids all risk","Manages an existing department"],1,"Opportunity, calculated risk, resources, value."],
+["A startup differs from a small business mainly because it:",["Is always larger","Is designed to grow fast with a scalable model","Has no customers","Pays no tax"],1,"Scalability."],
+["A unicorn is a startup valued at more than:",["One million US dollars","Ten million US dollars","One billion US dollars","One trillion US dollars"],2,"Over US$1 billion."],
+["Which person usually carries the financial risk of the venture?",["Employee","Manager","Entrepreneur","Auditor"],2,"The entrepreneur."],
+["Expected value of 30% × Rs 10 lakh and 70% × (−Rs 1 lakh) is:",["Rs 2.3 lakh","Rs 3 lakh","Rs 3.7 lakh","−Rs 0.7 lakh"],0,"3 − 0.7 = 2.3."],
+["Innovation is best defined as:",["Having a new idea","The practical use of creative ideas to create value","Copying a competitor","Cutting costs only"],1,"Turning ideas into value."],
+["A faster version of an existing phone is an example of:",["Disruptive innovation","Incremental innovation","A prototype","A trade secret"],1,"It improves the existing concept."],
+["Who introduced the idea of disruptive innovation?",["Alexander Osterwalder","Clayton Christensen","Geoffrey Moore","Everett Rogers"],1,"Christensen."],
+["In SCAMPER the letter C stands for:",["Create","Combine","Copy","Control"],1,"Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Rearrange."],
+["The first phase of design thinking is:",["Define","Ideate","Empathize","Test"],2,"Empathize."],
+["A good 'How Might We' question:",["Is a solution in disguise","Names who, what they need and why","Is as broad as possible","Has one answer"],1,"Open but focused."],
+["A paper sketch of a screen is a:",["High-fidelity prototype","Low-fidelity prototype","Final product","Patent"],1,"Low fidelity."],
+["Which is NOT one of the four ways to generate ideas?",["Problem-first","Trend analysis","Gap analysis","Random guessing"],3,"Problem, trend, gap, skill and passion."],
+["In weighted scoring the weights must:",["Add up to 1","Add up to 10","Be equal","Be negative"],0,"They add up to 1."],
+["The central block of the Business Model Canvas is:",["Cost Structure","Key Partnerships","Value Proposition","Channels"],2,"Value proposition."],
+["The Business Model Canvas has how many blocks?",["Five","Seven","Nine","Twelve"],2,"Nine."],
+["A free basic version with a paid premium tier is:",["SaaS only","Freemium","Licensing","Advertising"],1,"Freemium."],
+["Interviewing 30 students directly is:",["Secondary research","Primary research","Desk research","A patent search"],1,"New data collected directly."],
+["TAM stands for:",["Total addressable market","Target available market","Total annual margin","Typical average market"],0,"Total addressable market."],
+["The market you can realistically win is the:",["TAM","SAM","SOM","GST"],2,"SOM."],
+["Rogers' share of early adopters is:",["2.5%","13.5%","34%","16%"],1,"13.5%."],
+["The 'chasm' lies between:",["Innovators and early adopters","Early adopters and the early majority","Late majority and laggards","Brand and logo"],1,"Moore."],
+["The 4Ps are:",["Product, Price, Place, Promotion","People, Process, Proof, Profit","Plan, Prototype, Pilot, Produce","Pay, Pack, Post, Pitch"],0,"Marketing mix."],
+["SEO differs from PPC because SEO is:",["Paid per click","Organic and unpaid","Only for e-mail","Illegal"],1,"Organic."],
+["CTR is computed as:",["Clicks ÷ impressions","Customers ÷ clicks","Spend ÷ customers","Revenue ÷ spend"],0,"Click-through rate."],
+["Rent and salaries are examples of:",["Variable costs","Fixed costs","Cost of goods sold","Revenue"],1,"They do not change with sales."],
+["Break-even units are found by:",["Fixed ÷ price","Fixed ÷ (price − variable cost)","Price − fixed","Variable ÷ fixed"],1,"Fixed ÷ contribution."],
+["A business can be profitable yet out of cash because:",["Profit is always cash","Customers may pay late while costs are paid at once","Tax is zero","Costs are fixed"],1,"Timing of cash."],
+["Raising money by giving a share of ownership is:",["Debt","Equity","A grant of cash only","Bootstrapping"],1,"Equity."],
+["MUDRA loans up to Rs 50 000 are in the band:",["Shishu","Kishor","Tarun","Tarun Plus"],0,"Shishu."],
+["Copyright in India lasts for the author's life plus:",["10 years","20 years","60 years","100 years"],2,"Life + 60."],
+["A patent lasts:",["10 years","20 years from filing","Life + 60","For ever"],1,"20 years from filing."],
+["A company's brand logo and name are protected as a:",["Trademark","Patent","Trade secret","Copyright only"],0,"Trademark."],
+["Under the Companies Act, 2013 the CSR spend is:",["1% of turnover","2% of the 3-year average net profit","5% of profit","10% of net worth"],1,"2% of the average."],
+["The data law passed in 2023 is the:",["Consumer Protection Act","DPDP Act","Copyright Act","Companies Act"],1,"Digital Personal Data Protection Act."],
+["A freelancer's minimum hourly rate should include:",["Only income","Income plus business costs over billable hours","Only costs","Tax only"],1,"(Income + costs) ÷ billable hours."],
+["GST registration threshold for services is Rs:",["5 lakh","20 lakh","40 lakh","1 crore"],1,"Rs 20 lakh (10 lakh in special-category states)."]
+];
+const FILL=[
+["A startup is designed to be ___: it can serve many more customers without proportional costs.",["scalable"],"Scalable."],
+["A startup valued at over one billion dollars is called a ___.",["unicorn"],"Unicorn."],
+["Expected value is the sum of each result multiplied by its ___.",["probability"],"Probability."],
+["The expected value of the venture with a 30% chance of Rs 10 lakh and a 70% chance of −Rs 1 lakh is Rs ___ lakh.",["2.3"],"2.3."],
+["Moving an idea into a working product is called ___.",["innovation"],"Innovation."],
+["Innovation that starts with overlooked customers and displaces leaders is ___ innovation.",["disruptive"],"Disruptive."],
+["The five phases of design thinking end with ___.",["test"],"Test."],
+["The 'M' in HMW stands for ___.",["might"],"How Might We."],
+["A low-fidelity prototype is a ___ sketch.",["paper"],"Paper."],
+["The Business Model Canvas was developed by Alexander ___.",["osterwalder"],"Osterwalder."],
+["The weighted score of idea A is ___.",["3.8"],"3.8."],
+["Subscription software is called ___ (three letters).",["saas"],"SaaS."],
+["Data collected by existing reports is ___ research.",["secondary"],"Secondary."],
+["A question that pushes the respondent to an answer is a ___ question.",["leading"],"Leading."],
+["The TAM of the tutoring app is Rs 120 ___.",["crore"],"120 crore."],
+["The SOM of the tutoring app is Rs ___ crore.",["2.4"],"2.4."],
+["The first narrow segment a venture targets is the ___.",["beachhead"],"Beachhead."],
+["Customers who try unproven products first are ___ adopters.",["early"],"Early adopters."],
+["CAC stands for customer ___ cost.",["acquisition"],"Acquisition."],
+["The CTR in the campaign (4 000 clicks, 200 000 impressions) is ___ per cent.",["2"],"2%."],
+["The ROI in the campaign is ___ per cent.",["140"],"140%."],
+["The break-even point of the workshop is ___ participants.",["250"],"250."],
+["Profit of Rs 10 000 with closing cash of −Rs 40 000 shows profit is not ___.",["cash"],"Cash."],
+["After an angel invests Rs 1 crore at Rs 4 crore pre-money the investor owns ___ per cent.",["20"],"20%."],
+["A trademark is registered for ___ years, renewable.",["10","ten"],"10 years."],
+["The CSR amount for average net profit of Rs 10 crore is Rs ___ lakh.",["20"],"2% of 10 crore."],
+["The freelancer's minimum rate is Rs ___ per hour.",["700"],"70 000 ÷ 100."]
+];
+const TF=[
+["An enterprise and a startup mean exactly the same thing.",false,"A startup is a scalable, fast-growth kind of enterprise."],
+["Entrepreneurs take calculated, not reckless, risks.",true,"They weigh expected value."],
+["A venture with a negative expected value is a calculated risk.",false,"It is a gamble."],
+["Entrepreneurial qualities can be developed.",true,"They are skills."],
+["Creativity and innovation are identical.",false,"Innovation puts ideas to practical use."],
+["Disruptive innovation often begins with overlooked customers.",true,"Christensen."],
+["Brainstorming asks you to criticise ideas immediately.",false,"Defer judgement."],
+["Design thinking is a single straight line that is never repeated.",false,"It is iterative."],
+["A good HMW question is a solution in disguise.",false,"It should leave room for answers."],
+["A painkiller product solves an urgent problem; a vitamin is nice to have.",true,"Painkillers sell more easily."],
+["In weighted scoring the weights add up to 1.",true,"Yes."],
+["The value proposition is the central block of the canvas.",true,"Yes."],
+["Freemium means every user pays from day one.",false,"A basic tier is free."],
+["It is best to begin market research with secondary data.",true,"It is cheap and fast."],
+["A leading question helps get unbiased answers.",false,"It biases them."],
+["The SOM should be used for realistic planning.",true,"TAM is a ceiling."],
+["Customers and users are always the same person.",false,"The payer may differ from the user."],
+["A logo is the whole of a brand.",false,"The brand is perception."],
+["Advertising is the same as marketing.",false,"It is part of promotion."],
+["SEO traffic is organic and not paid per click.",true,"Yes."],
+["Buying fake followers is ethical if it is cheap.",false,"It is dishonest."],
+["Rent is a variable cost.",false,"It is fixed."],
+["Break-even requires the price to exceed the variable cost.",true,"Else contribution is zero or negative."],
+["A profitable business can run out of cash.",true,"Timing."],
+["Equity funding dilutes the founders' share.",true,"Yes."],
+["Debt need not be repaid if the startup fails to grow.",false,"It must be repaid."],
+["Copyright protects ideas as such.",false,"Only the expression."],
+["A patent has no time limit.",false,"20 years from filing."],
+["A trade secret needs registration.",false,"It only needs secrecy."],
+["Every company must spend 2% of profit on CSR, regardless of size.",false,"Only above the thresholds."],
+["Under the DPDP Act, personal data needs informed consent.",true,"Yes."],
+["A freelancer's rate should be only their wish for salary divided by 160 hours.",false,"Use billable hours and costs."],
+["GST thresholds differ for goods and services.",true,"Rs 40 lakh and Rs 20 lakh."]
+];
+const VSA=[
+["Define an entrepreneur.",["opportunity","risk"],"A person who spots an opportunity, takes calculated risks and organises resources to create value.",1],
+["What is a startup?",["scalable","grow"],"A newly formed, fast-growth enterprise with a scalable model.",1],
+["What is expected value?",["probability","sum"],"The sum of each result multiplied by its probability.",1],
+["Distinguish incremental from disruptive innovation in one line.",["improve","simpler"],"Incremental improves the existing product; disruptive introduces a simpler, cheaper one that displaces leaders.",1],
+["Expand SCAMPER.",["substitute","combine","adapt","modify","eliminate"],"Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Rearrange.",1],
+["Name the five phases of design thinking.",["empathize","define","ideate","prototype","test"],"Empathize, Define, Ideate, Prototype, Test.",1],
+["Name the nine blocks of the Business Model Canvas.",["value proposition","customer segments","channels","revenue streams","cost structure"],"Value Proposition, Customer Segments, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, Cost Structure.",1],
+["Name five digital revenue models.",["saas","freemium","commission","advertising","licensing"],"SaaS, freemium, marketplace commission, advertising, licensing.",1],
+["Distinguish TAM, SAM and SOM.",["total","reach","win"],"TAM: total demand; SAM: the part you can reach; SOM: the share you can realistically win.",1],
+["What is a customer persona?",["semi-fictional","customer"],"A semi-fictional description of the ideal customer based on research.",1],
+["Name the 4Ps.",["product","price","place","promotion"],"Product, Price, Place, Promotion.",1],
+["State the formula for ROI.",["revenue","spend"],"(Revenue − spend) ÷ spend.",1],
+["State the break-even formula.",["fixed","price","variable"],"Fixed costs ÷ (price − variable cost per unit).",1],
+["Distinguish equity from debt.",["ownership","repaid"],"Equity gives ownership; debt is a loan repaid with interest.",1],
+["Name the four MUDRA bands.",["shishu","kishor","tarun"],"Shishu, Kishor, Tarun, Tarun Plus.",1],
+["Name four types of intellectual property.",["copyright","trademark","patent","trade secret"],"Copyright, trademark, patent, trade secret.",1],
+["State the CSR rule in one line.",["2%","average"],"At least 2% of the average net profit of the previous three years for companies above the thresholds.",1],
+["Give the formula for a freelancer's minimum hourly rate.",["income","costs","hours"],"(Target income + business costs) ÷ billable hours.",1]
+];
+const CALC=[
+{q:"What is the expected value? Write it in rupees.",src:R`ev p1=0.5 v1=400000 p2=0.5 v2=-100000`,alts:[["150000"],["1.5lakh"]],ex:1,model:"expected value: Rs 1.5 lakh / positive: a calculated risk",e:"The report shows: expected value: Rs 1.5 lakh / positive: a calculated risk"},
+{q:"What is the expected value, in lakh rupees?",src:R`ev p1=0.3 v1=1000000 p2=0.7 v2=-100000`,alts:[["2.3lakh"],["230000"],["23"]],ex:1,model:"expected value: Rs 2.3 lakh / positive: a calculated risk",e:"The report shows: expected value: Rs 2.3 lakh / positive: a calculated risk"},
+{q:"Is this a calculated risk? Write yes or no.",src:R`ev p1=0.01 v1=1000000 p2=0.99 v2=-500000`,alts:[["no"]],ex:1,model:"no",e:"The report shows: expected value: -Rs 4.85 lakh / not positive: a gamble"},
+{q:"What is the weighted score?",src:R`score w=0.3,0.2,0.2,0.2,0.1 a=5,3,3,4,3`,alts:[["3.8"]],ex:1,model:"weighted score: 3.8",e:"The report shows: weighted score: 3.8"},
+{q:"What is the weighted score?",src:R`score w=0.5,0.3,0.2 a=4,3,5`,alts:[["3.9"]],ex:1,model:"weighted score: 3.9",e:"The report shows: weighted score: 3.9"},
+{q:"What is the weighted score?",src:R`score w=0.4,0.4,0.2 a=3,5,1`,alts:[["3.4"]],ex:1,model:"weighted score: 3.4",e:"The report shows: weighted score: 3.4"},
+{q:"What are the TAM, SAM and SOM, in crore rupees?",src:R`market students=200000 price=6000 reach=40 share=5`,alts:[["120","48","2.4"]],ex:0,model:"TAM: Rs 120 crore / SAM: Rs 48 crore / SOM: Rs 2.4 crore (4000 customers)",e:"The report shows: TAM: Rs 120 crore / SAM: Rs 48 crore / SOM: Rs 2.4 crore (4000 customers)"},
+{q:"What is the SOM?",src:R`market students=100000 price=5000 reach=50 share=10`,alts:[["2.5crore"],["25"]],ex:1,model:"TAM: Rs 50 crore / SAM: Rs 25 crore / SOM: Rs 2.5 crore (5000 customers)",e:"The report shows: TAM: Rs 50 crore / SAM: Rs 25 crore / SOM: Rs 2.5 crore (5000 customers)"},
+{q:"What is the SAM?",src:R`market students=50000 price=1000 reach=60 share=10`,alts:[["3crore"]],ex:1,model:"TAM: Rs 5 crore / SAM: Rs 3 crore / SOM: Rs 30 lakh (3000 customers)",e:"The report shows: TAM: Rs 5 crore / SAM: Rs 3 crore / SOM: Rs 30 lakh (3000 customers)"},
+{q:"What are the CTR and the CAC?",src:R`funnel impressions=200000 clicks=4000 signups=200 customers=40 spend=10000 pay=600`,alts:[["2","250"]],ex:0,model:"CTR: 2% / conversion: 5% / CAC: Rs 250 / ROI: 140%",e:"The report shows: CTR: 2% / conversion: 5% / CAC: Rs 250 / ROI: 140%"},
+{q:"What is the ROI?",src:R`funnel impressions=200000 clicks=4000 signups=200 customers=40 spend=10000 pay=600`,alts:[["140"]],ex:1,model:"CTR: 2% / conversion: 5% / CAC: Rs 250 / ROI: 140%",e:"The report shows: CTR: 2% / conversion: 5% / CAC: Rs 250 / ROI: 140%"},
+{q:"What is the ROI?",src:R`funnel impressions=200000 clicks=4000 signups=200 customers=40 spend=10000 pay=200`,alts:[["20"]],ex:0,model:"CTR: 2% / conversion: 5% / CAC: Rs 250 / ROI: -20%",e:"The report shows: CTR: 2% / conversion: 5% / CAC: Rs 250 / ROI: -20%"},
+{q:"What are the CTR and the CAC?",src:R`funnel impressions=50000 clicks=1000 customers=50 spend=5000 pay=400`,alts:[["2","100"]],ex:0,model:"CTR: 2% / conversion: 5% / CAC: Rs 100 / ROI: 300%",e:"The report shows: CTR: 2% / conversion: 5% / CAC: Rs 100 / ROI: 300%"},
+{q:"What are the gross and net profit?",src:R`profit sales=500000 cogs=300000 expenses=120000 interest=10000 tax=15000`,alts:[["2lakh","55000"]],ex:0,model:"gross profit: Rs 2 lakh / net profit: Rs 55000 / net margin: 11%",e:"The report shows: gross profit: Rs 2 lakh / net profit: Rs 55000 / net margin: 11%"},
+{q:"What is the net profit?",src:R`profit sales=800000 cogs=500000 expenses=150000 interest=20000 tax=30000`,alts:[["100000"],["1lakh"]],ex:1,model:"gross profit: Rs 3 lakh / net profit: Rs 1 lakh / net margin: 12.5%",e:"The report shows: gross profit: Rs 3 lakh / net profit: Rs 1 lakh / net margin: 12.5%"},
+{q:"What is the break-even and the profit at 400 units?",src:R`breakeven fixed=20000 price=200 var=120 units=400`,alts:[["250","12000"]],ex:0,model:"contribution per unit: Rs 80 / break-even: 250 units / profit at 400 units: Rs 12000",e:"The report shows: contribution per unit: Rs 80 / break-even: 250 units / profit at 400 units: Rs 12000"},
+{q:"What is the loss at 150 units?",src:R`breakeven fixed=20000 price=200 var=120 units=150`,alts:[["8000"]],ex:0,model:"contribution per unit: Rs 80 / break-even: 250 units / loss at 150 units: Rs 8000",e:"The report shows: contribution per unit: Rs 80 / break-even: 250 units / loss at 150 units: Rs 8000"},
+{q:"What is the break-even, in units?",src:R`breakeven fixed=30000 price=150 var=90 units=300`,alts:[["500"]],ex:0,model:"contribution per unit: Rs 60 / break-even: 500 units / loss at 300 units: Rs 12000",e:"The report shows: contribution per unit: Rs 60 / break-even: 500 units / loss at 300 units: Rs 12000"},
+{q:"What are the profit and the closing cash?",src:R`cash open=50000 sales=100000 paid=90000`,alts:[["10000","40000"]],ex:0,model:"profit: Rs 10000 / closing cash: Rs -40000 / shortfall: the business is profitable only on paper",e:"The report shows: profit: Rs 10000 / closing cash: Rs -40000 / shortfall: the business is profitable only on paper"},
+{q:"What share does the investor own?",src:R`equity pre=40000000 invest=10000000`,alts:[["20"]],ex:0,model:"post-money value: Rs 5 crore / investor owns: 20% / founders own: 80%",e:"The report shows: post-money value: Rs 5 crore / investor owns: 20% / founders own: 80%"},
+{q:"What share does the investor own?",src:R`equity pre=60000000 invest=20000000`,alts:[["25"]],ex:0,model:"post-money value: Rs 8 crore / investor owns: 25% / founders own: 75%",e:"The report shows: post-money value: Rs 8 crore / investor owns: 25% / founders own: 75%"},
+{q:"What is the CSR amount?",src:R`csr profits=8,10,12`,alts:[["20lakh"]],ex:1,model:"legal CSR duty: yes / average net profit: Rs 10 crore / CSR amount: Rs 20 lakh",e:"The report shows: legal CSR duty: yes / average net profit: Rs 10 crore / CSR amount: Rs 20 lakh"},
+{q:"Does the company have a CSR duty? Write yes or no.",src:R`csr profits=3 turnover=400 networth=200`,alts:[["no"]],ex:1,model:"no",e:"The report shows: legal CSR duty: no"},
+{q:"What is the minimum hourly rate?",src:R`rate income=60000 costs=10000 hours=100`,alts:[["700"]],ex:0,model:"minimum rate: Rs 700 per hour",e:"The report shows: minimum rate: Rs 700 per hour"},
+{q:"Classify each as copyright (C), trademark (T), patent (P) or trade secret (S): (a) source code; (b) the app's name; (c) a novel process; (d) a secret ranking method. Write four letters.",alts:[["ctps"]],ex:1,model:"CTPS",e:"Answer: CTPS"}
+];
+const SHORT=[
+["Distinguish an entrepreneur from a manager.","An entrepreneur creates a new venture, bears the risk and earns uncertain profit; a manager runs an existing organisation for a salary and bonus.",["creates","risk","salary"]],
+["What makes a startup different from a small business?","A startup is designed for fast growth with a scalable model, whereas a small business grows with the owner's effort.",["scalable","growth"]],
+["Why should risk be calculated?","Calculated risk means the expected value is positive; a gamble such as 1% of a large gain against 99% of a large loss destroys value.",["expected value","positive"]],
+["Distinguish creativity from innovation.","Creativity produces new ideas; innovation puts them to practical use to create value.",["ideas","value"]],
+["Give two brainstorming rules.","Defer judgement and aim for quantity; welcome wild ideas and build on others'.",["judgement","quantity"]],
+["Why is design thinking iterative?","Testing with users often shows that the problem or idea needs rethinking, so you return to an earlier phase.",["testing","earlier"]],
+["How does weighted scoring compare ideas?","Each idea is scored 1 to 5 on each criterion, multiplied by the weights (adding up to 1) and summed; the highest total is the strongest, as a guide to discussion.",["score","weight","sum"]],
+["Distinguish primary from secondary research.","Primary collects new data directly (surveys, interviews); secondary analyses data that already exists (reports, Census).",["new","existing"]],
+["What is wrong with the survey question 'Wouldn't you love a cheap, fun app?'","It is a leading question that pushes the respondent towards yes; it should be neutral.",["leading","neutral"]],
+["Why plan with SOM rather than TAM?","TAM assumes 100% share; SOM is the share you can realistically win, so revenue targets built on it are credible.",["realistically","share"]],
+["What are the benefits of a strong brand?","Differentiation from rivals, customer loyalty and trust.",["differentiation","loyalty","trust"]],
+["Distinguish SEO from PPC.","SEO earns unpaid, organic search ranking over time; PPC buys ads and pays per click.",["organic","paid"]],
+["Why can ROI be negative for a campaign that has customers?","If the revenue from the customers is less than the spend: 40 customers paying Rs 200 earn Rs 8 000 on Rs 10 000, ROI −20%.",["revenue","spend"]],
+["Distinguish gross profit from net profit.","Gross profit is revenue minus cost of goods sold; net profit also deducts expenses, interest and tax.",["cost of goods","interest","tax"]],
+["Why does break-even matter?","It shows the sales needed to cover all costs, so you can judge whether a price and plan are viable.",["cover","costs"]],
+["Distinguish equity from debt funding.","Equity gives investors ownership and dilutes founders; debt is repaid with interest without giving ownership.",["ownership","repaid"]],
+["Compare copyright and a patent.","Copyright protects expression automatically for life + 60 years; a patent protects an invention for 20 years from filing after disclosure, and needs registration.",["expression","invention","20"]],
+["Why is a trade secret risky?","It is protected only while it stays secret; independent discovery or reverse engineering leaves no remedy.",["secret","reverse"]]
+];
+const LONG=[
+["Explain the six qualities of an entrepreneur and the idea of calculated risk with expected value.","Passion and motivation; risk tolerance; resilience and persistence; problem-solving orientation; self-discipline and initiative; adaptability. Calculated risk means the expected value (sum of probability × result) is positive: 0.3 × 10 lakh + 0.7 × (−1 lakh) = Rs 2.3 lakh, whereas 1% of Rs 10 lakh and 99% of −Rs 5 lakh give −Rs 4.85 lakh, a gamble. Fail small and early.",["passion","risk","resilience","expected value","adaptab"]],
+["Describe the five phases of design thinking and how a 'How Might We' question is written.","Empathize: observe and interview users. Define: state the problem as a HMW question naming who, what and why, neither too broad nor a disguised solution. Ideate: generate many ideas. Prototype: low, medium or high fidelity. Test: show users and ask them to demonstrate; return to earlier phases because the process is iterative.",["empathize","define","ideate","prototype","test"]],
+["Explain how to generate and evaluate a business idea, including weighted scoring.","Generate through problem-first thinking, trend analysis, gap analysis and skill and passion mapping. Evaluate on significance, market size, differentiation, feasibility and profitability. A weighted table multiplies each score by its weight (adding up to 1); A scores 3.8, B 3.5, C 3.7. Prefer painkillers to vitamins.",["problem","trend","gap","weight","3.8"]],
+["Explain the Business Model Canvas and the common digital revenue models.","Nine blocks: Value Proposition at the centre, Customer Segments, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, Cost Structure. Revenue models: SaaS subscription, freemium, marketplace commission, advertising, licensing; e.g. 1000 × Rs 300 = Rs 3 lakh, 8% of 10 000 gives Rs 2.4 lakh.",["value proposition","segments","revenue","freemium","saas"]],
+["Explain market research and TAM, SAM and SOM with an example.","Market research gathers primary (surveys, interviews) and secondary (reports) information about customers, competitors and trends. TAM is total demand, SAM what you can reach, SOM what you can win. 2 lakh students × Rs 6 000 = Rs 120 crore; 40% reachable = Rs 48 crore; 5% of that = Rs 2.4 crore.",["primary","secondary","tam","sam","som","120"]],
+["Explain segmentation, personas and the adoption of a new product.","Segments are demographic, psychographic, behavioural and needs-based; begin with a beachhead. A persona has demographic, psychographic, behavioural and pain-point parts. Early adopters (13.5%) give feedback; Rogers' groups: 2.5, 13.5, 34, 34, 16 per cent; Moore's chasm lies before the early majority.",["segment","persona","early adopters","rogers","chasm"]],
+["Explain the 4Ps and the digital marketing channels with the metrics used to judge a campaign.","Product, Price, Place, Promotion. Channels: SEO, SEM/PPC, social, content, e-mail, influencer. CTR = clicks ÷ impressions (2%); conversion = sign-ups ÷ clicks (5%); CAC = spend ÷ customers (Rs 250); ROI = (revenue − spend) ÷ spend (140%).",["product","price","place","promotion","ctr","cac","roi"]],
+["Explain fixed and variable costs, break-even, and why profit is not cash.","Fixed costs stay constant, variable change with volume. Break-even = fixed ÷ (price − variable): 20 000 ÷ 80 = 250 participants; at 400 the profit is Rs 12 000, at 150 the loss is Rs 8 000. Profit is not cash: Rs 1 lakh of sales paid after 60 days with Rs 90 000 of costs paid at once gives profit Rs 10 000 but closing cash −Rs 40 000.",["fixed","variable","break-even","250","cash"]],
+["Describe the sources of startup funding, equity and debt, and the MUDRA scheme.","Bootstrapping, friends and family, angel investors, venture capital, bank loans, government schemes. Equity: ownership shared, founders diluted (Rs 1 crore at Rs 4 crore pre-money = 20%); debt: repaid with interest. MUDRA: Shishu 50 000, Kishor 5 lakh, Tarun 10 lakh, Tarun Plus 20 lakh.",["bootstrapping","angel","equity","debt","mudra"]],
+["Compare the four kinds of intellectual property and the ethics areas of a business.","Copyright: expression, automatic, life + 60. Trademark: names and logos, 10 years renewable. Patent: novel invention, 20 years from filing, disclosed. Trade secret: confidential, no time limit while secret. Ethics: honesty, customer protection (Consumer Protection Act 2019), CSR (2% of the 3-year average net profit above thresholds), data ethics (DPDP Act 2023).",["copyright","trademark","patent","trade secret","csr"]]
+];
+const APP=[
+["A student plans an app. 20% chance of Rs 8 lakh and 80% chance of −Rs 1 lakh. Is it a calculated risk?","Expected value = 0.2 × 8 − 0.8 × 1 = Rs 0.8 lakh, positive: a calculated risk, though still uncertain; start with a small test.",["expected value","positive"]],
+["Two ideas score 3.9 and 3.7 but the lower one solves an urgent problem. What should the team do?","Treat the score as a guide; discuss whether the weights fit and prefer the painkiller idea if the problem is urgent, then test it with users.",["guide","painkiller"]],
+["A founder says 'everyone is my customer'. Advise her.","Segment the market, choose a narrow beachhead, build a persona and estimate TAM, SAM and SOM so that the plan uses a realistic share.",["segment","beachhead","som"]],
+["A campaign spent Rs 5 000 and won 50 customers who each pay Rs 400. Compute CAC and ROI and judge it.","CAC = Rs 100; revenue Rs 20 000; ROI = (20 000 − 5 000) ÷ 5 000 = 300%: strongly profitable.",["100","300"]],
+["A shop has sales Rs 8 lakh, cost of goods Rs 5 lakh, expenses Rs 1.5 lakh, interest Rs 20 000 and tax Rs 30 000. Find gross and net profit.","Gross Rs 3 lakh; net = 3 lakh − 1.5 lakh − 20 000 − 30 000 = Rs 1 lakh.",["3 lakh","1 lakh"]],
+["A workshop has fixed cost Rs 30 000, price Rs 150, variable cost Rs 90. Find break-even and the result at 800 and 300 participants.","Contribution Rs 60; break-even 500. At 800: 800 × 60 − 30 000 = Rs 18 000 profit; at 300: Rs 12 000 loss.",["500","18000","12000"]],
+["A startup valued at Rs 6 crore receives Rs 2 crore. What share does the investor get, and what should the founders think about?","Post-money Rs 8 crore, investor 25%; founders keep 75% and must weigh dilution against the growth the money brings.",["25","dilution"]],
+["A company has net profit Rs 3 crore, turnover Rs 400 crore and net worth Rs 200 crore. Is there a CSR duty? Should it still act?","No legal duty as no threshold is met; it may still act voluntarily as good practice.",["no","voluntar"]],
+["A freelancer wants Rs 50 000 a month, has Rs 8 000 of costs and 90 billable hours. Find the rate and comment on GST.","Rate = 58 000 ÷ 90 ≈ Rs 644 an hour. GST registration is needed only above Rs 20 lakh turnover (services) unless a special case applies.",["644","20 lakh"]]
+];
+MCQ.forEach((m,i)=>{const r=(i*3+1)%4;const ans=m[1][m[2]];const rot=m[1].slice(r).concat(m[1].slice(0,r));m[1]=rot;m[2]=rot.indexOf(ans);});
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson28-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Entrepreneurship fundamentals",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Entrepreneur, enterprise, startup",d:"Definitions and scalability.",t:T[0]},
+ {h:"Entrepreneur, manager, employee",d:"Table 1.1.",t:T[1]},
+ {h:"Six qualities",d:"Passion, risk tolerance, resilience, problem solving, self-discipline, adaptability.",t:T[2]},
+ {h:"Expected value",d:"A calculated risk has a positive expected value.",t:T[3],code:{c:R`# Expected value of a venture
+ev p1=0.3 v1=1000000 p2=0.7 v2=-100000
+ev p1=0.01 v1=1000000 p2=0.99 v2=-500000`,tr:"Change p1=0.3 to 0.5 (and p2 to 0.5) and predict the value."}}
+]},
+{t:"Innovation and design thinking",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Creativity and innovation",d:"Table.",t:T[4]},
+ {h:"Incremental and disruptive",d:"Table.",t:T[5]},
+ {h:"Brainstorming and SCAMPER",d:"Table.",t:T[6]},
+ {h:"Other techniques",d:"Mind map and cross-domain thinking.",t:T[7]},
+ {h:"Five phases of design thinking",d:"Table.",t:T[8]},
+ {h:"How Might We and prototypes",d:"Table.",t:T[9]}
+]},
+{t:"Ideas and business models",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Four ways to generate ideas",d:"Table.",t:T[10]},
+ {h:"Five evaluation criteria",d:"Table.",t:T[11]},
+ {h:"Weighted scoring",d:"Three ideas, five criteria.",t:T[12],code:{c:R`# Weighted scoring: weights add up to 1, scores 1 to 5
+score w=0.3,0.2,0.2,0.2,0.1 a=5,3,3,4,3
+score w=0.3,0.2,0.2,0.2,0.1 a=3,4,2,5,4
+score w=0.3,0.2,0.2,0.2,0.1 a=4,5,4,2,3`,tr:"Change the third list to a=5,5,4,2,3 and see which idea wins."}},
+ {h:"The nine blocks",d:"Business Model Canvas.",t:T[13]},
+ {h:"Revenue models",d:"Table.",t:T[14]},
+ {h:"Pricing arithmetic",d:"Table.",t:T[15]}
+]},
+{t:"Market research and customers",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Primary and secondary research",d:"Table.",t:T[16]},
+ {h:"Survey rules",d:"Table.",t:T[17]},
+ {h:"TAM, SAM, SOM",d:"Table.",t:T[18],code:{c:R`# TAM, SAM and SOM
+market students=200000 price=6000 reach=40 share=5`,tr:"Change reach=40 to 60 and predict the SAM."}},
+ {h:"Segmentation",d:"Table.",t:T[19]},
+ {h:"Persona and early adopters",d:"Table.",t:T[20]},
+ {h:"Rogers' adopter groups",d:"Table.",t:T[21]}
+]},
+{t:"Branding and digital marketing",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Brand elements",d:"Table.",t:T[22]},
+ {h:"The 4Ps",d:"Table.",t:T[23]},
+ {h:"Digital channels",d:"Table.",t:T[24]},
+ {h:"Campaign metrics",d:"Formulas.",t:T[25]},
+ {h:"A campaign funnel",d:"The planner computes CTR, conversion, CAC and ROI.",t:T[26],code:{c:R`# Campaign funnel
+funnel impressions=200000 clicks=4000 signups=200 customers=40 spend=10000 pay=600
+funnel impressions=200000 clicks=4000 signups=200 customers=40 spend=10000 pay=200`,tr:"Compare the two ROI values and explain the second."}}
+]},
+{t:"Financial literacy",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Fixed and variable costs",d:"Table.",t:T[27]},
+ {h:"Gross and net profit",d:"The shop example.",t:T[28],code:{c:R`# Gross and net profit
+profit sales=500000 cogs=300000 expenses=120000 interest=10000 tax=15000`,tr:"Change expenses=120000 to 150000 and predict the net profit."}},
+ {h:"Break-even",d:"The workshop example.",t:T[29],code:{c:R`# Break-even of a workshop
+breakeven fixed=20000 price=200 var=120 units=400
+breakeven fixed=20000 price=200 var=120 units=150`,tr:"Change price=200 to 180 and predict the break-even."}},
+ {h:"Profit is not cash",d:"Table.",t:T[30],code:{c:R`# Profit is not cash
+cash open=50000 sales=100000 paid=90000`,tr:"Add received=60000 and read the closing cash."}}
+]},
+{t:"Funding and investment",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Equity and debt",d:"Table.",t:T[31]},
+ {h:"Sources of funding",d:"Table.",t:T[32],code:{c:R`# An angel invests Rs 1 crore at Rs 4 crore pre-money
+equity pre=40000000 invest=10000000`,tr:"Change invest=10000000 to 20000000 and predict the share."}},
+ {h:"MUDRA and Startup India",d:"Table.",t:T[33]}
+]},
+{t:"Intellectual property",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Four kinds of IP",d:"Table.",t:T[34]},
+ {h:"Which protection?",d:"Table.",t:T[35]}
+]},
+{t:"Business ethics",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Four areas",d:"Table.",t:T[36]},
+ {h:"CSR",d:"Table.",t:T[37],code:{c:R`# CSR duty and amount (profits in crore)
+csr profits=8,10,12
+csr profits=3 turnover=400 networth=200`,tr:"Try profits=20,20,20 and read the amount."}},
+ {h:"Data protection dates",d:"Table.",t:T[38]}
+]},
+{t:"Careers and freelancing",sec:[9],notes:[9],dump:[9],blocks:[
+ {h:"Career planning",d:"Table.",t:T[39]},
+ {h:"Careers and certifications",d:"Table.",t:T[40]},
+ {h:"Freelancing",d:"Table.",t:T[41],code:{c:R`# Freelance minimum rate
+rate income=60000 costs=10000 hours=100`,tr:"Change hours=100 to 80 and predict the rate."}},
+ {h:"Rate and tax",d:"Table.",t:T[42]},
+ {h:"Worked numbers",d:"Table.",t:T[43]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* Venture calculator lab: one command per line. */
+function parseKV(s){const kv={};const re=/(\w+)=(\S+)/g;let m;while((m=re.exec(s)))kv[m[1]]=m[2];return kv;}
+const num=(a,k,min)=>{const v=a[k];if(v===undefined||v===""||isNaN(+v))throw new Error("needs "+k+"= (a number).");return +v;};
+const opt=(a,k)=>a[k]===undefined?null:(isNaN(+a[k])?(()=>{throw new Error(k+"= must be a number.");})():+a[k]);
+const tr=x=>String(Math.round(x*100)/100);
+function rs(v){const s=v<0?"-":"";v=Math.abs(v);if(v>=1e7)return s+"Rs "+tr(v/1e7)+" crore";if(v>=1e5)return s+"Rs "+tr(v/1e5)+" lakh";return s+"Rs "+tr(v);}
+const SIMS={
+ev(a,o){
+  const p1=num(a,"p1"),v1=num(a,"v1"),p2=num(a,"p2"),v2=num(a,"v2");
+  if(p1<0||p2<0||Math.abs(p1+p2-1)>1e-9)throw new Error("p1 and p2 are probabilities and must add up to 1.");
+  const e=p1*v1+p2*v2;o.push("expected value: "+rs(e));o.push(e>0?"positive: a calculated risk":"not positive: a gamble");
+},
+score(a,o){
+  const w=(a.w||"").split(",").map(Number),s=(a.a||"").split(",").map(Number);
+  if(!w.length||w.length!==s.length||w.concat(s).some(isNaN))throw new Error("score needs w= and a= lists of equal length, for example w=0.5,0.3,0.2 a=4,3,5.");
+  if(Math.abs(w.reduce((x,y)=>x+y,0)-1)>1e-9)throw new Error("the weights must add up to 1.");
+  if(s.some(x=>x<1||x>5))throw new Error("each score must be from 1 to 5.");
+  o.push("weighted score: "+tr(w.reduce((t,x,i)=>t+x*s[i],0)));
+},
+market(a,o){
+  const n=num(a,"students"),p=num(a,"price"),r=num(a,"reach"),s=num(a,"share");
+  if(r<0||r>100||s<0||s>100)throw new Error("reach and share are per cent from 0 to 100.");
+  const tam=n*p,sam=tam*r/100,som=sam*s/100;
+  o.push("TAM: "+rs(tam));o.push("SAM: "+rs(sam));o.push("SOM: "+rs(som)+" ("+Math.round(n*r/100*s/100)+" customers)");
+},
+funnel(a,o){
+  const im=num(a,"impressions"),cl=num(a,"clicks");
+  if(cl>im)throw new Error("clicks cannot exceed impressions.");
+  o.push("CTR: "+tr(cl/im*100)+"%");
+  const su=opt(a,"signups"),cu=opt(a,"customers"),sp=opt(a,"spend"),pay=opt(a,"pay");
+  const top=su!==null?su:cu;
+  if(top!==null){if(top>cl)throw new Error("sign-ups or customers cannot exceed clicks.");o.push("conversion: "+tr(top/cl*100)+"%");}
+  if(cu!==null&&sp!==null){if(cu<=0)throw new Error("customers must be above 0 to find CAC.");o.push("CAC: Rs "+tr(sp/cu));
+    if(pay!==null){o.push("ROI: "+tr((cu*pay-sp)/sp*100)+"%");}}
+},
+profit(a,o){
+  const s=num(a,"sales"),c=num(a,"cogs"),e=num(a,"expenses"),i=opt(a,"interest")||0,t=opt(a,"tax")||0;
+  if(s<=0)throw new Error("sales must be above 0.");
+  const g=s-c,n=g-e-i-t;
+  o.push("gross profit: "+rs(g));o.push("net profit: "+rs(n));o.push("net margin: "+tr(n/s*100)+"%");
+},
+breakeven(a,o){
+  const f=num(a,"fixed"),p=num(a,"price"),v=num(a,"var"),u=opt(a,"units");
+  if(p<=v)throw new Error("the price must be above the variable cost, or there is no contribution.");
+  o.push("contribution per unit: Rs "+tr(p-v));o.push("break-even: "+tr(f/(p-v))+" units");
+  if(u!==null){const pr=u*(p-v)-f;o.push(pr>=0?"profit at "+u+" units: Rs "+tr(pr):"loss at "+u+" units: Rs "+tr(-pr));}
+},
+cash(a,o){
+  const op=num(a,"open"),s=num(a,"sales"),pd=num(a,"paid"),rc=opt(a,"received")||0;
+  o.push("profit: Rs "+tr(s-pd));const c=op+rc-pd;o.push("closing cash: Rs "+tr(c));
+  if(c<0)o.push("shortfall: the business is profitable only on paper");
+},
+equity(a,o){
+  const pre=num(a,"pre"),inv=num(a,"invest");
+  if(pre<=0||inv<=0)throw new Error("pre and invest must be above 0.");
+  const post=pre+inv;o.push("post-money value: "+rs(post));o.push("investor owns: "+tr(inv/post*100)+"%");o.push("founders own: "+tr(pre/post*100)+"%");
+},
+csr(a,o){
+  const p=(a.profits||"").split(",").map(Number);
+  if(!p.length||p.some(isNaN))throw new Error("csr needs profits= with the net profits in crore, for example profits=8,10,12.");
+  const nw=opt(a,"networth")||0,to=opt(a,"turnover")||0,last=p[p.length-1];
+  const q=nw>=500||to>=1000||last>=5;
+  o.push("legal CSR duty: "+(q?"yes":"no"));
+  if(q){const avg=p.reduce((x,y)=>x+y,0)/p.length;o.push("average net profit: Rs "+tr(avg)+" crore");o.push("CSR amount: "+rs(avg*0.02*1e7));}
+},
+rate(a,o){
+  const inc=num(a,"income"),co=num(a,"costs"),h=num(a,"hours");
+  if(h<=0)throw new Error("hours must be above 0.");
+  o.push("minimum rate: Rs "+Math.round((inc+co)/h)+" per hour");
+}
+};
+function fnRun(src){
+  const out=[];let errors=0,title="",detail="";
+  const lines=String(src).replace(/\r/g,"").split("\n");let cmds=0;
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i].trim();if(!ln||ln[0]==="#")continue;
+    const sp=ln.search(/\s/),c=sp<0?ln:ln.slice(0,sp),rest=sp<0?"":ln.slice(sp+1);cmds++;
+    if(!SIMS[c]){errors++;title="Unknown command";detail="Line "+(i+1)+": '"+c+"' is not a command of this lab. Commands: "+Object.keys(SIMS).join(", ")+".";out.push("error: "+detail);continue;}
+    try{SIMS[c](parseKV(rest),out);}catch(e){errors++;title="Cannot run";detail="Line "+(i+1)+": "+c+" "+e.message;out.push("error: "+detail);}
+  }
+  if(!cmds)return {ok:false,title:"Nothing to run",detail:"Type at least one command.",out:"",brief:"",errors:1,warns:0};
+  return {ok:errors===0,title,detail,out:out.join("\n"),brief:out.join(" / "),errors,warns:0,cmds};
+}
+
+function runCpp(src,inp){return fnRun(src);}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to see the report.</p>';
+  if(!r.ok&&!r.out)return '<div class="rs bad"><b>'+esc(r.title)+".</b> "+esc(r.detail)+"</div>";
+  return '<pre class="outpre">'+esc(r.out)+'</pre><div class="rs '+(r.ok?"ok":"bad")+'">'+(r.ok?"The script ran without errors.":"<b>"+esc(r.title)+".</b> "+esc(r.detail))+"</div>";
+}
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const rows=Math.min(14,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">Plan</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Plan editor">'+esc(src)+'</textarea>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const r=runCpp(src,"");
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ p1:"0.3",v1:"1000000",p2:"0.7",v2:"-100000",bf:"20000",bp:"200",bv:"120",bu:"400",fi2:"200000",fc:"4000",fu:"40",fs:"10000",fp:"600",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run a plan"],["pred","Predict the report"],["fix","Fix the script"],["ev","Expected value"],["be","Break-even"],["fn","Campaign metrics"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank plan",spec:{c:"# One command per line; # starts a comment\nrate income=60000 costs=10000 hours=100",tr:"Try the other commands: ev, score, market, funnel, profit, breakeven, cash, equity, csr."}});
+function labView(){
+  let h='<p class="hint">A small venture calculator for the numbers of the chapter. Each line is a command: ev, score, market, funnel, profit, breakeven, cash, equity, csr and rate, each followed by key=value pairs, for example breakeven fixed=20000 price=200 var=120. Predict the report, then run it.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,ev:labEv,be:labBe,fn:labFn,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s plans</h3><label class="lab" for="exsel">Choose a plan</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">Lines starting with # are comments. A mistake gives an error that names the line.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your answer (separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected answer: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to draw the page and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+
+const FIX=[
+{t:"A misspelt command",kind:"Unknown command",goal:"The calculator should print the expected value.",exp:"expected value: Rs 2.3 lakh / positive: a calculated risk",hint:"Look at the first word.",sol:"ev ...",why:"Commands must be spelt exactly.",src:"evv p1=0.3 v1=1000000 p2=0.7 v2=-100000"},
+{t:"Probabilities that do not add up",kind:"Logic error",goal:"p1 and p2 must add up to 1.",exp:"expected value: Rs 2.3 lakh / positive: a calculated risk",hint:"0.3 + 0.7 = 1.",sol:"p2=0.7",why:"With p2=0.5 the total is 0.8.",src:"ev p1=0.3 v1=1000000 p2=0.5 v2=-100000"},
+{t:"A missing value",kind:"Missing value",goal:"The venture's expected value needs both outcomes.",exp:"expected value: Rs 2.3 lakh / positive: a calculated risk",hint:"Every key is needed.",sol:"v2=-100000",why:"v2 is missing.",src:"ev p1=0.3 v1=1000000 p2=0.7"},
+{t:"Weights that do not add up to 1",kind:"Range error",goal:"The weighted score of idea A is 3.8.",exp:"weighted score: 3.8",hint:"Weights must total 1.",sol:"w=0.3,0.2,0.2,0.2,0.1",why:"The weights total 1.2.",src:"score w=0.3,0.2,0.2,0.2,0.3 a=5,3,3,4,3"},
+{t:"A score of 6",kind:"Range error",goal:"Scores must be from 1 to 5.",exp:"weighted score: 3.8",hint:"The top score is 5.",sol:"a=5,3,3,4,3",why:"A score of 6 is outside the scale.",src:"score w=0.3,0.2,0.2,0.2,0.1 a=6,3,3,4,3"},
+{t:"Reach above 100",kind:"Range error",goal:"40% of the market is reachable.",exp:"TAM: Rs 120 crore / SAM: Rs 48 crore / SOM: Rs 2.4 crore (4000 customers)",hint:"Reach is a percentage.",sol:"reach=40",why:"Reach cannot be 400.",src:"market students=200000 price=6000 reach=400 share=5"},
+{t:"More clicks than impressions",kind:"Logic error",goal:"4 000 clicks from 200 000 impressions give CTR 2%.",exp:"CTR: 2% / conversion: 1% / CAC: Rs 250 / ROI: 140%",hint:"Clicks come after impressions.",sol:"impressions=200000 clicks=4000",why:"Clicks cannot exceed impressions.",src:"funnel impressions=2000 clicks=4000 customers=40 spend=10000 pay=600"},
+{t:"No customers",kind:"Range error",goal:"CAC needs customers above zero.",exp:"CTR: 2% / conversion: 1% / CAC: Rs 250 / ROI: 140%",hint:"Divide spend by customers.",sol:"customers=40",why:"With 0 customers CAC is undefined.",src:"funnel impressions=200000 clicks=4000 customers=0 spend=10000 pay=600"},
+{t:"Price below the variable cost",kind:"Logic error",goal:"Break-even should be 250 units.",exp:"contribution per unit: Rs 80 / break-even: 250 units / profit at 400 units: Rs 12000",hint:"The price must exceed the variable cost.",sol:"price=200",why:"With price 100 there is a loss on every unit.",src:"breakeven fixed=20000 price=100 var=120 units=400"},
+{t:"Missing fixed cost",kind:"Missing value",goal:"Break-even needs the fixed cost.",exp:"contribution per unit: Rs 80 / break-even: 250 units / profit at 400 units: Rs 12000",hint:"Add fixed=20000.",sol:"fixed=20000",why:"fixed is missing.",src:"breakeven price=200 var=120 units=400"},
+{t:"Sales of zero",kind:"Range error",goal:"The shop's net profit should be Rs 55000.",exp:"gross profit: Rs 2 lakh / net profit: Rs 55000 / net margin: 11%",hint:"Sales must be above 0.",sol:"sales=500000",why:"Zero sales gives no margin.",src:"profit sales=0 cogs=300000 expenses=120000 interest=10000 tax=15000"},
+{t:"Investment of zero",kind:"Range error",goal:"The investor should own 20%.",exp:"post-money value: Rs 5 crore / investor owns: 20% / founders own: 80%",hint:"invest must be above 0.",sol:"invest=10000000",why:"No investment, no share.",src:"equity pre=40000000 invest=0"},
+{t:"Text in the profit list",kind:"Invalid value",goal:"The CSR duty for profits 8, 10, 12 crore.",exp:"legal CSR duty: yes / average net profit: Rs 10 crore / CSR amount: Rs 20 lakh",hint:"Use numbers only.",sol:"profits=8,10,12",why:"'ten' is not a number.",src:"csr profits=8,ten,12"},
+{t:"Zero hours",kind:"Range error",goal:"The minimum rate for 100 billable hours is Rs 700.",exp:"minimum rate: Rs 700 per hour",hint:"hours must be above 0.",sol:"hours=100",why:"You cannot divide by zero hours.",src:"rate income=60000 costs=10000 hours=0"}
+];
+
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+
+function repRes(src){const r=fnRun(src);return r.ok?'<pre class="outpre">'+esc(r.out)+"</pre>":'<div class="rs bad">'+esc(r.detail)+"</div>";}
+function labEv(){
+  return '<div class="panel"><h3>Expected value</h3><p class="hint">EV = p1 × v1 + p2 × v2. The probabilities must add up to 1.</p><div class="row">'+numIn("p1in","p1","p1",5,"ev")+numIn("v1in","Gain v1 (Rs)","v1",8,"ev")+numIn("p2in","p2","p2",5,"ev")+numIn("v2in","Result v2 (Rs)","v2",8,"ev")+'</div><div id="evres">'+evRes()+"</div></div>";
+}
+function evRes(){return repRes("ev p1="+L.p1+" v1="+L.v1+" p2="+L.p2+" v2="+L.v2);}
+function labBe(){
+  return '<div class="panel"><h3>Break-even calculator</h3><p class="hint">Break-even = fixed ÷ (price − variable cost).</p><div class="row">'+numIn("bfin","Fixed (Rs)","bf",8,"be")+numIn("bpin","Price (Rs)","bp",6,"be")+numIn("bvin","Variable (Rs)","bv",6,"be")+numIn("buin","Units sold","bu",6,"be")+'</div><div id="beres">'+beRes()+"</div></div>";
+}
+function beRes(){return repRes("breakeven fixed="+L.bf+" price="+L.bp+" var="+L.bv+" units="+L.bu);}
+function labFn(){
+  return '<div class="panel"><h3>Campaign metrics</h3><p class="hint">CTR = clicks ÷ impressions; conversion = customers ÷ clicks; CAC = spend ÷ customers; ROI = (revenue − spend) ÷ spend.</p><div class="row">'+numIn("fiin","Impressions","fi2",8,"fn")+numIn("fcin","Clicks","fc",6,"fn")+numIn("fuin","Customers","fu",6,"fn")+numIn("fsin","Spend (Rs)","fs",7,"fn")+numIn("fpin","Pay each (Rs)","fp",6,"fn")+'</div><div id="fnres">'+fnRes()+"</div></div>";
+}
+function fnRes(){return repRes("funnel impressions="+L.fi2+" clicks="+L.fc+" customers="+L.fu+" spend="+L.fs+" pay="+L.fp);}
+const DIMS=[
+{n:"Which IP right?",o:["Copyright","Trademark","Patent","Trade secret"],it:[["Source code of an app",0],["The app's name and logo",1],["A novel technical process",2],["A secret ranking method",3],["Automatic from creation",0],["Lasts 10 years, renewable",1],["Lasts 20 years from filing",2],["Needs only secrecy",3],["Life + 60 years",0]]},
+{n:"Which funding source?",o:["Bootstrapping","Angel","Venture capital","Loan or scheme"],it:[["Personal savings",0],["A wealthy individual investing early",1],["Seed and Series A rounds",2],["MUDRA Kishor",3],["Full ownership kept",0],["Professional high-growth fund",2],["Repaid with interest",3]]},
+{n:"Which design thinking phase?",o:["Empathize","Define","Ideate","Prototype","Test"],it:[["Interview users",0],["Write a HMW question",1],["Brainstorm many ideas",2],["Draw a paper mock-up",3],["Ask users to show how they would do it",4],["Observe in their own setting",0],["Choose the problem to solve",1]]},
+{n:"Which of the 4Ps?",o:["Product","Price","Place","Promotion"],it:[["Features of the app",0],["Rs 300 a month",1],["Play Store and website",2],["Social media posts",3],["Discount for students",1],["Where it is sold",2]]},
+{n:"Fixed or variable cost?",o:["Fixed","Variable"],it:[["Rent",0],["Salaries",0],["Raw materials",1],["Shipping",1],["Insurance",0],["Packaging",1],["Transaction fees",1]]},
+{n:"Primary or secondary research?",o:["Primary","Secondary"],it:[["A survey of 100 students",0],["An industry report",1],["Census data",1],["A focus group",0],["Observation of users",0],["A published study",1]]},
+{n:"Incremental or disruptive?",o:["Incremental","Disruptive"],it:[["A faster phone",0],["Mobile banking replacing branch visits",1],["A better camera",0],["Streaming replacing rented discs",1],["Starts with overlooked customers",1],["Improves the existing concept",0]]}
+];
+
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "ltog":L[el.dataset.key]=!L[el.dataset.key];render();return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.brief!==undefined?r.brief:(r.out||"")).replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="ev")set("evres",evRes());
+  else if(k==="be")set("beres",beRes());
+  else if(k==="fn")set("fnres",fnRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

@@ -1,0 +1,1564 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Planner Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 5 · Professional Skills · Lesson 27</div>
+    <h1>Project Management Skills</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Table 1.1: Project or operation?",c:["Project (temporary, unique)","Operation (ongoing, repeating)"],r:[
+["Building a school's attendance app","Marking the attendance every morning"],
+["Moving the college's records to a new database","Updating records every day"],
+["Organising the annual tech fest","Running the computer lab each day"]]},
+/*1*/{s:0,t:"The triple constraint",c:["Constraint","Meaning"],r:[
+["Scope","What is to be delivered"],
+["Time","The deadline"],
+["Cost","Money and effort"],
+["Quality","Sits in the middle: affected when any side is squeezed"]]},
+/*2*/{s:0,t:"Table 1.2: SMART objectives",c:["Letter","Meaning","Question to ask"],r:[
+["Specific","Clearly defined, not vague","What exactly will be built?"],
+["Measurable","Progress and completion can be counted","How will we know it is done?"],
+["Achievable","Realistic for the resources and time","Can this team do it?"],
+["Relevant","Aligned with the larger goal","Why does it matter?"],
+["Time-bound","Has a deadline","By when?"]]},
+/*3*/{s:0,t:"Scope statement of the library project",c:["Item","Content"],r:[
+["In scope","Add, search and delete books; issue and return books; list overdue books; monthly report"],
+["Out of scope","Online payment of fines, a mobile app, e-books"],
+["Deliverables","Requirements document, database design, working application with source code, test report, user manual, final report"],
+["A later request for online fines","A change request, weighed against time and effort, not quietly added"]]},
+/*4*/{s:1,t:"Table 1.3: The five phases at a glance",c:["Phase","Main question","Key output"],r:[
+["Initiation","Should we do it?","Project Charter, stakeholder list"],
+["Planning","How, when, who, how much?","WBS, schedule, risk and communication plans"],
+["Execution","Do the work","Deliverables"],
+["Monitoring and Controlling","Are we on track?","Progress reports, approved changes"],
+["Closing","Is it finished and what did we learn?","Accepted deliverables, lessons learned"]]},
+/*5*/{s:1,t:"Activities of each phase",c:["Phase","Activities"],r:[
+["Initiation","Identify stakeholders; define the overall objective, major deliverables and rough timeline; produce the Project Charter"],
+["Planning","Detailed scope (WBS), scheduling, resource planning, budget estimation, risk planning, communication plan"],
+["Execution","Do the tasks and produce the deliverables; coordinate, resolve issues, communicate with stakeholders"],
+["Monitoring and Controlling","Track progress against the plan, find variances, take corrective action, change control; runs alongside execution"],
+["Closing","Final review, lessons learned, release the team, archive documents, close contracts"]]},
+/*6*/{s:1,t:"Phases of the student library project",c:["Phase","What the team does"],r:[
+["Initiation","The teacher approves the idea; the team lists its stakeholders (librarian, students, teacher)"],
+["Planning","List tasks, assign people, set dates"],
+["Execution","Design, code and test"],
+["Monitoring and Controlling","Each Friday compare progress with the plan and rescue a late task"],
+["Closing","Submit, show the teacher, write down what to do differently"]]},
+/*7*/{s:2,t:"Work Breakdown Structure of the Library Management System",c:["Level-1 deliverable","Level-2 work packages"],r:[
+["1. Requirements and Design","1.1 Gather requirements; 1.2 System design document; 1.3 Database schema"],
+["2. Development","2.1 Set up environment; 2.2 Develop interface; 2.3 Develop database; 2.4 Business logic"],
+["3. Testing","3.1 Unit testing; 3.2 Integration testing; 3.3 User acceptance"],
+["4. Documentation and Deployment","4.1 User manual; 4.2 Final report; 4.3 Deploy application"]]},
+/*8*/{s:2,t:"Dependencies",c:["Type","Meaning","Example"],r:[
+["Finish-to-start","B cannot start until A finishes (the commonest)","Cannot code before the design is done"],
+["Start-to-start","B cannot start until A has started","Writing the test documents can begin when testing begins"],
+["Parallel","No dependency: done at the same time by different people","Interface and database; shortens the project"]]},
+/*9*/{s:2,t:"Table 1.4: Tasks, durations and dependencies",c:["ID","Task","Days","Depends on"],r:[
+["A","Gather requirements","3","—"],
+["B","Design (system and schema)","4","A"],
+["C","Build the database","3","B"],
+["D","Build the user interface","5","B"],
+["E","Write the business logic","6","C"],
+["F","Integration and system testing","4","D, E"],
+["G","Write the user manual","3","D"],
+["H","Deploy and submit","1","F, G"]]},
+/*10*/{s:2,t:"Table 1.5: The paths of the library project",c:["Path","Sum of durations","Total"],r:[
+["A–B–C–E–F–H","3 + 4 + 3 + 6 + 4 + 1","21 days (critical)"],
+["A–B–D–F–H","3 + 4 + 5 + 4 + 1","17 days"],
+["A–B–D–G–H","3 + 4 + 5 + 3 + 1","16 days"]]},
+/*11*/{s:2,t:"Float in the library project",c:["Task","Float","Reason"],r:[
+["D (interface)","21 − 17 = 4 days","Can start on day 7 but testing cannot start until E finishes on day 16"],
+["G (manual)","21 − 16 = 5 days","Could finish by day 15 but is only needed by day 20"],
+["Critical tasks A, B, C, E, F, H","0","Any delay moves the end date"]]},
+/*12*/{s:2,t:"Shortening a schedule",c:["Method","Meaning","Cost"],r:[
+["Crashing","Add people or overtime to a critical task","Extra cost"],
+["Fast tracking","Do in parallel tasks planned one after another","Extra risk"],
+["After a change","Recalculate: cutting E from 6 to 3 days gives 18 days (A–B–D–F–H is 17), not 15","The critical path may change"]]},
+/*13*/{s:3,t:"The urgent–important (Eisenhower) matrix",c:["Box","Action","Example"],r:[
+["Urgent and important","Do first","Project deadline tomorrow"],
+["Important, not urgent","Schedule","Learning, planning, testing early"],
+["Urgent, not important","Delegate or minimise","Most messages and interruptions"],
+["Neither","Eliminate","Aimless scrolling"]]},
+/*14*/{s:3,t:"The Pomodoro Technique and procrastination",c:["Item","Content"],r:[
+["Pomodoro","25 minutes of focused work, a 5-minute break, repeat"],
+["After four cycles","A long break of 15 to 30 minutes"],
+["Break big tasks into small steps","'Write the login form', not 'do the website'"],
+["Commit to just 5 minutes","Starting is the hard part"],
+["Remove distractions","Silence notifications, close social media"],
+["Use deadlines","Real or self-set, shared with the team"]]},
+/*15*/{s:3,t:"Estimating effort",c:["Method","Meaning"],r:[
+["Expert judgement","Ask someone experienced"],
+["Analogous estimation","Use the actual time of a similar past task"],
+["Three-point average","(O + M + P) ÷ 3"],
+["PERT","(O + 4M + P) ÷ 6: the most likely value has more weight"],
+["Uncertainty","(P − O) ÷ 6"]]},
+/*16*/{s:3,t:"Worked three-point estimate: O = 4, M = 6, P = 14",c:["Measure","Calculation","Result"],r:[
+["Simple average","(4 + 6 + 14) ÷ 3","8 days"],
+["PERT","(4 + 4 × 6 + 14) ÷ 6 = 42 ÷ 6","7 days"],
+["Uncertainty","(14 − 4) ÷ 6","≈ 1.7 days"]]},
+/*17*/{s:4,t:"Tuckman's stages of team development",c:["Stage","What happens"],r:[
+["Forming","Members meet, are polite and unsure of roles"],
+["Storming","Opinions clash over approach and roles"],
+["Norming","Agreed rules and working habits appear"],
+["Performing","The team works smoothly towards the goal"],
+["Adjourning","The project ends and the team disbands"]]},
+/*18*/{s:4,t:"Table 1.6: The four RACI letters",c:["Letter","Role","Meaning"],r:[
+["R","Responsible","Does the work (there may be several)"],
+["A","Accountable","Owns the result and signs it off; one person only per task"],
+["C","Consulted","Gives advice or expertise before the work is done (two-way)"],
+["I","Informed","Is told of progress or completion (one-way)"]]},
+/*19*/{s:4,t:"Table 1.7: A RACI matrix for the library project",c:["Task","Asha","Ravi","Meera","Teacher"],r:[
+["Requirements document","A, R","C","C","I"],
+["Database design","C","A, R","I","I"],
+["User interface","C","I","A, R","I"],
+["Testing","R","R","A","I"],
+["Final report","A","R","R","C"]]},
+/*20*/{s:4,t:"Stand-up meetings and conflict resolution",c:["Item","Content"],r:[
+["Stand-up questions","What did I complete? What will I complete by the next meeting? Is anything blocking me?"],
+["Length","Short: 10 to 15 minutes; blockers are solved afterwards by the people concerned"],
+["Listen first","Understand the other view before defending your own"],
+["Positions and interests","A position is what someone wants; the interest is why"],
+["Look for shared solutions","A small test of both options, or a decision rule agreed in advance"],
+["Escalate","To the teacher or mentor only when the team cannot settle it"]]},
+/*21*/{s:4,t:"Table 1.8: Five responsibilities of a project leader",c:["Responsibility","What it means"],r:[
+["Direction","A clear, shared understanding of goals and priorities"],
+["Decision-making","Gather input, lead the discussion, make sure decisions are taken and communicated"],
+["Motivation","Recognise contributions, keep energy up, help through difficult phases"],
+["Removing obstacles","Clear whatever blocks members: a missing tool, an unclear requirement, a conflict"],
+["Representing the team","Report progress to stakeholders, raise concerns, manage expectations"]]},
+/*22*/{s:4,t:"Table 1.9: Directive and collaborative styles",c:["Feature","Directive","Collaborative"],r:[
+["Who decides","The leader","The team, with the leader facilitating"],
+["Best when","Urgent, inexperienced team, crisis","Capable team, buy-in needed, complex problem"],
+["Strength","Fast and clear","Better ideas, stronger commitment"],
+["Weakness","May reduce ownership and miss ideas","Slower"]]},
+/*23*/{s:5,t:"Table 1.10: Functional and non-functional requirements",c:["Kind","Describes","Example (library system)"],r:[
+["Functional","What the system does: each feature","The librarian can issue a book to a member"],
+["Non-functional","How well: performance, security, reliability, usability","A search returns in under 2 seconds; only the librarian can delete records"]]},
+/*24*/{s:5,t:"The documents of a project",c:["Document","Purpose"],r:[
+["Requirements (SRS)","What the system must do, for users and the technical system"],
+["Design documentation","Architecture, database schema, screen layouts, algorithms, interfaces"],
+["Code documentation","Comments that explain why, not just what"],
+["Progress reports","What is done, in progress, next, and the risks"],
+["Final report","Objectives, method, implementation, results, testing, conclusions"]]},
+/*25*/{s:5,t:"Table 1.11: A simple weekly progress report",c:["Heading","Example entry"],r:[
+["Done this week","Database tables created and tested (task C complete)"],
+["In progress","User interface, 60% complete"],
+["Planned next week","Start business logic (task E)"],
+["Risks and issues","Member A is ill for 3 days: logic task may slip; Ravi to take the login module"],
+["Status","Amber (slightly behind, recoverable)"]]},
+/*26*/{s:5,t:"Structure of the final report",c:["No.","Part","Content"],r:[
+["1","Abstract","A summary of the whole project in a paragraph"],
+["2","Introduction","The problem, objectives and scope"],
+["3","Literature review / background","Existing systems and the technology"],
+["4","System requirements","Functional and non-functional (the SRS)"],
+["5","Design","Architecture, database, interface"],
+["6","Implementation","How it was built, with key code"],
+["7","Testing and results","Tests carried out and their outcomes"],
+["8","Conclusion","Achievements, limitations, future work"],
+["9","References","Sources in a consistent format"],
+["10","Appendices","Full code, forms, questionnaires"]]},
+/*27*/{s:6,t:"Table 1.12: Categories of project risk",c:["Category","Meaning","Example"],r:[
+["Technical","Technology may not work as expected; skills missing","The team has never used the chosen framework"],
+["Schedule","Tasks take longer; key people unavailable","A member falls ill before the deadline"],
+["Resource","Equipment or software not available when needed","The lab computers are booked on test day"],
+["Requirements","Unclear or changing requirements cause rework","The teacher adds a new report late"],
+["External","Dependence on outsiders who may not deliver","A data file from the school office arrives late"]]},
+/*28*/{s:6,t:"Risk exposure = probability × impact (Low 1, Medium 2, High 3)",c:["Probability \\ Impact","Low (1)","Medium (2)","High (3)"],r:[
+["High (3)","3","6","9"],
+["Medium (2)","2","4","6"],
+["Low (1)","1","2","3"]]},
+/*29*/{s:6,t:"Table 1.13: A risk register for the library project",c:["No.","Risk","P","I","Score","Response"],r:[
+["1","Requirements change late","3","3","9","Mitigate: sign off the SRS; change control"],
+["2","Team lacks the framework skills","3","2","6","Mitigate: learn first, or avoid by using a known tool"],
+["3","A member falls ill","2","2","4","Accept with a plan: share knowledge of each module"],
+["4","Code lost (laptop failure)","1","3","3","Mitigate: daily backup and version control"],
+["5","Lab internet down on demo day","2","2","4","Avoid: demo on an offline copy"]]},
+/*30*/{s:6,t:"Table 1.14: The four responses to a threat",c:["Response","What you do","Example"],r:[
+["Avoidance","Change the plan so the risk cannot happen","Use a well-known, supported technology"],
+["Mitigation","Lower the probability or the impact","Train in an unfamiliar technology; keep backups"],
+["Transfer","Shift the impact to a third party","Buy insurance; use a managed cloud service"],
+["Acceptance","Acknowledge it; keep a contingency plan; no action to prevent it","A low-probability, low-impact risk"]]},
+/*31*/{s:7,t:"Table 1.15: Quality assurance and quality control",c:["Feature","Quality Assurance (QA)","Quality Control (QC)"],r:[
+["Focus","The process","The product"],
+["Aim","Prevent defects","Find defects"],
+["When","Throughout the project","On finished deliverables"],
+["Examples","Coding standards, reviews, process audits","Testing, inspection of a deliverable"]]},
+/*32*/{s:7,t:"Table 1.16: The four levels of testing",c:["Level","What is verified","Example"],r:[
+["Unit testing","Each component works correctly in isolation","The function that computes the fine for a late book"],
+["Integration testing","Components work correctly when combined","The issue form saves to the database and updates the stock"],
+["System testing","The complete system meets all functional requirements","Issue, return, search and report all work together"],
+["User Acceptance Testing (UAT)","Real users confirm it meets their needs and is usable","The school librarian runs a normal day on the system"]]},
+/*33*/{s:7,t:"Table 1.17: Test cases for 'issue a book' (a member may hold at most 3 books)",c:["No.","Input","Expected result","Type"],r:[
+["1","Member holds 0 books","Issue allowed","Normal"],
+["2","Member holds 2 books","Issue allowed","Boundary (just below)"],
+["3","Member holds 3 books","Issue refused with a message","Boundary (at the limit)"],
+["4","Unknown member number","Error message, no crash","Invalid"],
+["5","Book already issued","Refused with a message","Invalid"]]},
+/*34*/{s:8,t:"Structure and slides of a presentation",c:["Item","Content"],r:[
+["Introduction","What and why: about 10%"],
+["Body","The main content in logical order: about 80%"],
+["Conclusion","Takeaways and next steps: about 10%"],
+["6×6 rule","No more than 6 bullet points per slide and 6 words per bullet"],
+["Visual aids","Diagrams, screenshots, flowcharts, database diagrams; slides support the speaker, they are not read aloud"]]},
+/*35*/{s:8,t:"Table 1.19: Elements of good delivery",c:["Element","What to do"],r:[
+["Voice","Loud and clear enough for the whole room; vary tone"],
+["Pace","Not rushed or nervous; a measured pace"],
+["Eye contact","Look at different people, not at the slides or notes"],
+["Posture and gesture","Stand upright, natural hand movements, face the audience"],
+["Questions","Listen, ask for clarification if unsure, answer briefly and honestly, admit what you do not know"]]},
+/*36*/{s:8,t:"A 10-minute presentation plan",c:["Minutes","Content"],r:[
+["0–1","The problem and the goal"],
+["1–3","The design: database diagram and main screens"],
+["3–7","Live demonstration with realistic data"],
+["7–8","Testing and results"],
+["8–9","Limitations and future work"],
+["9–10","Summary and thanks, then questions"]]},
+/*37*/{s:8,t:"Demonstration: story and checklist",c:["Item","Content"],r:[
+["Story","1 The problem and why it matters; 2 Main features in a real scenario; 3 Interesting technical parts; 4 Current abilities and future work"],
+["Test first","Test every feature you will show; never show anything broken"],
+["Realistic data","Real-looking names, classes and marks, not aaa, bbb, ccc"],
+["Backup plan","Screenshots or a recorded video, a copy on a pen drive, an offline version"],
+["Practise","Rehearse the demo several times and time it"],
+["Check the room","Projector, power, internet, screen resolution; close unrelated programs and notifications"]]},
+/*38*/{s:8,t:"Table 1.20: Common viva questions",c:["Question","What a good answer contains"],r:[
+["Explain the overall architecture of your system","Main parts (interface, logic, database) and how they connect"],
+["Why did you choose this database design?","Entities, keys, relationships and the reason"],
+["How does this specific module work?","The steps in order, in your own words"],
+["What are the limitations of the current version?","Two or three honest limits"],
+["How did you test your system?","The levels, a few test cases and one bug found and fixed"],
+["What would you add with more time?","Realistic improvements linked to the limitations"],
+["What was the most challenging part?","A real problem, your approach, the solution and the lesson"],
+["What did you learn?","Technical learning and project skills"]]},
+/*39*/{s:9,t:"Table 1.21: Waterfall against agile",c:["Feature","Waterfall","Agile (for example Scrum)"],r:[
+["Phases","Once, in order","Repeated in short sprints"],
+["Requirements","Fixed at the start","Expected to change"],
+["Customer sees the product","At the end","After every sprint"],
+["Planning","Detailed, up front","Detailed for the next sprint only"],
+["Best for","Stable, well-understood needs","Uncertain or changing needs"],
+["Main risk","Discovering errors late","Drifting scope without discipline"]]},
+/*40*/{s:9,t:"Scrum words",c:["Word","Meaning"],r:[
+["Product backlog","Everything wanted, in priority order"],
+["Sprint backlog","The part chosen for the current sprint"],
+["Daily stand-up","Short meeting with the three questions"],
+["Sprint review","Shows the working result"],
+["Retrospective","What went well and what to improve (like lessons learned, after every sprint)"],
+["Sprint","Short fixed cycle, often 1 to 4 weeks"]]},
+/*41*/{s:9,t:"Which approach?",c:["Situation","Approach"],r:[
+["Marks computed by a fixed board rule, no changes expected","Waterfall"],
+["A start-up app whose popular features are unknown","Agile: release small, learn, change"],
+["Student team, fixed 8 weeks, unclear requirements","A mix: high-level plan, two-week mini-sprints with a review each time"]]},
+/*42*/{s:9,t:"Table 1.22: Worked numbers to remember (library project)",c:["Example","Result"],r:[
+["Critical path A–B–C–E–F–H","3 + 4 + 3 + 6 + 4 + 1 = 21 days"],
+["Float of the interface task D","21 − 17 = 4 days"],
+["Float of the manual task G","21 − 16 = 5 days"],
+["Three-point estimate O = 4, M = 6, P = 14","Average 8 days; PERT 7 days"],
+["Risk exposure: requirements change (P = 3, I = 3)","9 (highest)"],
+["Pomodoro cycle","25 min work, 5 min break; long break after four"],
+["6×6 rule","At most 6 bullets, 6 words each"]]}
+];
+
+const NOTES=[
+["1.1 Project fundamentals","A {{project}} is a temporary, unique endeavour undertaken to create a specific product, service or result within the constraints of time, budget, scope and quality. {{Temporary}} means it has a definite beginning and end; {{unique}} means it produces something new or is done in a new context. It differs from an {{operation}}, the routine, repeating work that has no end date (marking attendance every morning). The {{triple constraint}} is scope, time and cost, with quality in the middle because it suffers when any side is squeezed. Objectives are {{SMART}}: Specific, Measurable, Achievable, Relevant and Time-bound. 'Develop a software application' is poor; a SMART version names the system, the 200 students per class, the monthly reports and the 8 weeks. The {{scope}} says what is included and what is excluded; uncontrolled growth of work with no matching growth in time, people or budget is {{scope creep}}. {{Deliverables}} are the specific, tangible outputs handed over: the requirements specification, design document, working application with source code, test report, user manual and final presentation. A request outside the scope is a {{change request}}, weighed against time and effort. A programme is a group of related projects managed together."],
+["1.2 The project life cycle","The project life cycle has five phases. In {{Initiation}} the project is recognised and authorised: stakeholders are identified, the overall objective and major deliverables are set, and the {{Project Charter}} formally authorises the project and gives the manager authority. In {{Planning}} the idea becomes a detailed roadmap: the work breakdown structure, schedule, resource and budget plans, risk planning and a communication plan. In {{Execution}} the plans are put into action and the deliverables are produced. {{Monitoring and Controlling}} runs alongside planning and execution: it tracks progress against the plan, finds {{variances}} and takes corrective action, including {{change control}}, the formal approval or rejection of changes to scope, schedule or budget. In {{Closing}} deliverables are reviewed, accepted and handed over, {{lessons learned}} are recorded, team members are released and documents are archived. The Project Charter belongs to initiation, not planning, and skipping closing means the same mistakes are repeated."],
+["1.3 Project planning and scheduling","A {{Work Breakdown Structure}} (WBS) is a hierarchical decomposition of all the work into {{work packages}}: assignable, estimable units. It is not a task list or a schedule, and the 100% rule says the lower levels add up to exactly the level above. The library WBS has four level-1 boxes and thirteen work packages. A {{Gantt chart}} is a horizontal bar chart with tasks down the side and dates across the top. In a {{finish-to-start}} dependency B cannot start until A finishes; in a {{start-to-start}} dependency B cannot start until A has started; parallel tasks can be done at once. The {{critical path}} is the longest chain of dependent tasks; its length is the shortest possible project duration. For tasks A 3, B 4, C 3, D 5, E 6, F 4, G 3, H 1 the paths are A–B–C–E–F–H = {{21}} days, A–B–D–F–H = 17 and A–B–D–G–H = 16. {{Float}} (slack) is the time a task can slip without delaying the end: D has {{4}} days and G has {{5}} days. {{Crashing}} adds people to a critical task at extra cost; {{fast tracking}} runs tasks in parallel at extra risk; the critical path must then be recalculated (cutting E to 3 days gives 18 days, not 15). A {{milestone}} is a zero-duration checkpoint, drawn as a diamond. CPM and PERT date from the late 1950s."],
+["1.4 Time management","The {{urgent–important matrix}} (Eisenhower matrix) has four boxes: urgent and important (do first), important but not urgent (schedule), urgent but not important (delegate or minimise) and neither (eliminate). Good workers spend most time in the important, not urgent box. The {{Pomodoro Technique}} is 25 minutes of focused work, a 5-minute break, repeated; after {{four}} cycles comes a long break of 15 to 30 minutes. {{Procrastination}} is delaying difficult tasks; remedies are small specific steps, committing to just 5 minutes, removing distractions and using shared deadlines. Estimation methods are expert judgement, analogous estimation and three-point estimation with Optimistic, Most likely and Pessimistic values: the simple average is (O + M + P) ÷ 3 and the {{PERT}} estimate is (O + 4M + P) ÷ 6. For O = 4, M = 6, P = 14 the average is 8 days, the PERT estimate is {{7}} days and the uncertainty (P − O) ÷ 6 is about 1.7 days. The planning fallacy is the habit of under-estimating one's own tasks, so add a buffer on the critical path."],
+["1.5 and 1.6 Teamwork and leadership","Tuckman's stages of team development are {{forming}}, {{storming}}, {{norming}}, {{performing}} and {{adjourning}}; storming is normal. The {{RACI matrix}} gives each task a letter for each person: {{Responsible}} (does the work, possibly several), {{Accountable}} (owns the result; exactly one per task), {{Consulted}} (two-way, before) and {{Informed}} (one-way, after). A stand-up meeting is short (10 to 15 minutes) and each member answers: what did I complete, what will I complete by the next meeting, is anything blocking me. In conflict resolution listen first, separate {{positions}} (what someone wants) from {{interests}} (why), look for solutions serving several interests and escalate only when needed. A leader's five responsibilities are direction, decision-making, motivation, removing obstacles and representing the team; the qualities are integrity, reliability and respect. The {{directive}} style (the leader decides) suits urgent decisions, crises and inexperienced teams; the {{collaborative}} style (the team decides, the leader facilitates) suits capable teams, buy-in and complex problems. Neither style is better in itself."],
+["1.7 Documentation and reporting","{{Documentation}} is the systematic upkeep of written records. The {{SRS}} (Software Requirements Specification) records {{functional}} requirements (what the system does: the librarian can issue a book) and {{non-functional}} requirements (how well: a search returns in under 2 seconds; only the librarian can delete records). {{Design documentation}} describes the architecture, database schema, screen layouts, algorithms and interfaces. {{Code documentation}} is comments that explain why, not just what. {{Progress reports}} use a fixed format: done this week, in progress, planned next week, risks and issues, and status (such as amber). The {{final report}} has ten parts: abstract, introduction, literature review or background, system requirements, design, implementation, testing and results, conclusion, references and appendices. Out-of-date documentation is worse than none; copying without a reference is plagiarism."],
+["1.8 Risk management","A {{risk}} is an uncertain future event that, if it happens, affects the project's objectives; an {{issue}} is a problem that has already happened. Risk management has four steps: identify, analyse, respond and monitor. Risk categories are technical, schedule, resource, requirements and external. {{Risk exposure}} = probability × impact, each scored Low 1, Medium 2, High 3; scores 6 and 9 are red, 3 and 4 amber, 1 and 2 green. A {{risk register}} records each risk with its probability, impact, score, response and owner: late requirement changes (3 × 3 = {{9}}) are the highest in the library project. The four responses to a threat are {{avoidance}} (change the plan so it cannot happen), {{mitigation}} (lower the probability or impact), {{transfer}} (shift the impact to a third party, as insurance does) and {{acceptance}} (keep a contingency plan). Mitigation cut the laptop-failure risk from 1 × 3 = 3 to 1 × 1 = 1. Positive risks are opportunities (exploit, enhance, share, accept)."],
+["1.9 Quality assurance","{{Quality Assurance}} (QA) is the set of activities throughout the project that build quality in; it focuses on the process and aims to prevent defects (coding standards, reviews, audits). {{Quality Control}} (QC) checks the product and aims to find defects (testing, inspection). The four levels of testing are {{unit}} testing (each component in isolation), {{integration}} testing (components combined), {{system}} testing (the whole system against all requirements) and {{user acceptance testing}} (UAT, by real users). Bugs found early are cheaper to fix. A good {{test case}} gives the input, the expected result and the actual result, and covers normal, {{boundary}} and invalid values: a member holding 3 books is the boundary of the limit. A {{code review}} is reading by a person other than the author; coding standards make code consistent. Testing shows bugs, never their absence; regression testing re-runs tests after every change; the V-model pairs each development stage with a test level."],
+["1.10 and 1.11 Presentation, demonstration and viva","Plan a presentation from the {{audience}}. Use a three-part structure: introduction (about 10%), body (about 80%) and conclusion (about 10%). The {{6×6 rule}} allows at most 6 bullets per slide and 6 words per bullet; slides support the speaker and are not read aloud. Good delivery covers voice, pace, eye contact, posture and gesture, and handling questions honestly; rehearse alone and then before friends, without memorising. A {{demonstration}} tells a story: the problem, the main features in a real scenario, interesting technical parts, and current abilities and future work. Prepare by testing every feature, using realistic data, having a backup plan (screenshots, a recorded video, an offline copy) and practising and timing the demo. A {{viva}} (viva voce, 'by live voice') is an oral examination of understanding. Know why you chose the design, the alternatives, the difficulties, the limitations and what you would improve; answer honestly, in your own words, and say what you have not tested and how you would find out."],
+["1.12 Waterfall and agile","In the {{waterfall}} approach the phases (requirements, design, development, testing, deployment) are done once, in order. It suits stable requirements; its weakness is that the customer sees the product only at the end. In the {{agile}} approach the project is divided into short cycles called {{sprints}} (often 1 to 4 weeks): plan, build, test, show the customer, review. It suits uncertain or changing requirements, but agile does not mean 'no planning'. In {{Scrum}} the product backlog is everything wanted in priority order, the sprint backlog is the part chosen for the sprint, the daily stand-up has the three questions, the sprint review shows the working result and the {{retrospective}} asks what went well and what to improve. The Agile Manifesto was written in 2001. Many organisations use a hybrid: a waterfall-style overall plan with agile working inside each stage."]
+];
+const DUMPS=[
+{t:"Project fundamentals",p:["Project: temporary and unique; operation: routine","Triple constraint: scope, time, cost; quality in the middle","SMART: five letters with a numbers-and-deadline example","Scope: included and excluded; scope creep; change request","Deliverables: tangible outputs"]},
+{t:"The project life cycle",p:["Five phases in order","Initiation: stakeholders, Project Charter","Planning: WBS, schedule, risks, communication","Monitoring and controlling runs alongside execution; change control","Closing: lessons learned"]},
+{t:"Planning and scheduling",p:["WBS: hierarchy down to work packages; 100% rule","Gantt chart; finish-to-start, start-to-start, parallel","Critical path = longest path: 21 days","Float: D 4 days, G 5 days","Crashing and fast tracking","Milestone: zero duration, a diamond"]},
+{t:"Time management",p:["Four boxes of the urgent–important matrix","Pomodoro 25 + 5, long break after four","Anti-procrastination: small steps, 5 minutes, no distractions, deadlines","Average 8 days; PERT 7 days; spread 1.7"]},
+{t:"Teamwork and leadership",p:["Tuckman: forming, storming, norming, performing, adjourning","RACI: one A per task; C two-way, I one-way","Stand-up: done, next, blocked","Positions and interests","Five responsibilities of a leader; IRR qualities","Directive and collaborative styles"]},
+{t:"Documentation",p:["SRS: functional and non-functional","Design, code comments, progress reports","Progress report headings","Ten parts of the final report in order"]},
+{t:"Risk management",p:["Risk and issue","Identify, analyse, respond, monitor","Five categories","Exposure = P × I; red, amber, green","Risk register","Avoid, mitigate, transfer, accept"]},
+{t:"Quality assurance",p:["QA: process, prevention; QC: product, detection","Unit, integration, system, UAT","Test case: input, expected, actual; normal, boundary, invalid","Code reviews and coding standards","Early bugs are cheaper"]},
+{t:"Presentation, demo and viva",p:["Audience; intro 10%, body 80%, conclusion 10%","6×6 rule","Voice, pace, eye contact, posture, questions","Demo story; test, data, backup, practise","Viva: why, how, limits, learned"]},
+{t:"Waterfall and agile",p:["Waterfall: one pass, requirements fixed","Agile: sprints, change expected","Scrum: backlogs, stand-up, review, retrospective","Choose by the stability of requirements"]}
+];
+
+const SECS=["Project fundamentals","The project life cycle","Planning and scheduling","Time management","Teamwork and leadership","Documentation and reporting","Risk management","Quality assurance","Presentation, demonstration and viva","Waterfall and agile"];
+const CORE=[
+[0,"Define a project.","A temporary, unique endeavour undertaken to create a specific product, service or result within defined constraints of time, budget, scope and quality."],
+[0,"What do 'temporary' and 'unique' mean?","Temporary: a definite beginning and end. Unique: it produces something new or is done in a new context."],
+[0,"What is an operation? Give an example.","Routine, repeating work with no end date, such as marking the attendance every morning."],
+[0,"Name the triple constraint.","Scope, time and cost, with quality in the middle."],
+[0,"Why is quality in the middle of the triple constraint?","It is affected when any side is squeezed."],
+[0,"Expand SMART.","Specific, Measurable, Achievable, Relevant, Time-bound."],
+[0,"Why is 'develop a software application' a poor objective?","It is vague and unmeasurable."],
+[0,"Define scope.","What is included in the project and, just as important, what is excluded."],
+[0,"What is scope creep?","Gradual, uncontrolled growth of the work with no matching growth in time, people or budget."],
+[0,"What is a change request?","A request outside the scope, weighed against time and effort instead of being added quietly."],
+[0,"Define deliverables.","Specific, tangible outputs handed over at the end or at agreed milestones."],
+[0,"Name the deliverables of a software project.","Requirements specification, design document, working application with source code, test report, user manual, final presentation."],
+[0,"Distinguish a project from a programme.","A programme is a group of related projects managed together."],
+[0,"Mnemonic for project and the triple constraint?","TU: Temporary and Unique; scope, time, cost: Stay True to the Contract."],
+[1,"What is the project life cycle?","The structured sequence of phases through which every project passes."],
+[1,"Name the five phases.","Initiation, Planning, Execution, Monitoring and Controlling, Closing."],
+[1,"What happens in initiation?","The project is recognised, assessed and authorised; stakeholders are identified; the Project Charter is produced."],
+[1,"What is a stakeholder?","Anyone affected by or interested in the project."],
+[1,"What is the Project Charter?","The document that formally authorises the project and gives the manager authority to use resources."],
+[1,"What happens in planning?","Detailed scope (WBS), scheduling, resource planning, budget estimation, risk planning and a communication plan."],
+[1,"What happens in execution?","The plans are put into action and the deliverables are produced; the manager coordinates and facilitates."],
+[1,"What happens in monitoring and controlling?","Progress is tracked against the plan, variances are found and corrective action is taken, including change control."],
+[1,"When does monitoring and controlling run?","Alongside planning and execution, not after execution."],
+[1,"What is a variance?","The difference between planned and actual performance."],
+[1,"What is change control?","Formally evaluating a proposed change to scope, schedule or budget, then approving or rejecting it."],
+[1,"What happens in closing?","Final review, lessons learned, deliverables accepted, team released, documents archived, contracts closed."],
+[1,"What are lessons learned?","A record of what went well and what to improve, made at closing for future teams."],
+[1,"Give the main question of each phase.","Should we do it? How, when, who, how much? Do the work. Are we on track? Is it finished and what did we learn?"],
+[1,"Mnemonic for the phases?","In Planning Every Member Contributes."],
+[2,"Define the Work Breakdown Structure.","A hierarchical decomposition of all the work needed to produce the deliverables, down to work packages."],
+[2,"What is a work package?","The smallest WBS unit: specific, assignable and estimable."],
+[2,"What is the 100% rule?","The lower levels of a WBS add up to exactly 100% of the level above."],
+[2,"Why is a WBS not a task list or a schedule?","It is a hierarchy of deliverables and work; it has no dates."],
+[2,"How many level-1 boxes and work packages does the library WBS have?","Four level-1 boxes and thirteen work packages."],
+[2,"What is a Gantt chart?","A horizontal bar chart with tasks down the side and calendar dates across the top; bar length is the duration."],
+[2,"What is a finish-to-start dependency?","B cannot start until A finishes; the commonest type."],
+[2,"What is a start-to-start dependency?","B cannot start until A has started."],
+[2,"What are parallel tasks?","Tasks with no dependency, done at once by different people; they shorten the project."],
+[2,"Define the critical path.","The longest chain of dependent tasks; its length is the shortest possible project duration."],
+[2,"How do you find the critical path?","List every path from start to finish, add the durations and take the largest total."],
+[2,"What is the critical path of the library project?","A–B–C–E–F–H, 3 + 4 + 3 + 6 + 4 + 1 = 21 working days."],
+[2,"What are the other two paths and their lengths?","A–B–D–F–H = 17 days; A–B–D–G–H = 16 days."],
+[2,"Define float (slack).","The time a task can slip without moving the end date."],
+[2,"What are the floats of D and G?","D: 21 − 17 = 4 days; G: 21 − 16 = 5 days."],
+[2,"What is the float of critical tasks?","Zero."],
+[2,"What happens if E slips by 2 days and if D slips by 2 days?","E: the project ends on day 23; D: nothing changes."],
+[2,"What is crashing?","Adding people or overtime to a critical task, at extra cost."],
+[2,"What is fast tracking?","Doing in parallel tasks that were planned one after another, at extra risk."],
+[2,"What happens if E is cut from 6 to 3 days?","The top path becomes 18 days, A–B–D–F–H is 17, so the project is 18 days, not 15."],
+[2,"What is a milestone?","A zero-duration checkpoint marking the completion of a major phase, deliverable or decision; drawn as a diamond."],
+[2,"Find the critical path: P 2, Q 5 after P, R 3 after P, S 2 after Q and R.","P–Q–S = 9 days; float of R = 9 − 7 = 2 days."],
+[2,"What are CPM and PERT?","Critical path method (late 1950s, plant maintenance) and the Program Evaluation and Review Technique (US Navy Polaris)."],
+[2,"Mnemonic for the planning terms?","WBS: What work; Gantt: Gets the dates; Critical path: Counts the longest chain; Float: Free time; Milestone: Moment."],
+[3,"What is the urgent–important matrix?","The Eisenhower matrix: four boxes made from urgent and important."],
+[3,"What do you do with each of the four boxes?","Urgent and important: do first; important not urgent: schedule; urgent not important: delegate or minimise; neither: eliminate."],
+[3,"Where should good project workers spend most time?","In the important but not urgent box, where planning and prevention happen."],
+[3,"State the Pomodoro Technique.","25 minutes of focused work, a 5-minute break, repeat; after four cycles a long break of 15 to 30 minutes."],
+[3,"What is procrastination?","Delaying important but difficult tasks in favour of easier or more pleasant ones."],
+[3,"Give strategies against procrastination.","Small specific steps, commit to just 5 minutes, remove distractions, use and share deadlines."],
+[3,"Name three methods of estimating effort.","Expert judgement, analogous estimation and three-point estimation."],
+[3,"State the three-point average and the PERT formula.","(O + M + P) ÷ 3 and (O + 4M + P) ÷ 6."],
+[3,"What do O, M and P stand for?","Optimistic, Most likely, Pessimistic."],
+[3,"Estimate for O = 4, M = 6, P = 14?","Average 8 days; PERT (4 + 24 + 14) ÷ 6 = 7 days."],
+[3,"How is uncertainty measured and what is it here?","(P − O) ÷ 6 = (14 − 4) ÷ 6 ≈ 1.7 days."],
+[3,"What is the planning fallacy?","People systematically under-estimate how long their own tasks take; compare with similar tasks and add a buffer."],
+[4,"Name Tuckman's five stages.","Forming, storming, norming, performing, adjourning."],
+[4,"What happens in storming?","Opinions clash over approach and roles; it is a normal stage."],
+[4,"Expand RACI.","Responsible, Accountable, Consulted, Informed."],
+[4,"What does Responsible mean?","Does the work; there may be several."],
+[4,"What does Accountable mean?","Owns the result and signs it off; exactly one person per task."],
+[4,"Distinguish Consulted from Informed.","Consulted: two-way, before the work; Informed: one-way, told of progress or completion."],
+[4,"What makes a well-made RACI?","Exactly one A per row, at least one R, and every person has some R."],
+[4,"What are the three stand-up questions?","What did I complete? What will I complete by the next meeting? Is anything blocking me?"],
+[4,"Why is a stand-up short?","10 to 15 minutes; blockers are solved afterwards by the people concerned."],
+[4,"Give approaches to conflict.","Listen first, separate positions from interests, look for solutions that serve several interests, escalate only when needed."],
+[4,"Distinguish a position from an interest.","A position is what someone wants; the interest is why they want it."],
+[4,"Give the MySQL against SQLite solution.","Run on SQLite for the demo and show that MySQL needs only a changed connection string: it serves both interests."],
+[4,"Distinguish a manager from a leader.","A manager plans, organises and controls the work; a leader sets direction and inspires people."],
+[4,"List the five responsibilities of a leader.","Direction, decision-making, motivation, removing obstacles, representing the team."],
+[4,"What is the directive style and when does it suit?","The leader decides; suits urgent decisions, crises and inexperienced teams."],
+[4,"What is the collaborative style and when does it suit?","The team decides with the leader facilitating; suits capable teams, buy-in and complex problems."],
+[4,"Which qualities earn a leader credibility?","Integrity, reliability and respect."],
+[4,"What is servant leadership?","The leader serves the team by removing obstacles and protecting its time."],
+[5,"Define documentation.","The systematic creation and upkeep of written records of requirements, design, code, tests and progress."],
+[5,"What is the SRS?","The Software Requirements Specification: functional and non-functional requirements."],
+[5,"Distinguish functional from non-functional requirements.","Functional: what the system does (issue a book); non-functional: how well (search under 2 seconds; security)."],
+[5,"What does design documentation describe?","Architecture, database schema, screen layouts, algorithms and interfaces."],
+[5,"What should code comments explain?","Why, not just what."],
+[5,"What does a progress report contain?","Done, in progress, planned next, risks and issues, and status (such as amber)."],
+[5,"What is the final report?","The document of the whole project: objectives, method, implementation, results, testing and conclusions."],
+[5,"List the ten parts of the final report.","Abstract, introduction, literature review/background, system requirements, design, implementation, testing and results, conclusion, references, appendices."],
+[5,"Is 'reset a password by e-mail' functional or not?","Functional; 'pages load in under 3 seconds' and 'passwords are stored encrypted' are non-functional."],
+[5,"Why is out-of-date documentation a problem?","It misleads, so it is worse than none; keep it with the code (README, Git)."],
+[6,"Define a risk.","An uncertain future event that, if it happens, affects the project's objectives."],
+[6,"Distinguish a risk from an issue.","A risk is a possibility; an issue is a problem that has already happened."],
+[6,"What are the four steps of risk management?","Identify, analyse, respond, monitor."],
+[6,"Name the five categories of risk.","Technical, schedule, resource, requirements, external."],
+[6,"State the risk exposure formula and the scale.","Exposure = probability × impact, with Low 1, Medium 2, High 3."],
+[6,"What do the colours of the grid mean?","6 and 9 red (most attention), 3 and 4 amber (need a plan), 1 and 2 green (accept and watch)."],
+[6,"What is a risk register?","A table of risks with description, probability, impact, score, planned response and an owner."],
+[6,"Which risk scored highest in the library register?","Requirements change late: 3 × 3 = 9."],
+[6,"Name the four responses to a threat.","Avoidance, mitigation, transfer, acceptance."],
+[6,"Distinguish avoidance from mitigation.","Avoidance removes the risk by changing the plan; mitigation only reduces its probability or impact."],
+[6,"What is risk transfer? Example.","Shifting the impact to a third party, such as insurance or a managed cloud service."],
+[6,"What is risk acceptance?","A deliberate choice with a contingency plan, not ignoring the risk."],
+[6,"How did mitigation change the laptop-failure score?","From 1 × 3 = 3 to 1 × 1 = 1, using an online repository and a copy to a second member."],
+[6,"What are positive risks and their responses?","Opportunities: exploit, enhance, share, accept."],
+[7,"Distinguish QA from QC.","QA: the process, prevents defects throughout the project; QC: the product, finds defects in finished deliverables."],
+[7,"Give examples of QA and QC.","QA: coding standards, reviews, audits; QC: testing and inspection."],
+[7,"Name the four levels of testing.","Unit, integration, system and user acceptance testing."],
+[7,"What does unit testing verify?","That each component works correctly in isolation."],
+[7,"What does integration testing verify?","That components work correctly when combined."],
+[7,"What does system testing verify?","That the complete system meets all functional requirements."],
+[7,"What is UAT and who does it?","User Acceptance Testing by real users, to confirm the system meets their needs."],
+[7,"Why are bugs found early cheaper?","Less work has been built on top of them and fewer people are affected."],
+[7,"What does a good test case state?","The input, the expected result and the actual result."],
+[7,"What kinds of values should test cases include?","Normal, boundary (the edge of the allowed range) and invalid values."],
+[7,"Which test case is the boundary for a limit of 3 books?","A member holding 2 books (just below) and one holding 3 books (at the limit: refused)."],
+[7,"What is a code review?","A team member other than the author reads the code to find bugs, security problems and weaknesses."],
+[7,"What do coding standards give?","Consistent names, indentation, comments and structure: readable, maintainable code."],
+[7,"What is regression testing and what is the V-model?","Re-running tests after every change; a model pairing each development stage with a test level."],
+[7,"What can testing never prove?","That there are no bugs."],
+[8,"What is the first step in planning a presentation?","Start from the audience: their level, interests and what they want to learn."],
+[8,"State the three-part structure and proportions.","Introduction about 10%, body about 80%, conclusion about 10%."],
+[8,"State the 6×6 rule.","At most 6 bullet points per slide and 6 words per bullet."],
+[8,"What should slides do?","Support what you say, not copy it as paragraphs read from the screen."],
+[8,"List the elements of good delivery.","Voice, pace, eye contact, posture and gesture, and handling questions."],
+[8,"How should you answer a question you cannot answer?","Listen, ask for clarification, answer briefly and honestly, admit what you do not know and say how you would find out."],
+[8,"Why practise, and how?","It builds confidence, shows timing problems; rehearse alone and then before friends, without memorising a script."],
+[8,"What is the story of a demonstration?","The problem, the main features in a real scenario, interesting technical parts, current abilities and future work."],
+[8,"Give the preparation checklist for a demo.","Test every feature, realistic data, backup plan, practise and time it, check the room."],
+[8,"What is a backup plan for a demo?","Screenshots or a recorded video, a copy on a pen drive, an offline version."],
+[8,"What is a viva?","Viva voce, 'by live voice': an oral examination of your understanding of the project."],
+[8,"How do you prepare for a viva?","Understand why as well as what: design choices, alternatives, difficulties, limitations and improvements."],
+[8,"What impresses examiners about limitations?","Honesty about limitations, framed as what you learned and would do differently."],
+[8,"What is a mock viva?","A friend or teacher asks unseen questions and you answer aloud."],
+[8,"Mnemonics for demo, preparation and viva?","Problem, Features, Technical, Future; T-D-B-P: Test, Data, Backup, Practise; Viva: Why, How, Limits, Learned."],
+[9,"Describe the waterfall approach.","The phases are done once, in order, each finishing before the next begins."],
+[9,"When does waterfall suit and what is its weakness?","Stable, well-known requirements (a bridge, fixed-rule payroll); the customer sees the product only at the end and errors are found late."],
+[9,"Describe the agile approach.","Short cycles (sprints, often 1 to 4 weeks) of plan, build, test, show the customer and review."],
+[9,"When does agile suit?","Uncertain or changing requirements."],
+[9,"Does agile mean no planning or no documents?","No: it prefers working software, collaboration and response to change over rigid plans and heavy documents."],
+[9,"Define the product backlog and the sprint backlog.","Product backlog: everything wanted in priority order; sprint backlog: the part chosen for the current sprint."],
+[9,"What are the Scrum meetings?","Planning, daily stand-up, sprint review and retrospective."],
+[9,"What is a retrospective?","A review of what went well and what to improve, like lessons learned applied after every sprint."],
+[9,"When did the Agile Manifesto appear?","2001, written by seventeen software practitioners."],
+[9,"Which approach for a client who changes requirements every week?","Agile, because it expects change and shows working results after every sprint."],
+[9,"What is the main risk of each approach?","Waterfall: discovering errors late; agile: drifting scope without discipline."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const R=String.raw;
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["A project is best described as:",["Routine work that repeats","A temporary, unique endeavour","An unlimited activity","A programme of many operations"],1,"Temporary and unique."],
+["Which is an operation, not a project?",["Building an attendance app","Marking attendance every morning","Organising a tech fest","Moving records to a new database"],1,"It repeats with no end date."],
+["The triple constraint consists of:",["Scope, time, cost","Scope, quality, risk","Time, team, tools","Cost, quality, risk"],0,"Quality sits in the middle."],
+["In SMART, the T stands for:",["Tested","Time-bound","Technical","Team-based"],1,"Time-bound."],
+["Uncontrolled growth of work without more time or budget is:",["Float","Scope creep","Crashing","A milestone"],1,"Scope creep."],
+["Which document formally authorises a project?",["Project Charter","Risk register","Gantt chart","Test report"],0,"Written in initiation."],
+["Which phase runs alongside execution?",["Initiation","Closing","Monitoring and controlling","Planning only"],2,"It does not wait until execution finishes."],
+["Lessons learned belong to which phase?",["Initiation","Planning","Execution","Closing"],3,"Closing."],
+["A work package is:",["The whole project","The smallest assignable, estimable unit of a WBS","A milestone","A risk response"],1,"Lowest level of the WBS."],
+["The critical path is the:",["Shortest path","Longest chain of dependent tasks","Cheapest path","Path with most float"],1,"It sets the minimum duration."],
+["A milestone has a duration of:",["One day","Zero","One week","The sprint length"],1,"It is a moment, drawn as a diamond."],
+["Task B cannot start until A finishes. This is:",["Start-to-start","Finish-to-start","Parallel","A milestone"],1,"Finish-to-start."],
+["In the library project the critical path length is:",["17 days","16 days","21 days","18 days"],2,"3 + 4 + 3 + 6 + 4 + 1."],
+["The float of the interface task D in the library project is:",["0","4 days","5 days","21 days"],1,"21 − 17."],
+["Adding people to a critical task at extra cost is:",["Fast tracking","Crashing","Mitigation","Transfer"],1,"Crashing."],
+["Doing planned-in-sequence tasks in parallel at extra risk is:",["Crashing","Fast tracking","Acceptance","Baselining"],1,"Fast tracking."],
+["Urgent and important tasks should be:",["Eliminated","Done first","Delegated","Scheduled for later"],1,"Do first."],
+["The long Pomodoro break comes after:",["Two cycles","Three cycles","Four cycles","Six cycles"],2,"After the fourth cycle."],
+["The PERT estimate is:",["(O + M + P) ÷ 3","(O + 4M + P) ÷ 6","(O + P) ÷ 2","M × 4"],1,"Most likely has more weight."],
+["O = 4, M = 6, P = 14 gives a PERT estimate of:",["6","7","8","10"],1,"42 ÷ 6 = 7."],
+["Which Tuckman stage comes after storming?",["Forming","Norming","Performing","Adjourning"],1,"Norming."],
+["In a RACI matrix, how many people are Accountable for a task?",["Exactly one","At least two","None","All"],0,"One A per task."],
+["Which RACI letter is one-way communication?",["Responsible","Accountable","Consulted","Informed"],3,"Informed."],
+["Which is a stand-up question?",["Who is to blame?","Is anything blocking my progress?","What is the budget?","Who is the client?"],1,"What I did, what I will do, what blocks me."],
+["A leader who decides alone in a crisis uses the:",["Collaborative style","Directive style","Servant style","Agile style"],1,"Directive."],
+["'A search returns in under 2 seconds' is a:",["Functional requirement","Non-functional requirement","Milestone","Deliverable"],1,"Performance."],
+["Which belongs in the SRS?",["Test results","Functional and non-functional requirements","Slide notes","Lessons learned"],1,"The SRS records requirements."],
+["Good code comments explain:",["Only what","Why, not just what","Nothing","The syntax"],1,"Why."],
+["A risk is:",["A problem that has happened","An uncertain future event","A milestone","A deliverable"],1,"An issue has already happened."],
+["Risk exposure is:",["Probability + impact","Probability × impact","Impact − probability","Probability ÷ impact"],1,"A product."],
+["P = 3, I = 2 gives exposure:",["5","6","9","1"],1,"3 × 2 = 6 (red)."],
+["Buying insurance is risk:",["Avoidance","Mitigation","Transfer","Acceptance"],2,"Shifting the impact to a third party."],
+["Changing the plan so that the risk cannot happen is:",["Avoidance","Mitigation","Transfer","Acceptance"],0,"Avoidance."],
+["Quality Assurance focuses on the:",["Product","Process","Customer","Budget"],1,"QA prevents defects in the process."],
+["Which test level is done by real users?",["Unit","Integration","System","User acceptance"],3,"UAT."],
+["Testing that components work when combined is:",["Unit","Integration","System","Regression"],1,"Integration."],
+["A boundary test case for a limit of 3 books uses a member holding:",["0 books","3 books","10 books","An unknown number"],1,"At the limit."],
+["The 6×6 rule allows at most:",["6 slides","6 bullets of 6 words each","6 minutes","6 images"],1,"Six bullets, six words."],
+["The usual proportions of a talk are:",["50-25-25","10-80-10","33-33-33","20-60-20"],1,"Introduction 10%, body 80%, conclusion 10%."],
+["A viva is:",["A written test","An oral examination of understanding","A project charter","A Gantt chart"],1,"Viva voce: by live voice."],
+["A good backup plan for a demo is:",["Hope the internet works","Screenshots or a recorded video","Skip the demo","Use aaa, bbb data"],1,"Have a fallback."],
+["The waterfall approach does the phases:",["Many times","Once, in order","In parallel always","Never"],1,"One pass."],
+["A sprint in Scrum is typically:",["1–4 weeks","1 year","1 hour","6 months"],0,"Short fixed cycle."],
+["Which approach suits requirements that keep changing?",["Waterfall","Agile","Neither","Critical path"],1,"Agile."],
+["The retrospective in Scrum is like:",["The Project Charter","Lessons learned","The WBS","A milestone"],1,"What went well, what to improve."]
+];
+const FILL=[
+["A project is temporary and ___.",["unique"],"Unique."],
+["The three sides of the triple constraint are scope, time and ___.",["cost"],"Cost."],
+["In SMART, the M stands for ___.",["measurable"],"Measurable."],
+["The ___ formally authorises a project.",["project charter","charter"],"Project Charter."],
+["Anyone affected by or interested in the project is a ___.",["stakeholder"],"Stakeholder."],
+["The difference between plan and reality is called ___.",["variance"],"Variance."],
+["Lessons learned are recorded in the ___ phase.",["closing"],"Closing."],
+["A ___ is a hierarchical decomposition of all the work.",["work breakdown structure","wbs"],"WBS."],
+["A ___ chart shows tasks as bars on a calendar.",["gantt"],"Gantt."],
+["The ___ path is the longest chain of dependent tasks.",["critical"],"Critical."],
+["The time a task can slip without delaying the project is ___.",["float","slack"],"Float."],
+["A ___ is a zero-duration checkpoint.",["milestone"],"Milestone."],
+["The Pomodoro work period is ___ minutes.",["25"],"25."],
+["The Eisenhower matrix separates urgent from ___ tasks.",["important"],"Important."],
+["The PERT estimate is (O + 4M + P) divided by ___.",["6"],"6."],
+["Tuckman's stage where opinions clash is ___.",["storming"],"Storming."],
+["In RACI, the letter A stands for ___.",["accountable"],"Accountable."],
+["A stand-up answers: what did I complete, what will I complete, and what is ___ me.",["blocking"],"Blocking."],
+["A position is what someone wants; the ___ is why.",["interest"],"Interest."],
+["The SRS records functional and ___ requirements.",["non-functional","nonfunctional","non functional"],"Non-functional."],
+["An uncertain event is a risk; a problem that has happened is an ___.",["issue"],"Issue."],
+["Risk exposure = probability × ___.",["impact"],"Impact."],
+["The four risk responses are avoid, mitigate, transfer and ___.",["accept"],"Accept."],
+["___ assurance prevents defects through good process.",["quality"],"Quality."],
+["Testing by real users is ___ acceptance testing.",["user"],"User."],
+["A test case states input, expected result and ___ result.",["actual"],"Actual."],
+["The ___ rule allows at most 6 bullets of 6 words.",["6x6","6×6","six by six"],"6×6."],
+["A ___ voce is an oral examination.",["viva"],"Viva."],
+["Agile works in short cycles called ___.",["sprints","sprint"],"Sprints."],
+["In Scrum, the product ___ lists everything wanted in priority order.",["backlog"],"Backlog."]
+];
+const TF=[
+["A project has no fixed end date.",false,"It has a definite end."],
+["Daily operations are projects.",false,"They are operations."],
+["'Develop a good application' is a SMART objective.",false,"Vague."],
+["Scope creep means adding work without adjusting time or resources.",true,"Yes."],
+["Monitoring and controlling starts after execution ends.",false,"It runs alongside."],
+["The Project Charter is produced in initiation.",true,"Yes."],
+["The critical path is the shortest path.",false,"The longest."],
+["Critical tasks have zero float.",true,"Yes."],
+["A milestone has a duration of one day.",false,"Zero."],
+["The Pomodoro long break comes after the second cycle.",false,"After the fourth."],
+["A RACI row may have several Accountable people.",false,"Exactly one."],
+["Informed means two-way communication.",false,"One-way."],
+["A collaborative style is best in a crisis.",false,"A directive style is."],
+["Performance requirements are non-functional.",true,"Yes."],
+["A risk is a problem that has already happened.",false,"That is an issue."],
+["Insurance is risk transfer.",true,"Yes."],
+["QC is about preventing defects in the process.",false,"That is QA."],
+["Unit testing is done by end users.",false,"UAT is."],
+["A demo should avoid features that are not working.",true,"Yes."],
+["Agile works in sprints.",true,"Yes."],
+["A WBS has dates for each task.",false,"It has no dates."],
+["Several people may be Responsible for one task.",true,"Yes."],
+["Cutting a critical task never changes which path is critical.",false,"Another path may become the longest."],
+["The planning fallacy is the habit of under-estimating one's own tasks.",true,"Yes."],
+["Positions and interests are the same thing.",false,"A position is what, an interest is why."],
+["A stand-up should be a long discussion of every blocker.",false,"Blockers are solved afterwards."],
+["Out-of-date documentation is better than none.",false,"It misleads."],
+["Mitigation removes a risk completely.",false,"Avoidance does; mitigation reduces."],
+["Testing can prove that a program has no bugs.",false,"It can only show bugs."],
+["Slides should be read aloud word for word.",false,"They support the speaker."],
+["In a viva you should admit what you have not tested.",true,"Honesty impresses."],
+["Waterfall means the customer sees the product only at the end.",true,"Yes."],
+["Agile means there is no planning.",false,"It plans each sprint."]
+];
+const VSA=[
+["Define a project in one sentence.",["temporary","unique"],"A temporary, unique endeavour to create a product, service or result.",1],
+["Expand SMART.",["specific","measurable","achievable","relevant","time-bound"],"Specific, Measurable, Achievable, Relevant, Time-bound.",1],
+["What is scope creep?",["uncontrolled","growth"],"Uncontrolled growth of work without more time or resources.",1],
+["Name the five phases of the project life cycle.",["initiation","planning","execution","monitoring","closing"],"Initiation, Planning, Execution, Monitoring and Controlling, Closing.",1],
+["Which document formally authorises a project?",["charter"],"The Project Charter.",1],
+["What is a work package?",["smallest","assignable"],"The smallest assignable, estimable unit of a WBS.",1],
+["Which chart shows tasks as bars on a calendar?",["gantt"],"A Gantt chart.",1],
+["What does the critical path determine?",["minimum","duration"],"The minimum project duration.",1],
+["What is the duration of a milestone?",["zero","0"],"Zero.",1],
+["State the Pomodoro timings.",["25","5"],"25 minutes of work, 5 minutes of break, a long break after four.",1],
+["Expand RACI.",["responsible","accountable","consulted","informed"],"Responsible, Accountable, Consulted, Informed.",1],
+["What are the three stand-up questions?",["completed","blocking"],"What did I complete, what will I complete next, is anything blocking me.",1],
+["Name the two leadership styles in this lesson.",["directive","collaborative"],"Directive and collaborative.",1],
+["Expand SRS.",["software requirements specification"],"Software Requirements Specification.",1],
+["State the formula for risk exposure.",["probability","impact"],"Probability × impact.",1],
+["Name the four responses to a negative risk.",["avoid","mitigate","transfer","accept"],"Avoid, mitigate, transfer, accept.",1],
+["Expand UAT.",["user acceptance testing"],"User Acceptance Testing.",1],
+["State the 6×6 rule.",["6","bullets","words"],"At most 6 bullets per slide and 6 words per bullet.",1],
+["What does viva voce mean?",["live voice","oral"],"'By live voice': an oral examination.",1],
+["Name the approach that works in sprints.",["agile","scrum"],"Agile (Scrum).",1]
+];
+const CALC=[
+{q:"Find the critical path and its length in days.",src:R`tasks A=3 B=4:A C=2:A D=3:B,C`,alts:[["abd10"],["abd","10"]],ex:0,model:"critical path: A-B-D = 10 days / float: C 2",e:"The report shows: critical path: A-B-D = 10 days / float: C 2"},
+{q:"What is the float of C, in days?",src:R`tasks A=3 B=4:A C=2:A D=3:B,C`,alts:[["2"]],ex:1,model:"critical path: A-B-D = 10 days / float: C 2",e:"The report shows: critical path: A-B-D = 10 days / float: C 2"},
+{q:"B is delayed so that it lasts 7 days. How many days long is the project now?",src:R`tasks A=3 B=7:A C=2:A D=3:B,C`,alts:[["13"]],ex:1,model:"critical path: A-B-D = 13 days / float: C 5",e:"The report shows: critical path: A-B-D = 13 days / float: C 5"},
+{q:"C is delayed to 5 days. How many days long is the project now?",src:R`tasks A=3 B=4:A C=5:A D=3:B,C`,alts:[["11"]],ex:1,model:"critical path: A-C-D = 11 days / float: B 1",e:"The report shows: critical path: A-C-D = 11 days / float: B 1"},
+{q:"What is the critical path? Write the letters in order.",src:R`tasks P=2 Q=5:P R=3:P S=2:Q,R`,alts:[["pqs"],["pqs9"]],ex:1,model:"critical path: P-Q-S = 9 days / float: R 2",e:"The report shows: critical path: P-Q-S = 9 days / float: R 2"},
+{q:"What is the float of R, in days?",src:R`tasks P=2 Q=5:P R=3:P S=2:Q,R`,alts:[["2"]],ex:1,model:"critical path: P-Q-S = 9 days / float: R 2",e:"The report shows: critical path: P-Q-S = 9 days / float: R 2"},
+{q:"What is the length of the critical path, in days?",src:R`tasks A=3 B=4:A C=3:B D=5:B E=6:C F=4:D,E G=3:D H=1:F,G`,alts:[["21"]],ex:1,model:"critical path: A-B-C-E-F-H = 21 days / float: D 4, G 5",e:"The report shows: critical path: A-B-C-E-F-H = 21 days / float: D 4, G 5"},
+{q:"What is the float of G, in days?",src:R`tasks A=3 B=4:A C=3:B D=5:B E=6:C F=4:D,E G=3:D H=1:F,G`,alts:[["5"]],ex:1,model:"critical path: A-B-C-E-F-H = 21 days / float: D 4, G 5",e:"The report shows: critical path: A-B-C-E-F-H = 21 days / float: D 4, G 5"},
+{q:"E is cut to 3 days. How long is the project now?",src:R`tasks A=3 B=4:A C=3:B D=5:B E=3:C F=4:D,E G=3:D H=1:F,G`,alts:[["18"]],ex:1,model:"critical path: A-B-C-E-F-H = 18 days / float: D 1, G 2",e:"The report shows: critical path: A-B-C-E-F-H = 18 days / float: D 1, G 2"},
+{q:"What are the simple average and the PERT estimate, in days?",src:R`pert o=2 m=5 p=14`,alts:[["7","6"]],ex:0,model:"average: 7 days / PERT: 6 days / spread: 2 days",e:"The report shows: average: 7 days / PERT: 6 days / spread: 2 days"},
+{q:"What is the PERT estimate, in days?",src:R`pert o=6 m=8 p=16`,alts:[["9"]],ex:1,model:"average: 10 days / PERT: 9 days / spread: 1.67 days",e:"The report shows: average: 10 days / PERT: 9 days / spread: 1.67 days"},
+{q:"What is the PERT estimate, in days?",src:R`pert o=4 m=6 p=14`,alts:[["7"]],ex:1,model:"average: 8 days / PERT: 7 days / spread: 1.67 days",e:"The report shows: average: 8 days / PERT: 7 days / spread: 1.67 days"},
+{q:"What are the exposure and the colour?",src:R`risk p=3 i=2`,alts:[["6","red"]],ex:0,model:"exposure: 6 (red)",e:"The report shows: exposure: 6 (red)"},
+{q:"What is the exposure?",src:R`risk p=2 i=3`,alts:[["6"]],ex:1,model:"exposure: 6 (red)",e:"The report shows: exposure: 6 (red)"},
+{q:"What is the exposure?",src:R`risk p=1 i=1`,alts:[["1"]],ex:1,model:"exposure: 1 (green)",e:"The report shows: exposure: 1 (green)"},
+{q:"What are the exposure and the colour?",src:R`risk p=2 i=1`,alts:[["2","green"]],ex:0,model:"exposure: 2 (green)",e:"The report shows: exposure: 2 (green)"},
+{q:"After mitigation the impact falls from 3 to 1 at probability 2. What is the new exposure?",src:R`risk p=2 i=1`,alts:[["2"]],ex:1,model:"exposure: 2 (green)",e:"The report shows: exposure: 2 (green)"},
+{q:"How many minutes of focused work are in four Pomodoros?",src:R`pomodoro n=4`,alts:[["100"],["100minutes"]],ex:1,model:"focused work: 100 minutes / short breaks: 3 x 5 = 15 minutes / long breaks: 1 (15 to 30 minutes each)",e:"The report shows: focused work: 100 minutes / short breaks: 3 x 5 = 15 minutes / long breaks: 1 (15 to 30 minutes each)"},
+{q:"How many minutes of short breaks are there in four Pomodoros?",src:R`pomodoro n=4`,alts:[["15"],["15minutes"]],ex:1,model:"focused work: 100 minutes / short breaks: 3 x 5 = 15 minutes / long breaks: 1 (15 to 30 minutes each)",e:"The report shows: focused work: 100 minutes / short breaks: 3 x 5 = 15 minutes / long breaks: 1 (15 to 30 minutes each)"},
+{q:"Is the 6×6 rule met? How many slides are needed?",src:R`slides bullets=9 words=10`,alts:[["notmet","2"],["no","2"]],ex:0,model:"6x6 rule: not met / split into 2 slides and shorten each bullet to 6 words",e:"The report shows: 6x6 rule: not met / split into 2 slides and shorten each bullet to 6 words"},
+{q:"How many days does the work take?",src:R`parallel packages=8 days=2 people=2`,alts:[["8"],["8days"]],ex:1,model:"total effort: 16 person-days / elapsed time: 8 days",e:"The report shows: total effort: 16 person-days / elapsed time: 8 days"},
+{q:"How many days does one person need?",src:R`parallel packages=8 days=2 people=1`,alts:[["16"],["16days"]],ex:1,model:"total effort: 16 person-days / elapsed time: 16 days",e:"The report shows: total effort: 16 person-days / elapsed time: 16 days"},
+{q:"Mark each as functional (F) or non-functional (N): (a) export a report; (b) respond in 2 seconds; (c) log in with a password; (d) encrypt stored passwords. Write four letters.",alts:[["fnfn"]],ex:1,model:"FNFN",e:"Answer: FNFN"},
+{q:"Write the RACI row for 'write the test plan' for Asha, Ravi and the teacher, with Ravi doing and owning it. Write the three entries in order.",alts:[["caori"],["car"],["cari"]],ex:1,model:"C, A/R, I",e:"Answer: C, A/R, I"},
+{q:"Rank by exposure, highest first: (i) P=2, I=3; (ii) P=1, I=1; (iii) P=3, I=2; (iv) P=2, I=1. Which two are tied for first?",alts:[["iiii"],["iandiii"],["iiandiii"]],ex:1,model:"(i) and (iii), both 6",e:"Answer: (i) and (iii), both 6"}
+];
+const SHORT=[
+["Distinguish a project from an operation, with an example of each.","A project is temporary and unique, with a beginning and an end (building an attendance app). An operation is routine and repeating with no end date (marking attendance every morning).",["temporary","unique","operation repeats"]],
+["State the triple constraint and why quality is in the middle.","Scope, time and cost. Quality is affected when any side is squeezed: more features without more time or people cut quality or break the deadline.",["scope","time","cost","quality"]],
+["Rewrite 'make a good website' as a SMART objective.","Build a school website of 10 pages with a student notice board and a contact form, tested on phone and desktop, and publish it within 6 weeks. It is specific, measurable, achievable, relevant and time-bound.",["specific","measurable","weeks"]],
+["Distinguish scope from deliverables.","Scope is the boundary: what is included and excluded. Deliverables are the tangible outputs handed over (the application, test report, manual).",["boundary","outputs"]],
+["Why does monitoring and controlling run alongside execution?","Progress must be tracked and corrected while the work is done, so variances are found early and corrective action or change control happens before delays spread.",["tracked","corrective"]],
+["What is the difference between a stakeholder and a team member?","A stakeholder is anyone affected by or interested in the project (librarian, students, teacher); a team member is one of the people who do the work.",["affected","do the work"]],
+["What is the purpose of lessons learned?","They record what went well and what to improve at closing, turning experience into knowledge for future teams.",["went well","future"]],
+["Why is a WBS not a task list?","It is a hierarchy of deliverables and the work to make them, with no dates; it ensures nothing needed is forgotten and nothing outside the scope is included.",["hierarchy","no dates"]],
+["Distinguish finish-to-start from start-to-start dependencies.","Finish-to-start: B cannot start until A finishes (code after design). Start-to-start: B cannot start until A has started.",["finish","start"]],
+["Define float and say why critical tasks have none.","Float is the time a task can slip without delaying the project. Critical tasks lie on the longest path, so any delay moves the end date: their float is zero.",["slip","longest path"]],
+["Distinguish a milestone from a task.","A milestone is a zero-duration checkpoint marking a major completion or decision (a diamond); a task has a duration and work.",["zero duration","checkpoint"]],
+["Describe the urgent–important matrix.","Four boxes: urgent and important (do first), important not urgent (schedule), urgent not important (delegate or minimise), neither (eliminate).",["do first","schedule","delegate","eliminate"]],
+["Give three methods to avoid procrastination.","Break big tasks into small steps, commit to just 5 minutes, remove distractions and use shared deadlines.",["small steps","5 minutes","distractions"]],
+["Distinguish Responsible from Accountable in RACI.","Responsible people do the work (there may be several); exactly one person is Accountable: owns the result and signs it off.",["does the work","one accountable"]],
+["Why are stand-up meetings short?","They only need done, next and blocked from each person; blockers are solved afterwards by the people concerned, so the meeting stays 10 to 15 minutes.",["blockers","short"]],
+["Distinguish position from interest in conflict resolution.","A position is what someone wants (use Python); the interest is why (they know it and time is short). Different positions often have compatible interests.",["position what","interest why"]],
+["State two situations where a directive style is better.","A crisis or urgent decision, and an inexperienced team that needs clear, quick direction.",["urgent","inexperienced"]],
+["Distinguish functional from non-functional requirements with examples.","Functional: what the system does (the librarian can issue a book). Non-functional: how well (search in under 2 seconds; only the librarian can delete).",["what","how well"]],
+["Distinguish a risk from an issue.","A risk is an uncertain event that may happen; an issue is a problem that has already happened.",["may happen","already happened"]],
+["Distinguish risk avoidance from risk mitigation.","Avoidance changes the plan so the risk cannot happen; mitigation acts to lower the probability or the impact.",["cannot happen","lower"]],
+["Distinguish QA from QC.","QA is process-focused and prevents defects throughout the project; QC is product-focused and finds defects in finished deliverables.",["process prevent","product detect"]],
+["Why are bugs found early cheaper to fix?","Less work has been built on top of them and fewer people are affected.",["less work","fewer"]],
+["Why should a demo use realistic data?","Real-looking names, classes and marks are far more convincing than aaa, bbb, ccc and show that the system works on real cases.",["convincing"]],
+["What is the purpose of a backup plan for a demonstration?","If the live system fails, screenshots, a recorded video, a pen drive or an offline copy still let you show the work.",["fails","video"]],
+["Distinguish waterfall from agile in two points.","Waterfall does the phases once in order with fixed requirements and shows the product at the end; agile repeats short sprints, expects changing requirements and shows working software after every sprint.",["once","sprints","requirements"]]
+];
+const LONG=[
+["Explain the definition of a project, its triple constraint and the SMART criteria, with examples.","A project is a temporary, unique endeavour to create a product, service or result within time, budget, scope and quality; it differs from an operation. The triple constraint is scope, time and cost, with quality in the middle. SMART objectives: Specific, Measurable, Achievable, Relevant, Time-bound: 'a web-based attendance system for 200 students per class, with monthly reports, tested within 8 weeks'. Scope states what is included and excluded; creep and change requests; deliverables are tangible outputs.",["temporary","unique","scope","time","cost","smart"]],
+["Explain the five phases of the project life cycle with the main activities and output of each.","Initiation: stakeholders, objective, Project Charter. Planning: WBS, schedule, resources, budget, risks, communication plan. Execution: do the work, produce deliverables. Monitoring and controlling: runs alongside, tracks progress, variances, change control, progress reports. Closing: final review, acceptance, lessons learned, release the team, archive.",["initiation","planning","execution","monitoring","closing","charter","lessons learned"]],
+["Explain the Work Breakdown Structure with a diagram for a small project.","The WBS decomposes all work from deliverables to work packages (assignable, estimable); the 100% rule. Diagram: Quiz application: 1 Design (1.1 requirements, 1.2 question database), 2 Development (2.1 interface, 2.2 scoring logic), 3 Testing (3.1 unit tests, 3.2 user acceptance), 4 Documentation (4.1 manual, 4.2 report). It is a hierarchy with no dates, the base for scheduling.",["hierarchy","work package","100%","level"]],
+["Explain scheduling: Gantt charts, dependencies, the critical path, float and milestones.","A Gantt chart is a bar chart of tasks on a calendar. Dependencies: finish-to-start, start-to-start; parallel tasks save time. The critical path is the longest chain: list all paths, add durations (A–B–C–E–F–H = 21 days). Float = longest − that path (D 4, G 5). Shorten by crashing or fast tracking and recalculate. Milestones are zero-duration checkpoints drawn as diamonds.",["gantt","dependency","critical path","float","milestone"]],
+["Explain how to manage time: prioritisation, the Pomodoro technique, avoiding procrastination and estimation.","Eisenhower matrix: do first, schedule, delegate, eliminate; spend time in important not urgent. Pomodoro: 25 minutes work, 5 minutes break, long break after four. Procrastination: small steps, 5 minutes, remove distractions, deadlines. Estimation: expert judgement, analogous, three-point: average (O+M+P)/3 and PERT (O+4M+P)/6; for 4, 6, 14: 8 and 7 days; add a buffer.",["urgent","pomodoro","procrastination","pert"]],
+["Explain teamwork: roles with a RACI matrix, communication, stand-ups and conflict resolution.","Tuckman stages: forming, storming, norming, performing, adjourning. RACI: Responsible does, Accountable owns (one), Consulted two-way, Informed one-way; draw a small matrix. Stand-up: done, next, blocked; short. Conflict: listen first, positions against interests, shared solutions, escalate last; the MySQL against SQLite example.",["raci","accountable","stand-up","positions","interests"]],
+["Explain the responsibilities of a project leader and when each style of leadership suits.","Direction, decision-making, motivation, removing obstacles and representing the team; qualities integrity, reliability, respect. The directive style (leader decides) suits crises, urgent decisions and inexperienced teams; the collaborative style (team decides) suits capable teams and complex problems where buy-in matters. Neither is better; adapt to the situation.",["direction","motivation","directive","collaborative"]],
+["Explain the documents of a project and the structure of a final report.","SRS (functional and non-functional requirements), design documentation, code comments (why), progress reports (done, in progress, next, risks, status) and the final report. Final report: abstract, introduction, literature review, system requirements, design, implementation, testing and results, conclusion, references, appendices.",["srs","design","progress","abstract","references","appendices"]],
+["Explain the risk management process with a risk register and the four responses.","Identify, analyse, respond, monitor. Categories: technical, schedule, resource, requirements, external. Exposure = probability × impact (1 to 3), red 6 and 9. Risk register: risk, P, I, score, response, owner (late requirement changes 3 × 3 = 9). Responses: avoid, mitigate, transfer, accept, each with an example.",["identify","exposure","register","avoid","mitigate","transfer","accept"]],
+["Explain quality assurance, quality control and the four levels of testing with examples.","QA is process-focused and prevents defects (standards, reviews, audits); QC is product-focused and finds defects (testing, inspection). Levels: unit (the fine function), integration (issue form saves to the database), system (all requirements), UAT (the librarian runs a normal day). Test cases: input, expected, actual; normal, boundary, invalid. Code reviews and standards.",["qa","qc","unit","integration","system","uat"]],
+["Explain how to plan and deliver a technical presentation, then how to prepare a demonstration and a viva.","Presentation: audience, structure 10-80-10, visuals with the 6×6 rule, delivery (voice, pace, eye contact, posture, questions), practice. Demo: story (problem, features, technical, future), test, realistic data, backup, practise, check the room. Viva: oral examination; know why, alternatives, difficulties, limitations and improvements; be honest and use your own words; mock viva.",["audience","6×6","delivery","demo","backup","viva","limitations"]],
+["Compare waterfall and agile and say which suits which kind of project.","Waterfall: phases once in order, requirements fixed, customer sees the product at the end, detailed plan up front, suits stable needs; main risk errors found late. Agile: short sprints, requirements expected to change, customer sees every sprint, suits uncertain needs; main risk drifting scope. Scrum: backlogs, stand-up, review, retrospective. Hybrids are common.",["waterfall","agile","sprint","requirements","scrum"]]
+];
+const APP=[
+["Your team is asked to build a 'school website'. Write its scope: three items in, three items out, and four deliverables.","In: home page and notices, class timetable pages, contact form. Out: online fee payment, a mobile app, live chat. Deliverables: requirements document, design (page layouts), working website with source code, test report and user manual.",["in scope","out of scope","deliverables"]],
+["Midway through, the teacher asks for a chat feature. What should the team do, and why?","Treat it as a change request: estimate its effect on time, effort and risk, ask the teacher to approve with an adjusted deadline or by dropping something, and record it; do not add it quietly (scope creep).",["change request","scope creep"]],
+["Draw a three-level WBS for a 'quiz application' project.","Level 0 Quiz application; level 1: Design, Development, Testing, Documentation; level 2: requirements and question database; interface and scoring logic; unit tests and user acceptance; manual and report.",["design","development","testing"]],
+["A task on the critical path is delayed by a week. List three actions the project manager can take.","Crash the task by adding people or overtime, fast track by overlapping later tasks, reduce scope by agreement, or ask for more time; then recalculate the critical path.",["crash","fast track","recalculate"]],
+["A team member does not reply to messages for three days. How should the leader respond?","Contact them by another route, listen to find out the cause, remove obstacles, reassign or share the work if needed, update the risk register and raise it with the teacher if it continues.",["listen","reassign"]],
+["Two members argue about the programming language. Resolve it using positions and interests.","Positions: Python against Java. Interests: one knows Python and time is short; the other wants a language taught in class. Agree a decision rule, or test both on a small part, and choose the one serving both interests, such as Python with clean comments.",["positions","interests"]],
+["The team has an exam on the deadline day in another subject. Name the risk, score it and choose a response.","A schedule risk: probability high (3), impact medium (2): exposure 6 (red). Mitigate or avoid: finish earlier, set an internal deadline before the exam day and plan a rehearsal.",["schedule","6","mitigate"]],
+["A student is always busy but misses deadlines. Which part of the urgent–important matrix is neglected?","Important but not urgent: planning, early testing and preparation. She spends time on urgent but unimportant tasks, so important work becomes a crisis.",["important not urgent","planning"]],
+["Your demo needs the internet, but the lab connection is unreliable. Which risk response applies, and what do you do?","Avoidance (and a backup plan): run the demo on an offline copy, keep screenshots or a recorded video, and test in the room beforehand.",["avoid","offline"]],
+["The examiner asks about a limitation you had not thought of. How do you answer?","Admit honestly that you have not tested it, explain how the design would behave, say how you would find out and what you would change in a later version.",["honest","not tested","later version"]],
+["A client keeps changing the requirements every week. Which approach fits better, waterfall or agile, and why?","Agile: short sprints expect changing requirements, show working software every sprint and let the client reprioritise the backlog; waterfall fixes requirements at the start and finds errors late.",["agile","sprints","changing"]]
+];
+MCQ.forEach((m,i)=>{const r=(i*3+1)%4;const ans=m[1][m[2]];const rot=m[1].slice(r).concat(m[1].slice(0,r));m[1]=rot;m[2]=rot.indexOf(ans);});
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson27-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Project fundamentals",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Project and operation",d:"A project is temporary and unique; an operation repeats.",t:T[0]},
+ {h:"The triple constraint",d:"Scope, time and cost, with quality in the middle.",t:T[1]},
+ {h:"SMART objectives",d:"Table 1.2.",t:T[2]},
+ {h:"Scope and deliverables",d:"What is in, what is out, and what is handed over.",t:T[3]}
+]},
+{t:"The project life cycle",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Five phases",d:"Table 1.3.",t:T[4]},
+ {h:"Activities of each phase",d:"What happens in each phase.",t:T[5]},
+ {h:"An example",d:"The student library project.",t:T[6]}
+]},
+{t:"Planning and scheduling",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"The Work Breakdown Structure",d:"Four level-1 deliverables and thirteen work packages.",t:T[7]},
+ {h:"Dependencies",d:"Finish-to-start, start-to-start and parallel.",t:T[8]},
+ {h:"Tasks of the library project",d:"Table 1.4.",t:T[9]},
+ {h:"The critical path",d:"The planner finds the longest path and the float of every other task.",code:{c:R`# Library project: id=days:predecessors
+tasks A=3 B=4:A C=3:B D=5:B E=6:C F=4:D,E G=3:D H=1:F,G`,tr:"Change E=6 to E=8 and predict the new critical path before you run."}},
+ {h:"The paths",d:"Table 1.5.",t:T[10]},
+ {h:"Float",d:"Table: how much each task can slip.",t:T[11]},
+ {h:"A small network",d:"Critical path P–Q–S and float of R.",code:{c:R`# A small network
+tasks P=2 Q=5:P R=3:P S=2:Q,R`,tr:"Change R=3 to R=6 and read the result."}},
+ {h:"Shortening a schedule",d:"Cut E from 6 to 3 days: the critical path stays the same chain but the length is 18, not 15.",code:{c:R`# Crashing: task E is cut from 6 to 3 days
+tasks A=3 B=4:A C=3:B D=5:B E=3:C F=4:D,E G=3:D H=1:F,G`,tr:"Cut C from 3 to 1 as well and think why the saving is small."}},
+ {h:"Methods",d:"Crashing and fast tracking.",t:T[12]}
+]},
+{t:"Time management",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Urgent and important",d:"The Eisenhower matrix.",t:T[13]},
+ {h:"Pomodoro",d:"25 minutes of work and 5 of break.",code:{c:R`# Four Pomodoros
+pomodoro n=4`,tr:"Change n=4 to n=8 and count the long breaks."}},
+ {h:"Pomodoro and procrastination",d:"Table.",t:T[14]},
+ {h:"Estimation methods",d:"Table.",t:T[15]},
+ {h:"Three-point estimate",d:"O = 4, M = 6, P = 14.",code:{c:R`# Three-point estimate
+pert o=4 m=6 p=14`,tr:"Change p=14 to p=8 and see how the average and PERT move."}},
+ {h:"Worked estimate",d:"Table.",t:T[16]}
+]},
+{t:"Teamwork and leadership",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Team development",d:"Tuckman's five stages.",t:T[17]},
+ {h:"RACI letters",d:"Table 1.6.",t:T[18]},
+ {h:"A RACI matrix",d:"Table 1.7: one A in each row.",t:T[19]},
+ {h:"Stand-ups and conflict",d:"Done, next, blocked; positions and interests.",t:T[20]},
+ {h:"Leader's responsibilities",d:"Table 1.8.",t:T[21]},
+ {h:"Leadership styles",d:"Table 1.9.",t:T[22]}
+]},
+{t:"Documentation and reporting",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Functional and non-functional requirements",d:"Table 1.10.",t:T[23]},
+ {h:"Documents of a project",d:"The five kinds.",t:T[24]},
+ {h:"Weekly progress report",d:"Table 1.11.",t:T[25]},
+ {h:"Structure of the final report",d:"Ten parts in order.",t:T[26]}
+]},
+{t:"Risk management",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Categories of risk",d:"Table 1.12.",t:T[27]},
+ {h:"Risk exposure grid",d:"Probability × impact.",t:T[28]},
+ {h:"Scoring risks",d:"The planner returns the exposure and the colour.",code:{c:R`# Risk exposure = probability x impact (1 low, 2 medium, 3 high)
+risk p=3 i=3
+risk p=2 i=2
+risk p=1 i=3
+risk p=1 i=1`,tr:"Try p=2 i=3 and p=3 i=1 and compare them."}},
+ {h:"A risk register",d:"Table 1.13.",t:T[29]},
+ {h:"Four responses",d:"Table 1.14.",t:T[30]}
+]},
+{t:"Quality assurance",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"QA and QC",d:"Table 1.15.",t:T[31]},
+ {h:"Levels of testing",d:"Table 1.16.",t:T[32]},
+ {h:"Test cases",d:"Table 1.17: normal, boundary and invalid.",t:T[33]}
+]},
+{t:"Presentation, demonstration and viva",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Presentation",d:"Structure and the 6×6 rule.",t:T[34]},
+ {h:"The 6×6 rule",d:"The planner checks a slide.",code:{c:R`# The 6x6 rule
+slides bullets=6 words=6
+slides bullets=9 words=10`,tr:"Try bullets=5 words=4."}},
+ {h:"Delivery",d:"Table 1.19.",t:T[35]},
+ {h:"A 10-minute plan",d:"Table.",t:T[36]},
+ {h:"Demonstration",d:"Story and checklist.",t:T[37]},
+ {h:"Viva questions",d:"Table 1.20.",t:T[38]}
+]},
+{t:"Waterfall and agile",sec:[9],notes:[9],dump:[9],blocks:[
+ {h:"Waterfall against agile",d:"Table 1.21.",t:T[39]},
+ {h:"Scrum words",d:"Table.",t:T[40]},
+ {h:"Which approach?",d:"Three situations.",t:T[41]},
+ {h:"Parallel work",d:"Eight work packages of 2 days: one person and two people.",code:{c:R`# Eight packages of 2 days each
+parallel packages=8 days=2 people=1
+parallel packages=8 days=2 people=2`,tr:"Change people=2 to people=3 and think why the time is not 16 ÷ 3."}},
+ {h:"Worked numbers",d:"Table 1.22.",t:T[42]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* Planner lab: one command per line. */
+function parseKV(s){const kv={};const re=/(\w+)=(\S+)/g;let m;while((m=re.exec(s)))kv[m[1]]=m[2];return kv;}
+function cpm(tasks){
+  const byId={};tasks.forEach(t=>byId[t.id]=t);
+  tasks.forEach(t=>t.pre.forEach(p=>{if(!byId[p])throw new Error("task "+t.id+" depends on "+p+", which is not defined.");}));
+  const es={},ef={};let guard=0;
+  const done=()=>tasks.every(t=>ef[t.id]!==undefined);
+  while(!done()){
+    if(guard++>100)throw new Error("The dependencies form a loop.");
+    tasks.forEach(t=>{if(ef[t.id]===undefined&&t.pre.every(p=>ef[p]!==undefined)){es[t.id]=t.pre.length?Math.max.apply(null,t.pre.map(p=>ef[p])):0;ef[t.id]=es[t.id]+t.d;}});
+  }
+  const end=Math.max.apply(null,tasks.map(t=>ef[t.id]));
+  const lf={},ls={};
+  tasks.slice().sort((a,b)=>ef[b.id]-ef[a.id]).forEach(()=>{});
+  const succ={};tasks.forEach(t=>succ[t.id]=[]);tasks.forEach(t=>t.pre.forEach(p=>succ[p].push(t.id)));
+  let changed=true;tasks.forEach(t=>{lf[t.id]=end;ls[t.id]=end-t.d;});
+  for(let k=0;k<tasks.length+2;k++){tasks.forEach(t=>{const lfv=succ[t.id].length?Math.min.apply(null,succ[t.id].map(s=>ls[s])):end;lf[t.id]=lfv;ls[t.id]=lfv-t.d;});}
+  const fl={};tasks.forEach(t=>fl[t.id]=ls[t.id]-es[t.id]);
+  // critical path: follow zero-float tasks in order of start
+  const crit=tasks.filter(t=>fl[t.id]===0).sort((a,b)=>es[a.id]-es[b.id]);
+  return {end,es,ef,fl,crit};
+}
+const SIMS={
+tasks(a,o){
+  const toks=a.raw.trim().split(/\s+/).filter(x=>x);
+  if(!toks.length)throw new Error("tasks needs entries like A=3 or D=3:B,C (id=days:predecessors).");
+  const ts=[];
+  toks.forEach(x=>{const m=/^([A-Za-z]\w*)=(\d+)(?::([A-Za-z][\w,]*))?$/.exec(x);if(!m)throw new Error("'"+x+"' is not a task. Write id=days or id=days:predecessor,predecessor.");if(ts.some(t=>t.id===m[1]))throw new Error("task "+m[1]+" is defined twice.");ts.push({id:m[1],d:+m[2],pre:m[3]?m[3].split(","):[]});});
+  const r=cpm(ts);
+  o.push("critical path: "+r.crit.map(t=>t.id).join("-")+" = "+r.end+" days");
+  const fl=ts.filter(t=>r.fl[t.id]>0).map(t=>t.id+" "+r.fl[t.id]);
+  o.push("float: "+(fl.length?fl.join(", "):"none"));
+},
+delay(a,o){
+  const kv=parseKV(a.raw);const ids=a.raw.split(/\s+/).filter(x=>x);
+  throw new Error("delay is not a command; change a duration in the tasks line.");
+},
+pert(a,o){
+  const O=+a.kv.o,M=+a.kv.m,P=+a.kv.p;
+  if([O,M,P].some(x=>isNaN(x)||x<0)||!(O<=M&&M<=P))throw new Error("pert needs o=, m= and p= with o <= m <= p.");
+  const t=x=>String(Math.round(x*100)/100);
+  o.push("average: "+t((O+M+P)/3)+" days");
+  o.push("PERT: "+t((O+4*M+P)/6)+" days");
+  o.push("spread: "+t((P-O)/6)+" days");
+},
+risk(a,o){
+  const p=+a.kv.p,i=+a.kv.i;
+  if(![1,2,3].includes(p)||![1,2,3].includes(i))throw new Error("risk needs p= and i= each 1, 2 or 3 (low, medium, high).");
+  const e=p*i;o.push("exposure: "+e+" ("+(e>=6?"red":e>=3?"amber":"green")+")");
+},
+pomodoro(a,o){
+  const n=+a.kv.n;if(!(n>=1&&n<=12))throw new Error("pomodoro needs n=1 to 12 cycles.");
+  const longs=Math.floor(n/4),shorts=n-longs;
+  o.push("focused work: "+n*25+" minutes");
+  o.push("short breaks: "+shorts+" x 5 = "+shorts*5+" minutes");
+  o.push("long breaks: "+longs+" (15 to 30 minutes each)");
+},
+slides(a,o){
+  const b=+a.kv.bullets,w=+a.kv.words;
+  if(!(b>=1)||!(w>=1))throw new Error("slides needs bullets= and words= (words in each bullet).");
+  const ok=b<=6&&w<=6;o.push(ok?"6x6 rule: met":"6x6 rule: not met");
+  if(!ok)o.push("split into "+Math.ceil(b/6)+" slides and shorten each bullet to 6 words");
+},
+parallel(a,o){
+  const pk=+a.kv.packages,d=+a.kv.days,pp=+a.kv.people;
+  if(!(pk>=1)||!(d>=1)||!(pp>=1))throw new Error("parallel needs packages=, days= (each) and people=.");
+  o.push("total effort: "+pk*d+" person-days");
+  o.push("elapsed time: "+Math.ceil(pk/pp)*d+" days");
+}
+};
+function fnRun(src){
+  const out=[];let errors=0,title="",detail="";
+  const lines=String(src).replace(/\r/g,"").split("\n");let cmds=0;
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i].trim();if(!ln||ln[0]==="#")continue;
+    const sp=ln.search(/\s/),c=sp<0?ln:ln.slice(0,sp),rest=sp<0?"":ln.slice(sp+1);cmds++;
+    if(!SIMS[c]||c==="delay"){errors++;title="Unknown command";detail="Line "+(i+1)+": '"+c+"' is not a command of this lab. Commands: tasks, pert, risk, pomodoro, slides, parallel.";out.push("error: "+detail);continue;}
+    try{SIMS[c]({kv:parseKV(rest),raw:rest},out);}catch(e){errors++;title="Cannot run";detail="Line "+(i+1)+": "+e.message;out.push("error: "+detail);}
+  }
+  if(!cmds)return {ok:false,title:"Nothing to run",detail:"Type at least one command.",out:"",brief:"",errors:1,warns:0};
+  return {ok:errors===0,title,detail,out:out.join("\n"),brief:out.join(" / "),errors,warns:0,cmds};
+}
+
+function runCpp(src,inp){return fnRun(src);}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to see the report.</p>';
+  if(!r.ok&&!r.out)return '<div class="rs bad"><b>'+esc(r.title)+".</b> "+esc(r.detail)+"</div>";
+  return '<pre class="outpre">'+esc(r.out)+'</pre><div class="rs '+(r.ok?"ok":"bad")+'">'+(r.ok?"The script ran without errors.":"<b>"+esc(r.title)+".</b> "+esc(r.detail))+"</div>";
+}
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const rows=Math.min(14,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">Plan</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Plan editor">'+esc(src)+'</textarea>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const r=runCpp(src,"");
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ rp:"3",ri:"2",eo:"4",em:"6",ep:"14",pn:"4",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run a plan"],["pred","Predict the report"],["fix","Fix the script"],["risk","Risk grid"],["est","Estimator"],["pomo","Pomodoro planner"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank plan",spec:{c:"# One command per line; # starts a comment\ntasks A=2 B=3:A C=4:A D=1:B,C",tr:"Try the other commands: pert, risk, pomodoro, slides, parallel."}});
+function labView(){
+  let h='<p class="hint">A small planner for the numbers of the chapter. Each line is a command: tasks (critical path and float), pert, risk, pomodoro, slides and parallel. In tasks write id=days:predecessors, for example D=3:B,C. Predict the report, then run it.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,risk:labRisk,est:labEst,pomo:labPomo,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s plans</h3><label class="lab" for="exsel">Choose a plan</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">Lines starting with # are comments. A mistake gives an error that names the line.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your answer (separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected answer: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to draw the page and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+
+const FIX=[
+{t:"A misspelt command",kind:"Unknown command",goal:"The planner should print the critical path and the float.",exp:"critical path: A-B-D = 10 days / float: C 2",hint:"Look at the first word.",sol:"tasks ...",why:"Commands must be spelt exactly.",src:"task A=3 B=4:A C=2:A D=3:B,C"},
+{t:"A missing dependency",kind:"Wrong network",goal:"D should wait for both B and C, so C has 2 days of float.",exp:"critical path: A-B-D = 10 days / float: C 2",hint:"D depends on two tasks.",sol:"D=3:B,C",why:"With D=3:B alone the network changes and C looks critical.",src:"tasks A=3 B=4:A C=2:A D=3:B"},
+{t:"A predecessor that does not exist",kind:"Reference error",goal:"D should follow B and C.",exp:"critical path: A-B-D = 10 days / float: C 2",hint:"Every predecessor must be defined.",sol:"D=3:B,C",why:"X was never defined as a task.",src:"tasks A=3 B=4:A C=2:A D=3:B,X"},
+{t:"Commas between tasks",kind:"Syntax",goal:"Four tasks should be read, separated by spaces.",exp:"critical path: A-B-D = 10 days / float: C 2",hint:"Tasks are separated by spaces; commas separate predecessors.",sol:"tasks A=3 B=4:A C=2:A D=3:B,C",why:"A comma cannot end a task entry.",src:"tasks A=3, B=4:A, C=2:A, D=3:B,C"},
+{t:"A loop of dependencies",kind:"Logic error",goal:"A should have no predecessor so the network can be solved.",exp:"critical path: A-B = 7 days / float: none",hint:"A depends on B and B on A.",sol:"A=3",why:"Dependencies must not form a loop.",src:"tasks A=3:B B=4:A"},
+{t:"A task defined twice",kind:"Duplicate",goal:"Three tasks A, B and C in a chain.",exp:"critical path: A-B-C = 9 days / float: none",hint:"Each id may be used once.",sol:"C=2:B",why:"A was defined twice.",src:"tasks A=3 B=4:A A=2:B"},
+{t:"Estimates in the wrong order",kind:"Range error",goal:"The three-point estimate for O = 4, M = 6, P = 14.",exp:"average: 8 days / PERT: 7 days / spread: 1.67 days",hint:"O is the smallest and P the largest.",sol:"pert o=4 m=6 p=14",why:"The optimistic value cannot exceed the pessimistic.",src:"pert o=14 m=6 p=4"},
+{t:"The wrong most-likely value",kind:"Wrong value",goal:"The PERT estimate should be 7 days.",exp:"average: 8 days / PERT: 7 days / spread: 1.67 days",hint:"PERT weights M by 4: (4 + 4M + 14) ÷ 6 = 7.",sol:"m=6",why:"With M = 10 the estimate is 9.",src:"pert o=4 m=10 p=14"},
+{t:"A risk score of 4",kind:"Range error",goal:"A high-probability, medium-impact risk should score 6, red.",exp:"exposure: 6 (red)",hint:"Scores run from 1 to 3.",sol:"risk p=3 i=2",why:"The scale is Low 1, Medium 2, High 3.",src:"risk p=4 i=2"},
+{t:"A word instead of a number",kind:"Invalid value",goal:"A high-high risk should score 9.",exp:"exposure: 9 (red)",hint:"Use 3 for High.",sol:"risk p=3 i=3",why:"The planner needs the scores 1, 2 or 3.",src:"risk p=high i=3"},
+{t:"No Pomodoro cycles",kind:"Range error",goal:"Four Pomodoros: 100 minutes of work.",exp:"focused work: 100 minutes / short breaks: 3 x 5 = 15 minutes / long breaks: 1 (15 to 30 minutes each)",hint:"n counts the cycles.",sol:"pomodoro n=4",why:"n must be at least 1.",src:"pomodoro n=0"},
+{t:"A slide without a word count",kind:"Missing value",goal:"A slide with 6 bullets of 6 words should meet the 6x6 rule.",exp:"6x6 rule: met",hint:"slides needs bullets and words.",sol:"slides bullets=6 words=6",why:"Both numbers are needed.",src:"slides bullets=6"},
+{t:"Nobody to do the work",kind:"Range error",goal:"Eight packages of 2 days with two people take 8 days.",exp:"total effort: 16 person-days / elapsed time: 8 days",hint:"people must be at least 1.",sol:"people=2",why:"Zero people cannot work.",src:"parallel packages=8 days=2 people=0"},
+{t:"Crashing E by too little",kind:"Wrong value",goal:"After cutting E to 3 days the project should be 18 days.",exp:"critical path: A-B-C-E-F-H = 18 days / float: D 1, G 2",hint:"The longest path is A–B–C–E–F–H.",sol:"E=3",why:"With E=6 the project is still 21 days.",src:"tasks A=3 B=4:A C=3:B D=5:B E=6:C F=4:D,E G=3:D H=1:F,G"}
+];
+
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+
+function repRes(src){const r=fnRun(src);return r.ok?'<pre class="outpre">'+esc(r.out)+"</pre>":'<div class="rs bad">'+esc(r.detail)+"</div>";}
+function labRisk(){
+  const lv=[["1","Low (1)"],["2","Medium (2)"],["3","High (3)"]];
+  const rows=["3","2","1"].map(p=>[lv[+p-1][1]].concat(["1","2","3"].map(i=>{const e=+p*+i;return String(e)+(L.rp===p&&L.ri===i?"  <":"");})));
+  const e=(+L.rp)*(+L.ri);
+  const resp=e>=6?"Red: needs the most attention and preparation; mitigate or avoid.":e>=3?"Amber: needs a plan.":"Green: usually accept and watch.";
+  return '<div class="panel"><h3>Risk grid</h3><p class="hint">Exposure = probability × impact. Choose both scores; the marked cell is the exposure.</p><p class="lab">Probability</p>'+chips("rp",lv)+'<p class="lab">Impact</p>'+chips("ri",lv)+tbl(["Probability \\ Impact","Low (1)","Medium (2)","High (3)"],rows)+'<div class="rs '+(e>=6?"bad":e>=3?"note":"ok")+'"><b>Exposure '+L.rp+" × "+L.ri+" = "+e+".</b> "+resp+"</div></div>";
+}
+function labEst(){
+  return '<div class="panel"><h3>Three-point estimator</h3><p class="hint">Average = (O + M + P) ÷ 3; PERT = (O + 4M + P) ÷ 6; uncertainty = (P − O) ÷ 6.</p><div class="row">'+numIn("eoin","Optimistic","eo",5,"est")+numIn("emin","Most likely","em",5,"est")+numIn("epin","Pessimistic","ep",5,"est")+'</div><div id="estres">'+estRes()+"</div></div>";
+}
+function estRes(){return repRes("pert o="+L.eo+" m="+L.em+" p="+L.ep);}
+function labPomo(){
+  return '<div class="panel"><h3>Pomodoro planner</h3><p class="hint">25 minutes of work and a 5-minute break; a long break of 15 to 30 minutes after every fourth cycle.</p><div class="row">'+numIn("pnin","Cycles","pn",5,"pomo")+'</div><div id="pomores">'+pomoRes()+"</div></div>";
+}
+function pomoRes(){return repRes("pomodoro n="+L.pn);}
+const DIMS=[
+{n:"Which phase?",o:["Initiation","Planning","Execution","Monitoring and controlling","Closing"],it:[["Project Charter",0],["Work Breakdown Structure",1],["Producing the deliverables",2],["Change control",3],["Lessons learned",4],["Identify the stakeholders",0],["Risk and communication plans",1],["Compare progress with the plan every Friday",3],["Archive the documents",4],["Coding and unit testing",2]]},
+{n:"QA or QC?",o:["QA (process)","QC (product)"],it:[["Coding standards",0],["Testing a deliverable",1],["Process audits",0],["Inspection of a finished module",1],["Prevents defects",0],["Finds defects",1],["Reviews",0]]},
+{n:"Which test level?",o:["Unit","Integration","System","UAT"],it:[["The fine function returns 10 for 5 days",0],["The issue form saves to the database and updates stock",1],["Issue, return, search and report all work together",2],["The librarian runs a normal day",3],["Done by real users",3],["Each component in isolation",0],["Components combined",1]]},
+{n:"Which RACI letter?",o:["Responsible","Accountable","Consulted","Informed"],it:[["Does the work",0],["Signs off the result; only one",1],["Gives advice before the work, two-way",2],["Is told of completion, one-way",3],["There may be several",0],["Exactly one per task",1]]},
+{n:"Which risk response?",o:["Avoid","Mitigate","Transfer","Accept"],it:[["Use a well-known technology instead of an experimental one",0],["Daily backups",1],["Buy insurance",2],["A low-probability, low-impact risk with a contingency plan",3],["Demo on an offline copy",0],["Train in an unfamiliar technology first",1],["Use a managed cloud service",2]]},
+{n:"Functional or not?",o:["Functional","Non-functional"],it:[["Export a report",0],["Respond in 2 seconds",1],["Log in with a password",0],["Encrypt stored passwords",1],["Issue a book to a member",0],["Only the librarian can delete records",1]]},
+{n:"Waterfall or agile?",o:["Waterfall","Agile"],it:[["Phases done once, in order",0],["Short sprints",1],["Requirements expected to change",1],["Customer sees the product at the end",0],["Retrospective",1],["Main risk: errors found late",0],["Main risk: drifting scope",1]]}
+];
+
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "ltog":L[el.dataset.key]=!L[el.dataset.key];render();return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.brief!==undefined?r.brief:(r.out||"")).replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="est")set("estres",estRes());
+  else if(k==="pomo")set("pomores",pomoRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

@@ -1,0 +1,1748 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trends Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 4 · Database Concepts & Web Designing · Lesson 26</div>
+    <h1>New Trends in Computing</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"Table 1.1: The five essential characteristics of cloud computing (NIST)",c:["Characteristic","Meaning"],r:[
+["On-demand self-service","The user provisions resources through a web page or an API without asking a person"],
+["Broad network access","Services are reached over the network from phones, laptops and other devices"],
+["Resource pooling","The provider's resources serve many customers (multi-tenant), assigned as needed"],
+["Rapid elasticity","Resources grow and shrink automatically with demand"],
+["Measured service","Usage is metered, so the customer pays only for what is used"]]},
+/*1*/{s:0,t:"Measured: a fixed set of servers against an elastic cloud (Rs 5 per server-hour)",c:["Plan","Server-hours in 24 h","Cost","Remark"],r:[
+["Fixed: 16 servers all day","16 × 24 = 384","Rs 1920","Sized for the peak hour"],
+["Elastic cloud","218","Rs 1090","Servers follow the hourly need"],
+["Saving","384 − 218 = 166","Rs 830","43%"],
+["Average utilisation of the fixed set","218 ÷ 384","57%","The rest of the capacity sits idle"]]},
+/*2*/{s:0,t:"Table 1.2: Cloud service models",c:["Model","Customer manages","Examples","Aimed at"],r:[
+["IaaS (Infrastructure)","Operating system, middleware, runtime, data, applications","Amazon EC2, Azure Virtual Machines, Google Compute Engine","IT staff"],
+["PaaS (Platform)","Applications and data","Google App Engine, Azure App Service, Heroku, Elastic Beanstalk","Developers"],
+["SaaS (Software)","Only data and settings","Gmail, Google Workspace, Microsoft 365, Zoom, Dropbox","End users"]]},
+/*3*/{s:0,t:"Table 1.3: Cloud deployment models",c:["Model","Description","Typical users"],r:[
+["Public","Owned by a provider and shared by many customers (AWS, Azure, Google Cloud)","Start-ups, schools, most businesses"],
+["Private","Used by one organisation only","Banks, government, health"],
+["Hybrid","Private and public clouds together; cloud bursting sends extra load to the public cloud","Organisations with sensitive data and peaks"],
+["Community","Shared by organisations with common needs","Hospitals or agencies"],
+["Multi-cloud","Services from several providers to avoid vendor lock-in","Large enterprises"]]},
+/*4*/{s:0,t:"Advantages and challenges of the cloud",c:["Advantages","Challenges"],r:[
+["Lower upfront cost","Depends on the internet"],
+["Scalability","Privacy and compliance (India: DPDP Act 2023)"],
+["Availability and disaster recovery","Vendor lock-in"],
+["Global reach","Shared responsibility for security"],
+["Automatic updates; collaboration","Latency"]]},
+/*5*/{s:1,t:"Table 1.4: Types of hypervisor",c:["Type","Runs on","Examples","Used for"],r:[
+["Type 1 (bare metal)","Directly on the hardware","VMware ESXi, Microsoft Hyper-V, XenServer, KVM","Servers and data centres"],
+["Type 2 (hosted)","On top of an operating system","VMware Workstation, VirtualBox, Parallels","Testing and learning on a desktop"]]},
+/*6*/{s:1,t:"Measured: consolidation, power per server = 100 + 200 × load",c:["Case","Servers","Load","Power"],r:[
+["Before","10","10%","10 × 120 = 1200 W"],
+["After consolidation","2","50%","2 × 200 = 400 W"],
+["Saving","8 servers switched off","","800 W = 67%"]]},
+/*7*/{s:1,t:"Table 1.5: Types of virtualization",c:["Type","What is virtualized","Key ideas"],r:[
+["Server","Physical servers become virtual machines","Consolidation, live migration, snapshots"],
+["Network","Network functions and links","SDN (control plane separated from data plane), NFV, VLAN"],
+["Storage","Disks pooled as one logical store","Thin provisioning, SAN, NAS"],
+["Desktop","Desktops run on a central server","VDI, thin clients"],
+["Application","Applications run apart from the operating system","App-V, ThinApp, containers"]]},
+/*8*/{s:1,t:"A virtual machine compared with a container",c:["Feature","Virtual machine","Container"],r:[
+["Operating system","Has its own","Shares the host kernel"],
+["Weight","Heavier: full OS per machine","Lighter: starts quickly"],
+["Evidence in the lab","lscpu: hypervisor vendor KVM, full virtualization","systemd-detect-virt: docker"]]},
+/*9*/{s:2,t:"The jobs of grid middleware",c:["Job","Meaning"],r:[
+["Resource discovery","Find which nodes are available and what they offer"],
+["Job scheduling","Decide which node runs which sub-job"],
+["Data management","Move data to and from the nodes"],
+["Security","Authenticate users and nodes across organisations"],
+["Fault tolerance","Rerun the work of a failed node elsewhere"]]},
+/*10*/{s:2,t:"Measured: estimating pi with 8 sub-jobs of 400 000 darts",c:["Nodes","Time","Result"],r:[
+["1 node","0.53 s","pi ≈ 3.1404"],
+["2 nodes","0.24 s","The same job, split between two workers"]]},
+/*11*/{s:2,t:"Table 1.6: Types of grid",c:["Type","Purpose","Example"],r:[
+["Computational grid","Raw processing power for heavy calculations","Simulations"],
+["Data grid","Storage and sharing of very large data sets","Physics experiment data"],
+["Scavenging grid","Uses idle computers of volunteers","SETI@home, BOINC"]]},
+/*12*/{s:2,t:"Table 1.7: Grid compared with cloud",c:["Feature","Grid","Cloud"],r:[
+["Ownership","Many owners","One provider"],
+["Hardware","Heterogeneous","Uniform"],
+["Typical work","Batch jobs","On-demand services"],
+["Main use","Science","Business"],
+["Cost","Free or by grant","Pay per use"]]},
+/*13*/{s:3,t:"The three layers of an IoT system",c:["Layer","Role","Examples"],r:[
+["Perception","Sensors and actuators sense and act","Temperature sensor, fan"],
+["Network","Carries the data","Wi-Fi, Bluetooth, 5G, MQTT"],
+["Application","Processes data, shows it and decides","Dashboards, alerts, rules"]]},
+/*14*/{s:3,t:"Table 1.8: Applications of IoT",c:["Area","Example"],r:[
+["Smart home","Lights, thermostats, locks"],
+["Healthcare","Wearables and remote patient monitors"],
+["Agriculture","Soil sensors that switch on irrigation"],
+["Smart city","Traffic lights, parking, street lamps"],
+["Industrial IoT (IIoT)","Machine sensors for maintenance"]]},
+/*15*/{s:3,t:"Challenges of IoT (Please Note Alarms)",c:["Challenge","Meaning"],r:[
+["Security","Weak devices are easy to attack"],
+["Privacy","The data reveals habits, health and movements"],
+["Interoperability","Devices from different makers must work together"],
+["Power","Small devices run on batteries"],
+["Scalability","Billions of devices; edge computing helps"]]},
+/*16*/{s:4,t:"AI, machine learning and deep learning",c:["Term","Meaning"],r:[
+["Artificial intelligence","Machines performing tasks that need human intelligence: learning, reasoning, perceiving (John McCarthy named it in 1956 at Dartmouth)"],
+["Machine learning","Part of AI: learns patterns from data instead of explicit rules"],
+["Deep learning","Part of ML: neural networks with many layers"],
+["Relation","AI ⊃ ML ⊃ DL"]]},
+/*17*/{s:4,t:"Measured: the rule-based loan advisor",c:["Income","Age","Has job","Decision"],r:[
+["45 000","30","Yes","Approve"],
+["20 000","35","Yes","Approve with guarantor"],
+["10 000","40","Yes","Reject"],
+["50 000","17","Yes","Refer to officer"],
+["60 000","35","No","Reject: the rules never heard of self-employment"]]},
+/*18*/{s:4,t:"Table 1.9: Three ways of learning",c:["Type","Data","Goal","Example"],r:[
+["Supervised","Labelled examples","Predict the label","Classifying iris flowers"],
+["Unsupervised","Unlabelled data","Find structure","k-means clustering"],
+["Reinforcement","Rewards and penalties","Learn actions by trial","Q-learning in a corridor"]]},
+/*19*/{s:4,t:"Measured: the iris data",c:["Method","Result"],r:[
+["Decision tree (supervised)","Accuracy 0.96 on unseen flowers"],
+["k-nearest neighbours, k = 5","Accuracy 0.98"],
+["k-means (unsupervised)","Clusters of 38, 50 and 62; adjusted Rand index 0.73"],
+["Q-learning (reinforcement)","Best action in cells 0 to 3 is right; the goal is cell 4"]]},
+/*20*/{s:4,t:"Table 1.10: Common machine-learning algorithms",c:["Algorithm","Kind","Use"],r:[
+["Linear regression","Supervised","Predict a number"],
+["Logistic regression","Supervised","Predict a class"],
+["Decision tree","Supervised","Rules a human can read"],
+["Random forest","Supervised","Many trees voting"],
+["Support vector machine","Supervised","Separating classes with a margin"],
+["k-nearest neighbours","Supervised","Classify by the closest examples"],
+["Naive Bayes","Supervised","Text and spam filtering"],
+["k-means","Unsupervised","Clustering"]]},
+/*21*/{s:4,t:"Table 1.11: Deep-learning architectures",c:["Architecture","Best for"],r:[
+["CNN (convolutional)","Images"],
+["RNN / LSTM","Sequences such as text and speech"],
+["Transformer","Large language models (LLMs), based on attention"]]},
+/*22*/{s:4,t:"Measured: the XOR problem",c:["Network","Output","Correct"],r:[
+["No hidden layer","[0.5 0.5 0.5 0.5]","2 of 4"],
+["One hidden layer of 4 neurons","[0 1 1 0]","4 of 4"]]},
+/*23*/{s:5,t:"Table 1.12: The five Vs of big data",c:["V","Meaning"],r:[
+["Volume","The amount of data"],
+["Velocity","The speed at which it arrives"],
+["Variety","Many forms: text, images, logs, sensor data"],
+["Veracity","How trustworthy the data is"],
+["Value","What the organisation can gain from it"]]},
+/*24*/{s:5,t:"Measured: MapReduce word count of three blocks",c:["Stage","What happens"],r:[
+["Map","Each word is emitted with the count 1 (16 pairs)"],
+["Shuffle","Pairs with the same word are grouped"],
+["Reduce","The counts of each word are added: data 4, big 3, decisions 2, the rest 1"]]},
+/*25*/{s:5,t:"Table 1.13: Four types of analytics",c:["Type","Question","Example"],r:[
+["Descriptive","What happened?","Total sales by region"],
+["Diagnostic","Why did it happen?","South fell 36% in month 3: a stock-out"],
+["Predictive","What will happen?","North trend predicts 131 in month 7"],
+["Prescriptive","What should we do?","With demand 200 − 2p, charge 50"]]},
+/*26*/{s:5,t:"Measured: the sales analysis",c:["Result","Value"],r:[
+["Total, North","676"],
+["Total, South","566"],
+["South, month 3","60 against an average of 94.3: a drop of 36%"],
+["North trend","sales = 5.31 × month + 94.1, so month 7 ≈ 131"],
+["Best price for demand 200 − 2p","50, giving revenue 5000"]]},
+/*27*/{s:6,t:"The parts of a blockchain block",c:["Part","Role"],r:[
+["Transactions (data)","What is recorded"],
+["Timestamp","When it was recorded"],
+["Previous hash","Links the block to the one before it"],
+["Hash","Fingerprint of the block, computed with SHA-256"],
+["Nonce","Number tried by miners until the hash meets the rule"]]},
+/*28*/{s:6,t:"Measured: mining three blocks (four leading zeros)",c:["Block","Nonce","Hash begins"],r:[
+["0: Asha pays Ravi 50","256820","00005d180a9b3adf"],
+["1: Ravi pays Meena 20","53779","0000fc5e2f08125d"],
+["2: Meena pays Asha 5","75410","0000a5b3645be306"],
+["Tamper test","Block 1 edited","block 1 hash does not match its contents"]]},
+/*29*/{s:6,t:"Table 1.14: Consensus mechanisms",c:["Mechanism","How the next block is chosen","Examples","Energy"],r:[
+["Proof of work (PoW)","Miners race to find a nonce","Bitcoin","Very high"],
+["Proof of stake (PoS)","Validators are chosen by the coins they stake","Ethereum (since the 2022 Merge), Cardano","Far lower"]]},
+/*30*/{s:7,t:"The CIA triad",c:["Aim","Meaning","Threat to it"],r:[
+["Confidentiality","Only authorised people can read the data","Data theft, phishing"],
+["Integrity","The data is not changed without notice","Tampering (a checksum detects it)"],
+["Availability","The service is usable when needed","DDoS"]]},
+/*31*/{s:7,t:"Table 1.15: Common cyber threats",c:["Threat","Meaning"],r:[
+["Malware","Malicious software: viruses, worms, ransomware"],
+["Phishing / social engineering","Tricking a person into giving secrets"],
+["DDoS","A flood of traffic from a botnet makes a service unavailable"],
+["Man-in-the-middle","An attacker secretly sits between two parties"],
+["SQL injection","SQL typed into an input changes the query"],
+["Cross-site scripting (XSS)","Script injected into a page seen by others"],
+["Zero-day","An attack on a flaw the maker does not yet know"],
+["Insider threat","A trusted person misuses access"],
+["APT","Advanced persistent threat: long, hidden, targeted attack"]]},
+/*32*/{s:7,t:"Measured: the integrity checksum and the SQL injection",c:["Test","Result"],r:[
+["SHA of 'Pay Rs 1000 to account 4471'","5b69b186218cc641b2a5b16a…"],
+["SHA of 'Pay Rs 9000 to account 4471'","e66465e01c4ff9a6292a71b6…: one digit changed, a different hash"],
+["Unsafe login, wrong password","Refused"],
+["Unsafe login, password ' OR '1'='1","Logged in (!), the condition is always true"],
+["Safe (parameterised) login, same attack","Refused"]]},
+/*33*/{s:7,t:"Measured: time to guess a password at 10 billion guesses a second (an assumption)",c:["Password","Combinations","Time"],r:[
+["6 digits","1.00e6","0.0001 seconds"],
+["8 lower-case letters","2.09e11","0.3 minutes"],
+["8 of 94 characters","6.10e15","7.1 days"],
+["12 of 94 characters","4.76e23","1.51e6 years"],
+["16 of 94 characters","3.72e31","1.18e14 years"]]},
+/*34*/{s:7,t:"Table 1.16: Layers of defence",c:["Layer","Examples"],r:[
+["Network","Firewall, intrusion prevention, VPN"],
+["Endpoint","Antivirus, updates"],
+["Application","Input validation, parameterised queries"],
+["Identity and access (IAM)","Strong passwords, multi-factor authentication, least privilege"],
+["Data","Encryption, backups"],
+["Monitoring","SIEM, logs"],
+["Response","Incident plan; in India CERT-In (IT Act 2000, amended 2008)"]]},
+/*35*/{s:7,t:"Table 1.17: The five phases of ethical hacking",c:["Phase","Activity","Tools"],r:[
+["1 Reconnaissance","Gather information about the target","Search, WHOIS"],
+["2 Scanning","Find open ports and weaknesses","Nmap, Nessus, OpenVAS"],
+["3 Exploitation","Use a weakness to enter","Metasploit, Burp Suite"],
+["4 Post-exploitation","Find what an attacker could reach","Privilege checks"],
+["5 Reporting","Write findings and fixes","Report"]]},
+/*36*/{s:8,t:"Table 1.18: AR, VR and MR",c:["Feature","AR","VR","MR"],r:[
+["World","Real world with an overlay","Replaced by a computer-made world","Virtual objects anchored in the real world"],
+["Interaction","Overlay does not interact with surfaces","Fully immersive","Virtual objects interact with real surfaces"],
+["Device","Phone or glasses","Headset","Headset such as HoloLens"],
+["Examples","IKEA furniture preview, Pokémon GO","Flight simulator, virtual museum","Surgeons' holograms"]]},
+/*37*/{s:8,t:"Measured: delay and distance moved by a car at 90 km/h (25 m/s)",c:["Server","Distance","Round trip","Car moves"],r:[
+["Edge box","1 km","2.0 ms","0.05 m"],
+["Regional cloud","500 km","25.0 ms","0.62 m"],
+["Far cloud","4000 km","60.0 ms","1.50 m"]]},
+/*38*/{s:8,t:"Table 1.19: Uses of edge computing",c:["Use","Why edge"],r:[
+["Autonomous vehicles","Decisions in milliseconds"],
+["Industrial control","Machines must react at once"],
+["Remote patient monitors","Alarms must work if the network drops"],
+["Factory sensors","Filter data before upload"]]},
+/*39*/{s:8,t:"Measured: bandwidth of 1000 sensors × 10 readings/s × 100 bytes",c:["Plan","Upload a day"],r:[
+["Raw readings to the cloud","86.4 GB"],
+["One-minute summaries from the edge","0.144 GB"],
+["Reduction","600 times less data"]]},
+/*40*/{s:9,t:"Table 1.20: Three quantum phenomena",c:["Phenomenon","Meaning"],r:[
+["Superposition","A qubit is a combination of 0 and 1 until measured"],
+["Entanglement","Qubits are correlated however far apart they are"],
+["Interference","Amplitudes add or cancel to favour the right answers"]]},
+/*41*/{s:9,t:"Measured: quantum simulations",c:["Experiment","Result"],r:[
+["Hadamard on one qubit","Amplitudes 0.707 each; 0 was measured 4953 times in 10 000"],
+["Two entangled qubits, 10 000 shots","Only 00 (5078) and 11 (4922); never 01 or 10"],
+["Grover on 8 items","0.781, 0.945, 0.330 after 1, 2, 3 steps: stop near π/4 × √N"],
+["Memory for n qubits, 16 × 2^n bytes","n = 10: 16 KB; 20: 17 MB; 30: 17 GB; 40: 18 TB; 50: 18 PB"],
+["Shor for N = 15, a = 7","Period r = 4; factors 3 × 5"]]},
+/*42*/{s:9,t:"Measured: PUE for 1000 kW of IT equipment",c:["PUE","Facility power","Energy a year","Overhead"],r:[
+["1.55","1550 kW","13.58 GWh","550 kW"],
+["1.20","1200 kW","10.51 GWh","200 kW"],
+["1.10","1100 kW","9.64 GWh","100 kW"]]},
+/*43*/{s:9,t:"Table 1.21: Green-computing standards",c:["Standard","Meaning"],r:[
+["Energy Star","Energy-efficient products"],
+["EPEAT","Environmental rating of electronics"],
+["80 PLUS","Efficiency of computer power supplies"]]},
+/*44*/{s:9,t:"Table 1.22: Open-data formats",c:["Format","Kind"],r:[
+["CSV","Tables in plain text"],
+["JSON","Nested data for programs and web"],
+["XML","Tagged documents and data"],
+["RDF","Linked data"],
+["Scanned PDF table","Not machine-readable, so not open data"]]},
+/*45*/{s:9,t:"Table 1.23: India's digital public infrastructure",c:["Initiative","Purpose"],r:[
+["Digital India (2015)","Programme for digital infrastructure and services"],
+["UPI","Instant bank-to-bank payments (began 25 Aug 2016)"],
+["Aadhaar","Biometric digital identity number"],
+["DigiLocker","Wallet for official documents"],
+["UMANG","One app for government services"],
+["CoWIN","Vaccination registration and certificates"],
+["GeM","Government e-Marketplace for procurement"]]},
+/*46*/{s:9,t:"Green computing facts",c:["Item","Fact"],r:[
+["DVFS","Power ∝ V² f; f = 0.8 and V = 0.9 give 65% of full power"],
+["Data-centre energy","About 415 TWh in 2024 (about 1.5%), projected 945 TWh by 2030"],
+["E-waste","62 Mt in 2022 (22.3% recycled), 82 Mt by 2030"],
+["Indian rule","E-Waste (Management) Rules 2022: extended producer responsibility"]]},
+/*47*/{s:9,t:"Open data example: PM2.5 readings",c:["Station","PM2.5"],r:[
+["Park","42"],["Market","88"],["Riverside","55"],["Station Road","97"],["Average / worst","70.5 / Station Road"]]}
+];
+
+const NOTES=[
+["1.1 Cloud computing","{{Cloud computing}} is the delivery of computing services (servers, storage, databases, software) over the internet, on demand and on a {{pay-as-you-go}} basis. The NIST definition has five essential characteristics: {{on-demand self-service}}, {{broad network access}}, {{resource pooling}} (many customers share the provider's resources, called multi-tenancy), {{rapid elasticity}} and {{measured service}}. In the cost experiment a fixed set of 16 servers for 24 hours is 384 server-hours (Rs 1920 at Rs 5), while an elastic cloud that follows the hourly need used {{218}} server-hours (Rs 1090), a saving of {{43%}}; the fixed set was used {{57%}} of the time on average. The three service models differ in what the customer manages. In {{IaaS}} (EC2, Azure Virtual Machines, Compute Engine) the customer manages the operating system, middleware, runtime, data and applications. In {{PaaS}} (App Engine, Azure App Service, Heroku, Elastic Beanstalk) the customer manages only applications and data. In {{SaaS}} (Gmail, Microsoft 365, Zoom, Dropbox) the customer manages only data and settings. The deployment models are {{public}}, {{private}}, {{hybrid}} (cloud bursting), {{community}} and {{multi-cloud}} (to avoid vendor lock-in). Advantages are lower upfront cost, scalability, availability and disaster recovery, global reach, automatic updates and collaboration. Challenges are dependence on the internet, privacy and compliance (India's DPDP Act 2023), vendor lock-in, shared-responsibility security and latency. The cloud is somebody else's computer: a public storage bucket leaks data, and a budget alert prevents a surprise bill."],
+["1.2 Virtualization","{{Virtualization}} creates software versions of hardware, so one physical machine acts as many. A {{hypervisor}} (virtual machine monitor) creates and runs {{virtual machines}}. A {{Type 1}} hypervisor runs directly on the hardware (bare metal: VMware ESXi, Hyper-V, XenServer, KVM) and is used on servers; a {{Type 2}} hypervisor runs on an operating system (VMware Workstation, VirtualBox, Parallels) and is used for testing. A virtual machine has its own operating system; a {{container}} shares the host kernel and is lighter. In the lab, lscpu reported hypervisor vendor KVM and full virtualization, while systemd-detect-virt reported docker. {{Consolidation}} saves power: with power per server = 100 + 200 × load (watts), ten servers at 10% load use {{1200 W}}, while two at 50% use {{400 W}}, a saving of {{67%}} with eight servers switched off. Other benefits are rapid provisioning, snapshots, live migration, isolation and disaster recovery. The five types are {{server}} virtualization, {{network}} virtualization (SDN separates the control plane from the data plane; NFV; VLAN), {{storage}} virtualization (thin provisioning, SAN, NAS), {{desktop}} virtualization (VDI, thin clients) and {{application}} virtualization (App-V, ThinApp, containerization)."],
+["1.3 Grid computing","{{Grid computing}} joins loosely coupled, geographically scattered, heterogeneous and independently owned computers through {{middleware}} (Globus Toolkit, OGSA) so that they act as one {{virtual organization}}. The middleware does resource discovery, job scheduling, data management, security and fault tolerance. A grid needs a job that can be {{split}} into independent sub-jobs. In the experiment, estimating pi with 8 sub-jobs of 400 000 darts took 0.53 s on one node (pi ≈ 3.1404) and 0.24 s on two. In the fault-tolerance experiment, with nodes A, B, C and D and jobs 1 to 10, node C fails on job 7; the job returns to the queue and is re-run on B, and the nodes still alive are A, B and D. The three types are {{computational}}, {{data}} and {{scavenging}} grids (SETI@home, BOINC, which use idle volunteer computers). A grid has many owners, heterogeneous hardware, batch jobs, science as its main use and free or grant funding; a cloud has one provider, uniform hardware, on-demand services, business use and pay-per-use cost. Examples are the {{WLCG}} (about 170 sites in 42 countries, used for the Higgs discovery of 2012) and India's {{Garuda}} Grid (C-DAC)."],
+["1.4 Internet of Things","The {{Internet of Things}} (IoT) is a network of physical objects that have sensors, a processor and a network connection and exchange data without human involvement. It has three layers: the {{perception}} layer (sensors and actuators), the {{network}} layer (carries the data) and the {{application}} layer (processes, shows and decides). In the pipeline example the readings 27.5, 28.1, 29.0, 31.2, 33.8 and 30.4 are sent as JSON such as {\"device\": \"room-1\", \"temp_c\": 27.5}; with the rule 'fan on above 30' there are {{three}} alerts (31.2, 33.8 and 30.4). Applications are the smart home, healthcare, agriculture, smart cities and industrial IoT. The challenges are {{security}}, {{privacy}}, {{interoperability}}, {{power}} and {{scalability}} (mnemonic Please Note Alarms); edge computing helps with scale."],
+["1.5 to 1.7 AI, machine learning and deep learning","{{Artificial intelligence}} is machines performing tasks that need human intelligence; {{John McCarthy}} named it in {{1956}} at Dartmouth, and periods of disappointment are called AI winters. {{Machine learning}} is part of AI and learns patterns from data; {{deep learning}} is part of machine learning and uses neural networks with many layers (GPU, TPU and NPU hardware). A {{rule-based expert system}} follows fixed rules: in the loan advisor no job means reject, age under 21 or over 60 means refer to an officer, income of 30 000 or more means approve, 15 000 or more means approve with a guarantor, otherwise reject. It is brittle: a self-employed applicant is rejected because the rules never covered that case. The three ways of learning are {{supervised}} (labelled data), {{unsupervised}} (unlabelled data, finding structure) and {{reinforcement}} (rewards and penalties). On the iris data a decision tree scored {{0.96}} and k-NN with k = 5 scored {{0.98}} on unseen flowers (testing on unseen data guards against overfitting); k-means gave clusters of 38, 50 and 62. In Q-learning in a five-cell corridor the best action in cells 0 to 3 is right. A CNN is used for images, an RNN or LSTM for sequences and a {{transformer}} (attention) for large language models. On XOR a network without a hidden layer scored {{2 of 4}}, because XOR is not linearly separable, and one hidden layer of 4 neurons scored {{4 of 4}}. Pitfalls are biased data and overfitting."],
+["1.8 and 1.9 Big data and data analytics","{{Big data}} is data too large, fast or varied for traditional tools, described by the five Vs: {{Volume}}, {{Velocity}}, {{Variety}}, {{Veracity}} and {{Value}}. Hadoop stores data in {{HDFS}} and processes it with {{MapReduce}}: the map stage emits each word with the count 1, the shuffle stage groups equal words and the reduce stage adds the counts (data 4, big 3, decisions 2). Spark, Kafka and NoSQL databases (MongoDB, Cassandra, HBase, Redis) are also used. The four types of analytics are {{descriptive}} (what happened), {{diagnostic}} (why), {{predictive}} (what will happen) and {{prescriptive}} (what should we do). In the sales example the South region fell {{36%}} in month 3 because of a stock-out (diagnostic); the North trend sales = 5.31 × month + 94.1 predicts about {{131}} in month 7; and with demand 200 − 2p the revenue is greatest at price {{50}} (revenue 5000). The workflow is collect, clean, explore, model, validate, visualise and act."],
+["1.10 Blockchain","A {{blockchain}} is a distributed ledger of blocks; each block holds transactions, a timestamp and the {{hash of the previous block}}, so the chain is decentralised and tamper-evident. A {{hash}} (SHA-256) is a fixed-length fingerprint: changing one letter changes the whole hash (hello starts 2cf24d…, Hello starts 185f8d…). In {{proof of work}} a miner tries nonces until the hash starts with a required number of zeros; four hexadecimal zeros need about 16^4 = {{65 536}} tries on average. The measured nonces were 256820, 53779 and 75410. The verify function checks that each hash matches its contents and that each block links to the previous one, so editing block 1 gives 'block 1 hash does not match its contents'. {{Proof of stake}} chooses validators by the coins they stake and uses far less energy (Ethereum since the 2022 Merge, Cardano). Bitcoin began in 2009; Ethereum (2015) added {{smart contracts}}, programs that run automatically when conditions are met, used for DeFi and NFTs; other uses are supply chains, identity, records, land registries and voting. A blockchain does not make the data put into it true."],
+["1.11 and 1.12 Cyber security and ethical hacking","The {{CIA triad}} is {{confidentiality}}, {{integrity}} and {{availability}}. A checksum protects integrity: 'Pay Rs 1000' and 'Pay Rs 9000' give completely different SHA-256 hashes. Threats are malware, phishing and social engineering, {{DDoS}} (a flood from a botnet), man-in-the-middle, {{SQL injection}}, cross-site scripting, zero-day attacks, insider threats and APTs. In the unsafe login the password ' OR '1'='1 makes the executed SQL end with OR '1'='1', which is always true, so the attacker logs in; {{parameterised queries}} send the values separately, so the same attack is refused. At 10 billion guesses a second 6 digits last 0.0001 s, 8 lower-case letters 0.3 minutes, 8 of 94 characters 7.1 days and 12 of 94 characters about {{1.5 × 10^6 years}}; multi-factor authentication adds protection. The layers of defence are network, endpoint, application, identity and access, data, monitoring (SIEM) and response; in India {{CERT-In}} handles incidents and the {{IT Act 2000}} (amended 2008) is the law. {{Ethical hacking}} is authorised testing with permission, scope and intent. Its five phases are reconnaissance, scanning (Nmap, Nessus, OpenVAS), exploitation (Metasploit, Burp Suite), post-exploitation and reporting. A scan of 127.0.0.1 found ports 8101 and 8105 open. Unauthorised scanning may break IT Act Sections 43 and 66. Certifications are CEH, OSCP and CISSP, and Kali Linux is a common toolkit."],
+["1.13 and 1.14 AR, VR, MR and edge computing","{{Augmented reality}} overlays virtual content on the real world (a phone showing IKEA furniture, Pokémon GO); {{virtual reality}} replaces the real world with a computer-made one (a headset, a simulator); {{mixed reality}} anchors virtual objects to real surfaces and lets them interact (HoloLens, surgeons' holograms). ARKit and ARCore are AR platforms; VR uses stereoscopic 3D and head tracking. {{Edge computing}} processes data near where it is produced; its benefits are low {{latency}}, saved {{bandwidth}} and offline operation. Light in fibre travels at 200 000 km/s and a car at 90 km/h moves 25 m/s. Round trip = 2 × km ÷ 200 000 × 1000 + extra ms, so an edge box 1 km away takes 2.0 ms (the car moves 0.05 m), a regional cloud 500 km away 25.0 ms (0.62 m) and a far cloud 4000 km away 60.0 ms ({{1.50 m}}). 1000 sensors sending 10 readings a second of 100 bytes produce 86.4 GB a day, but one-minute summaries need 0.144 GB, which is {{600}} times less. Edge complements the cloud and does not replace it; MEC (multi-access edge computing) uses 5G."],
+["1.15 to 1.17 Quantum, green computing, open data and digital transformation","A {{qubit}} can be in a {{superposition}} of 0 and 1 until measured; {{entanglement}} correlates qubits however far apart they are (it cannot send messages faster than light); {{interference}} makes the right answers more likely. A Hadamard gate gives amplitudes 0.707; two entangled qubits are measured only as 00 or 11. {{Grover's}} search of 8 items gives 0.781, 0.945 and 0.330 after 1, 2 and 3 steps, so one stops near π/4 × √N. {{Shor's}} algorithm factors large integers and threatens {{RSA}}, so post-quantum cryptography is being standardised. Storing n qubits needs 16 × 2^n bytes: 17 GB for 30 qubits. {{Decoherence}} destroys the quantum state and needs error correction and cooling near absolute zero. {{PUE}} = total facility power ÷ IT power; 1.0 is ideal and lower is better: for 1000 kW of IT, PUE 1.55 uses 13.58 GWh a year and PUE 1.10 uses 9.64 GWh. {{DVFS}} lowers frequency and voltage; power is proportional to V² × f, so f = 0.8 and V = 0.9 give 65%. E-waste is regulated in India by the E-Waste (Management) Rules 2022 with extended producer responsibility; the standards are Energy Star, EPEAT and 80 PLUS. {{Open data}} is free, machine-readable (CSV, JSON, XML, RDF) and under an open licence; a scanned PDF table is not open data. {{Digital transformation}} changes strategy, processes and culture around digital technology. India's digital public infrastructure includes Digital India (2015), {{UPI}} (payments), {{Aadhaar}} (identity), DigiLocker, UMANG, CoWIN and GeM."]
+];
+const DUMPS=[
+{t:"Cloud computing",p:["Definition: services over the internet, on demand, pay-as-you-go","Five NIST characteristics","Elastic 218 against fixed 384 server-hours: 43% saved; utilisation 57%","IaaS, PaaS, SaaS: who manages what, with examples","Public, private, hybrid, community, multi-cloud","Advantages and challenges"]},
+{t:"Virtualization",p:["Hypervisor creates virtual machines","Type 1 bare metal and Type 2 hosted, with examples","VM has its own OS; container shares the kernel","Consolidation: 1200 W to 400 W, 67% saved","Five types: server, network, storage, desktop, application","SDN, NFV, VLAN, thin provisioning, VDI"]},
+{t:"Grid computing",p:["Loosely coupled, heterogeneous, many owners, middleware","Virtual organization","Five jobs of middleware","Pi experiment: 0.53 s and 0.24 s","Node C fails on job 7: rerun on B; alive A, B, D","Computational, data, scavenging; grid against cloud; WLCG, Garuda"]},
+{t:"Internet of Things",p:["Sensors, processor, network; no human involvement","Perception, network, application layers","Alert pipeline: three readings above 30","Five applications","Please Note Alarms: security, privacy, interoperability, power, scalability"]},
+{t:"AI, ML and deep learning",p:["McCarthy 1956; AI ⊃ ML ⊃ DL","Rule-based advisor and its brittleness","Supervised, unsupervised, reinforcement","Tree 0.96, k-NN 0.98, k-means clusters 38, 50, 62","CNN, RNN/LSTM, transformer","XOR: 2 of 4 without a hidden layer, 4 of 4 with one","Bias and overfitting"]},
+{t:"Big data and analytics",p:["Five Vs","HDFS and MapReduce: map, shuffle, reduce","Word count: data 4, big 3, decisions 2","Four types of analytics with examples","South fell 36%; month 7 trend 131; best price 50","Workflow from collect to act"]},
+{t:"Blockchain",p:["Block: data, timestamp, previous hash, hash, nonce","SHA-256: one change, a new hash","Proof of work: about 65 536 tries for four zeros","Tamper test: block 1 hash does not match","PoW against PoS","Smart contracts; blockchain does not make data true"]},
+{t:"Cyber security and ethical hacking",p:["CIA triad","Nine threats","SQL injection and parameterised queries","Password times: 0.0001 s to 1.5 million years","Seven layers of defence; CERT-In; IT Act","Five phases of ethical hacking; permission, scope, intent"]},
+{t:"AR, VR, MR and edge computing",p:["AR overlays; VR replaces; MR anchors and interacts","Edge: latency, bandwidth, offline","Edge 2.0 ms, 0.05 m; far cloud 60 ms, 1.50 m","600 times less data with summaries","Edge complements the cloud"]},
+{t:"Quantum, green computing, open data",p:["Superposition, entanglement, interference","Grover 0.945 after 2 steps; Shor and RSA","Memory 16 × 2^n bytes; decoherence","PUE and DVFS; 13.58 against 9.64 GWh","E-Waste Rules 2022; Energy Star, EPEAT, 80 PLUS","Open data formats; UPI, Aadhaar, DigiLocker"]}
+];
+
+const SECS=["Cloud computing","Virtualization","Grid computing","Internet of Things","AI, ML and deep learning","Big data and analytics","Blockchain","Cyber security and ethical hacking","AR, VR, MR and edge computing","Quantum, green computing, open data"];
+const CORE=[
+[0,"Define cloud computing.","The delivery of computing services (servers, storage, databases, software) over the internet, on demand and on a pay-as-you-go basis."],
+[0,"Name the five essential characteristics of cloud computing (NIST).","On-demand self-service, broad network access, resource pooling, rapid elasticity and measured service."],
+[0,"What is resource pooling?","The provider's resources serve many customers (multi-tenant) and are assigned as needed."],
+[0,"What is rapid elasticity?","Resources grow and shrink automatically with demand."],
+[0,"What is measured service?","Usage is metered, so the customer pays only for what is used."],
+[0,"How many server-hours did the elastic cloud use in the experiment, and the fixed set?","Elastic 218; fixed 16 × 24 = 384."],
+[0,"What was the saving of the elastic cloud over the fixed set?","(384 − 218) ÷ 384 = 43% (Rs 830 of Rs 1920)."],
+[0,"What was the average utilisation of the fixed set?","218 ÷ 384 = 57%."],
+[0,"Expand IaaS, PaaS and SaaS.","Infrastructure as a Service, Platform as a Service, Software as a Service."],
+[0,"What does the customer manage in IaaS?","The operating system, middleware, runtime, data and applications."],
+[0,"What does the customer manage in PaaS?","Only applications and data."],
+[0,"What does the customer manage in SaaS?","Only data and settings."],
+[0,"Give examples of IaaS.","Amazon EC2, Azure Virtual Machines, Google Compute Engine."],
+[0,"Give examples of PaaS.","Google App Engine, Azure App Service, Heroku, Elastic Beanstalk."],
+[0,"Give examples of SaaS.","Gmail, Google Workspace, Microsoft 365, Zoom, Dropbox."],
+[0,"Who is each service model aimed at?","IaaS: IT staff; PaaS: developers; SaaS: end users."],
+[0,"Name the five cloud deployment models.","Public, private, hybrid, community and multi-cloud."],
+[0,"What is a public cloud?","A cloud owned by a provider and shared by many customers (AWS, Azure, Google Cloud)."],
+[0,"What is a private cloud and who uses it?","A cloud used by one organisation only: banks, government, health."],
+[0,"What is a hybrid cloud and what is cloud bursting?","Private and public clouds used together; bursting sends extra load to the public cloud."],
+[0,"What is a community cloud?","A cloud shared by organisations with common needs, such as hospitals or agencies."],
+[0,"Why use a multi-cloud?","To avoid vendor lock-in by using services from several providers."],
+[0,"State the advantages of cloud computing.","Lower upfront cost, scalability, availability and disaster recovery, global reach, automatic updates, collaboration."],
+[0,"State the challenges of cloud computing.","Internet dependence, privacy and compliance (DPDP Act 2023), vendor lock-in, shared-responsibility security, latency."],
+[0,"What are the pitfalls: a public bucket and a budget alert?","A public storage bucket leaks data; a budget alert prevents a surprise bill. The cloud is someone else's computer."],
+[1,"Define virtualization.","Creating software versions of hardware, so that one physical machine acts as many."],
+[1,"What is a hypervisor?","Software (virtual machine monitor) that creates and runs virtual machines."],
+[1,"What is a Type 1 hypervisor? Give examples.","Bare metal: runs directly on the hardware (VMware ESXi, Hyper-V, XenServer, KVM); used on servers."],
+[1,"What is a Type 2 hypervisor? Give examples.","Hosted: runs on an operating system (VMware Workstation, VirtualBox, Parallels); used for testing."],
+[1,"Compare a virtual machine with a container.","A VM has its own operating system; a container shares the host kernel and is lighter."],
+[1,"What did lscpu and systemd-detect-virt show in the lab?","lscpu: hypervisor vendor KVM, full virtualization; systemd-detect-virt: docker, i.e. a container."],
+[1,"How does consolidation save power? Give the numbers.","Ten servers at 10% load use 1200 W; two at 50% use 400 W; 800 W (67%) saved and 8 servers switched off."],
+[1,"What power model was used for a server?","Power = 100 + 200 × load, in watts."],
+[1,"List the other benefits of virtualization.","Rapid provisioning, snapshots, live migration, isolation, disaster recovery."],
+[1,"Name the five types of virtualization.","Server, network, storage, desktop and application."],
+[1,"What does server virtualization offer?","Consolidation, live migration and snapshots."],
+[1,"What is SDN?","Software-defined networking: the control plane is separated from the data plane."],
+[1,"What is NFV?","Network functions virtualization: network functions run as software."],
+[1,"What is a VLAN?","A virtual local area network: logical separation of a network."],
+[1,"What is thin provisioning?","Allocating storage only as it is actually used."],
+[1,"Name two storage architectures.","SAN and NAS."],
+[1,"What is VDI?","Virtual desktop infrastructure: desktops run on a central server and users use thin clients."],
+[1,"Name three tools for application virtualization.","App-V, ThinApp and containerization."],
+[2,"Define grid computing.","Loosely coupled, geographically scattered, heterogeneous, independently owned computers joined by middleware to work on one task."],
+[2,"What is a virtual organization?","A group of people and resources sharing a grid under agreed rules."],
+[2,"What does grid middleware do?","Resource discovery, job scheduling, data management, security and fault tolerance."],
+[2,"Name grid middleware and a standard.","Globus Toolkit; OGSA."],
+[2,"What kind of job suits a grid?","One that can be split into independent sub-jobs."],
+[2,"What did the pi experiment show about one and two nodes?","One node: 0.53 s, pi ≈ 3.1404; two nodes: 0.24 s."],
+[2,"What happens when node C fails on job 7?","The job returns to the queue and runs on another node (B); the nodes still alive are A, B and D; all 10 jobs finish."],
+[2,"Name the three types of grid.","Computational, data and scavenging."],
+[2,"What is a scavenging grid? Give examples.","It uses idle volunteer computers: SETI@home and BOINC."],
+[2,"Compare the ownership of a grid and a cloud.","Grid: many owners; cloud: one provider."],
+[2,"Compare the hardware of a grid and a cloud.","Grid: heterogeneous; cloud: uniform."],
+[2,"Compare the typical work and use of grid and cloud.","Grid: batch jobs, science; cloud: on-demand services, business."],
+[2,"Compare the cost of grid and cloud.","Grid: free or by grant; cloud: pay per use."],
+[2,"What is the WLCG?","Worldwide LHC Computing Grid for CERN (about 170 sites in 42 countries; Higgs discovery 2012)."],
+[2,"What is Garuda?","India's national grid computing initiative (C-DAC)."],
+[3,"Define the Internet of Things.","A network of physical objects with sensors, a processor and a network connection that exchange data without human involvement."],
+[3,"Name the three layers of IoT.","Perception, network and application."],
+[3,"What does the perception layer do?","Sensors and actuators sense and act."],
+[3,"What does the network layer do?","It carries the data (Wi-Fi, Bluetooth, 5G, MQTT)."],
+[3,"What does the application layer do?","It processes the data, shows it and makes decisions (dashboards, alerts, rules)."],
+[3,"In the pipeline example how many readings raised the alert and what was the rule?","Three (31.2, 33.8, 30.4); the rule was fan on above 30."],
+[3,"Show the JSON message of a sensor.","{\"device\": \"room-1\", \"temp_c\": 27.5}"],
+[3,"Name five applications of IoT.","Smart home, healthcare, agriculture, smart city, industrial IoT."],
+[3,"Name the challenges of IoT.","Security, privacy, interoperability, power, scalability."],
+[3,"What is the mnemonic for IoT challenges?","Please Note Alarms: Privacy/Power, Network (interoperability), Alarms (security, scalability)."],
+[3,"Which technology helps IoT scale?","Edge computing."],
+[4,"Define artificial intelligence.","Machines performing tasks that need human intelligence: learning, reasoning, perceiving."],
+[4,"Who named AI, where and when?","John McCarthy, Dartmouth, 1956."],
+[4,"What is an AI winter?","A period of disappointment and reduced funding."],
+[4,"How are AI, ML and DL related?","AI ⊃ ML ⊃ DL: deep learning is part of machine learning, which is part of AI."],
+[4,"What is a rule-based expert system?","A program that decides by fixed if-then rules written by people."],
+[4,"What decision does the advisor give for income 20 000, age 35 with a job?","Approve with guarantor."],
+[4,"Why are rule-based systems brittle?","A case the rules never covered fails: the self-employed applicant was rejected."],
+[4,"What are NLP and computer vision?","NLP: computers working with human language; computer vision: AI that interprets images and video."],
+[4,"Define machine learning.","Computers learning patterns from data instead of explicit rules."],
+[4,"Name the three ways of learning.","Supervised, unsupervised and reinforcement."],
+[4,"What is supervised learning?","Learning from labelled examples to predict the label."],
+[4,"What is unsupervised learning?","Finding structure in unlabelled data."],
+[4,"What is reinforcement learning?","Learning by trial, reward and penalty."],
+[4,"What accuracy did the decision tree and k-NN score on iris?","Tree 0.96; k-NN (k = 5) 0.98."],
+[4,"What does testing on unseen data guard against?","Overfitting: memorising the training data."],
+[4,"What did k-means give on iris?","Clusters of 38, 50 and 62; adjusted Rand index 0.73."],
+[4,"What did Q-learning learn in the corridor?","The best action in cells 0 to 3 is right (goal cell 4)."],
+[4,"Name eight machine-learning algorithms.","Linear regression, logistic regression, decision tree, random forest, SVM, k-NN, Naive Bayes, k-means."],
+[4,"Define deep learning.","Machine learning with neural networks of many layers, trained on GPUs, TPUs or NPUs."],
+[4,"Which architecture suits images, sequences and large language models?","CNN; RNN/LSTM; transformer."],
+[4,"What is an LLM?","A large language model: a transformer trained on huge text collections."],
+[4,"What did the XOR experiment show?","Without a hidden layer 2 of 4 correct; one hidden layer of 4 neurons gave 4 of 4, because XOR is not linearly separable."],
+[4,"State two pitfalls of deep learning.","Biased data and overfitting."],
+[5,"Define big data.","Data too large, fast or varied for traditional tools."],
+[5,"Name the five Vs.","Volume, Velocity, Variety, Veracity, Value."],
+[5,"What are HDFS and MapReduce?","HDFS stores big data across a cluster; MapReduce processes it."],
+[5,"Describe the three MapReduce stages.","Map emits each word with 1; shuffle groups equal words; reduce adds the counts."],
+[5,"What was the word count of the three blocks?","data 4, big 3, decisions 2, and analytics, good, into, need, needs, storage, turns 1 each."],
+[5,"Name other big-data tools.","Spark, Kafka, and NoSQL databases (MongoDB, Cassandra, HBase, Redis)."],
+[5,"Name the four types of analytics and their questions.","Descriptive: what happened; diagnostic: why; predictive: what will happen; prescriptive: what should we do."],
+[5,"Which analytics found that South fell 36% in month 3?","Diagnostic: the note said stock-out."],
+[5,"What did the North trend predict?","sales = 5.31 × month + 94.1, so about 131 in month 7 (predictive)."],
+[5,"What price maximises revenue for demand 200 − 2p?","50, with revenue 5000 (prescriptive)."],
+[5,"Name tools of data analytics.","Python, R, SQL, Power BI, Tableau, Looker."],
+[5,"Give the data-analytics workflow.","Collect, clean, explore, model, validate, visualise, act."],
+[6,"Define blockchain.","A distributed ledger of blocks, each holding the hash of the previous block; decentralised and tamper-evident."],
+[6,"What does a block contain?","Transactions, a timestamp and the hash of the previous block (plus its own hash and nonce)."],
+[6,"What is a hash and what do hello and Hello show?","A fixed-length fingerprint of data; one changed letter changes the whole hash (2cf24d… against 185f8d…)."],
+[6,"What hash function is used?","SHA-256."],
+[6,"What is proof of work?","Miners try nonces until the hash starts with the required zeros."],
+[6,"How many tries does four leading hex zeros need on average?","16^4 = 65 536."],
+[6,"What were the nonces mined for the three blocks?","256820, 53779 and 75410."],
+[6,"What does the verify function check?","That each hash matches its contents and that each block links to the previous hash."],
+[6,"What happens when block 1 is edited?","'block 1 hash does not match its contents': the tampering is detected."],
+[6,"What is proof of stake?","Validators are chosen by the coins they stake; it uses far less energy than proof of work."],
+[6,"Give examples of PoW and PoS.","PoW: Bitcoin; PoS: Ethereum (since the 2022 Merge) and Cardano."],
+[6,"When did Bitcoin and Ethereum start?","Bitcoin 2009; Ethereum 2015, which added smart contracts."],
+[6,"What is a smart contract?","A program stored on a blockchain that runs automatically when its conditions are met."],
+[6,"Give applications of blockchain.","DeFi, NFTs, supply chain, identity, records, land registries, voting."],
+[6,"What is the main pitfall of blockchain?","It does not make data true: false data stays false once recorded."],
+[7,"Expand the CIA triad.","Confidentiality, Integrity, Availability."],
+[7,"What does a checksum protect?","Integrity: any change of the data changes the hash."],
+[7,"Name nine cyber threats.","Malware, phishing, DDoS, man-in-the-middle, SQL injection, XSS, zero-day, insider threat, APT."],
+[7,"What is DDoS?","A flood of traffic from many machines (a botnet) that makes a service unavailable."],
+[7,"What is phishing?","Tricking a person into giving secrets, a social-engineering attack."],
+[7,"What is a zero-day?","An attack on a flaw the maker does not yet know."],
+[7,"What is SQL injection?","SQL typed into an input that changes the query."],
+[7,"Why did ' OR '1'='1 log in with the unsafe code?","The executed SQL ends with OR '1'='1', always true, so the condition passes."],
+[7,"How is SQL injection prevented?","Parameterised queries (values sent separately) and input validation; never join strings into SQL."],
+[7,"How long did 6 digits take to guess at 10 billion a second?","1.00e6 combinations: 0.0001 seconds."],
+[7,"How long for 8 lower-case letters?","2.09e11 combinations: 0.3 minutes."],
+[7,"How long for 8 and 12 characters of 94?","8: 6.10e15, 7.1 days; 12: 4.76e23, about 1.51e6 years."],
+[7,"What adds protection on top of a long password?","Multi-factor authentication (MFA)."],
+[7,"Name the seven layers of defence.","Network, endpoint, application, identity and access, data, monitoring (SIEM), response."],
+[7,"What are CERT-In and the IT Act?","India's Computer Emergency Response Team; the Information Technology Act 2000 (amended 2008)."],
+[7,"Define ethical hacking.","Authorised testing of a system's defences to find weaknesses before criminals do."],
+[7,"What three things make hacking ethical?","Permission, scope and intent."],
+[7,"Name the five phases of ethical hacking.","Reconnaissance, scanning, exploitation, post-exploitation, reporting."],
+[7,"Name scanning and exploitation tools.","Scanning: Nmap, Nessus, OpenVAS; exploitation: Metasploit, Burp Suite."],
+[7,"What did the scan of 127.0.0.1 show?","Ports 8101 and 8105 open in the range 8098 to 8109: two services listening."],
+[7,"Which law applies to unauthorised scanning?","IT Act Sections 43 and 66."],
+[7,"Name certifications and a toolkit.","CEH, OSCP, CISSP; Kali Linux."],
+[8,"What is augmented reality?","Virtual content overlaid on the real world (IKEA furniture on a phone, Pokémon GO)."],
+[8,"What is virtual reality?","A fully immersive computer-made world that replaces the real one (headset, simulator)."],
+[8,"What is mixed reality?","Virtual objects anchored in, and interacting with, the real world (HoloLens, surgeons' holograms)."],
+[8,"Name AR platforms and VR techniques.","ARKit and ARCore; stereoscopic 3D and head tracking."],
+[8,"Define edge computing.","Processing data near where it is produced instead of in a distant central cloud."],
+[8,"State the benefits of edge computing.","Low latency, saved bandwidth, offline operation."],
+[8,"What is latency?","The delay between a request and its response."],
+[8,"Give the round-trip formula.","2 × km ÷ 200 000 × 1000 + extra ms (light in fibre: 200 000 km/s)."],
+[8,"What were the delays and car distances for edge, regional and far cloud?","1 km: 2.0 ms, 0.05 m; 500 km: 25.0 ms, 0.62 m; 4000 km: 60.0 ms, 1.50 m (car at 90 km/h = 25 m/s)."],
+[8,"How much data do 1000 sensors upload raw and summarised?","86.4 GB a day raw; 0.144 GB with one-minute summaries: 600 times less."],
+[8,"Name uses of edge computing.","Autonomous vehicles, industrial control, remote patient monitors, factory sensors."],
+[8,"Does edge replace the cloud?","No, it complements it. MEC uses 5G for low delays."],
+[9,"What is a qubit?","The quantum bit: it can be in a superposition of 0 and 1."],
+[9,"Name the three quantum phenomena.","Superposition, entanglement, interference."],
+[9,"What is entanglement? Can it send messages faster than light?","Correlation between qubits however far apart; it cannot send messages faster than light."],
+[9,"What happens when a Hadamard gate acts on a qubit?","Equal amplitudes of 0.707 for 0 and 1: each is measured with probability 0.5."],
+[9,"Which results can two entangled qubits give?","Only 00 and 11 (5078 and 4922 in 10 000); never 01 or 10."],
+[9,"What did Grover's search give on 8 items?","0.781, 0.945 and 0.330 after 1, 2 and 3 steps; stop near π/4 × √N."],
+[9,"What does Shor's algorithm do and why does it matter?","Factors large integers quickly, which threatens RSA; post-quantum cryptography is being standardised."],
+[9,"For N = 15 and a = 7, what are the period and factors?","r = 4; gcd(7² ± 1, 15) gives 3 and 5."],
+[9,"How much memory does a classical computer need to store n qubits?","16 × 2^n bytes: 16 KB (n = 10), 17 MB (20), 17 GB (30), 18 TB (40), 18 PB (50)."],
+[9,"What is decoherence?","Loss of a qubit's quantum state through disturbance; superconducting qubits are cooled near absolute zero."],
+[9,"Define PUE.","Power usage effectiveness: total facility power ÷ IT power; 1.0 is ideal, lower is better."],
+[9,"What is the energy of PUE 1.55 against 1.10 for 1000 kW of IT?","13.58 GWh against 9.64 GWh a year."],
+[9,"What is DVFS?","Dynamic voltage and frequency scaling: lowering speed and voltage to save power; power ∝ V² f."],
+[9,"What power does f = 0.8, V = 0.9 give?","0.8 × 0.9² = 65% of full power."],
+[9,"Name ways to make a data centre greener.","Renewable energy, virtualization, better cooling, power gating, ARM processors."],
+[9,"What does the E-Waste (Management) Rules 2022 introduce?","Extended producer responsibility; reduce, reuse, recycle."],
+[9,"Name three green-computing standards.","Energy Star, EPEAT, 80 PLUS."],
+[9,"Define open data.","Free, machine-readable data under an open licence (CSV, JSON, XML, RDF)."],
+[9,"Is a scanned PDF table open data?","No: it is not machine-readable."],
+[9,"Define digital transformation.","Organisation-wide change of strategy, processes and culture around digital technology."],
+[9,"Name the pillars of digital transformation.","Cloud, data and AI, automation (RPA), digital customer experience, built-in security."],
+[9,"Name India's digital public infrastructure.","Digital India (2015), UPI, Aadhaar, DigiLocker, UMANG, CoWIN, GeM."],
+[9,"Distinguish UPI from Aadhaar.","UPI is instant bank-to-bank payments; Aadhaar is identity."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const R=String.raw;
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["Which characteristic means that resources grow and shrink automatically with demand?",["Resource pooling","Rapid elasticity","Measured service","Broad network access"],1,"Rapid elasticity."],
+["In which service model does the customer manage only data and settings?",["IaaS","PaaS","SaaS","Private cloud"],2,"SaaS: the provider manages everything else."],
+["Heroku and Google App Engine are examples of:",["IaaS","PaaS","SaaS","Grid"],1,"They are platforms for developers."],
+["Which deployment model suits a bank that must keep data under its own control?",["Public cloud","Private cloud","Scavenging grid","Multi-cloud only"],1,"A private cloud is used by one organisation."],
+["Cloud bursting belongs to which model?",["Hybrid","Community","Private only","Public only"],0,"Extra load is sent to the public cloud."],
+["A fixed set of 16 servers used 384 server-hours; the elastic cloud used 218. The saving is about:",["27%","43%","57%","57 servers"],1,"(384 − 218) ÷ 384 = 43%."],
+["Which is a challenge of cloud computing?",["Vendor lock-in","Automatic updates","Global reach","Disaster recovery"],0,"Vendor lock-in is a challenge; the others are advantages."],
+["Software that creates and runs virtual machines is a:",["Compiler","Hypervisor","Browser","Middleware"],1,"The hypervisor or virtual machine monitor."],
+["Which is a Type 1 hypervisor?",["VirtualBox","VMware Workstation","VMware ESXi","Parallels"],2,"ESXi runs on bare metal."],
+["Which share the host kernel?",["Virtual machines","Containers","Physical servers","Grids"],1,"A container shares the host kernel."],
+["Ten servers at 10% load use 1200 W; two at 50% use 400 W. The saving is about:",["33%","50%","67%","80%"],2,"800 ÷ 1200 = 67%."],
+["SDN separates:",["Control plane from data plane","Disk from memory","Client from server","Hash from nonce"],0,"Software-defined networking."],
+["Thin provisioning is a feature of:",["Server virtualization","Storage virtualization","Desktop virtualization","Application virtualization"],1,"Storage is allocated only as used."],
+["VDI belongs to:",["Desktop virtualization","Network virtualization","Storage virtualization","Quantum computing"],0,"Virtual desktop infrastructure."],
+["Which describes a grid?",["One owner and uniform hardware","Many owners, heterogeneous nodes, middleware","A single supercomputer","A private cloud"],1,"A grid joins independent computers with middleware."],
+["Which is a scavenging grid?",["BOINC","Gmail","Kubernetes","Dropbox"],0,"BOINC uses idle volunteer computers."],
+["A grid keeps working when one node fails because:",["Failed jobs return to the queue and run elsewhere","The job is deleted","All nodes stop","The cloud takes over"],0,"Fault tolerance in the middleware."],
+["Which is India's national grid initiative?",["Garuda","Aadhaar","UMANG","DigiLocker"],0,"The Garuda Grid of C-DAC."],
+["Which layer of IoT holds the sensors?",["Perception","Network","Application","Transport only"],0,"Sensors and actuators sit in the perception layer."],
+["Which is NOT an IoT challenge?",["Interoperability","Power","Security","Elasticity of a hash"],3,"The other three are challenges."],
+["Who named artificial intelligence in 1956?",["Alan Turing","John McCarthy","Tim Berners-Lee","Claude Shannon"],1,"At Dartmouth."],
+["Which relation is correct?",["ML ⊃ AI ⊃ DL","AI ⊃ ML ⊃ DL","DL ⊃ ML ⊃ AI","AI = DL"],1,"Deep learning is part of machine learning, part of AI."],
+["Learning from labelled examples is:",["Supervised","Unsupervised","Reinforcement","Distributed"],0,"Labels supervise the learning."],
+["k-means is an example of:",["Supervised learning","Unsupervised learning","Reinforcement learning","Rule-based AI"],1,"It finds clusters in unlabelled data."],
+["Which architecture is used for large language models?",["CNN","Transformer","k-means","Decision tree"],1,"Transformers use attention."],
+["Why did one layer fail on XOR?",["It is not linearly separable","Too much data","No GPU","No labels"],0,"A hidden layer is needed."],
+["The 5 Vs do NOT include:",["Volume","Velocity","Variety","Verification of keys"],3,"The Vs are Volume, Velocity, Variety, Veracity and Value."],
+["In MapReduce, which stage adds the counts?",["Map","Shuffle","Reduce","Store"],2,"Reduce."],
+["Which analytics answers 'why did it happen'?",["Descriptive","Diagnostic","Predictive","Prescriptive"],1,"Diagnostic."],
+["Predicting month 7 sales from a trend is:",["Descriptive","Diagnostic","Predictive","Prescriptive"],2,"Predictive analytics."],
+["What links each block of a blockchain to the previous one?",["The nonce","The hash of the previous block","The timestamp","The smart contract"],1,"The previous hash."],
+["Why does editing one block break the chain?",["Its hash no longer matches its contents and later links fail","The file is deleted","The network stops","The nonce becomes zero"],0,"The hashes are recomputed and differ."],
+["About how many tries does a proof of work with four hexadecimal zeros need?",["16","256","65 536","4"],2,"16^4 = 65 536."],
+["Which consensus mechanism uses far less energy?",["Proof of work","Proof of stake","Mining with GPUs","Brute force"],1,"Proof of stake."],
+["Which attack changes a login query by typing SQL into the password box?",["DDoS","SQL injection","Phishing","Man-in-the-middle"],1,"SQL injection."],
+["The defence against SQL injection is:",["Parameterised queries","Longer URLs","Bigger servers","More blocks"],0,"The values are sent separately."],
+["Which is an aim of the CIA triad?",["Availability","Authority","Anonymity","Automation"],0,"Confidentiality, integrity, availability."],
+["Which agency handles cyber incidents in India?",["CERT-In","ISRO","NIC only","UIDAI"],0,"Computer Emergency Response Team of India."],
+["Which phase of ethical hacking uses Nmap?",["Reconnaissance","Scanning","Reporting","Post-exploitation"],1,"Scanning."],
+["Which AR/VR/MR technology replaces the real world completely?",["AR","VR","MR","Edge"],1,"Virtual reality."],
+["A car at 90 km/h moves 1.5 m in 60 ms. This is the delay of:",["An edge box","A far cloud 4000 km away","A regional cloud","A local sensor"],1,"Table: 60.0 ms, 1.50 m."],
+["Edge computing mainly reduces:",["Latency and bandwidth","Hash size","Voltage only","Qubits"],0,"It processes data near the source."],
+["Which algorithm threatens RSA?",["Grover","Shor","Dijkstra","MapReduce"],1,"Shor's factoring algorithm."],
+["A lower PUE means:",["More overhead","Less overhead: better","More IT power","Less IT power"],1,"1.0 is ideal."],
+["Which standard certifies power supplies?",["80 PLUS","EPEAT","DPDP","CERT-In"],0,"80 PLUS."],
+["Which is a machine-readable open-data format?",["Scanned PDF image","CSV","A photograph","A printed table"],1,"CSV is machine-readable."],
+["Which is India's instant payments system?",["Aadhaar","UPI","DigiLocker","CoWIN"],1,"UPI began on 25 August 2016."]
+];
+const FILL=[
+["Cloud computing delivers services over the internet on a ___ basis.",["pay-as-you-go","pay as you go","payasyougo"],"Pay-as-you-go."],
+["The five NIST characteristics include on-demand self-service, broad network access, resource pooling, rapid elasticity and ___ service.",["measured"],"Measured service."],
+["In ___ the customer manages the operating system, middleware, runtime, data and applications.",["iaas"],"IaaS."],
+["The cloud model shared by hospitals or agencies is the ___ cloud.",["community"],"Community cloud."],
+["A ___ is software that creates and runs virtual machines.",["hypervisor"],"Hypervisor."],
+["A ___ hypervisor runs directly on the hardware.",["type 1","type1","1","bare metal"],"Type 1."],
+["Power per server in the lab model is 100 + 200 × ___ watts.",["load","utilisation","utilization"],"Load."],
+["SDN separates the ___ plane from the data plane.",["control"],"Control plane."],
+["Allocating storage only as it is used is called ___ provisioning.",["thin"],"Thin."],
+["Grid computers are joined by ___.",["middleware"],"Middleware."],
+["A group of people and resources sharing a grid is a virtual ___.",["organization","organisation"],"Virtual organization."],
+["SETI@home is a ___ grid.",["scavenging"],"Scavenging."],
+["The three layers of IoT are perception, network and ___.",["application"],"Application."],
+["John McCarthy named artificial intelligence in ___.",["1956"],"1956."],
+["Machine learning with many-layer neural networks is ___ learning.",["deep"],"Deep learning."],
+["Learning by reward and penalty is ___ learning.",["reinforcement"],"Reinforcement."],
+["The ___ architecture is based on attention and is the basis of LLMs.",["transformer"],"Transformer."],
+["HDFS stores data and ___ processes it.",["mapreduce","map reduce"],"MapReduce."],
+["The V of big data that asks how trustworthy the data is is ___.",["veracity"],"Veracity."],
+["___ analytics answers the question what should we do.",["prescriptive"],"Prescriptive."],
+["A blockchain block holds the ___ of the previous block.",["hash"],"Hash."],
+["In proof of work miners search for a ___ so that the hash starts with zeros.",["nonce"],"Nonce."],
+["A program on a blockchain that runs automatically is a ___ contract.",["smart"],"Smart contract."],
+["The CIA triad is confidentiality, integrity and ___.",["availability"],"Availability."],
+["A flood of traffic from a botnet is a ___ attack.",["ddos","dos"],"DDoS."],
+["SQL injection is prevented by ___ queries.",["parameterised","parameterized","parametrised"],"Parameterised."],
+["Edge computing reduces latency and ___.",["bandwidth"],"Bandwidth."],
+["A quantum bit is a ___.",["qubit"],"Qubit."],
+["PUE is total facility power divided by ___ power.",["it","it equipment"],"IT power."],
+["Open data must be machine-readable and under an open ___.",["licence","license"],"Licence."]
+];
+const TF=[
+["In SaaS the customer manages the operating system.",false,"The provider does."],
+["A Type 1 hypervisor runs directly on the hardware.",true,"Bare metal."],
+["A grid is usually owned by one organisation.",false,"Many owners."],
+["Deep learning is a part of machine learning.",true,"Yes."],
+["Unsupervised learning needs labelled data.",false,"It does not."],
+["A blockchain can be edited without anyone noticing.",false,"The hashes break."],
+["Proof of stake uses far less energy than proof of work.",true,"Yes."],
+["Availability means keeping a service usable.",true,"Yes."],
+["Ethical hacking needs the owner's permission.",true,"Authorisation matters."],
+["VR places virtual objects in the real room.",false,"That is AR or MR; VR replaces the world."],
+["Edge computing replaces the cloud.",false,"It complements the cloud."],
+["A quantum computer tries all answers and reads them all.",false,"A measurement gives one result."],
+["A lower PUE is better.",true,"Less overhead."],
+["A scanned PDF table is open data.",false,"It is not machine-readable."],
+["UPI is an identity system.",false,"UPI is payments; Aadhaar is identity."],
+["Rapid elasticity lets resources grow and shrink with demand.",true,"Yes."],
+["A container has its own operating system kernel.",false,"It shares the host kernel."],
+["Consolidation lets servers be switched off and so saves power.",true,"Ten servers became two."],
+["A grid job must be splittable into independent sub-jobs.",true,"Yes."],
+["IoT devices exchange data without human involvement.",true,"Yes."],
+["A rule-based expert system copes well with cases its rules never covered.",false,"It is brittle."],
+["Testing on unseen data helps to detect overfitting.",true,"Yes."],
+["MapReduce adds the counts in the shuffle stage.",false,"In the reduce stage."],
+["Diagnostic analytics asks why something happened.",true,"Yes."],
+["A blockchain makes the data put into it true.",false,"It only makes later changes detectable."],
+["Changing one letter of data changes its SHA-256 hash completely.",true,"Yes."],
+["SQL injection works when SQL is built by joining strings.",true,"Yes."],
+["Scanning other people's computers without permission may break the IT Act.",true,"Sections 43 and 66."],
+["A far cloud 4000 km away gives a lower delay than an edge box.",false,"Higher: 60 ms against 2 ms."],
+["Entanglement can send messages faster than light.",false,"It cannot."],
+["Shor's algorithm threatens RSA encryption.",true,"Yes."],
+["Decoherence helps quantum computers keep their state.",false,"It destroys it."],
+["The E-Waste (Management) Rules 2022 use extended producer responsibility.",true,"Yes."]
+];
+const VSA=[
+["Expand IaaS.",["infrastructure as a service","infrastructure"],"Infrastructure as a Service.",1],
+["Name the software that creates and manages virtual machines.",["hypervisor"],"Hypervisor.",1],
+["What does VDI stand for?",["virtual desktop infrastructure","virtual desktop"],"Virtual desktop infrastructure.",1],
+["Name two grid computing projects.",["boinc","seti","garuda","wlcg","globus"],"For example SETI@home and the WLCG.",1],
+["What are the three layers of an IoT system?",["perception","network","application"],"Perception, network and application.",1],
+["Name the three kinds of machine learning.",["supervised","unsupervised","reinforcement"],"Supervised, unsupervised, reinforcement.",1],
+["Which neural network is used for images?",["cnn","convolutional"],"A CNN.",1],
+["Name the five Vs of big data.",["volume","velocity","variety","veracity","value"],"Volume, Velocity, Variety, Veracity, Value.",1],
+["What does each block contain that links it to the previous block?",["hash","previous hash"],"The hash of the previous block.",1],
+["Expand CIA in the CIA triad.",["confidentiality","integrity","availability"],"Confidentiality, Integrity, Availability.",1],
+["Name India's national agency for cyber incidents.",["cert-in","certin","cert in"],"CERT-In.",1],
+["Distinguish AR from VR in one line.",["overlay","replaces"],"AR overlays content on the real world; VR replaces the real world.",1],
+["What is the unit of information of a quantum computer?",["qubit"],"The qubit.",1],
+["Which algorithm threatens RSA encryption?",["shor"],"Shor's algorithm.",1],
+["What does PUE stand for?",["power usage effectiveness"],"Power usage effectiveness.",1],
+["Name two Indian digital public infrastructure initiatives.",["upi","aadhaar","digilocker","umang","cowin","gem"],"For example UPI and Aadhaar.",1],
+["Which hash function does the lab blockchain use?",["sha-256","sha256","sha 256"],"SHA-256.",1],
+["Which algorithm searches 8 items in about 2 steps in the lab?",["grover"],"Grover's algorithm.",1],
+["Name the two kinds of hypervisor.",["type 1","type 2","bare metal","hosted"],"Type 1 (bare metal) and Type 2 (hosted).",1],
+["What is the name for the delay between a request and its response?",["latency"],"Latency.",1]
+];
+const CALC=[
+{q:"Hourly need is given for 24 hours. What per cent is saved by the elastic cloud compared with the fixed set? Give the number.",src:R`cloud rate=5 need=2,2,2,2,3,4,6,9,12,14,15,15,14,14,15,16,16,14,12,10,8,6,4,3`,alts:[["43"],["43"]],ex:1,model:"43",e:"The report shows: fixed: 16 servers x 24 h = 384 server-hours = Rs 1920 / elastic: 218 server-hours = Rs 1090 / saving: 43% / average utilisation of the fixed set: 57%"},
+{q:"How many server-hours does the elastic cloud use?",src:R`cloud rate=5 need=2,2,2,2,3,4,6,9,12,14,15,15,14,14,15,16,16,14,12,10,8,6,4,3`,alts:[["218"]],ex:1,model:"218",e:"The report shows: fixed: 16 servers x 24 h = 384 server-hours = Rs 1920 / elastic: 218 server-hours = Rs 1090 / saving: 43% / average utilisation of the fixed set: 57%"},
+{q:"What does the elastic cloud cost in rupees at Rs 8 per server-hour? (218 server-hours)",src:R`cloud rate=8 need=2,2,2,2,3,4,6,9,12,14,15,15,14,14,15,16,16,14,12,10,8,6,4,3`,alts:[["1744"],["rs1744"]],ex:1,model:"1744",e:"The report shows: fixed: 16 servers x 24 h = 384 server-hours = Rs 3072 / elastic: 218 server-hours = Rs 1744 / saving: 43% / average utilisation of the fixed set: 57%"},
+{q:"Power per server is 100 + 200 × load. By how many watts does consolidation reduce the power?",src:R`consolidate servers=10 util=10 to=2 util2=50`,alts:[["800"],["800w"]],ex:1,model:"800",e:"The report shows: before: 10 servers at 10% = 1200 W / after: 2 servers at 50% = 400 W / saved: 800 W (67%), 8 servers switched off"},
+{q:"Power per server is 100 + 200 × load. How many watts do the four servers use after consolidation?",src:R`consolidate servers=20 util=10 to=4 util2=50`,alts:[["800"],["800w"]],ex:1,model:"800",e:"The report shows: before: 20 servers at 10% = 2400 W / after: 4 servers at 50% = 800 W / saved: 1600 W (67%), 16 servers switched off"},
+{q:"Node C fails on job 7. Which node runs job 7 again? Write the letter.",src:R`grid nodes=A,B,C,D jobs=10 fail=C@7`,alts:[["b"]],ex:1,model:"b",e:"The report shows: job 1: A / job 2: B / job 3: C / job 4: D / job 5: A / job 6: B / job 7: C failed; the job returns to the queue and runs on B / job 8: B / job 9: D / job 10: A / nodes still alive: A,B,D / jobs finished: 10 of 10"},
+{q:"Which nodes are alive at the end? Write the letters separated by commas.",src:R`grid nodes=A,B,C,D jobs=10 fail=C@7`,alts:[["abd"]],ex:1,model:"abd",e:"The report shows: job 1: A / job 2: B / job 3: C / job 4: D / job 5: A / job 6: B / job 7: C failed; the job returns to the queue and runs on B / job 8: B / job 9: D / job 10: A / nodes still alive: A,B,D / jobs finished: 10 of 10"},
+{q:"How many alerts does the application layer raise? Give the number.",src:R`iot limit=30 readings=27.5,28.1,29.0,31.2,33.8,30.4`,alts:[["3"],["three"]],ex:1,model:"3",e:"The report shows: {\"device\": \"room-1\", \"temp_c\": 27.5} ok / {\"device\": \"room-1\", \"temp_c\": 28.1} ok / {\"device\": \"room-1\", \"temp_c\": 29.0} ok / {\"device\": \"room-1\", \"temp_c\": 31.2} ALERT: fan on / {\"device\": \"room-1\", \"temp_c\": 33.8} ALERT: fan on / {\"device\": \"room-1\", \"temp_c\": 30.4} ALERT: fan on / alerts: 3"},
+{q:"How many alerts does the application layer raise? Give the number.",src:R`iot limit=32 readings=31.2,33.8,30.4,35.0`,alts:[["2"],["two"]],ex:1,model:"2",e:"The report shows: {\"device\": \"room-1\", \"temp_c\": 31.2} ok / {\"device\": \"room-1\", \"temp_c\": 33.8} ALERT: fan on / {\"device\": \"room-1\", \"temp_c\": 30.4} ok / {\"device\": \"room-1\", \"temp_c\": 35.0} ALERT: fan on / alerts: 2"},
+{q:"What does the rule-based advisor decide?",src:R`advise income=30000 age=61 job=yes`,alts:[["refertoofficer"],["refertoanofficer"]],ex:1,model:"refertoofficer",e:"The report shows: decision: refer to officer"},
+{q:"What does the rule-based advisor decide?",src:R`advise income=15000 age=21 job=yes`,alts:[["approvewithguarantor"]],ex:1,model:"approvewithguarantor",e:"The report shows: decision: approve with guarantor"},
+{q:"After the reduce stage, how many times does the word a occur? Give the number.",src:R`wordcount "a b a" "b a"`,alts:[["3"],["a3"]],ex:1,model:"3",e:"The report shows: map: 5 pairs emitted / a 3 / b 2"},
+{q:"Demand is 300 − 2 × price. At which price is the revenue greatest?",src:R`revenue a=300 b=2`,alts:[["75"],["rs75"]],ex:1,model:"75",e:"The report shows: best price: 75, revenue: 11250"},
+{q:"How many combinations has an 8-digit password? Write it as in the report.",src:R`password charset=digits length=8`,alts:[["100e08"],["108"],["100000000"],["1e8"],["100000000"]],ex:1,model:"100e08",e:"The report shows: 1.00e+08 combinations -> 0.0100 seconds"},
+{q:"How long does the attacker take in minutes? Give the number.",src:R`password charset=lower length=8`,alts:[["03"],["03minutes"],["03min"]],ex:1,model:"03",e:"The report shows: 2.09e+11 combinations -> 0.3 minutes"},
+{q:"The round trip to the server is 2 × km ÷ 200 000 × 1000 + extra, in ms. What is it? Give the number.",src:R`edge km=1000 speed=108 extra=10`,alts:[["200"],["20"],["20ms"],["200ms"]],ex:1,model:"200",e:"The report shows: round trip: 20.0 ms / distance moved while waiting: 0.60 m"},
+{q:"The car moves 30 m/s. How far does it move during the round trip, in metres?",src:R`edge km=1000 speed=108 extra=10`,alts:[["060"],["06"],["060m"],["06m"]],ex:1,model:"060",e:"The report shows: round trip: 20.0 ms / distance moved while waiting: 0.60 m"},
+{q:"How many times less data is uploaded with one-minute summaries? Give the number.",src:R`bandwidth sensors=500 rate=2 bytes=200 summary=60`,alts:[["120"],["120times"]],ex:1,model:"120",e:"The report shows: raw upload: 17.3 GB a day / summaries: 0.144 GB a day / reduction: 120 times less data"},
+{q:"What is the probability of the marked item after 3 steps? Give three decimals.",src:R`grover items=16 steps=3`,alts:[["0961"]],ex:1,model:"0.961",e:"The report shows: probability of the marked item after 3 steps: 0.961 / best number of steps: about 3.1"},
+{q:"How much memory does a classical computer need for 20 qubits? Write the number and unit.",src:R`qubits n=20`,alts:[["17mb"],["17"]],ex:1,model:"17mb",e:"The report shows: n = 20 qubits: 2^n = 1.05e+06 amplitudes = 17 MB"},
+{q:"What is the PUE? Give two decimals.",src:R`pue it=500 total=600`,alts:[["120"],["12"]],ex:1,model:"120",e:"The report shows: PUE: 1.20 / overhead: 100 kW / energy a year: 5.26 GWh"},
+{q:"What per cent of full power does the processor use? Give the number.",src:R`dvfs f=0.5 v=0.8`,alts:[["32"],["32"]],ex:1,model:"32",e:"The report shows: relative power: 32%"},
+{q:"With what do the hexadecimal digits of the SHA-256 of hello begin? Give the first six.",src:R`sha "hello"`,alts:[["2cf24d"]],ex:1,model:"2cf24d",e:"The report shows: sha256(\"hello\") starts 2cf24dba5fb0a30e26e83b2ac5b9e29e"},
+{q:"After block 0 is edited, what does the verify function report? Name the block and the problem.",src:R`chain zeros=2 edit=0 to="A pays B 100" "A pays B 1" "B pays C 2"`,alts:[["block0","doesnotmatch"]],ex:0,model:"block0 doesnotmatch",e:"The report shows: block 0: nonce 86     hash 00b2e2599a46f5bf... / block 1: nonce 282    hash 0033cd49c88ed9eb... / verify the chain: chain is valid / after editing block 0: block 0 hash does not match its contents"},
+{q:"Does this login succeed with the unsafe code? Answer logged in or refused.",src:R`login unsafe | admin | x' OR 'a'='a`,alts:[["loggedin"]],ex:1,model:"loggedin",e:"The report shows: SQL executed: SELECT * FROM users WHERE name = 'admin' AND password = 'x' OR 'a'='a' / result: logged in"},
+{q:"Does the safe login with the correct password succeed? Answer logged in or refused.",src:R`login safe | admin | s3cret`,alts:[["loggedin"]],ex:1,model:"loggedin",e:"The report shows: SQL sent: SELECT * FROM users WHERE name = ? AND password = ?  (values sent separately) / result: logged in"},
+{q:"A car at 90 km/h (25 m/s) waits 60 ms for an answer. How far does it move, in metres?",alts:[["15"],["15m"]],ex:1,model:"1.5",e:"Answer: 1.5"},
+{q:"A data centre uses 2400 kW in total with 2000 kW for IT. What is its PUE?",alts:[["12"],["120"]],ex:1,model:"1.2",e:"Answer: 1.2"}
+];
+const SHORT=[
+["List the five essential characteristics of cloud computing.","On-demand self-service, broad network access, resource pooling (multi-tenant), rapid elasticity and measured service.",["self-service","pooling","elasticity","measured"]],
+["Distinguish public, private and hybrid clouds.","A public cloud is owned by a provider and shared by many customers (AWS, Azure). A private cloud is used by one organisation (banks, government). A hybrid cloud combines both and sends extra load to the public cloud (cloud bursting).",["public shared","private one organisation","hybrid both"]],
+["Distinguish Type 1 from Type 2 hypervisors with an example of each.","A Type 1 hypervisor runs directly on the hardware (bare metal), for servers: VMware ESXi, Hyper-V, KVM. A Type 2 hypervisor runs on an operating system, for testing: VirtualBox, VMware Workstation.",["type 1 hardware","type 2 operating system"]],
+["How does virtualization reduce power use?","Several lightly loaded servers are consolidated onto fewer, busier machines and the rest are switched off: ten servers at 10% load use 1200 W, two at 50% use 400 W, a saving of 67%.",["consolidation","fewer servers","67%"]],
+["What is a virtual organization in a grid?","A group of people and resources from different owners that share a grid under agreed rules.",["people resources","agreed rules"]],
+["Why does a grid not fail when one node fails?","The middleware provides fault tolerance: the failed job returns to the queue and runs on another node (job 7 moved from C to B).",["queue","another node"]],
+["State two challenges of the Internet of Things.","Security (weak devices are easy to attack) and privacy (data reveals habits and health); also interoperability, power and scalability.",["security","privacy"]],
+["Distinguish AI, ML and deep learning.","AI is machines doing tasks that need human intelligence; machine learning is the part of AI that learns patterns from data; deep learning is the part of ML that uses many-layer neural networks.",["ai","ml learns from data","deep many layers"]],
+["Why are rule-based expert systems brittle?","They follow only the rules written for them, so a case the rules never covered fails: the loan advisor rejected a self-employed applicant.",["fixed rules","not covered"]],
+["Distinguish supervised from unsupervised learning, with an example of each.","Supervised learning uses labelled examples to predict labels (a decision tree classifying iris flowers); unsupervised learning finds structure in unlabelled data (k-means clustering).",["labelled","unlabelled","k-means"]],
+["What do Hadoop's HDFS and MapReduce do?","HDFS stores big data across a cluster; MapReduce processes it in three stages: map, shuffle and reduce.",["hdfs stores","mapreduce processes"]],
+["Why does changing one letter of a block change all later blocks?","The block's hash changes completely, so the next block's previous-hash no longer matches, and so on along the chain.",["hash changes","previous hash","later blocks"]],
+["Distinguish proof of work from proof of stake.","Proof of work: miners race to find a nonce, using very high energy (Bitcoin). Proof of stake: validators are chosen by the coins they stake, using far less energy (Ethereum since 2022).",["proof of work","proof of stake","energy"]],
+["What is SQL injection and how is it prevented?","SQL typed into an input that changes the query, such as ' OR '1'='1 making the condition always true. It is prevented by parameterised queries and input validation.",["sql","always true","parameterised"]],
+["Name the five phases of ethical hacking.","Reconnaissance, scanning, exploitation, post-exploitation and reporting.",["reconnaissance","scanning","exploitation","reporting"]],
+["What is mixed reality?","Virtual objects are anchored in the real world and interact with real surfaces (HoloLens, surgeons' holograms).",["anchored","interact"]],
+["State two benefits of edge computing.","Low latency (2 ms against 60 ms for a far cloud) and saved bandwidth (600 times less data); it also works offline.",["latency","bandwidth"]],
+["What are superposition and entanglement?","Superposition: a qubit is a combination of 0 and 1 until measured. Entanglement: qubits are correlated however far apart they are, so two entangled qubits give only 00 or 11.",["combination of 0 and 1","correlated"]],
+["Why does decoherence make quantum computers hard to build?","Qubits lose their quantum state when disturbed by heat, vibration or radiation, so they need cooling near absolute zero and error correction with many physical qubits per logical qubit.",["lose state","error correction","cooling"]],
+["State two ways to make a data centre greener.","Renewable energy and better cooling (lower PUE); also virtualization, power gating, DVFS and ARM processors.",["renewable","cooling","virtualization"]],
+["What is the aim of the E-Waste (Management) Rules, 2022?","To manage electronic waste with extended producer responsibility: producers take back and recycle, so waste is reduced, reused and recycled.",["producer responsibility","recycle"]],
+["What is the difference between open data and public data?","Open data is free, machine-readable (CSV, JSON, XML, RDF) and under an open licence so anyone can reuse it; public data may be visible but not reusable or machine-readable, such as a scanned PDF.",["machine-readable","licence"]]
+];
+const LONG=[
+["Explain cloud computing with its characteristics, the three service models and the four deployment models.","Cloud computing delivers services over the internet on demand and pay-as-you-go. NIST characteristics: on-demand self-service, broad network access, resource pooling, rapid elasticity, measured service. In the experiment an elastic cloud used 218 server-hours against 384 for a fixed set, saving 43%. Service models: IaaS (customer manages OS and above; EC2), PaaS (customer manages applications and data; App Engine, Heroku), SaaS (customer manages data and settings; Gmail, Zoom). Deployment models: public (AWS, Azure, Google Cloud), private (one organisation), hybrid (both, with cloud bursting), community (shared by similar organisations); multi-cloud avoids lock-in. Challenges: internet dependence, privacy, lock-in, shared-responsibility security, latency.",["characteristics","iaas","paas","saas","public","private","hybrid","community"]],
+["Explain virtualization: hypervisors, types of virtualization and its benefits.","Virtualization creates software versions of hardware so that one machine acts as many. A hypervisor creates virtual machines: Type 1 runs on bare metal (ESXi, Hyper-V, KVM) for servers; Type 2 runs on an operating system (VirtualBox) for testing. A VM has its own OS; a container shares the host kernel. Types: server, network (SDN, NFV, VLAN), storage (thin provisioning, SAN, NAS), desktop (VDI) and application (App-V, containers). Benefits: consolidation (1200 W to 400 W, 67% saved), rapid provisioning, snapshots, live migration, isolation and disaster recovery.",["hypervisor","type 1","type 2","server","network","storage","desktop","consolidation"]],
+["Compare grid and cloud computing in a table, with two examples of grids.","Grid against cloud: ownership: many owners / one provider; hardware: heterogeneous / uniform; typical work: batch jobs / on-demand services; main use: science / business; cost: free or by grant / pay per use. A grid is held together by middleware (resource discovery, scheduling, data management, security, fault tolerance) and forms a virtual organization. Examples: the WLCG for CERN (about 170 sites, 42 countries) and India's Garuda Grid; SETI@home and BOINC are scavenging grids.",["owners","heterogeneous","batch","science","wlcg","garuda"]],
+["Explain the Internet of Things with its layers, applications and challenges.","IoT is a network of objects with sensors, a processor and a network connection exchanging data without human involvement. Layers: perception (sensors and actuators), network (Wi-Fi, 5G, MQTT) and application (dashboards, alerts, rules). In the example, readings above 30 raised three alerts and the fan switched on. Applications: smart home, healthcare, agriculture, smart city, industrial IoT. Challenges: security, privacy, interoperability, power and scalability; edge computing helps.",["perception","network","application","security","privacy","interoperability"]],
+["Explain AI, machine learning and deep learning, and how they are related, with examples of each.","AI (McCarthy, 1956) is machines doing tasks that need human intelligence, e.g. a rule-based loan advisor (brittle). Machine learning is part of AI and learns from data: supervised (decision tree 0.96, k-NN 0.98 on iris), unsupervised (k-means) and reinforcement (Q-learning). Deep learning is part of ML and uses many-layer networks: CNN for images, RNN/LSTM for sequences, transformers for LLMs; a hidden layer solved XOR (4 of 4). So AI contains ML, which contains DL. Pitfalls: bias and overfitting.",["mccarthy","supervised","unsupervised","reinforcement","cnn","transformer"]],
+["Explain big data with the five Vs and the four kinds of analytics.","Big data is too large, fast or varied for traditional tools: Volume, Velocity, Variety, Veracity, Value. Hadoop stores in HDFS and processes with MapReduce (map, shuffle, reduce). Analytics: descriptive (what happened: totals by region), diagnostic (why: South fell 36% from a stock-out), predictive (what will happen: trend of 131 in month 7) and prescriptive (what to do: price 50 gives revenue 5000). Workflow: collect, clean, explore, model, validate, visualise, act.",["volume","velocity","variety","veracity","value","descriptive","diagnostic","predictive","prescriptive"]],
+["Explain how a blockchain works: blocks, hashes, consensus and smart contracts.","A blockchain is a distributed ledger of blocks, each holding transactions, a timestamp and the hash of the previous block. SHA-256 gives a fixed-length fingerprint, and one changed letter changes it completely, so editing a block breaks its hash and the links after it (block 1 hash does not match its contents). Consensus: proof of work (miners find a nonce; four zeros need about 65 536 tries; Bitcoin; high energy) or proof of stake (validators chosen by stake; Ethereum; far lower energy). Smart contracts are programs that run automatically on the chain (Ethereum, DeFi, NFTs). A blockchain does not make the data true.",["hash","previous","proof of work","proof of stake","smart contract","tamper"]],
+["Explain the CIA triad, five cyber threats and five defences, with the role of CERT-In and the IT Act.","CIA: confidentiality, integrity (a checksum detects change), availability. Threats: malware, phishing, DDoS, SQL injection, man-in-the-middle (also XSS, zero-day, insider, APT). SQL injection is prevented by parameterised queries. Defences: network (firewall), endpoint (antivirus, updates), application (validation), identity and access (strong passwords, MFA), data (encryption, backup), monitoring (SIEM), response. A 12-character password of 94 symbols takes about 1.5 million years at 10 billion guesses a second. CERT-In handles incidents in India and the IT Act 2000 (amended 2008) defines the offences.",["confidentiality","integrity","availability","phishing","sql injection","cert-in","it act"]],
+["Explain ethical hacking, its phases and why authorisation matters.","Ethical hacking is authorised testing of a system's defences to find weaknesses before criminals do. It needs permission, scope and intent. Phases: reconnaissance, scanning (Nmap, Nessus, OpenVAS), exploitation (Metasploit, Burp Suite), post-exploitation and reporting. Without authorisation the same acts are crimes under IT Act Sections 43 and 66. Certifications: CEH, OSCP, CISSP; toolkit: Kali Linux.",["permission","scope","reconnaissance","scanning","exploitation","reporting","it act"]],
+["Explain quantum computing and the effect of Shor's algorithm on cryptography, then explain green computing with PUE.","A qubit uses superposition, entanglement and interference; n qubits need 2^n amplitudes (17 GB for 30). Grover searches (0.945 after 2 steps on 8 items) and Shor factors integers quickly, threatening RSA, so post-quantum cryptography is being standardised. Decoherence and error correction are the obstacles. Green computing: PUE = total power ÷ IT power (1.55 uses 13.58 GWh, 1.10 uses 9.64 GWh); renewables, virtualization, cooling, DVFS (power ∝ V²f) and e-waste rules (2022) with Energy Star, EPEAT and 80 PLUS.",["qubit","superposition","entanglement","shor","rsa","pue","renewable","e-waste"]]
+];
+const APP=[
+["A shop's website has ten times more visitors during a festival week. Which cloud property helps, and why is it cheaper than buying servers?","Rapid elasticity: resources grow with demand and shrink afterwards, and measured service charges only for the server-hours used, instead of buying servers for the peak that sit idle most of the year (the fixed set was 57% used).",["elasticity","pay for what is used"]],
+["A college has ten lightly used servers. Propose a solution and the likely effect on the electricity bill.","Server virtualization with consolidation onto two or three hosts running virtual machines; the rest are switched off, so the power falls sharply (1200 W to 400 W, about 67%).",["virtualization","consolidation","power"]],
+["A university wants to use idle lab computers at night for a simulation. Which kind of system is this?","A (scavenging) grid: idle computers of different owners are joined by middleware, provided the simulation can be split into independent sub-jobs.",["grid","idle","split"]],
+["A farm wants soil sensors to switch on irrigation. Describe the three IoT layers for it.","Perception: soil-moisture sensors and a valve actuator. Network: Wi-Fi, LoRa or 4G carrying readings. Application: software that compares moisture with a limit and switches the irrigation on, with a dashboard.",["perception","network","application"]],
+["A bank refuses all self-employed applicants because its rules never covered them. Which weakness of rule-based AI is this?","Brittleness: a rule-based system fails on cases its rules do not cover; a learning system trained on data, or an extra rule, would handle them.",["brittle","not covered"]],
+["A hospital wants to predict next month's admissions from past data. Which type of analytics?","Predictive analytics, e.g. a trend or regression model on past admissions.",["predictive"]],
+["A land registry wants records no single clerk can alter. Is a blockchain suitable, and what is its cost?","Yes: it is decentralised and tamper-evident, so an edit is detected. Costs: energy for proof of work (less for proof of stake), slower writes, and it does not make wrong data true.",["tamper","cost"]],
+["An employee receives an email asking for his password. Name the attack and the defence.","Phishing (social engineering). Defence: never give the password, check the sender, report to the security team, use multi-factor authentication and training.",["phishing","multi-factor"]],
+["A student wants to test a friend's website 'for fun'. Advise her.","Do not: ethical hacking needs the owner's permission and a scope; scanning without permission may break IT Act Sections 43 and 66. Ask for written permission or practise on her own test system.",["permission","it act"]],
+["A museum wants visitors to see dinosaurs in the hall through their phones. AR, VR or MR?","AR: virtual dinosaurs are overlaid on the real hall through the phone camera (with ARKit or ARCore).",["ar","overlay"]],
+["A hospital's heart monitor must raise an alarm even if the network drops. Cloud or edge?","Edge: processing happens in or near the device, so it works offline and with minimal delay; the cloud can store records later.",["edge","offline"]],
+["Why should a bank start moving to post-quantum encryption before large quantum computers exist?","Shor's algorithm would break RSA; data stolen and stored today could be decrypted later, and migration takes years.",["shor","rsa","later"]],
+["A company advertises 'carbon-free' computing by buying certificates. What else should it measure?","Its actual energy use and PUE, the share of renewable energy in its own supply, and its e-waste, not only certificates.",["pue","energy","e-waste"]],
+["A city wants to publish its bus timings so that app makers can use them. In which format and under which licence?","A machine-readable format such as CSV or JSON (or an API), under an open licence, on an open-data portal; not a scanned PDF.",["csv","json","open licence"]]
+];
+MCQ.forEach((m,i)=>{const r=(i*3+1)%4;const ans=m[1][m[2]];const rot=m[1].slice(r).concat(m[1].slice(0,r));m[1]=rot;m[2]=rot.indexOf(ans);});
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson26-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Cloud computing",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"Five characteristics",d:"The NIST definition lists five essential characteristics.",t:T[0]},
+ {h:"A fixed set against an elastic cloud",d:"The script gives the hourly need of servers; the simulator prices a fixed set sized for the peak and an elastic cloud.",code:{c:R`# Hourly need of servers over 24 hours; Rs 5 per server-hour
+cloud rate=5 need=2,2,2,2,3,4,6,9,12,14,15,15,14,14,15,16,16,14,12,10,8,6,4,3`,tr:"Change rate=5 to rate=8 and think which numbers change and which do not."}},
+ {h:"Measured result",d:"Server-hours and cost.",t:T[1]},
+ {h:"Service models",d:"What the customer manages in each model.",t:T[2]},
+ {h:"Deployment models",d:"Who owns and uses the cloud.",t:T[3]},
+ {h:"Advantages and challenges",d:"Both sides of the cloud.",t:T[4]}
+]},
+{t:"Virtualization",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Hypervisors",d:"Software that creates virtual machines.",t:T[5]},
+ {h:"VM and container",d:"Evidence from the lab.",t:T[8]},
+ {h:"Consolidation",d:"The simulator uses power per server = 100 + 200 × load.",code:{c:R`# Power per server = 100 + 200 x load
+consolidate servers=10 util=10 to=2 util2=50`,tr:"Change util2=50 to util2=30 and read the error: can two servers at 30% carry the work?"}},
+ {h:"Measured result",d:"Power before and after.",t:T[6]},
+ {h:"Five types of virtualization",d:"What is virtualized in each.",t:T[7]}
+]},
+{t:"Grid computing",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Middleware",d:"The jobs of the software that links the nodes.",t:T[9]},
+ {h:"Fault tolerance",d:"Node C fails while running job 7; the scheduler returns the job to the queue.",code:{c:R`# Four nodes, ten jobs; node C fails while running job 7
+grid nodes=A,B,C,D jobs=10 fail=C@7`,tr:"Remove fail=C@7 and compare the number of jobs each node runs."}},
+ {h:"Pi estimation",d:"One node and two nodes.",t:T[10]},
+ {h:"Types of grid",d:"Computational, data and scavenging.",t:T[11]},
+ {h:"Grid and cloud",d:"Table 1.7.",t:T[12]}
+]},
+{t:"Internet of Things",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"Three layers",d:"Perception, network, application.",t:T[13]},
+ {h:"The alert pipeline",d:"Each reading is sent as a JSON message and the application layer applies the rule.",code:{c:R`# Temperature readings sent as JSON; the rule is: fan on above 30
+iot limit=30 readings=27.5,28.1,29.0,31.2,33.8,30.4`,tr:"Change limit=30 to limit=28 and count the alerts."}},
+ {h:"Applications",d:"Table 1.8.",t:T[14]},
+ {h:"Challenges",d:"Please Note Alarms.",t:T[15]}
+]},
+{t:"AI, ML and deep learning",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"AI, ML and DL",d:"How the three terms are related.",t:T[16]},
+ {h:"A rule-based advisor",d:"Fixed rules decide a loan. Predict each decision, then run.",code:{c:R`# The rule-based loan advisor
+advise income=45000 age=30 job=yes
+advise income=20000 age=35 job=yes
+advise income=10000 age=40 job=yes
+advise income=50000 age=17 job=yes
+advise income=60000 age=35 job=no`,tr:"Add advise income=30000 age=61 job=yes and predict the decision."}},
+ {h:"Measured decisions",d:"The five cases.",t:T[17]},
+ {h:"Three ways of learning",d:"Table 1.9.",t:T[18]},
+ {h:"Measured experiments",d:"Iris, clustering and Q-learning.",t:T[19]},
+ {h:"Algorithms",d:"Table 1.10.",t:T[20]},
+ {h:"Deep-learning architectures",d:"Table 1.11.",t:T[21]},
+ {h:"XOR",d:"Why a hidden layer is needed.",t:T[22]}
+]},
+{t:"Big data and analytics",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"The five Vs",d:"Table 1.12.",t:T[23]},
+ {h:"MapReduce word count",d:"The simulator emits each word with 1, groups and adds.",code:{c:R`# MapReduce word count of three blocks
+wordcount "big data needs big storage" "data analytics turns data into decisions" "big decisions need good data"`,tr:"Add a fourth quoted block and see which counts change."}},
+ {h:"Measured stages",d:"Map, shuffle, reduce.",t:T[24]},
+ {h:"Four types of analytics",d:"Table 1.13.",t:T[25]},
+ {h:"Prescriptive analytics",d:"With demand A − B × price the revenue is greatest at price A ÷ (2B).",code:{c:R`# Prescriptive analytics: demand = 200 - 2 x price
+revenue a=200 b=2`,tr:"Change a=200 to a=300 and predict the best price before running."}},
+ {h:"Measured sales analysis",d:"The results.",t:T[26]}
+]},
+{t:"Blockchain",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Parts of a block",d:"What each block holds.",t:T[27]},
+ {h:"Hashes",d:"A hash is a fixed-length fingerprint (the lab shows the first 32 hexadecimal digits). The same program shows the checksum of two payment messages.",code:{c:R`# One changed letter, a different fingerprint
+sha "hello" "Hello"
+sha "Pay Rs 1000 to account 4471" "Pay Rs 9000 to account 4471"`,tr:"Add a third quoted text that differs from hello in one space and compare."}},
+ {h:"Mining three blocks",d:"The simulator uses real SHA-256 and the same block format as the chapter: it mines until the hash starts with four zeros. This takes a few seconds.",code:{c:R`# Mine three blocks (four leading zeros takes a few seconds), then tamper with block 1
+chain zeros=4 edit=1 to="Ravi pays Meena 2000" "Asha pays Ravi 50" "Ravi pays Meena 20" "Meena pays Asha 5"`,tr:"Run the faster three-zero version in the Code lab and compare the nonces."}},
+ {h:"Measured result",d:"Nonces and the tamper test.",t:T[28]},
+ {h:"Consensus",d:"Table 1.14.",t:T[29]}
+]},
+{t:"Cyber security and ethical hacking",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"The CIA triad",d:"Three aims of security.",t:T[30]},
+ {h:"Threats",d:"Table 1.15.",t:T[31]},
+ {h:"SQL injection",d:"The unsafe login pastes the password into the SQL text; the safe one sends the values separately.",code:{c:R`# A vulnerable login and its fix; the stored user is admin with password s3cret
+login unsafe | admin | wrong
+login unsafe | admin | ' OR '1'='1
+login safe | admin | ' OR '1'='1`,tr:"Try login unsafe | admin | s3cret and then login safe | nobody | s3cret."}},
+ {h:"Measured result",d:"Checksums and login tests.",t:T[32]},
+ {h:"Password guessing",d:"Time is combinations divided by guesses a second (10 billion, an assumption).",code:{c:R`# Time to try every password at 10 billion guesses a second
+password charset=digits length=6
+password charset=lower length=8
+password charset=all length=8
+password charset=all length=12
+password charset=all length=16`,tr:"Add password charset=lower length=12 and compare it with 8 characters of 94."}},
+ {h:"Measured times",d:"The table.",t:T[33]},
+ {h:"Layers of defence",d:"Table 1.16.",t:T[34]},
+ {h:"Ethical hacking",d:"Table 1.17.",t:T[35]}
+]},
+{t:"AR, VR, MR and edge computing",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"AR, VR and MR",d:"Table 1.18.",t:T[36]},
+ {h:"Latency of three servers",d:"Light in fibre travels at 200 000 km/s; the car moves 25 m/s.",code:{c:R`# A car at 90 km/h waits for an answer
+edge km=1 speed=90 extra=2
+edge km=500 speed=90 extra=20
+edge km=4000 speed=90 extra=20`,tr:"Add edge km=100 speed=90 extra=5 and predict the delay."}},
+ {h:"Measured delays",d:"The table.",t:T[37]},
+ {h:"Bandwidth",d:"Raw readings against summaries.",code:{c:R`# 1000 sensors, 10 readings a second, 100 bytes each; one summary a minute
+bandwidth sensors=1000 rate=10 bytes=100 summary=60`,tr:"Change summary=60 to summary=600 and predict the reduction."}},
+ {h:"Measured bandwidth",d:"The table.",t:T[39]},
+ {h:"Uses of edge computing",d:"Table 1.19.",t:T[38]}
+]},
+{t:"Quantum, green computing, open data",sec:[9],notes:[9],dump:[9],blocks:[
+ {h:"Three quantum phenomena",d:"Table 1.20.",t:T[40]},
+ {h:"Grover and memory",d:"Grover's search of 8 items and the memory needed to store n qubits.",code:{c:R`# Grover's search on 8 items, then memory for n qubits
+grover items=8 steps=1
+grover items=8 steps=2
+grover items=8 steps=3
+qubits n=10
+qubits n=30
+qubits n=50`,tr:"Try steps=4 and explain why the probability falls."}},
+ {h:"Measured simulations",d:"The table.",t:T[41]},
+ {h:"Power usage effectiveness",d:"PUE and DVFS for 1000 kW of IT equipment.",code:{c:R`# 1000 kW of IT equipment
+pue it=1000 total=1550
+pue it=1000 total=1200
+pue it=1000 total=1100
+dvfs f=0.8 v=0.9`,tr:"Add pue it=2000 total=2400 and compare with the worked example."}},
+ {h:"Measured PUE",d:"The table.",t:T[42]},
+ {h:"Green computing",d:"Facts, standards.",t:T[46]},
+ {h:"Standards",d:"Table 1.21.",t:T[43]},
+ {h:"Open data",d:"Formats and an example.",t:T[44]},
+ {h:"Open data example",d:"PM2.5 readings: average 70.5, worst Station Road.",t:T[47]},
+ {h:"India's digital public infrastructure",d:"Table 1.23.",t:T[45]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* Trends lab: a small scenario-script simulator. One command per line. */
+function sha256hex(str){
+  const K=new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  const b=new TextEncoder().encode(str),n=b.length,tot=((n+9+63)>>6)<<6,m=new Uint8Array(tot);
+  m.set(b);m[n]=0x80;const dv=new DataView(m.buffer);dv.setUint32(tot-8,Math.floor(n*8/4294967296));dv.setUint32(tot-4,(n*8)>>>0);
+  let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+  const w=new Uint32Array(64);
+  for(let o=0;o<tot;o+=64){
+    for(let i=0;i<16;i++)w[i]=dv.getUint32(o+i*4);
+    for(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];const s0=((a>>>7)|(a<<25))^((a>>>18)|(a<<14))^(a>>>3);const s1=((c>>>17)|(c<<15))^((c>>>19)|(c<<13))^(c>>>10);w[i]=(w[i-16]+s0+w[i-7]+s1)|0;}
+    let a=h0,bb=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+    for(let i=0;i<64;i++){
+      const S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7));const ch=(e&f)^(~e&g);const t1=(h+S1+ch+K[i]+w[i])|0;
+      const S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10));const mj=(a&bb)^(a&c)^(bb&c);const t2=(S0+mj)|0;
+      h=g;g=f;f=e;e=(d+t1)|0;d=c;c=bb;bb=a;a=(t1+t2)|0;
+    }
+    h0=(h0+a)|0;h1=(h1+bb)|0;h2=(h2+c)|0;h3=(h3+d)|0;h4=(h4+e)|0;h5=(h5+f)|0;h6=(h6+g)|0;h7=(h7+h)|0;
+  }
+  return [h0,h1,h2,h3,h4,h5,h6,h7].map(x=>(x>>>0).toString(16).padStart(8,"0")).join("");
+}
+function pyFmtTime(secs){
+  if(secs<1)return secs.toFixed(4)+" seconds";
+  if(secs<3600)return (secs/60).toFixed(1)+" minutes";
+  if(secs<86400*365)return (secs/86400).toFixed(1)+" days";
+  return (secs/(86400*365)).toExponential(2).replace(/e([+-])(\d)$/,"e$10$2")+" years";
+}
+function f2(x){return (x-1e-9).toFixed(2);}
+function parseArgs(s){
+  const kv={},pos=[];
+  const re=/(\w+)=("[^"]*"|\S+)|"([^"]*)"/g;let m;
+  while((m=re.exec(s))){
+    if(m[1])kv[m[1]]=m[2].replace(/^"|"$/g,"");else pos.push(m[3]);
+  }
+  return {kv,pos};
+}
+const SIMS={
+cloud(a,o){
+  const need=(a.kv.need||"").split(",").map(Number).filter(x=>!isNaN(x));
+  if(!need.length||need.some(x=>x<0))throw new Error("cloud needs need=n1,n2,... (servers needed in each hour) and rate=rupees per server-hour.");
+  const rate=a.kv.rate===undefined?5:+a.kv.rate;if(isNaN(rate))throw new Error("rate must be a number.");
+  const peak=Math.max.apply(null,need),fixed=peak*need.length,el=need.reduce((x,y)=>x+y,0);
+  o.push("fixed: "+peak+" servers x "+need.length+" h = "+fixed+" server-hours = Rs "+fixed*rate);
+  o.push("elastic: "+el+" server-hours = Rs "+el*rate);
+  o.push("saving: "+Math.round((fixed-el)/fixed*100)+"%");
+  o.push("average utilisation of the fixed set: "+Math.round(el/fixed*100)+"%");
+},
+consolidate(a,o){
+  const n=+a.kv.servers,u=+a.kv.util,m=+a.kv.to,u2=+a.kv.util2;
+  if([n,u,m,u2].some(x=>isNaN(x)||x<0))throw new Error("consolidate needs servers=, util=, to=, util2= (loads in per cent).");
+  if(u2>100)throw new Error("util2 cannot be more than 100 per cent.");
+  if(n*u>m*u2+1e-9)throw new Error("The "+m+" servers at "+u2+"% cannot carry the work of "+n+" servers at "+u+"%.");
+  const P=(k,l)=>k*(100+200*l/100),b=P(n,u),c=P(m,u2);
+  o.push("before: "+n+" servers at "+u+"% = "+Math.round(b)+" W");
+  o.push("after: "+m+" servers at "+u2+"% = "+Math.round(c)+" W");
+  o.push("saved: "+Math.round(b-c)+" W ("+Math.round((b-c)/b*100)+"%), "+(n-m)+" servers switched off");
+},
+grid(a,o){
+  const nodes=(a.kv.nodes||"").split(",").filter(x=>x),jobs=+a.kv.jobs;
+  if(nodes.length<1||!(jobs>=1)||jobs>40)throw new Error("grid needs nodes=A,B,C and jobs=1..40; fail=C@7 is optional.");
+  let fn=null,fj=0;if(a.kv.fail){const m=/^(\w+)@(\d+)$/.exec(a.kv.fail);if(!m||nodes.indexOf(m[1])<0)throw new Error("fail must look like C@7 with C one of the nodes.");fn=m[1];fj=+m[2];}
+  let alive=nodes.slice(),done=0,c=0;
+  for(let j=1;j<=jobs;j++){
+    let nd=alive[c%alive.length];c++;
+    if(fn&&j===fj&&nd===fn){
+      const i=alive.indexOf(fn);alive.splice(i,1);
+      if(!alive.length){o.push("job "+j+": "+fn+" failed; no node is left. The job waits in the queue.");continue;}
+      const back=alive[(i-1+alive.length)%alive.length];
+      o.push("job "+j+": "+fn+" failed; the job returns to the queue and runs on "+back);done++;
+    }else{o.push("job "+j+": "+nd);done++;}
+  }
+  o.push("nodes still alive: "+alive.join(","));
+  o.push("jobs finished: "+done+" of "+jobs);
+},
+iot(a,o){
+  const r=(a.kv.readings||"").split(",").map(Number).filter(x=>!isNaN(x)),lim=+a.kv.limit;
+  if(!r.length||isNaN(lim))throw new Error("iot needs limit= and readings=t1,t2,...");
+  let al=0;
+  r.forEach(t=>{const hot=t>lim;if(hot)al++;o.push('{"device": "room-1", "temp_c": '+t.toFixed(1)+'} '+(hot?"ALERT: fan on":"ok"));});
+  o.push("alerts: "+al);
+},
+advise(a,o){
+  const inc=+a.kv.income,age=+a.kv.age,job=(a.kv.job||"").toLowerCase();
+  if(isNaN(inc)||isNaN(age)||(job!=="yes"&&job!=="no"))throw new Error("advise needs income=, age= and job=yes or job=no.");
+  let d;
+  if(job==="no")d="reject";else if(age<21||age>60)d="refer to officer";else if(inc>=30000)d="approve";else if(inc>=15000)d="approve with guarantor";else d="reject";
+  o.push("decision: "+d);
+},
+wordcount(a,o){
+  if(!a.pos.length)throw new Error('wordcount needs one or more quoted blocks of text, for example wordcount "big data" "data".');
+  const mp=[];a.pos.forEach(t=>t.toLowerCase().split(/\s+/).filter(x=>x).forEach(w=>mp.push([w,1])));
+  o.push("map: "+mp.length+" pairs emitted");
+  const g={};mp.forEach(p=>{g[p[0]]=(g[p[0]]||0)+p[1];});
+  Object.keys(g).sort((x,y)=>g[y]-g[x]||(x<y?-1:1)).forEach(w=>o.push(w+" "+g[w]));
+},
+sha(a,o){
+  if(!a.pos.length)throw new Error('sha needs quoted text, for example sha "hello".');
+  a.pos.forEach(t=>o.push('sha256("'+t+'") starts '+sha256hex(t).slice(0,32)));
+},
+chain(a,o){
+  const z=+a.kv.zeros;if(!(z>=1&&z<=4))throw new Error("zeros must be from 1 to 4 in this lab.");
+  if(!a.pos.length||a.pos.length>6)throw new Error('chain needs 1 to 6 quoted blocks, for example chain zeros=3 "A pays B 5".');
+  const ch=[];let prev="0".repeat(64);const pre="0".repeat(z);
+  a.pos.forEach((d,i)=>{
+    let n=0,h;for(;;){h=sha256hex("["+i+", "+JSON.stringify(d)+", \""+prev+"\", "+n+"]");if(h.indexOf(pre)===0)break;n++;if(n>3000000)throw new Error("Mining took too long.");}
+    ch.push({i,data:d,prev,nonce:n,hash:h});prev=h;
+    o.push("block "+i+": nonce "+String(n).padEnd(6," ")+" hash "+h.slice(0,16)+"...");
+  });
+  const valid=()=>{for(let k=0;k<ch.length;k++){const b=ch[k];if(sha256hex("["+b.i+", "+JSON.stringify(b.data)+", \""+b.prev+"\", "+b.nonce+"]")!==b.hash)return "block "+k+" hash does not match its contents";if(k&&b.prev!==ch[k-1].hash)return "block "+k+" does not link to block "+(k-1);}return "chain is valid";};
+  o.push("verify the chain: "+valid());
+  if(a.kv.edit!==undefined){
+    const e=+a.kv.edit;if(!(e>=0&&e<ch.length)||a.kv.to===undefined)throw new Error("edit=k needs a block number that exists and to=\"new text\".");
+    ch[e].data=a.kv.to;o.push("after editing block "+e+": "+valid());
+  }
+},
+login(a,o){
+  const p=a.raw.split("|").map(x=>x.trim());
+  if(p.length<3||(p[0]!=="unsafe"&&p[0]!=="safe"))throw new Error("login needs: login unsafe | name | password   or   login safe | name | password.");
+  const name=p[1],pw=p.slice(2).join("|").trim();
+  if(p[0]==="unsafe"){
+    const sql="SELECT * FROM users WHERE name = '"+name+"' AND password = '"+pw+"'";
+    o.push("SQL executed: "+sql);
+    let ok=(name==="admin"&&pw==="s3cret")||/'\s*or\s*'(\w*)'\s*=\s*'\1/i.test(pw)||/^admin'\s*(--|#)/i.test(name);
+    o.push(ok?"result: logged in":"result: refused");
+  }else{
+    o.push("SQL sent: SELECT * FROM users WHERE name = ? AND password = ?  (values sent separately)");
+    o.push(name==="admin"&&pw==="s3cret"?"result: logged in":"result: refused");
+  }
+},
+password(a,o){
+  const sets={digits:10,lower:26,letters:52,alnum:62,all:94};
+  const al=sets[a.kv.charset]!==undefined?sets[a.kv.charset]:+a.kv.charset,len=+a.kv.length,rate=a.kv.rate===undefined?1e10:+a.kv.rate;
+  if(!(al>=1)||!(len>=1&&len<=64)||!(rate>0))throw new Error("password needs charset=digits|lower|letters|alnum|all (or a number), length=1..64 and optional rate= guesses per second.");
+  const c=Math.pow(al,len);
+  o.push(c.toExponential(2).replace(/e([+-])(\d)$/,"e$10$2")+" combinations -> "+pyFmtTime(c/rate));
+},
+edge(a,o){
+  const km=+a.kv.km,sp=+a.kv.speed,ex=+a.kv.extra;
+  if([km,sp,ex].some(x=>isNaN(x)||x<0))throw new Error("edge needs km=, speed= (km/h) and extra= (ms of processing and queueing).");
+  const rtt=2*km/200000*1000+ex,mv=sp*1000/3600*rtt/1000;
+  o.push("round trip: "+rtt.toFixed(1)+" ms");
+  o.push("distance moved while waiting: "+f2(mv)+" m");
+},
+bandwidth(a,o){
+  const s=+a.kv.sensors,r=+a.kv.rate,b=+a.kv.bytes,m=a.kv.summary===undefined?60:+a.kv.summary;
+  if([s,r,b,m].some(x=>!(x>0)))throw new Error("bandwidth needs sensors=, rate= (readings per second), bytes= and optional summary= (seconds per summary).");
+  const raw=s*r*b*86400,sm=s*b*86400/m;
+  o.push("raw upload: "+(raw/1e9).toFixed(1)+" GB a day");
+  o.push("summaries: "+(sm/1e9).toFixed(3)+" GB a day");
+  o.push("reduction: "+Math.round(raw/sm)+" times less data");
+},
+grover(a,o){
+  const N=+a.kv.items,k=+a.kv.steps;
+  if(!(N>=2&&N<=1048576)||!(k>=0&&k<=1000))throw new Error("grover needs items=2..1048576 and steps=0..1000.");
+  const th=Math.asin(1/Math.sqrt(N)),p=Math.pow(Math.sin((2*k+1)*th),2);
+  o.push("probability of the marked item after "+k+" steps: "+p.toFixed(3));
+  o.push("best number of steps: about "+(Math.PI/4*Math.sqrt(N)).toFixed(1));
+},
+qubit(a,o){
+  o.push("after Hadamard: amplitudes 0.707 and 0.707");
+  o.push("chance of 0: 0.50, chance of 1: 0.50");
+},
+qubits(a,o){
+  const n=+a.kv.n;if(!(n>=1&&n<=60))throw new Error("qubits needs n=1..60.");
+  const by=Math.pow(2,n)*16,u=["B","KB","MB","GB","TB","PB","EB"];let i=0,v=by;while(v>=1000&&i<6){v/=1000;i++;}
+  o.push("n = "+n+" qubits: 2^n = "+Math.pow(2,n).toExponential(2).replace(/e([+-])(\d)$/,"e$10$2")+" amplitudes = "+v.toFixed(0)+" "+u[i]);
+},
+pue(a,o){
+  const it=+a.kv.it,tot=+a.kv.total;
+  if(!(it>0)||!(tot>=it))throw new Error("pue needs it= (kW of IT equipment) and total= (kW of the whole facility, at least it).");
+  o.push("PUE: "+(tot/it).toFixed(2));
+  o.push("overhead: "+Math.round(tot-it)+" kW");
+  o.push("energy a year: "+(tot*8760/1e6).toFixed(2)+" GWh");
+},
+dvfs(a,o){
+  const f=+a.kv.f,v=+a.kv.v;
+  if(!(f>0&&f<=1)||!(v>0&&v<=1))throw new Error("dvfs needs f= and v= between 0 and 1 (fractions of full speed and full voltage).");
+  o.push("relative power: "+Math.round(f*v*v*100)+"%");
+},
+revenue(a,o){
+  const A=+a.kv.a,B=+a.kv.b;if(!(A>0)||!(B>0))throw new Error("revenue needs a= and b= for the demand A - B x price.");
+  const p=A/(2*B);o.push("best price: "+p+", revenue: "+p*(A-B*p));
+}
+};
+function fnRun(src){
+  const out=[];let errors=0;let title="",detail="";
+  const lines=String(src).replace(/\r/g,"").split("\n");let cmds=0;
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i].trim();if(!ln||ln[0]==="#")continue;
+    const sp=ln.search(/\s/),c=sp<0?ln:ln.slice(0,sp),rest=sp<0?"":ln.slice(sp+1);
+    cmds++;
+    if(!SIMS[c]){errors++;title="Unknown command";detail="Line "+(i+1)+": '"+c+"' is not a command of this lab. Commands: "+Object.keys(SIMS).join(", ")+".";out.push("error: "+detail);continue;}
+    try{const a=parseArgs(rest);a.raw=rest;SIMS[c](a,out);}
+    catch(e){errors++;title="Cannot run";detail="Line "+(i+1)+": "+e.message;out.push("error: "+detail);}
+  }
+  if(!cmds){return {ok:false,title:"Nothing to run",detail:"Type at least one command.",out:"",brief:"",errors:1,warns:0};}
+  return {ok:errors===0,title:title,detail:detail,out:out.join("\n"),brief:out.join(" / "),errors:errors,warns:0,cmds:cmds};
+}
+
+function runCpp(src,inp){return fnRun(src);}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to see the report.</p>';
+  if(!r.ok&&!r.out)return '<div class="rs bad"><b>'+esc(r.title)+".</b> "+esc(r.detail)+"</div>";
+  return '<pre class="outpre">'+esc(r.out)+'</pre><div class="rs '+(r.ok?"ok":"bad")+'">'+(r.ok?"The script ran without errors.":"<b>"+esc(r.title)+".</b> "+esc(r.detail))+"</div>";
+}
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const rows=Math.min(14,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">Scenario script</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Scenario script editor">'+esc(src)+'</textarea>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const r=runCpp(src,"");
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ mm:"iaas",pc:"lower",pl:"8",pr:"1e10",ek:"1",es:"90",ee:"2",ui:"1000",ut:"1550",uf:"0.8",uv:"0.9",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run a scenario"],["pred","Predict the report"],["fix","Fix the script"],["mgr","Who manages what"],["pass","Password time"],["edge","Edge latency"],["pue","PUE and DVFS"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank script",spec:{c:"# One command per line; # starts a comment\ncloud rate=5 need=2,4,8,4,2",tr:"Try the other commands: consolidate, grid, iot, advise, wordcount, revenue, sha, chain, login, password, edge, bandwidth, grover, qubits, pue, dvfs."}});
+function labView(){
+  let h='<p class="hint">Each topic of the chapter was run as a small program. Here the same experiments are simulators driven by a scenario script: one command per line, such as cloud, consolidate, grid, iot, advise, wordcount, revenue, sha, chain, login, password, edge, bandwidth, grover, qubits, pue and dvfs. The hashes and nonces of the blockchain are real SHA-256 results. Predict the report, then run it.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,mgr:labMgr,pass:labPass,edge:labEdge,pue:labPue,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s scenarios</h3><label class="lab" for="exsel">Choose a scenario</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">Lines starting with # are comments. A mistake in a command gives an error that names the line. The mining in the chain scenario really searches for nonces, so four zeros takes a few seconds.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your answer (separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected answer: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to draw the page and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+
+const FIX=[
+{t:"A misspelt command",kind:"Unknown command",goal:"The report should show the fixed and the elastic cost.",exp:"fixed: 16 servers x 24 h = 384 server-hours = Rs 1920 / elastic: 218 server-hours = Rs 1090 / saving: 43% / average utilisation of the fixed set: 57%",hint:"Look at the first word: is it a command of the lab?",sol:"cloud rate=5 need=...",why:"Commands must be spelt exactly; the error lists the valid ones.",src:"clouds rate=5 need=2,2,2,2,3,4,6,9,12,14,15,15,14,14,15,16,16,14,12,10,8,6,4,3"},
+{t:"The wrong price",kind:"Wrong value",goal:"The elastic cloud should cost Rs 1090 (Rs 5 per server-hour).",exp:"fixed: 16 servers x 24 h = 384 server-hours = Rs 1920 / elastic: 218 server-hours = Rs 1090 / saving: 43% / average utilisation of the fixed set: 57%",hint:"218 server-hours cost Rs 1090.",sol:"rate=5",why:"218 × 5 = 1090; the rate was typed as 50.",src:"cloud rate=50 need=2,2,2,2,3,4,6,9,12,14,15,15,14,14,15,16,16,14,12,10,8,6,4,3"},
+{t:"Consolidation onto one server",kind:"Capacity error",goal:"Two servers at 50% should carry the work of ten at 10%.",exp:"before: 10 servers at 10% = 1200 W / after: 2 servers at 50% = 400 W / saved: 800 W (67%), 8 servers switched off",hint:"Ten servers × 10% = 100 units of load; one server at 50% carries only 50.",sol:"to=2",why:"The target servers must carry the same total load: 10 × 10 = 2 × 50.",src:"consolidate servers=10 util=10 to=1 util2=50"},
+{t:"A failing node that does not exist",kind:"Reference error",goal:"Node C should fail on job 7 and the job should move to B.",exp:"job 1: A / job 2: B / job 3: C / job 4: D / job 5: A / job 6: B / job 7: C failed; the job returns to the queue and runs on B / job 8: B / job 9: D / job 10: A / nodes still alive: A,B,D / jobs finished: 10 of 10",hint:"The failed node must be one of the nodes listed.",sol:"nodes=A,B,C,D",why:"fail=C@7 names a node that was left out of the list.",src:"grid nodes=A,B,D jobs=10 fail=C@7"},
+{t:"A limit that is too high",kind:"Wrong value",goal:"Three readings should raise an alert.",exp:"{\"device\": \"room-1\", \"temp_c\": 27.5} ok / {\"device\": \"room-1\", \"temp_c\": 28.1} ok / {\"device\": \"room-1\", \"temp_c\": 29.0} ok / {\"device\": \"room-1\", \"temp_c\": 31.2} ALERT: fan on / {\"device\": \"room-1\", \"temp_c\": 33.8} ALERT: fan on / {\"device\": \"room-1\", \"temp_c\": 30.4} ALERT: fan on / alerts: 3",hint:"The rule is: fan on above 30.",sol:"limit=30",why:"With limit 40 no reading is above the limit.",src:"iot limit=40 readings=27.5,28.1,29.0,31.2,33.8,30.4"},
+{t:"An invalid answer for job",kind:"Invalid value",goal:"The advisor should approve an income of 45000 at age 30 with a job.",exp:"decision: approve",hint:"job takes yes or no.",sol:"job=yes",why:"The rule engine accepts only yes or no.",src:"advise income=45000 age=30 job=maybe"},
+{t:"Text without quotes",kind:"Syntax",goal:"The word count should be shown for the two blocks.",exp:"map: 3 pairs emitted / data 2 / big 1",hint:"Each block of text goes in double quotes.",sol:"wordcount \"big data\" \"data\"",why:"Blocks are quoted strings, so the program knows where each starts and ends.",src:"wordcount big data data"},
+{t:"A hash of unquoted text",kind:"Syntax",goal:"The SHA-256 start of hello should be shown.",exp:"sha256(\"hello\") starts 2cf24dba5fb0a30e26e83b2ac5b9e29e",hint:"Put the text in double quotes.",sol:"sha \"hello\"",why:"Quotes mark the text to be hashed.",src:"sha hello"},
+{t:"Too many zeros",kind:"Range error",goal:"Mine two blocks with two leading zeros.",exp:"block 0: nonce 86     hash 00b2e2599a46f5bf... / block 1: nonce 282    hash 0033cd49c88ed9eb... / verify the chain: chain is valid",hint:"This lab allows 1 to 4 zeros.",sol:"zeros=2",why:"Each extra zero multiplies the work by 16, so the lab limits it.",src:"chain zeros=9 \"A pays B 1\" \"B pays C 2\""},
+{t:"Missing separators in the login",kind:"Syntax",goal:"The unsafe login with a wrong password should be refused.",exp:"SQL executed: SELECT * FROM users WHERE name = 'admin' AND password = 'wrong' / result: refused",hint:"Separate the parts with vertical bars.",sol:"login unsafe | admin | wrong",why:"The command reads mode, name and password separated by |.",src:"login unsafe admin wrong"},
+{t:"An unknown character set",kind:"Invalid value",goal:"The time to guess 8 lower-case letters should be shown.",exp:"2.09e+11 combinations -> 0.3 minutes",hint:"The sets are digits, lower, letters, alnum and all.",sol:"charset=lower",why:"'small' is not one of the sets.",src:"password charset=small length=8"},
+{t:"The speed is missing",kind:"Missing value",goal:"The delay and the distance moved at 90 km/h should be shown.",exp:"round trip: 25.0 ms / distance moved while waiting: 0.62 m",hint:"edge needs km, speed and extra.",sol:"speed=90",why:"Without the speed the distance moved cannot be worked out.",src:"edge km=500 extra=20"},
+{t:"One step too many in Grover's search",kind:"Wrong value",goal:"Show the probability after 2 steps (the best number for 8 items).",exp:"probability of the marked item after 2 steps: 0.945 / best number of steps: about 2.2",hint:"The best number of steps is about π/4 × √N = 2.2.",sol:"steps=2",why:"After 5 steps the amplitude has rotated past the target and the probability falls.",src:"grover items=8 steps=5"},
+{t:"The total smaller than the IT power",kind:"Impossible value",goal:"PUE should be 1.55 for 1000 kW of IT.",exp:"PUE: 1.55 / overhead: 550 kW / energy a year: 13.58 GWh",hint:"Facility power includes the IT power.",sol:"total=1550",why:"PUE is total ÷ IT, never below 1.",src:"pue it=1000 total=900"}
+];
+
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+
+function labMgr(){
+  const layers=["Applications","Data","Runtime","Middleware","Operating system","Virtualization","Servers","Storage and networking"];
+  const cust={onprem:8,iaas:5,paas:2,saas:1};
+  const n=cust[L.mm];
+  const rows=layers.map((x,i)=>[x,i<n?"Customer":"Provider"]);
+  return '<div class="panel"><h3>Who manages what</h3><p class="hint">Choose a model. In SaaS the customer keeps only data and settings; in PaaS applications and data; in IaaS everything from the operating system up.</p>'+chips("mm",[["onprem","On premises"],["iaas","IaaS"],["paas","PaaS"],["saas","SaaS"]])+tbl(["Layer","Managed by"],rows)+'<p class="hint">'+({onprem:"On premises: the organisation manages every layer.",iaas:"IaaS: examples Amazon EC2, Azure Virtual Machines, Google Compute Engine; aimed at IT staff.",paas:"PaaS: examples Google App Engine, Azure App Service, Heroku; aimed at developers.",saas:"SaaS: examples Gmail, Microsoft 365, Zoom, Dropbox; aimed at end users."})[L.mm]+"</p></div>";
+}
+function repRes(src){const r=fnRun(src);return r.ok?'<pre class="outpre">'+esc(r.out)+"</pre>":'<div class="rs bad">'+esc(r.detail)+"</div>";}
+function labPass(){
+  return '<div class="panel"><h3>Password time</h3><p class="hint">Time = combinations ÷ guesses a second. The rate is an assumption (10 billion a second against stolen hashes).</p><div class="row">'+selHtml("pcin","Characters","pc",["digits","lower","letters","alnum","all"])+numIn("plin","Length","pl",5,"pass")+numIn("prin","Guesses a second","pr",8,"pass")+'</div><div id="passres">'+passRes()+"</div></div>";
+}
+function passRes(){return repRes("password charset="+L.pc+" length="+L.pl+" rate="+L.pr);}
+function labEdge(){
+  return '<div class="panel"><h3>Edge latency</h3><p class="hint">Round trip = 2 × km ÷ 200 000 × 1000 + extra ms. Try 1, 500 and 4000 km with extra 2, 20 and 20 ms.</p><div class="row">'+numIn("ekin","Distance (km)","ek",6,"edge")+numIn("esin","Car speed (km/h)","es",6,"edge")+numIn("eein","Extra (ms)","ee",6,"edge")+'</div><div id="edgeres">'+edgeRes()+"</div></div>";
+}
+function edgeRes(){return repRes("edge km="+L.ek+" speed="+L.es+" extra="+L.ee);}
+function labPue(){
+  return '<div class="panel"><h3>PUE and DVFS</h3><p class="hint">PUE = total facility power ÷ IT power (lower is better). DVFS: relative power = f × V².</p><div class="row">'+numIn("uiin","IT power (kW)","ui",6,"pue")+numIn("utin","Facility power (kW)","ut",6,"pue")+numIn("ufin","f (0 to 1)","uf",5,"pue")+numIn("uvin","V (0 to 1)","uv",5,"pue")+'</div><div id="pueres">'+pueRes()+"</div></div>";
+}
+function pueRes(){return repRes("pue it="+L.ui+" total="+L.ut+"\ndvfs f="+L.uf+" v="+L.uv);}
+const DIMS=[
+{n:"Service model",o:["IaaS","PaaS","SaaS"],it:[["Amazon EC2",0],["Heroku",1],["Gmail",2],["Customer manages the operating system",0],["Customer manages only applications and data",1],["Customer manages only data and settings",2],["Aimed at developers",1],["Aimed at end users",2],["Aimed at IT staff",0],["Zoom",2]]},
+{n:"Deployment model",o:["Public","Private","Hybrid","Community"],it:[["AWS, Azure, Google Cloud",0],["A bank's own cloud",1],["Cloud bursting",2],["Shared by hospitals",3],["Used by one organisation only",1],["Private and public together",2],["Shared by many customers",0]]},
+{n:"Virtualization",o:["Server","Network","Storage","Desktop","Application"],it:[["Thin provisioning",2],["SDN",1],["VDI",3],["Live migration",0],["ThinApp",4],["NFV",1],["SAN and NAS",2],["Thin client",3],["VLAN",1],["Consolidation",0]]},
+{n:"Learning type",o:["Supervised","Unsupervised","Reinforcement"],it:[["Labelled iris flowers",0],["k-means clusters",1],["Q-learning in a corridor",2],["Reward and penalty",2],["Decision tree",0],["Finding structure without labels",1],["k-nearest neighbours",0]]},
+{n:"Analytics type",o:["Descriptive","Diagnostic","Predictive","Prescriptive"],it:[["Total sales by region",0],["Why South fell 36%",1],["Month 7 trend of 131",2],["Charge 50 for the greatest revenue",3],["What happened?",0],["What should we do?",3],["What will happen?",2],["Why did it happen?",1]]},
+{n:"Which reality?",o:["AR","VR","MR"],it:[["Pokémon GO",0],["A flight simulator headset",1],["HoloLens holograms anchored to a table",2],["Furniture preview on a phone",0],["Replaces the real world",1],["Virtual objects interact with real surfaces",2]]},
+{n:"Cloud or edge?",o:["Cloud","Edge","Grid"],it:[["A heart monitor that must work offline",1],["Pay-per-use business service",0],["Idle lab computers at night for a simulation",2],["An autonomous car's braking",1],["Many owners and batch jobs",2],["Uniform hardware of one provider",0]]}
+];
+
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "ltog":L[el.dataset.key]=!L[el.dataset.key];render();return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.brief!==undefined?r.brief:(r.out||"")).replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="pass")set("passres",passRes());
+  else if(k==="edge")set("edgeres",edgeRes());
+  else if(k==="pue")set("pueres",pueRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>

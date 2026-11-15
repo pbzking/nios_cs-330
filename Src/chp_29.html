@@ -1,0 +1,1498 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Communication Lab</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred column. Header carries the licence-spectrum strip, two big mode tabs sit under it, content swaps below. */
+:root{
+  --bg:#f2f5f1; --surface:#fbfcfa; --fg:#16221c; --muted:#5a6b62; --line:#d5ddd6;
+  --accent:#0a6a4d; --accent-fg:#ffffff; --accent-soft:#dcefe6;
+  --warn:#9a4a08; --warn-soft:#f6e6d4; --bad:#b3261e; --bad-soft:#f8dedb;
+  --mask:#c5d1c9; --s1:#cfe8dc; --s2:#8fcfb3; --s3:#3f9c78; --s4:#0a6a4d;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+    --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+    --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+    --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1512; --surface:#151e19; --fg:#e3ece6; --muted:#92a69b; --line:#26342c;
+  --accent:#5fd7a8; --accent-fg:#06241a; --accent-soft:#17382b;
+  --warn:#f0a15a; --warn-soft:#3a2a17; --bad:#ff8a80; --bad-soft:#3b1b19;
+  --mask:#2c3a32; --s1:#1c3a2e; --s2:#2a6a50; --s3:#43a57f; --s4:#5fd7a8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:54rem;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.kicker,.lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-direction:column;gap:12px}
+.spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem}
+.spectrum i{display:block;height:10px;border-radius:2px}
+.spectrum i:nth-child(1){background:var(--s1)}.spectrum i:nth-child(2){background:var(--s2)}
+.spectrum i:nth-child(3){background:var(--s3)}.spectrum i:nth-child(4){background:var(--s4)}
+.spectrum-l{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:30rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.mode{font:600 1.1rem var(--display);padding:14px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.mode small{font:400 .78rem var(--body);color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.mode[aria-selected="true"] small{color:var(--accent-fg);opacity:.85}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.m:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subnav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .85rem var(--body);padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"],.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.good{border-color:var(--accent);color:var(--accent)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface)}
+.stat b{display:block;font:700 1.35rem var(--display);font-variant-numeric:tabular-nums}
+.stat span{font:.7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.fc .q{font:600 1.35rem/1.3 var(--display)}
+.fc .a{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:1.05rem}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{min-height:9rem;resize:vertical}
+.blank{font:inherit;display:inline-block;vertical-align:baseline;border:0;border-bottom:2px solid var(--accent);background:var(--mask);color:var(--fg);padding:0 .3em;border-radius:3px 3px 0 0;cursor:pointer;line-height:1.35}
+.blank:not(.on) .ans{visibility:hidden}
+.blank.on{background:var(--accent-soft)}
+.note p{font-size:1.04rem;line-height:2}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{min-width:9rem}
+.m.hid{background:var(--mask);color:transparent;border-radius:4px;cursor:pointer;display:inline-block;user-select:none}
+.m{display:inline}
+.opt{display:block;width:100%;text-align:left;font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.fb{padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--accent-soft)}.fb.no{background:var(--bad-soft)}
+.tag{font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--fg)}
+.pts{display:flex;flex-direction:column;gap:6px}
+.pts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.pts input{margin-top:.3rem;accent-color:var(--accent)}
+.score{font:700 3rem var(--display);font-variant-numeric:tabular-nums}
+.tcount{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.tcount label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.tcount input{accent-color:var(--accent);width:1.1rem;height:1.1rem}
+.tcount span.n{font:.78rem var(--mono);color:var(--muted);white-space:nowrap}
+.rev{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rev.bad{border-left:4px solid var(--bad)}.rev.ok{border-left:4px solid var(--accent)}
+.rev .r{font-size:.9rem;color:var(--muted)}
+.nb{display:flex;flex-direction:column;gap:8px}
+.nb ul{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.nb p.def{border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0}
+.nb + .nb{border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.fc .q{font-size:1.2rem}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+/* ---- Code lab ---- */
+:root{--code-bg:#fbfaf6;--code-fg:#1b2a22;--code-line:#d5ddd6;--ok-b:#0a6a4d;--ok-s:#dcefe6;--note-b:#9a4a08;--note-s:#f6e6d4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}}
+:root[data-theme="dark"]{--code-bg:#0a100d;--code-fg:#d8efe3;--code-line:#26342c;--ok-b:#5fd7a8;--ok-s:#17382b;--note-b:#f0a15a;--note-s:#3a2a17}
+.labwrap{display:flex;flex-direction:column;gap:16px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.9em}
+code.big{font-size:1.15rem;background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.cw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cw-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.codearea,.codeview,.outpre{font:400 .88rem/1.55 var(--mono);background:var(--code-bg);color:var(--code-fg);border:1.5px solid var(--code-line);border-radius:8px;padding:12px 14px;margin:0;white-space:pre;overflow-x:auto;tab-size:4}
+.codearea{width:100%;resize:vertical;min-height:5rem}
+.outpre{white-space:pre-wrap;border-left:4px solid var(--accent)}
+.outbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dim{color:var(--muted)}
+.cw-in{display:flex;flex-direction:column;gap:4px}
+.cin,input.mono{font-family:var(--mono)}
+.rs{padding:10px 14px;border-radius:8px;font-size:.93rem;border-left:4px solid var(--line);background:var(--bg)}
+.rs.ok{border-color:var(--ok-b);background:var(--ok-s)}
+.rs.bad{border-color:var(--bad);background:var(--bad-soft)}
+.rs.note,.rs.warn{border-color:var(--note-b);background:var(--note-s)}
+.try{border:1px dashed var(--accent);border-radius:8px;padding:8px 12px;font-size:.93rem}
+.note-box{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:.93rem}
+ol.pipe{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+ol.pipe li{position:relative;padding:8px 12px 8px 34px;border-left:2px solid var(--line);margin-left:10px;font-size:.93rem}
+ol.pipe li::before{content:"";position:absolute;left:-8px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+ol.pipe li.done::before{background:var(--accent);border-color:var(--accent)}
+ol.pipe li.cur{background:var(--accent-soft)}ol.pipe li.cur::before{border-color:var(--accent);background:var(--surface)}
+ol.pipe li.fail{background:var(--bad-soft)}ol.pipe li.fail::before{background:var(--bad);border-color:var(--bad)}
+ol.pipe li.warn{background:var(--note-s)}ol.pipe li.warn::before{background:var(--note-b);border-color:var(--note-b)}
+ol.pipe li.pending{color:var(--muted)}
+.bits{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:5.5rem 1fr auto;gap:10px;align-items:center}
+.brow.res{border-top:1px solid var(--line);padding-top:6px;font-weight:600}
+.bl{font:.78rem var(--mono);color:var(--muted)}
+.bv{display:flex;gap:2px;flex-wrap:wrap}
+.bit{width:1.55rem;height:1.7rem;display:inline-flex;align-items:center;justify-content:center;font:500 .85rem var(--mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--muted)}
+.bit.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.bd{font:.85rem var(--mono)}
+.b-s{color:var(--bad)}.b-e{color:var(--note-b)}.b-m{color:var(--accent)}
+td.mono{word-break:break-all;min-width:0}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+.exp{font-family:var(--mono);font-size:.92rem}.exp.res{color:var(--accent);font-weight:600}
+.exp mark{background:var(--accent-soft);color:var(--fg);border-radius:3px;padding:0 3px;outline:1.5px solid var(--accent)}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+ul.rules li{padding:6px 10px;border-radius:6px;font-size:.92rem}
+ul.rules li.ok{background:var(--ok-s)}ul.rules li.no{background:var(--bad-soft)}
+input.tcell{width:100%;min-width:4rem;font:.9rem var(--mono);padding:6px 8px}
+input.tcell.good{border-color:var(--accent);background:var(--accent-soft)}
+input.tcell.miss{border-color:var(--bad);background:var(--bad-soft)}
+.nb .cw{margin-top:4px}
+.nb ol.pipe{margin-top:4px}
+@media (max-width:520px){.brow{grid-template-columns:1fr}.bit{width:1.3rem}}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">Module 5 · Professional Skills · Lesson 29</div>
+    <h1>Professional Communication Skills</h1>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button class="mode" role="tab" data-act="tab" data-v="learn" id="t-learn"><span>Learn</span><small>Notes, recall and code lab</small></button>
+      <button class="mode" role="tab" data-act="tab" data-v="eval" id="t-eval"><span>Evaluate</span><small>Test yourself, exam style</small></button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+const TABLES=[
+/*0*/{s:0,t:"The communication process: seven parts",c:["Part","Meaning","Meera's example"],r:[
+["Sender","Has the idea","Meera"],
+["Encoding","Turns the meaning into words, symbols or gestures","She chooses the words 'by evening'"],
+["Channel","The path the message travels (speech, text, image, signal)","A voice call with a poor connection"],
+["Noise","Interference that distorts the message at any stage","The weak connection"],
+["Decoding","The receiver turns the signals back into meaning","The lead hears 'by seven'"],
+["Receiver","The person who receives the message","The team lead"],
+["Feedback","A reply that shows whether the message was understood","'Seven o'clock, correct?'"]]},
+/*1*/{s:0,t:"Four kinds of noise",c:["Kind","Example"],r:[
+["Physical","Background sound"],["Psychological","Worry, prejudice"],["Semantic","Unfamiliar words"],["Technical","A weak network or bad microphone"]]},
+/*2*/{s:0,t:"Table 1.1: Ways of classifying communication",c:["Basis","Types","Example"],r:[
+["Direction of feedback","One-way (no feedback); two-way (with feedback)","A notice; a discussion"],
+["Formality","Formal (official, follows hierarchy); informal (casual)","A memo; a chat in the canteen"],
+["Flow in an organisation","Downward, upward, horizontal (same level), diagonal (different level and department)","Policy; progress report; two team-mates; a tester writing to the finance head"],
+["Medium","Verbal (spoken), written, non-verbal","A call; an e-mail; a nod"]]},
+/*3*/{s:0,t:"Table 1.2: Five barriers and how to reduce them",c:["Barrier","Cause","Remedy"],r:[
+["Physical","Noise, distance, poor equipment, interruptions","Quiet place, test equipment"],
+["Semantic","Jargon, ambiguous or unfamiliar words","Simple words, explain terms"],
+["Psychological","Prejudice, anger, stress, lack of interest","Wait until calm, keep an open mind"],
+["Cultural","Different norms of formality, gesture, directness, personal space","Learn the other culture, ask"],
+["Language","No shared language or dialect","Plain language, written summary"]]},
+/*4*/{s:1,t:"Face-to-face communication and active listening",c:["Item","Content"],r:[
+["Four qualities of good face-to-face talk","Clarity, brevity, listening, openness"],
+["Five habits of active listening","Give full attention; show interest with a nod and eye contact; ask clarifying questions; paraphrase; hold judgement until the speaker has finished"],
+["Memory aid","Attend, Nod, Ask, Paraphrase, Withhold judgement: 'A New Approach Pays Well'"],
+["A paraphrasing reply","'So the login page fails, and that blocks your work. Does it fail for every user or only for you?'"]]},
+/*5*/{s:1,t:"Telephone etiquette",c:["Step","Good practice"],r:[
+["Answer","Within two or three rings"],["Greet","Name and organisation: 'Good morning, this is Ramesh from TechSolutions'"],
+["Speak","Clearly, at a moderate pace; do not interrupt"],["Note","Name, contact, purpose and action needed"],
+["Confirm","Repeat key points back"],["Close","End politely with a summary of next steps"],["Follow up","Return missed calls promptly"]]},
+/*6*/{s:1,t:"A good meeting",c:["Element","Meaning"],r:[
+["Clear purpose","What will be decided or achieved by the end"],
+["Agenda","Sent in advance: topics, time for each, total duration"],
+["Right people","Only those who are really needed"],
+["Active facilitation","Keep to the agenda, let all speak, watch the clock"],
+["Minutes","Written record of what was discussed, decided and assigned, with owners and deadlines, circulated afterwards"]]},
+/*7*/{s:1,t:"Minutes of a short meeting (example)",c:["Item","Entry"],r:[
+["Meeting","Project review, Friday 10:00 to 10:30"],["Present","Meera, Arjun, Ms Rao"],
+["Decisions","Login module complete; release moves from 20 to 22 October"],
+["Action 1","Arjun: fix two open bugs by Tuesday"],["Action 2","Meera: update the user guide by Wednesday"],["Action 3","Ms Rao: inform the client today"]]},
+/*8*/{s:1,t:"The STAR method",c:["Letter","Stands for","In the school-project example"],r:[
+["S","Situation: the context in one or two sentences","The group missed two deadlines"],
+["T","Task: what you were responsible for","As team leader, restore the schedule"],
+["A","Action: what you did, step by step","Weekly tasks, ten-minute daily stand-up, progress board"],
+["R","Result: the outcome, with a number if possible","Delivered one day early; second place"]]},
+/*9*/{s:1,t:"Interviews and group discussions",c:["Topic","Points"],r:[
+["Interview","A two-way evaluation: employer judges candidate, candidate judges organisation"],
+["Preparation","Research the company and role; STAR examples; keep thoughtful questions ready"],
+["Typical questions","Tell me about yourself; Why do you want to work here?; strengths; a challenge you resolved; where do you see yourself in five years?"],
+["Group discussion","A selection tool: about 6 to 12 candidates; assessors watch communication, knowledge, leadership, teamwork, analytical thinking"],
+["GD do's","Open with a structured point; support with examples and data; listen and build on others' ideas; disagree with the idea, not the person; watch speaking time; summarise if invited"],
+["GD don'ts","Dominate; cut others off; repeat points; attack the person"]]},
+/*10*/{s:2,t:"Table 1.3: The main non-verbal channels",c:["Channel","Positive signal","Negative signal"],r:[
+["Body language","Open: facing the person, uncrossed arms, leaning slightly forward","Closed: crossed arms, turned away, leaning back"],
+["Facial expression","Genuine smile, nod, attentive look","Frown, eye-roll, blank face"],
+["Eye contact","Natural, with gaps; scans the whole audience","Avoiding the eyes (nervous, evasive) or staring"],
+["Gesture","Natural movements that reinforce words","Excessive, repeated or mismatched"],
+["Posture","Upright, shoulders back: confident","Slumped: low energy or disrespect"],
+["Tone of voice","Clear, audible, varied, steady pace","Mumbling, monotone, too fast or loud"]]},
+/*11*/{s:2,t:"Reading non-verbal signals",c:["Point","Content"],r:[
+["Mismatch","Listeners trust non-verbal cues when they contradict the words"],
+["Own signals","Make face, posture and voice agree with your words"],
+["Other people's signals","Read clusters in context, never one gesture alone; cultures differ"],
+["Same words, three messages","'That is a good idea': warm smile = praise; flat tone with phone = boredom; rising tone = doubt"],
+["The 7-38-55 'rule'","From Mehrabian's experiments on feelings and attitudes when words and tone conflict; not a general fact about all talk"],
+["Paralanguage","How something is said: tone, pace, volume"],
+["Memory aid","Body, Face, Eyes, Gesture, Posture, Voice: 'Bright Faces Earn Good Positive Vibes'"]]},
+/*12*/{s:3,t:"Table 1.4: The six Cs of professional writing",c:["Quality","Meaning"],r:[
+["Clarity","Ideas expressed simply and directly"],["Conciseness","Everything needed, and no unnecessary words"],
+["Correctness","Right grammar, spelling, punctuation and facts"],["Completeness","The reader can act without asking again"],
+["Courtesy","Respectful, considerate tone"],["Coherence","Logical order that is easy to follow"]]},
+/*13*/{s:3,t:"A formal letter",c:["Order","Part"],r:[
+["1","Letterhead (sender's name, address) and date"],["2","Inside address"],["3","Salutation"],["4","Subject line"],
+["5","Body in short paragraphs"],["6","Complimentary close"],["7","Signature with name and designation"]]},
+/*14*/{s:3,t:"Salutation and close",c:["Salutation","Close"],r:[
+["Dear Mr Sharma (a name)","Yours sincerely"],["Dear Sir/Madam","Yours faithfully"]]},
+/*15*/{s:3,t:"Notice, circular and memo",c:["Document","Purpose and audience","Key parts"],r:[
+["Notice","Brief formal announcement to a defined audience (meeting, examination, holiday, event)","Prominent title, issuing body, date, essential details (what, when, where), signature and designation"],
+["Circular","One document sent at the same time to many recipients to announce a common policy or instruction","As a notice; one document, not many letters"],
+["Memo","Short internal message conveying an instruction, decision or information within or between departments","Header To, From, Date, Subject; then the body; no salutation or formal close"]]},
+/*16*/{s:3,t:"Reports and proposals",c:["Document","Structure"],r:[
+["Report","Formal document of the results of research, investigation or activity; informational (facts) or analytical (analysis and recommendations)"],
+["Report parts in order","Title page; executive summary (one page); table of contents; introduction (context, objectives); methodology; findings and analysis; conclusions and recommendations; references and appendices"],
+["Proposal","A persuasive document presenting a plan and asking for approval or resources"],
+["Proposal parts","Problem, proposed solution, approach, timeline and budget, reasons for approval"]]},
+/*17*/{s:3,t:"Choosing the right document",c:["Situation","Document"],r:[
+["Principal announces the annual day to all students","Notice or circular"],
+["Manager tells testers to submit bug lists by Friday","Memo"],
+["Meera writes to a company for permission to visit","Letter: 'Dear Sir/Madam … Yours faithfully'"],
+["She studies the lab's power use and recommends savings","Analytical report"],
+["She asks the school for Rs 20 000 to set up a coding club","Proposal with objectives, plan and budget"]]},
+/*18*/{s:4,t:"Table 1.5: Subject lines, weak and strong",c:["Weak","Strong"],r:[
+["'Hi'","Internship application: Meera Nair, Class 12 (Computer Science)"],
+["'Important'","Follow-up on Q2 budget discussion: action needed by Friday"],
+["'Report'","October sales report attached for your review"]]},
+/*19*/{s:4,t:"Parts of a professional e-mail",c:["Part","Content"],r:[
+["Subject line","Specific"],["Opening","A clear statement of purpose"],["Body","Concise and organised"],
+["Closing","Says what action is needed and by when; polite close and your name"]]},
+/*20*/{s:4,t:"Table 1.6: To, CC and BCC",c:["Field","Who goes there","Visible to others?"],r:[
+["To","People who must act","Yes"],["CC","People who need to know; no action","Yes"],["BCC","Privacy copies; large mailing lists","No, hidden"]]},
+/*21*/{s:4,t:"E-mail etiquette and attachments",c:["Topic","Rule"],r:[
+["Language","Complete sentences, correct grammar; no slang, abbreviations or emoji; never capitals"],
+["Reply All","Only when everyone needs the answer"],["Reply time","Within one to two working days"],
+["Proofread","A sent e-mail cannot be taken back in most systems"],
+["Attachment","Mention it in the body; descriptive name (Q2_Sales_Report_2026.pdf, not Document1.pdf); large files by cloud link"],
+["Thank-you e-mail","Within 24 hours of an interview: thank, restate interest, refer to one point"],
+["Reminder","A polite reminder after three to five working days if a request is unanswered"]]},
+/*22*/{s:5,t:"Planning a presentation",c:["Question","Meaning"],r:[
+["Who is the audience?","What do they know, and what do they need to know?"],
+["What is the one key message?","The one thing they must remember or do afterwards"],
+["Introduction","Hook, relevance, preview: 'tell them what you will say'"],
+["Body","2 to 5 main points, each with evidence: 'tell them'"],
+["Conclusion","Summary, call to action: 'tell them what you said'"]]},
+/*23*/{s:5,t:"Table 1.7: Fixing a crowded slide",c:["Poor slide","Better slide"],r:[
+["Whole paragraph of 80 words in 14 pt","Three key phrases in 28 pt"],
+["Five colours and three fonts","One colour theme and one font family"],
+["Table of 40 numbers","One chart with the main trend labelled"],
+["Speaker reads the slide aloud","Speaker adds the explanation and the example"]]},
+/*24*/{s:5,t:"Delivery and questions",c:["Topic","Points"],r:[
+["Delivery","Voice projection, clear articulation, steady pace, deliberate pauses, eye contact across the audience, purposeful movement"],
+["Nervousness","Prepare; breathe slowly and deeply; reframe nervous energy as enthusiasm; rehearse aloud with a timer"],
+["Questions","Listen to the whole question; repeat or rephrase it; answer briefly and honestly; say 'I do not know, but I will find out and tell you'"],
+["Memory aid","Introduce, Body, Conclude: 'I Believe Clearly'; Prepare, Breathe, Reframe: 'Practice Beats Resistance'"]]},
+/*25*/{s:5,t:"A five-minute talk (Meera's plan)",c:["Part","Time","Content"],r:[
+["Introduction","30 s","A real problem: the long queue at the library desk"],
+["Body","3.5 min","What the app does; a one-minute live demo; result of a trial with 20 students"],
+["Conclusion","1 min","The savings; a request to try it for a term"],
+["Slides","6","One idea each; last 30 seconds kept for questions"]]},
+/*26*/{s:6,t:"Team communication",c:["Element","Meaning"],r:[
+["Clear goals and roles","Who is responsible for what"],["Regular rhythms","Team meetings, status updates, check-ins"],
+["Shared tools","Task boards, shared documents"],
+["Psychological safety","A climate in which people can speak up, ask questions, challenge assumptions and admit mistakes without fear of being judged"],
+["Professional behaviour","Punctual; reliable; respect for everyone; discretion; disagreement handled privately and about the issue"]]},
+/*27*/{s:6,t:"Feedback and the SBI model",c:["Letter","Stands for","Example"],r:[
+["S","Situation: when and where","In yesterday's client meeting"],
+["B","Behaviour: what you observed","You interrupted the client twice"],
+["I","Impact: the effect it had","She seemed frustrated and the discussion lost direction"]]},
+/*28*/{s:6,t:"Giving and receiving feedback",c:["Role","Rule"],r:[
+["Giving","Be specific (the behaviour, not a judgement of the person); explain the impact; be timely; suggest an improvement"],
+["Receiving","Listen without defending; ask questions; say thank you; reflect on what is useful"],
+["Poor feedback","'You are careless with clients': judges the person, vague, nothing to change"]]},
+/*29*/{s:6,t:"Conflict resolution",c:["Step","Meaning"],r:[
+["Act early","Ignored conflict damages performance"],["Speak directly and privately","Not in public"],
+["Understand first","Understand the other person's view before presenting your own"],
+["Separate problem from person","Attack the issue, not the individual"],
+["Find interests","Interests are what each side really needs; positions are fixed demands"],
+["Reach a solution both accept","The testing-laptop example: Friday afternoon for one, overnight run for the other"]]},
+/*30*/{s:7,t:"Video conferencing etiquette",c:["Rule","Detail"],r:[
+["Test","Camera, microphone and connection before the meeting"],["Place","Quiet, well lit, neat background"],
+["On time","Join on time, camera on if expected"],["Mute","When not speaking"],
+["Hand raised","Use the raise-hand feature or wait for a break"],["Present","Do not multitask"],
+["Tools","Zoom, Microsoft Teams, Google Meet, Cisco Webex"]]},
+/*31*/{s:7,t:"Instant messaging and collaborative platforms",c:["Topic","Points"],r:[
+["Instant messaging tools","Slack, Teams chat, WhatsApp Business, Google Chat"],
+["Messaging rules","Right tone; separate casual from formal channels; respect time zones and working hours; use status indicators; complex or sensitive matters by call"],
+["Collaborative tools","Co-writing: Google Workspace, Microsoft 365; project management: Trello, Asana, Jira, Notion; file sharing: Google Drive, SharePoint, Dropbox"],
+["Digital messages are records","Can be forwarded, screenshotted or retained; data is covered by data-protection law"]]},
+/*32*/{s:7,t:"Table 1.8: Choosing the medium",c:["Situation","Best medium","Why"],r:[
+["Quick question to a team-mate","Instant message","Fast, informal"],
+["Formal request or record","E-mail or letter","Permanent, clear audit trail"],
+["Sensitive feedback or conflict","Call or video, in private","Tone and empathy are visible"],
+["Joint editing of a document","Collaborative platform","One live copy, comments, history"],
+["Announcement to everyone","Circular, notice board or channel post","Reaches all at once"]]},
+/*33*/{s:8,t:"The five areas of professional ethics",c:["Area","Meaning"],r:[
+["Work ethic","Diligence, reliability, quality and responsibility: punctual, meets deadlines, takes initiative, keeps learning"],
+["Confidentiality","Not disclosing sensitive information shared in trust (trade secrets, financial data, clients' details, plans)"],
+["Respect","Equal dignity to everyone regardless of gender, age, religion, caste, nationality, background or position"],
+["Accountability","Owning decisions and actions, including mistakes: acknowledge, inform, correct, prevent"],
+["Time as respect","Arriving on time, meeting deadlines, answering messages reasonably, using working hours productively"],
+["Memory aid","W-C-R-A-T: 'We Can Rely And Trust'"]]},
+/*34*/{s:8,t:"Law and workplace conduct in India",c:["Topic","Content"],r:[
+["POSH Act, 2013","Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act"],
+["Internal Committee","Required in every workplace with 10 or more employees"],
+["Local Committee","At district level for smaller workplaces"],
+["Labour Codes","Four codes (wages, industrial relations, social security, occupational safety and working conditions) consolidated 29 earlier laws; in effect from 21 November 2025"],
+["Careless breaches","Loud phone calls, unlocked screens, a wrong CC"]]},
+/*35*/{s:9,t:"The resume",c:["Item","Content"],r:[
+["Meaning","A structured document of qualifications, skills, experience and achievements; CV is technically fuller, but the words are used interchangeably in India"],
+["Sections in order","Contact, Summary, Education (latest first), Skills, Projects, Experience, Certificates, Achievements"],
+["Fresher length","One page (two for an experienced person)"],
+["Best practice","Tailor to the role; bullets, not paragraphs; begin with action verbs (Developed, Designed, Implemented, Led, Optimised); quantify results; proofread; save as PDF"],
+["Never","Exaggerate or invent; list every school activity; use an unprofessional e-mail address; send a generic cover letter"]]},
+/*36*/{s:9,t:"Improving resume bullets",c:["Weak","Strong"],r:[
+["Worked on a library app.","Developed a web app in JavaScript for book issue and return, used by 200 students, reducing desk waiting time by about 40%."],
+["Was team leader.","Led a team of 5 to deliver the project one day early."]]},
+/*37*/{s:9,t:"Cover letter and interview preparation",c:["Topic","Points"],r:[
+["Cover letter","Names the specific job and company; says why the company interests you; two or three matching points; ends with a confident request for an interview; one page; never a copy meant for another company"],
+["Interview preparation","Research company and role; STAR examples; practise aloud; three to five questions to ask; route, time, dress, documents"],
+["Software roles","Coding problems (LeetCode, HackerRank, CoderPad) and system design; explain your reasoning aloud"]]},
+/*38*/{s:9,t:"Networking and personal branding",c:["Topic","Points"],r:[
+["Networking","Building and keeping relationships with colleagues, alumni, mentors and professionals; many jobs filled by referral"],
+["Where","LinkedIn (photo, headline, experience, skills, recommendations); alumni networks; conferences and hackathons; mentorship"],
+["Mentorship","A relationship with an experienced person who gives guidance, feedback and introductions"],
+["Personal branding","Consistent projection of professional identity on every touchpoint: LinkedIn, GitHub, a personal site, behaviour, anything you publish"],
+["For CS students","An active GitHub with good repositories, open-source contributions, blog posts about problems solved"]]},
+/*39*/{s:9,t:"Numbers to remember",c:["Item","Value"],r:[
+["Phone answered within","2 to 3 rings"],["E-mail reply","1 to 2 working days"],["Thank-you after interview","Within 24 hours"],
+["Reminder for no reply","After 3 to 5 working days"],["Slide body text","24 to 28 pt at least"],["GD size","About 6 to 12 candidates"],
+["Presentation body","2 to 5 main points"],["POSH Internal Committee","10 or more employees"],["Fresher resume","1 page"]]}
+];
+
+const NOTES=[
+["1.1 Communication fundamentals","{{Communication}} is the sharing of information, ideas, feelings or instructions between a sender and a receiver, with the aim of creating shared understanding. The process has seven parts: the {{sender}} has the idea and {{encodes}} it; the message travels through a {{channel}}; the receiver {{decodes}} it and returns {{feedback}}; {{noise}} is any interference that distorts the message. Noise is physical, psychological, semantic or technical. Communication is classified by direction (one-way or two-way), formality (formal or informal), flow (downward, upward, horizontal, diagonal) and medium (verbal, written, non-verbal). The five barriers are {{physical}}, {{semantic}}, psychological, cultural and language. Sending is not communicating: a message that was sent but not understood has failed."],
+["1.2 Verbal communication","Good face-to-face talk has clarity, brevity, listening and openness. {{Active listening}} has five habits: give full attention, show interest, ask clarifying questions, {{paraphrase}} and withhold judgement. On the phone answer within {{two or three}} rings, greet with name and organisation, repeat key points and end with next steps. A good meeting has a clear purpose, an {{agenda}} sent in advance, the right people, active facilitation and {{minutes}} with owners and deadlines. An interview is a two-way evaluation; behavioural answers use {{STAR}}: Situation, Task, Action, Result. A group discussion has about 6 to 12 candidates; open with a structured point, build on others' ideas and disagree with the idea, not the person."],
+["1.3 Non-verbal communication","Non-verbal communication is everything communicated without words: body language, facial expression, {{eye contact}}, gesture, posture, use of space, appearance and {{tone of voice}}. Listeners trust non-verbal cues when they {{contradict}} the words. Open body language faces the person with uncrossed arms; closed language crosses the arms or turns away. Eye contact should be natural, with gaps, not avoided or staring. Read signals as clusters in context, never one gesture alone, because cultures differ. The '7-38-55 rule' comes from Albert {{Mehrabian}}'s small experiments on feelings and attitudes when words and tone conflict; it does not mean body language is 55% of all communication. {{Paralanguage}} is how something is said: tone, pace and volume."],
+["1.4 Written communication","Written communication gives a permanent, precise record. The {{six Cs}} are clarity, conciseness, correctness, completeness, courtesy and coherence. A formal {{letter}} has letterhead and date, inside address, salutation, subject line, body, complimentary close and signature. 'Dear Mr Sharma' takes Yours {{sincerely}}; 'Dear Sir/Madam' takes Yours {{faithfully}}. A {{notice}} is a brief formal announcement with title, issuer, date, details and signature; a {{circular}} is one document sent to many recipients. A {{memo}} is a short internal message with the header To, From, Date, Subject and no salutation or close. A report has a title page, {{executive summary}}, contents, introduction, methodology, findings, conclusions and appendices. A {{proposal}} states the problem, solution, approach, timeline and budget."],
+["1.5 Business correspondence and e-mail","A professional e-mail has a specific {{subject line}}, a clear opening statement of purpose, a concise body and a closing stating the action needed and by when. {{CC}} is for people who should be aware but need not act and is visible; {{BCC}} hides addresses, for example for a large group. Use Reply All only when everyone needs the answer. Reply within one to two working days and proofread, because a sent e-mail cannot be taken back in most systems. Mention attachments in the body, name them descriptively and share very large files through a cloud link. After an interview send a thank-you e-mail within {{24 hours}}; send a polite reminder after three to five working days. Never write in capitals."],
+["1.6 Presentation skills","Plan by asking who the audience is and what single message they must remember. The structure is {{introduction}} (hook, relevance, preview), {{body}} (2 to 5 main points with evidence) and {{conclusion}} (summary, call to action). Slides support the speaker: key phrases, one main point per slide, consistent design, white space and body text of at least {{24 to 28}} point. Delivery covers voice, articulation, pace, pauses and eye contact. Manage nervousness by preparing, breathing slowly and reframing the energy as enthusiasm. Handle questions by listening, rephrasing and answering honestly; say 'I do not know, but I will find out.' Do not read slides aloud or memorise the talk word for word."],
+["1.7 Workplace communication","Team communication needs clear goals and roles, regular rhythms, shared tools and {{psychological safety}}: people can speak up, ask questions and admit mistakes without fear of judgement. Professional behaviour means being punctual, reliable and respectful. {{Feedback}} should be specific, explain the impact, be timely and suggest an improvement. The {{SBI}} model is Situation, Behaviour, Impact. Receive feedback by listening without defending and saying thank you. Resolve {{conflict}} by acting early, speaking privately, understanding the other view first, separating problem from person and looking for the underlying {{interests}} rather than fixed positions. Do not criticise in public or say 'You always…'."],
+["1.8 Digital communication","For video conferencing (Zoom, Microsoft Teams, Google Meet, Cisco Webex) test the equipment, choose a quiet well-lit place, join on time, {{mute}} when not speaking, use the raise-hand feature and do not multitask. Instant messaging (Slack, Teams chat, Google Chat) suits quick informal exchange; respect time zones, use status indicators and settle complex or sensitive matters by {{call}}. Collaborative platforms combine co-writing (Google Workspace, Microsoft 365), project management (Trello, Asana, Jira, Notion), file sharing (Google Drive, SharePoint, Dropbox) and messaging. Choose the medium to fit the situation: a quick question by message, a formal record by e-mail, sensitive feedback by call, joint editing on a platform. Digital messages are {{records}} that can be forwarded."],
+["1.9 Professional ethics","Professional ethics are the standards of conduct expected in working roles. The five areas are {{work ethic}} (diligence, reliability, initiative), {{confidentiality}} (not disclosing sensitive information shared in trust), {{respect}} (equal dignity for everyone), {{accountability}} (owning decisions and mistakes: acknowledge, inform, correct, prevent) and time as respect. Confidentiality is broken by carelessness as often as by intention: loud calls, unlocked screens, a wrong CC. The {{POSH}} Act, 2013 requires an Internal Committee in every workplace with {{10 or more}} employees; smaller workplaces use a Local Committee at district level. India's four Labour Codes consolidated 29 earlier laws and came into effect on 21 November 2025."],
+["1.10 Career skills","A {{resume}} is a structured document of qualifications, skills, experience and achievements. Its sections run: contact, summary, education, skills, projects, experience, certificates, achievements. A fresher's resume is {{one page}}; use bullets, action verbs, numbers, proofreading and PDF. Never exaggerate or invent. A {{cover letter}} names the job and company, picks two or three matching points and ends with a request for an interview. Prepare for interviews by researching the company, practising STAR answers aloud, preparing questions and explaining your thinking in coding rounds. {{Networking}} uses LinkedIn, alumni networks, events and mentors. {{Personal branding}} is the consistent projection of professional identity: an active GitHub, open-source contributions and blog posts."]
+];
+const DUMPS=[
+{t:"Communication fundamentals",p:["Seven parts of the process","Four kinds of noise","Four bases of classification and their types","Five barriers with remedies","Why feedback matters"]},
+{t:"Verbal communication",p:["Four qualities of face-to-face talk","Five habits of active listening","Telephone etiquette","Five elements of a good meeting","STAR in full","GD do's and don'ts"]},
+{t:"Non-verbal communication",p:["Six channels with positive and negative signals","Why mismatch is not believed","The 7-38-55 correction","Paralanguage"]},
+{t:"Written communication",p:["Six Cs","Letter parts and closes","Notice, circular, memo","Report and proposal parts","Choosing the document"]},
+{t:"E-mail",p:["Parts of a professional e-mail","To, CC, BCC","Reply All; reply time","Attachments","Thank-you and reminder timings"]},
+{t:"Presentation skills",p:["Audience and key message","Three-part structure","Slide rules","Delivery and nervousness","Handling questions"]},
+{t:"Workplace communication",p:["Team elements; psychological safety","Giving and receiving feedback","SBI","Conflict steps; positions and interests"]},
+{t:"Digital communication",p:["Video etiquette","Messaging rules","Collaboration tools","Choosing the medium"]},
+{t:"Professional ethics",p:["Five areas: W-C-R-A-T","Confidentiality breaches","POSH: 10 or more; Local Committee","Labour Codes date","Accountability steps"]},
+{t:"Career skills",p:["Resume sections and tips","Cover letter","Interview preparation","Networking","Personal branding"]}
+];
+
+const SECS=["Communication fundamentals","Verbal communication","Non-verbal communication","Written communication","E-mail","Presentation skills","Workplace communication","Digital communication","Professional ethics","Career skills"];
+const CORE=[
+[0,"Define communication.","The sharing of information, ideas, feelings or instructions between a sender and a receiver through a medium both understand, to create shared understanding."],
+[0,"Name the seven parts of the communication process.","Sender, encoding, channel, noise, decoding, receiver, feedback."],
+[0,"What is encoding?","The sender turning the meaning into words, symbols or gestures."],
+[0,"What is decoding?","The receiver turning the signals back into meaning."],
+[0,"What is the channel?","The path the message travels: speech, text, image, signal."],
+[0,"What is the role of feedback?","A reply or reaction that tells the sender whether the message was understood; it completes the loop."],
+[0,"What is noise?","Any interference that distorts the message at any stage."],
+[0,"Name the four kinds of noise.","Physical, psychological, semantic, technical."],
+[0,"Give an example of semantic noise.","Unfamiliar words."],
+[0,"Give an example of technical noise.","A weak network or a bad microphone."],
+[0,"Distinguish one-way from two-way communication.","One-way has no feedback (a notice); two-way has feedback (a discussion)."],
+[0,"Distinguish formal from informal communication.","Formal is official and follows the hierarchy (a memo); informal is casual (a chat in the canteen)."],
+[0,"Name the four flows of communication in an organisation.","Downward, upward, horizontal, diagonal."],
+[0,"What is diagonal communication?","Between people of different levels and different departments, such as a tester writing to the finance head."],
+[0,"Name the three media of communication.","Verbal, written, non-verbal."],
+[0,"Name the five barriers to communication.","Physical, semantic, psychological, cultural, language."],
+[0,"Remedy for a semantic barrier?","Simple words; explain terms."],
+[0,"Remedy for a physical barrier?","A quiet place and tested equipment."],
+[0,"Remedy for a psychological barrier?","Wait until calm and keep an open mind."],
+[0,"Remedy for a language barrier?","Plain language and a written summary."],
+[0,"Why can a formal meeting be two-way and a rumour one-way?","Formality and direction of feedback are independent bases of classification."],
+[0,"How does a network resemble the communication model?","Packets are encoded, noise corrupts bits, and an acknowledgement is feedback; a lost one makes the sender retransmit."],
+[1,"Name the four qualities of good face-to-face talk.","Clarity, brevity, listening, openness."],
+[1,"Define active listening.","Understanding the full stated and implied meaning of a speaker, beyond hearing the words."],
+[1,"List the five habits of active listening.","Give full attention; show interest; ask clarifying questions; paraphrase; withhold judgement."],
+[1,"What is paraphrasing?","Restating the speaker's message in your own words to check understanding."],
+[1,"How many rings before answering a call?","Within two or three rings."],
+[1,"How should a phone call be opened?","Greet with name and organisation: 'Good morning, this is Ramesh from TechSolutions'."],
+[1,"What should be noted on a call?","Name, contact, purpose and action needed."],
+[1,"What is a meeting?","A structured gathering of two or more people to share information, decide or solve a problem."],
+[1,"Name the five elements of a good meeting.","Clear purpose, agenda, right people, active facilitation, minutes."],
+[1,"What does an agenda contain?","Topics, time for each and total duration, sent in advance."],
+[1,"What are minutes?","The written record of what was discussed, decided and assigned, with owners and deadlines."],
+[1,"Why must minutes carry owners and dates?","Without them minutes are only a story of the meeting."],
+[1,"What is an interview?","A two-way evaluation: the employer judges the candidate and the candidate judges the organisation."],
+[1,"Expand STAR.","Situation, Task, Action, Result."],
+[1,"What must the Action in STAR show?","Your own action, step by step; 'we did it' hides your contribution."],
+[1,"What should the Result contain?","The outcome, with a number if possible."],
+[1,"What is a group discussion?","A selection tool in which a group of about 6 to 12 candidates discusses a topic while assessors observe."],
+[1,"What do GD assessors watch?","Communication, knowledge, leadership, teamwork, analytical thinking."],
+[1,"Give three do's of a GD.","Open with a structured point, support points with examples, listen and build on others' ideas, disagree with the idea not the person."],
+[1,"Give three don'ts of a GD.","Dominate, cut others off, repeat points, attack a person."],
+[1,"Expand the aid for active listening.","Attend, Nod, Ask, Paraphrase, Withhold judgement: 'A New Approach Pays Well'."],
+[2,"Define non-verbal communication.","Everything communicated without words: body language, expression, eye contact, gesture, posture, use of space, appearance, tone of voice."],
+[2,"Name the six non-verbal channels.","Body language, facial expression, eye contact, gesture, posture, tone of voice."],
+[2,"Give a positive and a negative body-language signal.","Open (facing, uncrossed arms) and closed (crossed arms, turned away)."],
+[2,"Give a positive and a negative eye-contact signal.","Natural with gaps, scanning the audience; avoiding the eyes or staring."],
+[2,"Give a positive and a negative posture signal.","Upright with shoulders back; slumped."],
+[2,"Give a positive and a negative tone-of-voice signal.","Clear, audible, varied; mumbling or monotone."],
+[2,"Which cue do listeners trust when words and signals disagree?","The non-verbal cue."],
+[2,"What is paralanguage?","How something is said: tone, pace, volume."],
+[2,"What does the 7-38-55 rule really say?","Mehrabian's experiments on feelings and attitudes when words and tone conflict; it is not a rule for all talk."],
+[2,"Why read signals as clusters?","One gesture alone can mislead: crossed arms may mean a cold room; cultures differ."],
+[2,"What happens if you say 'I am confident' while mumbling at the floor?","You will not be believed: the mismatch reads as discomfort or dishonesty."],
+[3,"Name the six Cs of professional writing.","Clarity, conciseness, correctness, completeness, courtesy, coherence."],
+[3,"What is completeness?","The reader can act without asking again."],
+[3,"List the parts of a formal letter in order.","Letterhead and date, inside address, salutation, subject line, body, complimentary close, signature with name and designation."],
+[3,"Which close goes with 'Dear Mr Sharma'?","Yours sincerely."],
+[3,"Which close goes with 'Dear Sir/Madam'?","Yours faithfully."],
+[3,"What is a notice?","A brief formal announcement to a defined audience."],
+[3,"What must a notice carry?","Prominent title, issuing body, date, essential details (what, when, where), signature and designation."],
+[3,"What is a circular?","One document sent at the same time to many recipients to announce a common policy or instruction."],
+[3,"What is a memo?","A short internal message conveying an instruction, decision or information within or between departments."],
+[3,"What is the header of a memo?","To, From, Date, Subject; then the body, with no salutation or close."],
+[3,"What is a report?","A formal document presenting the results of research, investigation or activity."],
+[3,"Distinguish informational from analytical reports.","Informational states facts; analytical also analyses and recommends action."],
+[3,"List the parts of a report.","Title page, executive summary, contents, introduction, methodology, findings and analysis, conclusions and recommendations, references and appendices."],
+[3,"What is an executive summary?","A one-page synopsis of the whole report, placed first."],
+[3,"What is a proposal?","A persuasive document that presents a plan and asks for approval or resources."],
+[3,"List the parts of a proposal.","Problem, proposed solution, approach, timeline and budget, reasons for approval."],
+[3,"Which document announces the annual day to all students?","A notice or circular."],
+[3,"Which document asks the school for Rs 20 000 for a coding club?","A proposal with objectives, plan and budget."],
+[4,"What are the parts of a professional e-mail?","Specific subject line, clear opening statement of purpose, concise body, closing with action and date."],
+[4,"Improve the subject line 'Hi' for an internship application.","Internship application: Meera Nair, Class 12 (Computer Science)."],
+[4,"Who goes in To?","People who must act."],
+[4,"Who goes in CC?","People who need to know but need not act; visible to others."],
+[4,"What is BCC?","Blind carbon copy: hidden recipients, for privacy copies or large mailing lists."],
+[4,"When is Reply All appropriate?","Only when everyone needs the answer."],
+[4,"Within what time should an e-mail be answered?","One to two working days."],
+[4,"Why proofread before sending?","A sent e-mail cannot be taken back in most systems."],
+[4,"Why avoid capitals in an e-mail?","It reads as shouting."],
+[4,"How should an attachment be named and mentioned?","Descriptively (Q2_Sales_Report_2026.pdf) and mentioned in the body; large files by a cloud link."],
+[4,"When is a thank-you e-mail sent after an interview?","Within 24 hours."],
+[4,"What goes in a thank-you e-mail?","Thanks, restated interest in the role and one point from the conversation."],
+[4,"When may a polite reminder be sent?","After three to five working days without an answer."],
+[4,"What is wrong with 'sir i cant come tmrw, plz tell what to do'?","Vague subject, no greeting, abbreviations, no reason or date, no clear request."],
+[5,"Which three questions should a presenter answer first?","Who is the audience; what do they know and need to know; what one thing must they remember or do."],
+[5,"State the three-part structure.","Introduction (hook, relevance, preview), body (2 to 5 points with evidence), conclusion (summary, call to action)."],
+[5,"What are the classic words for the structure?","Tell them what you will say; tell them; tell them what you said."],
+[5,"State four rules for good slides.","Key phrases, one point per slide, large font, consistent design (and white space)."],
+[5,"What is the minimum body font suggested?","24 to 28 point."],
+[5,"How should a crowded slide of 80 words in 14 pt be fixed?","Three key phrases in 28 pt."],
+[5,"What should a speaker do with slide text?","Never read it aloud; add the explanation and the example."],
+[5,"Give three ways to manage nervousness.","Prepare, breathe slowly and deeply, reframe nervous energy as enthusiasm; rehearse aloud with a timer."],
+[5,"What does a pause do?","Gives emphasis and lets ideas sink in."],
+[5,"How should a question be handled?","Listen to the whole question, rephrase it, answer briefly and honestly."],
+[5,"What should you say when you do not know the answer?","'I do not know, but I will find out and tell you.'"],
+[5,"Why not memorise the talk word for word?","One lost word can derail it; know the points, not the script."],
+[5,"Meera's five-minute plan?","Introduction 30 s, body 3.5 min, conclusion 1 min; six slides; last 30 seconds for questions."],
+[6,"What does team communication need?","Clear goals and roles, regular rhythms, shared tools, psychological safety."],
+[6,"Define psychological safety.","A climate in which people can speak up, ask questions, challenge assumptions and admit mistakes without fear of being judged."],
+[6,"Define professional behaviour.","Being punctual, reliable and respectful, discreet with confidential matters and constructive in disagreement."],
+[6,"Define feedback (workplace).","Information about someone's work or behaviour that helps them improve."],
+[6,"How is feedback given well?","Specific, explains the impact, timely, suggests an improvement."],
+[6,"How is feedback received well?","Listen without defending, ask questions, say thank you, reflect on what is useful."],
+[6,"Expand SBI.","Situation, Behaviour, Impact."],
+[6,"What is wrong with 'You are careless with clients'?","It judges the person, is vague and gives nothing to change."],
+[6,"Write the SBI version of that feedback.","'In yesterday's client meeting you interrupted the client twice; she seemed frustrated and the discussion lost direction. Next time could you note your point and wait?'"],
+[6,"List steps of conflict resolution.","Act early; speak directly and privately; understand the other view first; separate problem from person; look for interests; reach a solution both accept."],
+[6,"Distinguish positions from interests.","A position is what a party demands; an interest is what it really needs."],
+[6,"How was the testing-laptop conflict solved?","One used it Friday afternoon, the other started the overnight run at 6 p.m."],
+[7,"Name four video-conferencing tools.","Zoom, Microsoft Teams, Google Meet, Cisco Webex."],
+[7,"List rules of virtual meeting etiquette.","Test equipment; quiet well-lit place; on time; mute; raise hand; stay present."],
+[7,"Name four instant-messaging platforms.","Slack, Teams chat, WhatsApp Business, Google Chat."],
+[7,"Give rules for instant messaging.","Right tone; separate casual and formal channels; respect time zones; use status; call for sensitive matters."],
+[7,"Why not argue by text?","Tone is easily misread in short messages; switch to a call."],
+[7,"Name collaboration tools by category.","Co-writing: Google Workspace, Microsoft 365; projects: Trello, Asana, Jira, Notion; files: Google Drive, SharePoint, Dropbox."],
+[7,"Best medium for a quick question?","Instant message."],
+[7,"Best medium for a formal request?","E-mail or letter: permanent, clear audit trail."],
+[7,"Best medium for sensitive feedback?","Call or video, in private."],
+[7,"Best medium for joint editing?","A collaborative platform."],
+[7,"Best medium for an announcement to all?","Circular, notice board or channel post."],
+[7,"Why treat every digital message as a record?","It can be forwarded, screenshotted or retained and may be seen years later."],
+[8,"Define professional ethics.","The standards of conduct expected in working roles that make people trustworthy, responsible and respectful."],
+[8,"Name the five areas of professional ethics.","Work ethic, confidentiality, respect, accountability, time as respect (W-C-R-A-T)."],
+[8,"Define work ethic.","Values of diligence, reliability, quality and responsibility."],
+[8,"Define confidentiality.","The duty not to disclose sensitive information shared in trust."],
+[8,"How is confidentiality broken carelessly?","Loud phone calls, unlocked screens, a wrong CC, talk in a lift."],
+[8,"Define accountability.","Owning decisions and actions, including mistakes, instead of blaming others."],
+[8,"List the steps of accountability.","Acknowledge, inform, correct, prevent."],
+[8,"How is time a form of respect?","Punctuality, deadlines, timely replies and productive hours respect others' time."],
+[8,"What is the POSH Act?","The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013."],
+[8,"What does POSH require at 10 or more employees?","An Internal Committee."],
+[8,"What serves workplaces with fewer than 10 employees?","A Local Committee at district level."],
+[8,"What happened to India's labour laws in 2025?","Four Labour Codes consolidated 29 earlier laws and took effect on 21 November 2025."],
+[8,"What should Meera say if a friend asks for a client list?","'I cannot share client information, but their public website lists some customers.'"],
+[9,"Define a resume.","A structured document of qualifications, skills, experience and achievements, written to win an interview or admission."],
+[9,"Resume against CV?","Used interchangeably in India; a CV is technically fuller."],
+[9,"List resume sections in order.","Contact, summary, education, skills, projects, experience, certificates, achievements."],
+[9,"How long is a fresher's resume?","One page."],
+[9,"Name five resume tips.","One page, action verbs, numbers, proofread, PDF."],
+[9,"Why start a bullet with an action verb?","It states what you did: Developed, Designed, Implemented, Led, Optimised."],
+[9,"Improve 'Worked on a library app.'","Developed a web app in JavaScript for book issue and return, used by 200 students, reducing desk waiting time by about 40%."],
+[9,"Why save a resume as PDF?","To preserve the layout."],
+[9,"What must never be on a resume?","Exaggeration or invention; an unprofessional e-mail address."],
+[9,"What is a cover letter?","A letter accompanying the resume that speaks directly to the employer."],
+[9,"What does a cover letter contain?","The specific job and company, why it interests you, two or three matching points, a request for an interview; one page."],
+[9,"How to prepare for an interview?","Research the company and role, prepare STAR examples, practise aloud, prepare three to five questions, plan the practical side."],
+[9,"What should you do in a coding interview?","Explain your reasoning aloud; do not code silently."],
+[9,"Define networking.","Building and keeping relationships with colleagues, alumni, mentors and professionals."],
+[9,"Why network?","Many jobs are filled through referrals before or without advertising."],
+[9,"Name networking channels.","LinkedIn, alumni networks, conferences and hackathons, mentorship."],
+[9,"Define mentorship.","A relationship with an experienced person who gives guidance, feedback and introductions."],
+[9,"Define personal branding.","Consistent projection of professional identity and expertise on every touchpoint."],
+[9,"How can a CS student build a brand?","An active GitHub, open-source contributions, blog posts about problems solved."]
+];
+const DETAIL=[];
+TABLES.forEach(t=>{if(t.nocard)return;
+  t.r.forEach(r=>{
+    const a=r.length===2?r[1]:r.slice(1).map((v,i)=>t.c[i+1]+": "+v).join(". ");
+    const head=t.c.length===2?t.t+": "+r[0]+" ("+t.c[0].toLowerCase()+")":t.t+": "+r[0];
+    DETAIL.push([t.s,head+"?",a]);
+  });
+});
+const CARDS=CORE.concat(DETAIL);
+const ORIG=CORE.length;
+
+const R=String.raw;
+const TYPES=[
+{k:"mcq",n:"Multiple choice",m:1},{k:"fill",n:"Fill in the blanks",m:1},{k:"tf",n:"True or false",m:1},
+{k:"vsa",n:"Very short answer",m:1},{k:"calc",n:"Predict the output",m:2},
+{k:"short",n:"Short answer",m:3},{k:"long",n:"Long answer",m:6},{k:"app",n:"Application and reasoning",m:4}
+];
+const MCQ=[
+["The part of the process in which the sender turns meaning into words is:",["Decoding","Encoding","Feedback","Noise"],1,"Encoding."],
+["Feedback tells the sender:",["The channel is noisy","Whether the message was understood","The receiver's age","The cost"],1,"It completes the loop."],
+["A weak network is an example of which noise?",["Physical","Psychological","Semantic","Technical"],3,"Technical noise."],
+["Unfamiliar words cause:",["Semantic noise","Physical noise","Cultural noise","No noise"],0,"Semantic."],
+["A notice is an example of:",["Two-way communication","One-way communication","Diagonal flow only","Informal communication"],1,"No feedback."],
+["A tester writing to the finance head is:",["Downward","Upward","Horizontal","Diagonal"],3,"Different level and department."],
+["Which is NOT one of the five barriers?",["Physical","Semantic","Cultural","Financial"],3,"Physical, semantic, psychological, cultural, language."],
+["The remedy for jargon is:",["Louder voice","Simple words and explained terms","Longer messages","Silence"],1,"Semantic barrier."],
+["Paraphrasing is part of:",["Active listening","Memorising","Debating","Interrupting"],0,"Check understanding."],
+["On the phone you should answer within:",["One ring","Two or three rings","Ten rings","Any time"],1,"Two or three."],
+["Minutes of a meeting must show:",["Only the date","Decisions and actions with owners and deadlines","Private opinions","Nothing"],1,"Owners and dates."],
+["In STAR, T stands for:",["Time","Task","Team","Test"],1,"Situation, Task, Action, Result."],
+["A STAR answer must show:",["What the group did","Your own action","Only the situation","A story with no result"],1,"Your action."],
+["A group discussion has about:",["2 candidates","6 to 12 candidates","50 candidates","1 candidate"],1,"6 to 12."],
+["Listeners trust non-verbal cues when they:",["Match the words","Contradict the words","Are absent","Are copied"],1,"Mismatch is believed."],
+["Crossed arms and turned-away posture are:",["Open body language","Closed body language","Eye contact","Paralanguage"],1,"Closed."],
+["Tone, pace and volume form:",["Paralanguage","Grammar","Syntax","Etiquette"],0,"Paralanguage."],
+["The 7-38-55 figures come from:",["Mehrabian's experiments on feelings","A law","A census","A syllabus"],0,"Not a general rule."],
+["Which is NOT one of the six Cs?",["Clarity","Courtesy","Coherence","Creativity"],3,"Creativity is not a C of writing."],
+["'Dear Sir/Madam' is closed with:",["Yours sincerely","Yours faithfully","Best","Cheers"],1,"Faithfully."],
+["A memo has the header:",["Dear, Yours","To, From, Date, Subject","Title, Author","None"],1,"To, From, Date, Subject."],
+["A circular is:",["One letter","One document sent to many recipients","A memo to one person","A report"],1,"One document, many readers."],
+["The first major part of a report after the title page is:",["Appendix","Executive summary","References","Findings"],1,"Executive summary."],
+["A document asking for approval of a plan and budget is a:",["Notice","Proposal","Memo","Minutes"],1,"Proposal."],
+["BCC addresses are:",["Visible to all","Hidden from others","Deleted","Always the sender"],1,"Hidden."],
+["CC is used for people who:",["Must act","Need to know but need not act","Must be hidden","Are unknown"],1,"Awareness only."],
+["A thank-you e-mail after an interview is sent within:",["1 week","24 hours","1 month","Never"],1,"24 hours."],
+["Body text on slides should be at least:",["10 pt","14 pt","24 to 28 pt","8 pt"],2,"24 to 28 pt."],
+["The three parts of a presentation are:",["Start, middle, end with no plan","Introduction, body, conclusion","Slides, notes, handouts","Hook, joke, thanks"],1,"Introduction, body, conclusion."],
+["When you do not know an answer you should say:",["A guess","'I do not know, but I will find out'","Nothing","Change the topic"],1,"Honesty earns trust."],
+["Psychological safety lets people:",["Avoid work","Speak up and admit mistakes without fear","Hide errors","Skip meetings"],1,"Definition."],
+["In SBI, I stands for:",["Idea","Impact","Interview","Instruction"],1,"Situation, Behaviour, Impact."],
+["Conflict resolution looks for:",["Winners","Interests behind positions","Silence","Delay"],1,"Interests."],
+["For sensitive feedback the best medium is:",["Instant message","A call or video in private","A notice board","A circular"],1,"Tone and empathy."],
+["Which is a video-conferencing tool?",["Trello","Zoom","Dropbox","Jira"],1,"Zoom."],
+["The POSH Act requires an Internal Committee from:",["2 employees","10 employees","100 employees","1 000 employees"],1,"10 or more."],
+["Small workplaces under POSH use a:",["Local Committee","Board of directors","Tribunal only","No body"],0,"District-level Local Committee."],
+["A fresher's resume should be:",["Three pages","One page","Ten pages","No limit"],1,"One page."],
+["A resume bullet should begin with:",["I","An action verb","A date","Please"],1,"Developed, Designed, Led…"]
+];
+const FILL=[
+["The receiver turns signals back into meaning in the ___ step.",["decoding"],"Decoding."],
+["Interference that distorts a message is called ___.",["noise"],"Noise."],
+["Background sound is ___ noise.",["physical"],"Physical."],
+["Communication between people of the same level is ___.",["horizontal"],"Horizontal."],
+["Jargon is a ___ barrier.",["semantic"],"Semantic."],
+["The five habits of active listening begin with giving full ___.",["attention"],"Attention."],
+["A meeting sends an ___ in advance.",["agenda"],"Agenda."],
+["In STAR, the R stands for ___.",["result"],"Result."],
+["Open body language has ___ arms.",["uncrossed"],"Uncrossed."],
+["How something is said (tone, pace, volume) is ___.",["paralanguage"],"Paralanguage."],
+["The six Cs begin with clarity and ___.",["conciseness","concise"],"Conciseness."],
+["'Dear Mr Sharma' closes with Yours ___.",["sincerely"],"Sincerely."],
+["A ___ is a short internal message with To, From, Date, Subject.",["memo"],"Memo."],
+["The one-page synopsis at the front of a report is the executive ___.",["summary"],"Executive summary."],
+["A ___ copy hides the recipient's address.",["blind","bcc"],"BCC: blind carbon copy."],
+["Reply ___ should be used only when everyone needs the answer.",["all"],"Reply All."],
+["A thank-you e-mail follows an interview within ___ hours.",["24"],"24 hours."],
+["Presentation body text should be at least ___ point.",["24"],"24 to 28 point."],
+["A good presentation body has 2 to ___ main points.",["5","five"],"2 to 5."],
+["The S in SBI stands for ___.",["situation"],"Situation."],
+["Positions are fixed demands; ___ are the needs behind them.",["interests"],"Interests."],
+["A POSH Internal Committee is needed from ___ employees.",["10","ten"],"10 or more."],
+["The W-C-R-A-T aid ends with ___ as respect.",["time"],"Time."],
+["Owning your mistakes is ___.",["accountability"],"Accountability."],
+["A fresher's resume should be ___ page long.",["one","1"],"One page."],
+["Building relationships with alumni and mentors is ___.",["networking"],"Networking."]
+];
+const TF=[
+["Communication is complete when the message is sent.",false,"It is complete only when understood."],
+["Feedback completes the communication loop.",true,"Yes."],
+["Noise can be physical, psychological, semantic or technical.",true,"Four kinds."],
+["A formal meeting is always one-way.",false,"It can be two-way."],
+["Diagonal communication crosses levels and departments.",true,"Yes."],
+["Hearing and listening are the same.",false,"Listening is active."],
+["An agenda is circulated after the meeting.",false,"Before."],
+["Minutes need owners and deadlines for actions.",true,"Yes."],
+["In STAR the answer should show your own action.",true,"Yes."],
+["A GD is won by the loudest voice.",false,"Quality counts."],
+["Non-verbal cues are believed over words when they conflict.",true,"Yes."],
+["Body language is exactly 55% of all communication.",false,"Misquotes Mehrabian."],
+["One gesture alone is enough to read a person.",false,"Read clusters in context."],
+["'Yours faithfully' goes with 'Dear Sir/Madam'.",true,"Yes."],
+["A memo has a salutation and a formal close.",false,"It has neither."],
+["A circular is many separate letters.",false,"One document."],
+["A report should have an executive summary.",true,"Yes."],
+["A proposal without a budget is complete.",false,"A budget is needed."],
+["BCC recipients are visible to everyone.",false,"Hidden."],
+["CC is for people who must take action.",false,"Awareness only."],
+["Formal e-mail may use slang and emoji.",false,"No."],
+["Writing in capitals reads as shouting.",true,"Yes."],
+["A slide should carry as much text as possible.",false,"Key phrases only."],
+["Memorising a talk word for word is the safest method.",false,"One lost word can derail it."],
+["Guessing is better than admitting you do not know.",false,"Honesty earns trust."],
+["Psychological safety allows people to admit mistakes.",true,"Yes."],
+["Feedback should judge the person.",false,"Describe behaviour."],
+["Conflicts should be resolved in public.",false,"Privately."],
+["Sensitive matters are best settled by instant message.",false,"Use a call."],
+["Digital messages can be forwarded or kept.",true,"They are records."],
+["Confidentiality can be broken by a wrong CC.",true,"Carelessness counts."],
+["The POSH Act applies only to large firms.",false,"Local Committees serve smaller ones."],
+["A resume may exaggerate if the job is competitive.",false,"Never invent."]
+];
+const VSA=[
+["Define communication.",["sharing","understanding"],"Sharing information between a sender and receiver to create shared understanding.",1],
+["Name the seven parts of the communication process.",["sender","encoding","channel","noise","decoding","receiver","feedback"],"Sender, encoding, channel, noise, decoding, receiver, feedback.",1],
+["Name the four kinds of noise.",["physical","psychological","semantic","technical"],"Physical, psychological, semantic, technical.",1],
+["Name the five barriers to communication.",["physical","semantic","psychological","cultural","language"],"Physical, semantic, psychological, cultural, language.",1],
+["Name the four flows of communication in an organisation.",["downward","upward","horizontal","diagonal"],"Downward, upward, horizontal, diagonal.",1],
+["List the five habits of active listening.",["attention","interest","clarifying","paraphrase","judgement"],"Give full attention; show interest; ask clarifying questions; paraphrase; hold judgement.",1],
+["Expand STAR.",["situation","task","action","result"],"Situation, Task, Action, Result.",1],
+["Name the six Cs of writing.",["clarity","conciseness","correctness","completeness","courtesy","coherence"],"Clarity, conciseness, correctness, completeness, courtesy, coherence.",1],
+["Give the four header items of a memo.",["to","from","date","subject"],"To, From, Date, Subject.",1],
+["What do CC and BCC mean?",["carbon","blind"],"Carbon copy (visible) and blind carbon copy (hidden).",1],
+["Name the three parts of a presentation.",["introduction","body","conclusion"],"Introduction, body, conclusion.",1],
+["Expand SBI.",["situation","behaviour","impact"],"Situation, Behaviour, Impact.",1],
+["Define psychological safety.",["speak up","fear"],"A climate where people can speak up and admit mistakes without fear of judgement.",1],
+["Name the five areas of professional ethics.",["work ethic","confidentiality","respect","accountability","time"],"Work ethic, confidentiality, respect, accountability, time.",1],
+["From how many employees must a POSH Internal Committee exist?",["10"],"10 or more.",1],
+["Why is a resume saved as a PDF?",["layout"],"To preserve the layout.",1],
+["Which close goes with Dear Sir/Madam?",["faithfully"],"Yours faithfully.",1],
+["What is paralanguage?",["tone","pace","volume"],"How something is said: tone, pace, volume.",1]
+];
+const CALC=[
+{q:"What is the correct close?",src:R`letter greet=name`,alts:[["yourssincerely"],["sincerely"]],ex:1,model:"salutation: Dear Mr Sharma; close: Yours sincerely",e:"The report shows: salutation: Dear Mr Sharma; close: Yours sincerely"},
+{q:"What is the correct close?",src:R`letter greet=sir`,alts:[["yoursfaithfully"],["faithfully"]],ex:1,model:"salutation: Dear Sir/Madam; close: Yours faithfully",e:"The report shows: salutation: Dear Sir/Madam; close: Yours faithfully"},
+{q:"What are the header items of a memo?",src:R`doc kind=memo`,alts:[["to","from","date","subject"]],ex:0,model:"memo: To, From, Date, Subject, then the body; no salutation or close",e:"The report shows: memo: To, From, Date, Subject, then the body; no salutation or close"},
+{q:"Name two parts of a proposal.",src:R`doc kind=proposal`,alts:[["problem","budget"]],ex:0,model:"proposal: problem, proposed solution, approach, timeline, budget, reasons for approval",e:"The report shows: proposal: problem, proposed solution, approach, timeline, budget, reasons for approval"},
+{q:"Does a notice carry the issuer? Write yes or no.",src:R`doc kind=notice`,alts:[["yes"]],ex:1,model:"yes",e:"The report shows: notice: title, issuing body, date, details (what, when, where), signature and designation"},
+{q:"How many addresses are visible to everyone?",src:R`mail to=1 cc=1 bcc=50`,alts:[["2"]],ex:1,model:"visible to everyone: 2 addresses / hidden: 50 addresses / total recipients: 52",e:"The report shows: visible to everyone: 2 addresses / hidden: 50 addresses / total recipients: 52"},
+{q:"How many addresses are hidden?",src:R`mail to=1 cc=1 bcc=50`,alts:[["50"]],ex:1,model:"visible to everyone: 2 addresses / hidden: 50 addresses / total recipients: 52",e:"The report shows: visible to everyone: 2 addresses / hidden: 50 addresses / total recipients: 52"},
+{q:"What is the total number of recipients?",src:R`mail to=2 cc=3 bcc=10`,alts:[["15"]],ex:1,model:"visible to everyone: 5 addresses / hidden: 10 addresses / total recipients: 15",e:"The report shows: visible to everyone: 5 addresses / hidden: 10 addresses / total recipients: 15"},
+{q:"How many messages does one Reply All deliver?",src:R`replyall recipients=200 repliers=1`,alts:[["200"]],ex:1,model:"messages delivered: 200 / one careless Reply All fills 200 inboxes",e:"The report shows: messages delivered: 200 / one careless Reply All fills 200 inboxes"},
+{q:"How many messages if everyone replies to all?",src:R`replyall recipients=200 repliers=200`,alts:[["40000"]],ex:1,model:"messages delivered: 40000 / a Reply All storm",e:"The report shows: messages delivered: 40000 / a Reply All storm"},
+{q:"How many messages are delivered?",src:R`replyall recipients=50 repliers=10`,alts:[["500"]],ex:1,model:"messages delivered: 500 / a Reply All storm",e:"The report shows: messages delivered: 500 / a Reply All storm"},
+{q:"What is the total time, in minutes?",src:R`talk intro=0.5 body=3.5 concl=1 limit=5`,alts:[["5"]],ex:1,model:"total: 5 minutes / exactly on time",e:"The report shows: total: 5 minutes / exactly on time"},
+{q:"Is the talk within the limit? Write yes or no.",src:R`talk intro=1 body=6 concl=2 limit=8`,alts:[["no"]],ex:1,model:"no",e:"The report shows: total: 9 minutes / over the limit by 1 minutes"},
+{q:"By how many minutes does it overrun?",src:R`talk intro=1 body=6 concl=2 limit=8`,alts:[["1"]],ex:0,model:"total: 9 minutes / over the limit by 1 minutes",e:"The report shows: total: 9 minutes / over the limit by 1 minutes"},
+{q:"How many seconds per slide?",src:R`pace minutes=10 slides=30`,alts:[["20"]],ex:0,model:"time per slide: 20 seconds / too many slides: about 1 to 2 minutes per slide is a guide",e:"The report shows: time per slide: 20 seconds / too many slides: about 1 to 2 minutes per slide is a guide"},
+{q:"Are there too many slides? Write yes or no.",src:R`pace minutes=10 slides=30`,alts:[["yes"]],ex:1,model:"yes",e:"The report shows: time per slide: 20 seconds / too many slides: about 1 to 2 minutes per slide is a guide"},
+{q:"How many seconds per slide?",src:R`pace minutes=10 slides=8`,alts:[["75"]],ex:0,model:"time per slide: 75 seconds / workable pace",e:"The report shows: time per slide: 75 seconds / workable pace"},
+{q:"Is the font readable? Write yes or no.",src:R`slide size=14 words=80 points=3`,alts:[["no"]],ex:1,model:"no",e:"The report shows: font: too small (use 24 to 28 pt) / points: too many; one main point per slide / text: too much; use key phrases, not paragraphs"},
+{q:"Is the slide acceptable on font, points and text? Write yes or no.",src:R`slide size=28 words=12 points=1`,alts:[["yes"]],ex:1,model:"yes",e:"The report shows: font: readable (24 pt or more) / points: one main point per slide / text: key phrases"},
+{q:"What is the best medium for sensitive feedback?",src:R`medium need=sensitive`,alts:[["callorvideo"],["call"]],ex:0,model:"best medium: call or video, in private",e:"The report shows: best medium: call or video, in private"},
+{q:"What is the best medium for a quick question?",src:R`medium need=quick`,alts:[["instantmessage"],["instant"]],ex:0,model:"best medium: instant message",e:"The report shows: best medium: instant message"},
+{q:"What is the best medium for joint editing?",src:R`medium need=joint`,alts:[["collaborativeplatform"],["collaborative"]],ex:0,model:"best medium: collaborative platform",e:"The report shows: best medium: collaborative platform"},
+{q:"Which committee is required?",src:R`posh employees=25`,alts:[["internal"]],ex:0,model:"Internal Committee required (10 or more employees)",e:"The report shows: Internal Committee required (10 or more employees)"},
+{q:"Which committee serves this workplace?",src:R`posh employees=6`,alts:[["local"]],ex:0,model:"Local Committee at district level (fewer than 10 employees)",e:"The report shows: Local Committee at district level (fewer than 10 employees)"},
+{q:"Is the length right? Write yes or no.",src:R`resume pages=3 level=fresher`,alts:[["no"]],ex:1,model:"no",e:"The report shows: length: too long; a fresher resume should be 1 page"}
+];
+const SHORT=[
+["Why is feedback needed in communication?","It shows the sender whether the message was understood, so errors are corrected before they cost anything.",["understood","sender"]],
+["Distinguish formal from informal communication.","Formal is official and follows the hierarchy (a memo); informal is casual (a canteen chat).",["official","casual"]],
+["Distinguish upward from downward communication.","Downward flows from superiors to subordinates (policy); upward from subordinates to superiors (a progress report).",["downward","upward"]],
+["Why do employers value communication skills?","Communication is needed in nearly every role; poor communication wastes time and damages teams and careers.",["every role","teams"]],
+["State two remedies for a semantic barrier.","Use simple words and explain technical terms.",["simple","explain"]],
+["Give three habits of an active listener.","Give full attention, ask clarifying questions, paraphrase.",["attention","clarifying","paraphrase"]],
+["List four rules of telephone etiquette.","Answer within two or three rings, greet with name and organisation, speak clearly, repeat key points, end with next steps.",["rings","greet","key points"]],
+["Why must minutes contain owners and deadlines?","Without owners and dates, actions are not done or tracked and the minutes are only a story of the meeting.",["owner","date"]],
+["Why does STAR require the Action to be your own?","The interviewer is judging you; 'we did it' hides your contribution.",["your","contribution"]],
+["Why do listeners trust non-verbal cues when they conflict with words?","Cues are harder to control and reveal real feelings; a mismatch reads as dishonesty.",["cues","dishonesty"]],
+["Distinguish a notice from a circular.","A notice is a brief formal announcement to a defined audience; a circular is one document sent at once to many recipients to announce a common policy.",["announcement","many recipients"]],
+["Distinguish a memo from a letter.","A memo is internal with To, From, Date, Subject and no salutation or close; a letter is formal with salutation and complimentary close and goes outside.",["internal","salutation"]],
+["Why does an e-mail need a specific subject line?","It tells the reader the purpose and urgency and helps them find the mail later.",["purpose","reader"]],
+["When is Reply All appropriate?","Only when everyone on the mail needs the answer.",["everyone","answer"]],
+["State three rules for effective slides.","Key phrases, one point per slide, large font (24 to 28 pt), consistent design.",["key phrases","one point","font"]],
+["Give three ways of managing nervousness.","Prepare, breathe slowly, reframe nervous energy as enthusiasm, rehearse aloud.",["prepare","breathe","reframe"]],
+["Distinguish positions from interests in conflict.","A position is what someone demands; an interest is what they really need, so different positions may share compatible interests.",["demand","need"]],
+["Give four tips for a strong resume.","One page, action verbs, numbers, proofread, PDF, tailored to the role.",["page","action verbs","pdf"]]
+];
+const LONG=[
+["Explain the communication process with a diagram, including noise and feedback.","Sender (idea) encodes the meaning into a message; the message travels through a channel; the receiver decodes it and gives feedback; noise (physical, psychological, semantic, technical) can disturb any step. In Meera's example, 'by evening' becomes 'by seven' through a bad connection; the lead's feedback 'Seven o'clock, correct?' lets her correct it.",["sender","encod","channel","decod","feedback","noise"]],
+["Explain the barriers to communication and how to overcome each.","Physical (noise, distance): quiet place, test equipment. Semantic (jargon): simple words. Psychological (prejudice, anger): wait until calm. Cultural (norms of formality, gesture): learn the culture. Language (no shared language): plain language and a written summary.",["physical","semantic","psychological","cultural","language"]],
+["Explain active listening and how to run an effective meeting.","Active listening: full attention, show interest, clarifying questions, paraphrase, withhold judgement. A meeting needs a clear purpose, an agenda sent in advance, the right people, active facilitation and minutes with owners and deadlines.",["attention","paraphrase","agenda","minutes","owners"]],
+["Explain how to prepare for an interview, including STAR and a sample answer.","Research the company and role; prepare STAR examples; practise aloud; prepare questions; plan route, time, dress and documents. STAR: Situation (group missed two deadlines), Task (restore the schedule), Action (weekly tasks, stand-ups, board), Result (delivered one day early, second place).",["research","star","situation","action","result"]],
+["Explain the role of body language, eye contact, posture and tone of voice.","Open body language and natural eye contact build trust; slumped posture shows low energy; clear varied tone persuades. Cues are trusted when they contradict words, so they must agree with speech. Read clusters in context; cultures differ; the 7-38-55 figure applies only to feelings.",["body language","eye contact","posture","tone","contradict"]],
+["Explain the format of a formal letter, a notice, a circular and a memo.","Letter: letterhead and date, inside address, salutation, subject, body, close (sincerely or faithfully), signature. Notice: title, issuer, date, details, signature. Circular: one document to many recipients. Memo: To, From, Date, Subject, body, no salutation or close.",["letter","notice","circular","memo","salutation"]],
+["Explain the rules of professional e-mail and etiquette.","Specific subject, clear purpose, concise body, action and date; no slang or capitals; CC for awareness, BCC for hiding; Reply All only if needed; reply in one to two days; descriptive attachment names; proofread; thank-you within 24 hours.",["subject","cc","bcc","reply all","proofread"]],
+["Explain how to plan, structure and deliver a presentation.","Identify the audience and key message; introduction, body of 2 to 5 points, conclusion; slides with key phrases at 24 to 28 pt, one point each; deliver with voice, pauses and eye contact; manage nerves; handle questions honestly; rehearse with a timer.",["audience","introduction","body","conclusion","slides","nervous"]],
+["Explain how to give and receive feedback using SBI, and how to resolve conflict.","SBI: Situation, Behaviour, Impact, with a suggested improvement. Receive by listening and thanking. Conflict: act early, privately, understand the other view, separate the problem from the person, find interests, reach a solution both accept.",["sbi","situation","behaviour","impact","interests"]],
+["Explain professional ethics: work ethic, confidentiality, respect, accountability and time.","Work ethic: diligence, reliability, initiative. Confidentiality: do not disclose sensitive information. Respect: equal dignity; POSH Act, 2013, Internal Committee for 10 or more employees. Accountability: acknowledge, inform, correct, prevent. Time: punctuality and deadlines.",["work ethic","confidentiality","respect","accountability","posh"]]
+];
+const APP=[
+["A message to the whole class is understood differently by different students. Identify barriers and fixes.","Likely semantic, language and psychological barriers. Fix by using simple words, a written summary, checking with feedback questions.",["semantic","feedback"]],
+["A manager says 'great job' while looking at his phone. What does the listener believe?","The non-verbal signal: that he is bored or insincere, because cues are trusted over words when they conflict.",["non-verbal","insincere"]],
+["A colleague criticises your work in a team meeting. Describe a professional response.","Listen without defending, ask questions, thank them, and then discuss it privately later.",["listen","privately"]],
+["Two team-mates want the single computer. Use interests and positions to propose a solution.","Positions: both want it now. Interests differ in timing and duration, so schedule one for the afternoon and one for an overnight run.",["interests","schedule"]],
+["A friend replies 'Thanks' to all 200 recipients of a company e-mail. What mistake and consequence?","Misuse of Reply All; 200 inboxes receive a useless message and a storm may follow.",["reply all","200"]],
+["A 10-minute presentation has 30 slides. Comment.","That is 20 seconds a slide: far too many. Use about 5 to 10 slides, one point each.",["20 seconds","too many"]],
+["You do not know the answer to an examiner's question. What do you say?","'I do not know, but I will find out and tell you', rather than guessing.",["do not know","find out"]],
+["Why is 'We completed the project' a weak STAR answer?","It hides your own Action and gives no Situation, Task or Result with numbers.",["action","result"]],
+["Meera sees a colleague sharing client data on a public chat group. What should she do?","Tell the colleague and her supervisor promptly, because confidentiality has been breached.",["confidentiality","supervisor"]]
+];
+MCQ.forEach((m,i)=>{const r=(i*3+1)%4;const ans=m[1][m[2]];const rot=m[1].slice(r).concat(m[1].slice(0,r));m[1]=rot;m[2]=rot.indexOf(ans);});
+
+/* ============ HELPERS ============ */
+const KEY="cs-lesson29-v1";
+let store={box:{},hist:[],path:{done:{},ch:{}}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function norm(s){return " "+String(s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim()+" ";}
+function matches(user,acc,all){const u=norm(user);const hit=a=>u.includes(norm(a));return all?acc.every(hit):acc.some(hit);}
+const TM={};TYPES.forEach(t=>TM[t.k]=t);
+
+/* question bank */
+const BANK=[];
+MCQ.forEach(q=>BANK.push({t:"mcq",q:q[0],opts:q[1],a:q[2],e:q[3]}));
+FILL.forEach(q=>BANK.push({t:"fill",q:q[0],acc:q[1],e:q[2],model:q[1][0]}));
+TF.forEach(q=>BANK.push({t:"tf",q:q[0],a:q[1],e:q[2]}));
+VSA.forEach(q=>BANK.push({t:"vsa",q:q[0],acc:q[1],model:q[2],all:!!q[3]}));
+SHORT.forEach(q=>BANK.push({t:"short",q:q[0],model:q[1],pts:q[2]}));
+LONG.forEach(q=>BANK.push({t:"long",q:q[0],model:q[1],pts:q[2]}));
+CALC.forEach(q=>BANK.push({t:"calc",q:q.q,src:q.src,alts:q.alts,ex:q.ex,model:q.model,e:q.e}));
+APP.forEach(q=>BANK.push({t:"app",q:q[0],model:q[1],pts:q[2]}));
+const WRITTEN={short:1,long:1,app:1};
+
+/* ============ STATE ============ */
+const S={tab:"learn",lv:"path",
+  path:{step:null,ph:"primer",ch:0,i:0,q:[],flip:false,guess:"",text:"",dchecked:false,ticks:{}},
+  cards:{sec:-1,ordered:false,queue:[],flip:false,guess:"",done:0},
+  dump:{i:0,text:"",checked:false,ticks:{}},
+  tmode:{},
+  ev:{view:"setup",types:{mcq:1,fill:1,tf:1,vsa:1,calc:1,short:1,long:1,app:1},n:20},
+  run:null};
+
+function buildQueue(){
+  const ids=[];CARDS.forEach((c,i)=>{if((S.cards.sec<0||c[0]===S.cards.sec)&&(store.box[i]||0)<3)ids.push(i);});
+  if(S.cards.ordered)ids.sort((a,b)=>(CARDS[a][0]-CARDS[b][0])||((a<ORIG?0:1)-(b<ORIG?0:1))||(a-b));else shuffle(ids);
+  S.cards.queue=ids;S.cards.flip=false;S.cards.guess="";S.cards.done=0;
+}
+buildQueue();
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  $("#t-learn").setAttribute("aria-selected",S.tab==="learn");
+  $("#t-eval").setAttribute("aria-selected",S.tab==="eval");
+  $("#app").innerHTML=S.tab==="learn"?viewLearn():viewEval();
+}
+
+/* ============ LEARN ============ */
+function viewLearn(){
+  const subs=[["path","Start here"],["cards","Recall cards"],["cloze","Fill the gaps"],["cover","Cover and recall"],["dump","Brain dump"],["lab","Code lab"]];
+  let h='<div class="subnav" role="group" aria-label="Learning method">'+subs.map(s=>`<button class="chip" data-act="lv" data-v="${s[0]}" aria-pressed="${S.lv===s[0]}">${s[1]}</button>`).join("")+"</div>";
+  if(S.lv==="path")h+=viewPath();
+  else if(S.lv==="cards")h+=viewCards();
+  else if(S.lv==="cloze")h+=viewCloze();
+  else if(S.lv==="cover")h+=viewCover();
+  else if(S.lv==="lab")h+=labView();
+  else h+=viewDump();
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function secCounts(){
+  const c=[0,0,0,0];
+  CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)c[store.box[i]||0]++;});return c;
+}
+function viewCards(){
+  const c=secCounts(),tot=c[0]+c[1]+c[2]+c[3];
+  let h='<p class="hint">Read the question, answer in your head or in the box, then flip. Rate honestly. Missed cards come back within a few cards; a card is mastered after two confident passes in separate sessions.</p>';
+  h+='<div class="subnav">'+['<button class="chip" data-act="csec" data-v="-1" aria-pressed="'+(S.cards.sec<0)+'">All topics</button>'].concat(SECS.map((s,i)=>`<button class="chip" data-act="csec" data-v="${i}" aria-pressed="${S.cards.sec===i}">${esc(s)}</button>`)).join("")+"</div>";
+  h+=`<div class="subnav"><button class="chip" data-act="cord" data-v="0" aria-pressed="${!S.cards.ordered}">Shuffled</button><button class="chip" data-act="cord" data-v="1" aria-pressed="${S.cards.ordered}">Chapter order</button></div>`;
+  h+=`<div class="stats"><div class="stat"><b>${c[0]}</b><span>New</span></div><div class="stat"><b>${c[1]}</b><span>Learning</span></div><div class="stat"><b>${c[2]}</b><span>Review</span></div><div class="stat"><b>${c[3]}</b><span>Mastered</span></div></div>`;
+  h+=`<div class="bar" aria-hidden="true"><i style="width:${tot?Math.round(c[3]/tot*100):0}%"></i></div>`;
+  const q=S.cards.queue;
+  if(!q.length){
+    h+=`<div class="panel"><h3>${c[3]===tot?"Every card in this set is mastered":"Session complete"}</h3><p class="hint">${S.cards.done} cards rated this session.</p><div class="row"><button class="btn primary" data-act="cnext">Start another round</button><button class="btn" data-act="creset">Reset progress for this set</button></div></div>`;
+    return h;
+  }
+  const id=q[0],k=CARDS[id];
+  h+=`<div class="panel fc"><div class="lab">Question · ${esc(SECS[k[0]])} · ${q.length} left</div><div class="q">${esc(k[1])}</div>`;
+  h+=`<input type="text" id="guess" placeholder="Type what you remember (optional)" value="${esc(S.cards.guess)}" autocomplete="off">`;
+  if(!S.cards.flip){h+='<div class="row"><button class="btn primary" data-act="flip">Show answer</button><span class="hint">or press Space</span></div>';}
+  else{
+    h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="rate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="rate" data-v="almost">Almost (2)</button><button class="btn good" data-act="rate" data-v="got">Got it (3)</button></div>`;
+  }
+  return h+"</div>";
+}
+function viewCloze(){
+  let h='<p class="hint">Read each passage and say the hidden term aloud before you tap it. Tap again to hide it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+  NOTES.forEach(n=>{
+    const body=esc(n[1]).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);
+    h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${body}</p></div>`;
+  });
+  return h;
+}
+function viewCover(){
+  let h='<p class="hint">Cover the answers, say what belongs in each cell, then tap it to check. Switch the mask to quiz yourself from the other direction.</p>';
+  TABLES.forEach((t,ti)=>{
+    const m=S.tmode[ti]||"a";
+    h+=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(t.t)}</h3><div class="subnav"><button class="chip" data-act="tmode" data-t="${ti}" data-v="a" aria-pressed="${m==="a"}">Hide answers</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="b" aria-pressed="${m==="b"}">Hide first column</button><button class="chip" data-act="tmode" data-t="${ti}" data-v="o" aria-pressed="${m==="o"}">Show all</button></div></div><div class="tbl"><table><thead><tr>${t.c.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    t.r.forEach(r=>{h+="<tr>"+r.map((c,ci)=>{const hid=(m==="a"&&ci>0)||(m==="b"&&ci===0);return `<td><span class="m${hid?" hid":""}" data-act="mask"${hid?' tabindex="0" role="button" aria-label="Hidden, press to reveal"':""}>${esc(c)}</span></td>`;}).join("")+"</tr>";});
+    h+="</tbody></table></div></div>";
+  });
+  return h;
+}
+function viewDump(){
+  const d=DUMPS[S.dump.i];
+  let h='<p class="hint">Pick a topic and write everything you can remember with the chapter closed. Then compare against the key points and tick what you covered. The unticked points are your study list.</p>';
+  h+='<div class="subnav">'+DUMPS.map((x,i)=>`<button class="chip" data-act="dtopic" data-v="${i}" aria-pressed="${S.dump.i===i}">${esc(x.t)}</button>`).join("")+"</div>";
+  h+=`<div class="panel"><h3>${esc(d.t)}</h3><label class="lab" for="dtext">Your recall</label><textarea id="dtext" placeholder="Write it all out, in your own words...">${esc(S.dump.text)}</textarea>`;
+  if(!S.dump.checked){h+='<div class="row"><button class="btn primary" data-act="dcheck">Compare with key points</button></div>';}
+  else{
+    const n=d.p.length,got=d.p.filter((_,i)=>S.dump.ticks[i]).length;
+    h+=`<div class="lab">Tick what you included</div><div class="pts">`+d.p.map((p,i)=>`<label><input type="checkbox" data-act="dtick" data-i="${i}"${S.dump.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")+`</div><div class="row"><b>${got} of ${n} covered</b><button class="btn" data-act="dreset">Try again</button></div>`;
+  }
+  return h+"</div>";
+}
+
+/* ============ GUIDED PATH ============ */
+const CH=6;
+const T=TABLES;
+const STEPS=[
+{t:"Communication fundamentals",sec:[0],notes:[0],dump:[0],blocks:[
+ {h:"The seven parts",d:"Sender, encoding, channel, noise, decoding, receiver, feedback.",t:T[0]},
+ {h:"Four kinds of noise",d:"Table.",t:T[1]},
+ {h:"Ways of classifying communication",d:"Table 1.1.",t:T[2]},
+ {h:"Five barriers",d:"Table 1.2.",t:T[3]}
+]},
+{t:"Verbal communication",sec:[1],notes:[1],dump:[1],blocks:[
+ {h:"Face-to-face and active listening",d:"Table.",t:T[4]},
+ {h:"Telephone etiquette",d:"Table.",t:T[5]},
+ {h:"A good meeting",d:"Table.",t:T[6]},
+ {h:"Minutes",d:"Every action has an owner and a date.",t:T[7]},
+ {h:"STAR",d:"Table.",t:T[8]},
+ {h:"Interviews and group discussions",d:"Table.",t:T[9]}
+]},
+{t:"Non-verbal communication",sec:[2],notes:[2],dump:[2],blocks:[
+ {h:"Six channels",d:"Table 1.3.",t:T[10]},
+ {h:"Reading signals",d:"Mismatch, clusters and the 7-38-55 correction.",t:T[11]}
+]},
+{t:"Written communication",sec:[3],notes:[3],dump:[3],blocks:[
+ {h:"The six Cs",d:"Table 1.4.",t:T[12]},
+ {h:"A formal letter",d:"Order of parts.",t:T[13]},
+ {h:"Salutation and close",d:"The planner picks the close.",t:T[14],code:{c:R`# Which close goes with which salutation?
+letter greet=name
+letter greet=sir`,tr:"Predict each close before you run."}},
+ {h:"Notice, circular and memo",d:"Table.",t:T[15],code:{c:R`# Layout of each document
+doc kind=memo
+doc kind=notice
+doc kind=report
+doc kind=proposal`,tr:"Try kind=circular and kind=letter."}},
+ {h:"Reports and proposals",d:"Table.",t:T[16]},
+ {h:"Choosing the document",d:"Table.",t:T[17]}
+]},
+{t:"E-mail",sec:[4],notes:[4],dump:[4],blocks:[
+ {h:"Subject lines",d:"Table 1.5.",t:T[18]},
+ {h:"Parts of an e-mail",d:"Table.",t:T[19]},
+ {h:"To, CC and BCC",d:"Table 1.6.",t:T[20],code:{c:R`# To, CC and BCC
+mail to=1 cc=1 bcc=50`,tr:"Change bcc=50 to 200 and read the visible count."}},
+ {h:"Etiquette and attachments",d:"Table.",t:T[21]},
+ {h:"Reply All",d:"One reply reaches every recipient.",code:{c:R`# A careless Reply All
+replyall recipients=200 repliers=1
+replyall recipients=200 repliers=200`,tr:"Change repliers=200 to 20 and predict the count."}}
+]},
+{t:"Presentation skills",sec:[5],notes:[5],dump:[5],blocks:[
+ {h:"Planning and structure",d:"Table.",t:T[22]},
+ {h:"Fixing a crowded slide",d:"Table 1.7.",t:T[23],code:{c:R`# A crowded slide and a better one
+slide size=14 words=80 points=3
+slide size=28 words=12 points=1`,tr:"Try size=24 words=30 points=1."}},
+ {h:"Delivery and questions",d:"Table.",t:T[24]},
+ {h:"A five-minute talk",d:"Meera's plan.",t:T[25],code:{c:R`# Meera's five-minute talk
+talk intro=0.5 body=3.5 concl=1 limit=5
+# Add the 30 seconds for questions
+talk intro=0.5 body=3.5 concl=1 qa=0.5 limit=5`,tr:"Change body=3.5 to 4.5 and read the verdict."}},
+ {h:"Slides and time",d:"The planner checks the pace.",code:{c:R`# Ten minutes and thirty slides
+pace minutes=10 slides=30
+pace minutes=10 slides=8`,tr:"Try minutes=5 slides=6."}}
+]},
+{t:"Workplace communication",sec:[6],notes:[6],dump:[6],blocks:[
+ {h:"Team communication",d:"Table.",t:T[26]},
+ {h:"SBI",d:"Table.",t:T[27]},
+ {h:"Giving and receiving feedback",d:"Table.",t:T[28]},
+ {h:"Conflict resolution",d:"Table.",t:T[29]}
+]},
+{t:"Digital communication",sec:[7],notes:[7],dump:[7],blocks:[
+ {h:"Video conferencing",d:"Table.",t:T[30]},
+ {h:"Messaging and platforms",d:"Table.",t:T[31]},
+ {h:"Choosing the medium",d:"Table 1.8.",t:T[32],code:{c:R`# Choosing the medium
+medium need=quick
+medium need=formal
+medium need=sensitive
+medium need=joint
+medium need=announce`,tr:"Predict each answer before you run."}}
+]},
+{t:"Professional ethics",sec:[8],notes:[8],dump:[8],blocks:[
+ {h:"Five areas",d:"Table.",t:T[33]},
+ {h:"Law and conduct",d:"Table.",t:T[34],code:{c:R`# POSH committee
+posh employees=25
+posh employees=6`,tr:"Try employees=10 and employees=9."}}
+]},
+{t:"Career skills",sec:[9],notes:[9],dump:[9],blocks:[
+ {h:"The resume",d:"Table.",t:T[35],code:{c:R`# Resume length
+resume pages=3 level=fresher
+resume pages=1 level=fresher`,tr:"Try pages=2 level=experienced."}},
+ {h:"Improving bullets",d:"Table.",t:T[36]},
+ {h:"Cover letter and interviews",d:"Table.",t:T[37]},
+ {h:"Networking and branding",d:"Table.",t:T[38]},
+ {h:"Numbers to remember",d:"Table.",t:T[39]}
+]}
+];
+STEPS.forEach((s,si)=>s.blocks.forEach((b,bi)=>{ if(b.code) b.code.id="s"+si+"b"+bi; }));
+
+/* Communication lab: one command per line. */
+function parseKV(s){const kv={};const re=/(\w+)=(\S+)/g;let m;while((m=re.exec(s)))kv[m[1]]=m[2];return kv;}
+const num=(a,k,min)=>{const v=a[k];if(v===undefined||v===""||isNaN(+v))throw new Error("needs "+k+"= (a number).");return +v;};
+const opt=(a,k)=>a[k]===undefined?null:(isNaN(+a[k])?(()=>{throw new Error(k+"= must be a number.");})():+a[k]);
+const tr=x=>String(Math.round(x*100)/100);
+function rs(v){const s=v<0?"-":"";v=Math.abs(v);if(v>=1e7)return s+"Rs "+tr(v/1e7)+" crore";if(v>=1e5)return s+"Rs "+tr(v/1e5)+" lakh";return s+"Rs "+tr(v);}
+const SIMS={
+talk(a,o){
+  const i=num(a,"intro"),b=num(a,"body"),c=num(a,"concl"),q=opt(a,"qa")||0,lim=num(a,"limit");
+  if([i,b,c,q,lim].some(x=>x<0)||lim<=0)throw new Error("times must be positive minutes.");
+  const t=i+b+c+q;o.push("total: "+tr(t)+" minutes");
+  o.push(t>lim?"over the limit by "+tr(t-lim)+" minutes":(t<lim?"within the limit; "+tr(lim-t)+" minutes spare":"exactly on time"));
+},
+pace(a,o){
+  const m=num(a,"minutes"),n=num(a,"slides");
+  if(m<=0||n<=0)throw new Error("minutes and slides must be above 0.");
+  const sec=Math.round(m*60/n);o.push("time per slide: "+sec+" seconds");
+  o.push(sec<60?"too many slides: about 1 to 2 minutes per slide is a guide":"workable pace");
+},
+slide(a,o){
+  const sz=num(a,"size"),w=num(a,"words"),p=num(a,"points");
+  if(sz<=0||w<0||p<0)throw new Error("size must be above 0; words and points cannot be negative.");
+  o.push(sz>=24?"font: readable (24 pt or more)":"font: too small (use 24 to 28 pt)");
+  o.push(p<=1?"points: one main point per slide":"points: too many; one main point per slide");
+  o.push(w<=30?"text: key phrases":"text: too much; use key phrases, not paragraphs");
+},
+letter(a,o){
+  const g=a.greet;
+  if(g!=="name"&&g!=="sir")throw new Error("greet= must be name (Dear Mr Sharma) or sir (Dear Sir/Madam).");
+  o.push(g==="name"?"salutation: Dear Mr Sharma; close: Yours sincerely":"salutation: Dear Sir/Madam; close: Yours faithfully");
+},
+doc(a,o){
+  const D={letter:"letterhead and date, inside address, salutation, subject line, body, complimentary close, signature",
+   notice:"title, issuing body, date, details (what, when, where), signature and designation",
+   circular:"one document for many recipients: common policy or instruction",
+   memo:"To, From, Date, Subject, then the body; no salutation or close",
+   report:"title page, executive summary, contents, introduction, methodology, findings and analysis, conclusions and recommendations, references and appendices",
+   proposal:"problem, proposed solution, approach, timeline, budget, reasons for approval"};
+  if(!D[a.kind])throw new Error("kind= must be one of: "+Object.keys(D).join(", ")+".");
+  o.push(a.kind+": "+D[a.kind]);
+},
+medium(a,o){
+  const M={quick:"instant message",formal:"e-mail or letter",sensitive:"call or video, in private",joint:"collaborative platform",announce:"circular, notice board or channel post"};
+  if(!M[a.need])throw new Error("need= must be one of: "+Object.keys(M).join(", ")+".");
+  o.push("best medium: "+M[a.need]);
+},
+posh(a,o){
+  const n=num(a,"employees");
+  if(n<0)throw new Error("employees cannot be negative.");
+  o.push(n>=10?"Internal Committee required (10 or more employees)":"Local Committee at district level (fewer than 10 employees)");
+},
+replyall(a,o){
+  const r=num(a,"recipients"),k=num(a,"repliers");
+  if(r<1||k<1||k>r)throw new Error("recipients and repliers must be at least 1, and repliers cannot exceed recipients.");
+  o.push("messages delivered: "+(r*k));o.push(k===1?"one careless Reply All fills "+r+" inboxes":"a Reply All storm");
+},
+mail(a,o){
+  const t=num(a,"to"),c=num(a,"cc"),b=num(a,"bcc");
+  if(t<1||c<0||b<0)throw new Error("to must be at least 1; cc and bcc cannot be negative.");
+  o.push("visible to everyone: "+(t+c)+" addresses");o.push("hidden: "+b+" addresses");o.push("total recipients: "+(t+c+b));
+},
+resume(a,o){
+  const p=num(a,"pages"),lv=a.level;
+  if(lv!=="fresher"&&lv!=="experienced")throw new Error("level= must be fresher or experienced.");
+  if(p<1)throw new Error("pages must be at least 1.");
+  const max=lv==="fresher"?1:2;
+  o.push(p<=max?"length: right for a "+lv:"length: too long; a "+lv+" resume should be "+max+" page"+(max>1?"s":""));
+}
+};
+function fnRun(src){
+  const out=[];let errors=0,title="",detail="";
+  const lines=String(src).replace(/\r/g,"").split("\n");let cmds=0;
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i].trim();if(!ln||ln[0]==="#")continue;
+    const sp=ln.search(/\s/),c=sp<0?ln:ln.slice(0,sp),rest=sp<0?"":ln.slice(sp+1);cmds++;
+    if(!SIMS[c]){errors++;title="Unknown command";detail="Line "+(i+1)+": '"+c+"' is not a command of this lab. Commands: "+Object.keys(SIMS).join(", ")+".";out.push("error: "+detail);continue;}
+    try{SIMS[c](parseKV(rest),out);}catch(e){errors++;title="Cannot run";detail="Line "+(i+1)+": "+c+" "+e.message;out.push("error: "+detail);}
+  }
+  if(!cmds)return {ok:false,title:"Nothing to run",detail:"Type at least one command.",out:"",brief:"",errors:1,warns:0};
+  return {ok:errors===0,title,detail,out:out.join("\n"),brief:out.join(" / "),errors,warns:0,cmds};
+}
+
+function runCpp(src,inp){return fnRun(src);}
+function outHtml(r){
+  if(!r)return '<p class="hint">Press Run to see the report.</p>';
+  if(!r.ok&&!r.out)return '<div class="rs bad"><b>'+esc(r.title)+".</b> "+esc(r.detail)+"</div>";
+  return '<pre class="outpre">'+esc(r.out)+'</pre><div class="rs '+(r.ok?"ok":"bad")+'">'+(r.ok?"The script ran without errors.":"<b>"+esc(r.title)+".</b> "+esc(r.detail))+"</div>";
+}
+const CS={src:{},inp:{},out:{},spec:{}};
+function codeHtml(id,spec){
+  CS.spec[id]=spec;
+  const src=CS.src[id]!==undefined?CS.src[id]:spec.c;
+  const rows=Math.min(14,Math.max(3,src.split("\n").length+1));
+  let h='<div class="cw"><div class="cw-bar"><span class="lab">Plan</span><span class="row"><button class="btn sm" data-act="crun" data-id="'+id+'">Run</button><button class="btn sm" data-act="wreset" data-id="'+id+'">Reset</button></span></div>';
+  h+='<textarea class="codearea" id="code-'+id+'" data-cid="'+id+'" rows="'+rows+'" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Plan editor">'+esc(src)+'</textarea>';
+  h+='<div class="outbox" id="out-'+id+'" aria-live="polite">'+outHtml(CS.out[id])+"</div>";
+  if(spec.tr)h+='<p class="try"><b>Try this.</b> '+esc(spec.tr)+"</p>";
+  return h+"</div>";
+}
+function runWidget(id){
+  const spec=CS.spec[id];if(!spec)return;
+  const ta=document.getElementById("code-"+id);
+  const src=ta?ta.value:spec.c;CS.src[id]=src;
+  const r=runCpp(src,"");
+  CS.out[id]=r;const o=document.getElementById("out-"+id);if(o)o.innerHTML=outHtml(r);
+}
+function resetWidget(id){const s=CS.spec[id];if(!s)return;delete CS.src[id];delete CS.out[id];delete CS.inp[id];render();}
+
+/* ============ LAB STATE ============ */
+const L={tool:"run",ex:0,pi:0,pres:{},fi:0,fshow:{},fres:{},
+ ti:"0.5",tb:"3.5",tc:"1",tq:"0.5",tl:"5.5",mt:"1",mc:"1",mb:"50",ss:"14",sw:"80",sp:"3",
+ sd:{dim:0,item:null,fb:"",right:null,s:0,t:0}};
+const LABTOOLS=[["run","Run a plan"],["pred","Predict the report"],["fix","Fix the script"],["tk","Talk timer"],["ml","To, CC, BCC"],["sl","Slide checker"],["drill","Sorting drill"]];
+const EXAMPLES=[];
+STEPS.forEach((s,si)=>s.blocks.forEach(b=>{if(b.code)EXAMPLES.push({t:(si+1)+". "+s.t+": "+b.h,spec:b.code});}));
+EXAMPLES.unshift({t:"Blank plan",spec:{c:"# One command per line; # starts a comment\nletter greet=sir",tr:"Try the other commands: talk, pace, slide, doc, medium, posh, replyall, mail, resume."}});
+function labView(){
+  let h='<p class="hint">A small communication checker for the rules of the chapter. Each line is a command: letter, doc, medium, mail, replyall, talk, pace, slide, posh and resume, each followed by key=value pairs, for example talk intro=0.5 body=3.5 concl=1 limit=5. Predict the report, then run it.</p>';
+  h+='<div class="subnav" role="group" aria-label="Code lab tool">'+LABTOOLS.map(t=>'<button class="chip" data-act="ltool" data-v="'+t[0]+'" aria-pressed="'+(L.tool===t[0])+'">'+t[1]+"</button>").join("")+"</div>";
+  const f={run:labRun,pred:labPred,fix:labFix,tk:labTalk,ml:labMail,sl:labSl,drill:labSort}[L.tool];
+  return '<div class="labwrap">'+h+f()+"</div>";
+}
+function labRun(){
+  const ex=EXAMPLES[L.ex];
+  return '<div class="panel"><h3>Run and edit the chapter\'s plans</h3><label class="lab" for="exsel">Choose a plan</label><select id="exsel" data-lsel="ex">'+EXAMPLES.map((e,i)=>'<option value="'+i+'"'+(i===L.ex?" selected":"")+">"+esc(e.t)+"</option>").join("")+"</select>"+codeHtml("lab"+L.ex,ex.spec)+'<p class="hint">Lines starting with # are comments. A mistake gives an error that names the line.</p></div>';
+}
+function numFix(s){return norm(s);}
+function matchCalc(user,q){const u=norm(user);return q.alts.some(set=>set.every(a=>q.ex?u===norm(a):u.includes(norm(a))));}
+
+function labPred(){
+  const q=CALC[L.pi],r=L.pres[L.pi];
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Predict the output</h3><span class="lab">Problem '+(L.pi+1)+" of "+CALC.length+'</span></div><p>'+esc(q.q)+'</p><pre class="codeview">'+esc(q.src)+'</pre><label class="lab" for="pguess2">Your answer (separate lines with a slash)</label><input type="text" id="pguess2" data-lin="pred" value="'+esc((r&&r.guess)||"")+'" autocomplete="off"'+(r&&r.checked?" disabled":"")+'><div class="row"><button class="btn primary" data-act="pcheck2"'+(r&&r.checked?" disabled":"")+'>Check my prediction</button><button class="btn" data-act="prun2">Run it to see</button></div>';
+  if(r&&r.checked)h+='<div class="rs '+(r.ok?"ok":"bad")+'"><b>'+(r.ok?"Correct.":"Not quite.")+"</b> Expected answer: <code>"+esc(q.model)+"</code>. "+esc(q.e)+"</div>";
+  h+='<div class="outbox" id="out-pred">'+(r&&r.run?outHtml(r.run):'<p class="hint">Press "Run it to see" to draw the page and compare.</p>')+'</div><div class="row"><button class="btn" data-act="pprev2"'+(L.pi?"":" disabled")+'>Previous</button><button class="btn" data-act="pnext2"'+(L.pi+1<CALC.length?"":" disabled")+">Next problem</button></div></div>";
+  return h;
+}
+
+const FIX=[
+{t:"A misspelt command",kind:"Unknown command",goal:"The planner should print the close for a named person.",exp:"salutation: Dear Mr Sharma; close: Yours sincerely",hint:"Look at the first word.",sol:"letter ...",why:"Commands must be spelt exactly.",src:"leter greet=name"},
+{t:"A missing salutation type",kind:"Missing value",goal:"Choose the close for Dear Sir/Madam.",exp:"salutation: Dear Sir/Madam; close: Yours faithfully",hint:"letter needs greet=.",sol:"greet=sir",why:"greet is missing.",src:"letter"},
+{t:"A wrong greeting word",kind:"Invalid value",goal:"Dear Mr Sharma should give Yours sincerely.",exp:"salutation: Dear Mr Sharma; close: Yours sincerely",hint:"Use name or sir.",sol:"greet=name",why:"'mister' is not accepted.",src:"letter greet=mister"},
+{t:"An unknown document",kind:"Invalid value",goal:"The layout of a memo.",exp:"memo: To, From, Date, Subject, then the body; no salutation or close",hint:"Use one of the six kinds.",sol:"kind=memo",why:"'email' is not a document kind of this lab.",src:"doc kind=email"},
+{t:"An unknown need",kind:"Invalid value",goal:"The best medium for sensitive feedback.",exp:"best medium: call or video, in private",hint:"Use sensitive.",sol:"need=sensitive",why:"'private' is not a need.",src:"medium need=private"},
+{t:"Negative employees",kind:"Range error",goal:"A workplace of 25 needs an Internal Committee.",exp:"Internal Committee required (10 or more employees)",hint:"Counts cannot be negative.",sol:"employees=25",why:"-25 employees is impossible.",src:"posh employees=-25"},
+{t:"More repliers than recipients",kind:"Logic error",goal:"One person replies to all 200 recipients.",exp:"messages delivered: 200 / one careless Reply All fills 200 inboxes",hint:"Repliers are among the recipients.",sol:"repliers=1",why:"500 repliers cannot come from 200 recipients.",src:"replyall recipients=200 repliers=500"},
+{t:"No recipients in To",kind:"Range error",goal:"One To address, one CC and 50 BCC.",exp:"visible to everyone: 2 addresses / hidden: 50 addresses / total recipients: 52",hint:"to must be at least 1.",sol:"to=1",why:"A mail needs someone to act.",src:"mail to=0 cc=1 bcc=50"},
+{t:"A missing time limit",kind:"Missing value",goal:"Meera's talk is 5 minutes in total.",exp:"total: 5 minutes / exactly on time",hint:"talk needs limit=.",sol:"limit=5",why:"The limit is missing.",src:"talk intro=0.5 body=3.5 concl=1"},
+{t:"A negative time",kind:"Range error",goal:"The talk should total 5 minutes.",exp:"total: 5 minutes / exactly on time",hint:"Times must be positive.",sol:"body=3.5",why:"A negative body time is impossible.",src:"talk intro=0.5 body=-3.5 concl=1 limit=5"},
+{t:"Zero slides",kind:"Range error",goal:"Ten minutes with 8 slides is 75 seconds a slide.",exp:"time per slide: 75 seconds / workable pace",hint:"slides must be above 0.",sol:"slides=8",why:"You cannot divide by zero slides.",src:"pace minutes=10 slides=0"},
+{t:"A slide without a point count",kind:"Missing value",goal:"A 28 pt slide of 12 words with one point.",exp:"font: readable (24 pt or more) / points: one main point per slide / text: key phrases",hint:"slide needs size, words and points.",sol:"points=1",why:"points is missing.",src:"slide size=28 words=12"},
+{t:"A wrong resume level",kind:"Invalid value",goal:"A fresher's resume of one page.",exp:"length: right for a fresher",hint:"level is fresher or experienced.",sol:"level=fresher",why:"'student' is not a level.",src:"resume pages=1 level=student"},
+{t:"Pages below one",kind:"Range error",goal:"A fresher's resume of one page is the right length.",exp:"length: right for a fresher",hint:"pages must be at least 1.",sol:"pages=1",why:"0 pages is not a resume.",src:"resume pages=0 level=fresher"}
+];
+
+function labFix(){
+  const f=FIX[L.fi],r=L.fres[L.fi];
+  const id="fix"+L.fi;CS.spec[id]={c:f.src,inp:f.inp};
+  let h='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Fix the bug: '+esc(f.t)+'</h3><span class="lab">Exercise '+(L.fi+1)+" of "+FIX.length+"</span></div><p><b>Goal.</b> "+esc(f.goal)+"</p>";
+  h+=codeHtml(id,{c:f.src,inp:f.inp});
+  h+='<div class="row"><button class="btn primary" data-act="fcheck">Check my fix</button><button class="btn" data-act="fhint">Hint</button><button class="btn" data-act="fsol">Show solution</button></div>';
+  if(r)h+='<div class="rs '+(r.ok?"ok":"bad")+'" id="fixres"><b>'+(r.ok?"Fixed.":"Not yet.")+"</b> "+esc(r.msg)+"</div>";
+  if(L.fshow[L.fi]>=1)h+='<p class="try"><b>Hint.</b> '+esc(f.hint)+"</p>";
+  if(L.fshow[L.fi]>=2)h+='<p class="try"><b>Solution.</b> <code>'+esc(f.sol)+"</code></p>";
+  if(r&&r.ok)h+='<div class="note-box"><b>'+esc(f.kind)+".</b> "+esc(f.why)+"</div>";
+  h+='<div class="row"><button class="btn" data-act="fprev"'+(L.fi?"":" disabled")+'>Previous</button><button class="btn" data-act="fnext"'+(L.fi+1<FIX.length?"":" disabled")+">Next exercise</button></div></div>";
+  return h;
+}
+function tbl(head,rows){return '<div class="tblwrap"><table class="tbl"><thead><tr>'+head.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";}
+function chips(key,list){return '<div class="subnav">'+list.map(x=>'<button class="chip" data-act="lset" data-key="'+key+'" data-v="'+x[0]+'" aria-pressed="'+(L[key]===x[0])+'">'+esc(x[1])+"</button>").join("")+"</div>";}
+function selHtml(id,lab,key,opts){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><select id="'+id+'" data-lsel="set" data-key="'+key+'" style="width:auto">'+opts.map(o=>'<option value="'+o+'"'+(L[key]===o?" selected":"")+">"+esc(o)+"</option>").join("")+"</select></div>";}
+function numIn(id,lab,key,w,tag){return '<div><label class="lab" for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'" data-lin="'+tag+'" data-key="'+key+'" class="mono" value="'+esc(L[key])+'" style="max-width:'+(w||6)+'rem"></div>';}
+
+function repRes(src){const r=fnRun(src);return r.ok?'<pre class="outpre">'+esc(r.out)+"</pre>":'<div class="rs bad">'+esc(r.detail)+"</div>";}
+function labTalk(){
+  return '<div class="panel"><h3>Talk timer</h3><p class="hint">Total = introduction + body + conclusion + questions. Compare it with the time you are given.</p><div class="row">'+numIn("tiin","Intro (min)","ti",5,"tk")+numIn("tbin","Body (min)","tb",5,"tk")+numIn("tcin","Conclusion (min)","tc",5,"tk")+numIn("tqin","Questions (min)","tq",5,"tk")+numIn("tlin","Limit (min)","tl",5,"tk")+'</div><div id="tkres">'+tkRes()+"</div></div>";
+}
+function tkRes(){return repRes("talk intro="+L.ti+" body="+L.tb+" concl="+L.tc+" qa="+L.tq+" limit="+L.tl);}
+function labMail(){
+  return '<div class="panel"><h3>To, CC and BCC</h3><p class="hint">To and CC addresses are visible to everyone; BCC addresses are hidden.</p><div class="row">'+numIn("mtin","To","mt",5,"ml")+numIn("mcin","CC","mc",5,"ml")+numIn("mbin","BCC","mb",5,"ml")+'</div><div id="mlres">'+mlRes()+"</div></div>";
+}
+function mlRes(){return repRes("mail to="+L.mt+" cc="+L.mc+" bcc="+L.mb);}
+function labSl(){
+  return '<div class="panel"><h3>Slide checker</h3><p class="hint">Body text should be 24 to 28 pt, key phrases only, one main point per slide.</p><div class="row">'+numIn("ssin","Font size (pt)","ss",5,"sl")+numIn("swin","Words","sw",5,"sl")+numIn("spin","Points","sp",5,"sl")+'</div><div id="slres">'+slRes()+"</div></div>";
+}
+function slRes(){return repRes("slide size="+L.ss+" words="+L.sw+" points="+L.sp);}
+const DIMS=[
+{n:"Which kind of noise?",o:["Physical","Psychological","Semantic","Technical"],it:[["Background sound",0],["Worry or prejudice",1],["Unfamiliar words",2],["A bad microphone",3],["A weak network",3],["Jargon the listener does not know",2],["Anger of the receiver",1]]},
+{n:"Which flow?",o:["Downward","Upward","Horizontal","Diagonal"],it:[["A policy from the manager to staff",0],["A progress report to the manager",1],["Two team-mates talking",2],["A tester writing to the finance head",3],["A principal's circular to students",0],["Two developers in the same team",2]]},
+{n:"Which document?",o:["Letter","Notice","Circular","Memo","Report","Proposal"],it:[["Dear Sir/Madam … Yours faithfully",0],["Announces a contest with date and signature",1],["One document to many recipients for a common policy",2],["To, From, Date, Subject",3],["Executive summary and recommendations",4],["Asks for Rs 20 000 with a budget",5],["Internal instruction about a code freeze",3]]},
+{n:"To, CC or BCC?",o:["To","CC","BCC"],it:[["Must act",0],["Needs to know, no action",1],["Hidden recipients",2],["Large mailing list",2],["Visible, no action",1],["Visible, must reply",0]]},
+{n:"Which ethics area?",o:["Work ethic","Confidentiality","Respect","Accountability","Time"],it:[["Not sharing a client list",1],["Admitting your own error to the supervisor",3],["Equal dignity to all colleagues",2],["Meeting deadlines",0],["Joining on time",4],["Locking your screen",1],["Taking initiative",0]]},
+{n:"Which medium?",o:["Instant message","E-mail or letter","Call or video","Collaborative platform","Circular or notice"],it:[["A quick question to a team-mate",0],["A formal request that must be recorded",1],["Strong, sensitive feedback",2],["Co-writing a report",3],["Announcement to everyone",4],["Settling an angry thread",2]]},
+{n:"Which letter of SBI or STAR?",o:["Situation","Behaviour or Action","Impact or Result"],it:[["The context in one or two sentences",0],["What you observed or did",1],["The effect or outcome",2],["When and where",0],["Delivered one day early",2],["Interrupted the client twice",1]]}
+];
+
+function sdNew(){const d=DIMS[L.sd.dim];let i;do{i=Math.floor(Math.random()*d.it.length);}while(d.it.length>1&&i===L.sd.item);L.sd.item=i;L.sd.fb="";L.sd.right=null;}
+sdNew();
+function labSort(){
+  const s=L.sd,d=DIMS[s.dim],it=d.it[s.item];
+  let h='<div class="panel"><h3>Sorting drill</h3><div class="subnav">'+DIMS.map((x,i)=>'<button class="chip" data-act="lsdim" data-v="'+i+'" aria-pressed="'+(s.dim===i)+'">'+x.n+"</button>").join("")+"</div>";
+  h+='<p class="hint">Score: '+s.s+" / "+s.t+'.</p><p><b>Classify: '+esc(it[0])+'</b></p><div class="row">'+d.o.map((o,i)=>'<button class="btn" data-act="lsda" data-v="'+i+'"'+(s.right!==null?" disabled":"")+">"+esc(o)+"</button>").join("")+"</div>";
+  if(s.fb)h+='<div class="rs '+(s.right?"ok":"bad")+'">'+esc(s.fb)+'</div><div class="row"><button class="btn primary" data-act="lsdn">Next item</button></div>';
+  return h+"</div>";
+}
+
+function labClick(a,el,v){
+  switch(a){
+    case "ltool":L.tool=v;render();return true;
+    case "crun":runWidget(el.dataset.id);return true;
+    case "wreset":resetWidget(el.dataset.id);return true;
+    case "ltog":L[el.dataset.key]=!L[el.dataset.key];render();return true;
+    case "lset":L[el.dataset.key]=v;render();return true;
+    case "pcheck2":{const q=CALC[L.pi];const g=document.getElementById("pguess2").value;L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:g,checked:true,ok:matchCalc(g,q)});render();return true;}
+    case "prun2":{const q=CALC[L.pi];const r=runCpp(q.src,"");L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{run:r});const g=document.getElementById("pguess2");if(g&&!(L.pres[L.pi].checked))L.pres[L.pi].guess=g.value;render();return true;}
+    case "pprev2":if(L.pi>0)L.pi--;render();return true;
+    case "pnext2":if(L.pi+1<CALC.length)L.pi++;render();return true;
+    case "fcheck":{const f=FIX[L.fi];const id="fix"+L.fi;const ta=document.getElementById("code-"+id);const ii=document.getElementById("in-"+id);const src=ta?ta.value:f.src;CS.src[id]=src;const inp=ii?ii.value:(f.inp||"");CS.inp[id]=inp;const r=runCpp(src,inp);CS.out[id]=r;
+      const got=(r.brief!==undefined?r.brief:(r.out||"")).replace(/\r/g,"").replace(/\s+$/,"");
+      let msg,ok=false;
+      if(!r.ok){msg=r.title+". "+r.detail;}
+      else if(got===f.exp){ok=true;msg="The output matches the goal.";}
+      else msg="It runs, but the output is different from the goal. Expected \""+f.exp.replace(/\n/g," / ")+"\" and got \""+got.replace(/\n/g," / ")+"\".";
+      L.fres[L.fi]={ok:ok,msg:msg};render();return true;}
+    case "fhint":L.fshow[L.fi]=Math.max(L.fshow[L.fi]||0,1);render();return true;
+    case "fsol":L.fshow[L.fi]=2;render();return true;
+    case "fprev":if(L.fi>0)L.fi--;render();return true;
+    case "fnext":if(L.fi+1<FIX.length)L.fi++;render();return true;
+    case "lsdim":L.sd.dim=+v;L.sd.s=0;L.sd.t=0;sdNew();render();return true;
+    case "lsda":{const d=DIMS[L.sd.dim],it=d.it[L.sd.item];L.sd.t++;const ok=+v===it[1];if(ok)L.sd.s++;L.sd.right=ok;L.sd.fb=(ok?"Correct. ":"Not quite. ")+"\u201c"+it[0]+"\u201d: "+d.o[it[1]]+".";render();return true;}
+    case "lsdn":sdNew();render();return true;
+  }
+  return false;
+}
+
+function labInput(el){
+  const k=el.dataset.lin;if(!k)return false;
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  if(k==="pred"){L.pres[L.pi]=Object.assign(L.pres[L.pi]||{},{guess:el.value});return true;}
+  if(el.dataset.key)L[el.dataset.key]=el.value;
+  if(k==="tk")set("tkres",tkRes());
+  else if(k==="ml")set("mlres",mlRes());
+  else if(k==="sl")set("slres",slRes());
+  return true;
+}
+function labSelect(el){
+  const k=el.dataset.lsel;if(!k)return false;
+  if(k==="ex"){L.ex=+el.value;render();}
+  else if(k==="set"){L[el.dataset.key]=el.value;render();}
+  return true;
+}
+CALC.forEach(q=>{if(!matchCalc(q.model,q))q.alts.push([q.model]);});
+
+
+function noteHtml(b){
+  let h='<section class="nb"><h3>'+esc(b.h)+'</h3>';
+  if(b.d)h+='<p class="def"><b>Definition.</b> '+esc(b.d)+'</p>';
+  (b.p||[]).forEach(p=>{h+='<p>'+esc(p)+'</p>';});
+  if(b.l)h+='<ul>'+b.l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  if(b.t)h+='<div class="tbl"><table><thead><tr>'+b.t.c.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+b.t.r.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(b.code)h+=codeHtml(b.code.id,b.code);
+  return h+'</section>';
+}
+function stepIds(st){const ids=[];CARDS.forEach((c,i)=>{if(st.sec.includes(c[0]))ids.push(i);});return ids.filter(i=>i<ORIG).concat(ids.filter(i=>i>=ORIG));}
+function stepChunks(st){const ids=stepIds(st),out=[];for(let i=0;i<ids.length;i+=CH)out.push(ids.slice(i,i+CH));return out;}
+function blankHtml(text){return esc(text).replace(/\{\{(.+?)\}\}/g,(m,a)=>`<button class="blank" data-act="blank" style="min-width:${Math.max(4,a.length)}ch" aria-label="Hidden term, press to reveal"><span class="ans">${a}</span></button>`);}
+function applyRate(queue,v){const id=queue.shift();let b=store.box[id]||0;
+  if(v==="miss"){b=1;queue.splice(Math.min(3,queue.length),0,id);}
+  else if(v==="almost"){b=Math.max(b,1);queue.push(id);}
+  else{b=b<2?2:3;}
+  store.box[id]=b;save();}
+function openStep(s){
+  const P=S.path,N=stepChunks(STEPS[s]).length;
+  const ch=store.path.done[s]?0:Math.min(store.path.ch[s]||0,N);
+  P.step=s;P.i=0;P.flip=false;P.guess="";P.text="";P.dchecked=false;P.ticks={};P.q=[];
+  if(ch>=N){P.ph="gaps";P.ch=N-1;}else{P.ch=ch;P.ph=ch>0?"learn":"primer";}
+  render();window.scrollTo(0,0);
+}
+function pathOverview(){
+  const first=STEPS.findIndex((_,s)=>!store.path.done[s]);
+  let h='<div class="panel"><h2>Start here</h2><p>New to the subject? Follow the steps in order. Each step sets out the textbook notes (with runnable code where the chapter has a listing), then teaches its cards in small rounds of six (first you see them with answers, then you recall them), then checks you with fill-the-gaps and a brain dump. Progress is saved in this browser.</p></div><div style="display:flex;flex-direction:column;gap:10px">';
+  STEPS.forEach((st,s)=>{
+    const N=stepChunks(st).length,done=!!store.path.done[s],ch=Math.min(store.path.ch[s]||0,N);
+    const status=done?"Done":ch>0?"Round "+ch+" of "+N+" done":"Not started";
+    h+=`<button class="opt" data-act="pstep" data-v="${s}" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><span><b>${s+1}. ${esc(st.t)}</b><br><span class="hint">${stepIds(st).length} cards · ${N} rounds</span></span><span class="tag">${status}</span></button>`;
+  });
+  h+="</div>";
+  if(first>=0)h+=`<div class="row"><button class="btn primary" data-act="pstep" data-v="${first}">${(store.path.ch[first]||0)>0?"Continue":"Begin"} step ${first+1}</button></div>`;
+  else h+='<p>All steps are done. Keep the cards fresh in Recall cards, then test yourself in Evaluate.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function viewPath(){
+  const P=S.path;
+  if(P.step===null)return pathOverview();
+  const st=STEPS[P.step],chunks=stepChunks(st),N=chunks.length;
+  const pos=P.ph==="primer"?0:(P.ph==="learn"||P.ph==="recall"||P.ph==="roundend")?1+P.ch:P.ph==="gaps"?N+1:P.ph==="dump"?N+2:N+3;
+  let h=`<div class="row" style="justify-content:space-between"><span class="row"><button class="btn" data-act="pback">All steps</button>${P.ph==="primer"||P.ph==="done"?"":'<button class="btn" data-act="pnotes">Notes</button>'}</span><span class="lab">Step ${P.step+1} of ${STEPS.length}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(pos/(N+3)*100)}%"></i></div><h2>${esc(st.t)}</h2>`;
+  if(P.ph==="primer"){
+    h+=`<div class="panel"><div class="lab">Textbook notes</div>${st.blocks.map(noteHtml).join("")}<p class="hint">Next: ${N} short rounds. In each round you see ${CH} cards with their answers, then recall them from memory.</p><div class="row"><button class="btn primary" data-act="pstart">${P.ch>0?"Continue at round "+(P.ch+1):"Start round 1"}</button></div></div>`;
+  }else if(P.ph==="learn"){
+    const ids=chunks[P.ch],id=ids[P.i],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Learn · card ${P.i+1} of ${ids.length} · ${id<ORIG?"Core":"Detail"}</div><div class="q">${esc(k[1])}</div><div class="lab">Answer</div><div class="a">${esc(k[2])}</div><p class="hint">Read it, say it back in your own words, then move on.</p><div class="row"><button class="btn" data-act="plback"${P.i?"":" disabled"}>Back</button><button class="btn primary" data-act="plnext">${P.i+1<ids.length?"Next card":"Now recall these "+ids.length}</button></div></div>`;
+  }else if(P.ph==="recall"){
+    const id=P.q[0],k=CARDS[id];
+    h+=`<div class="panel fc"><div class="lab">Round ${P.ch+1} of ${N} · Recall · ${P.q.length} left</div><div class="q">${esc(k[1])}</div><input type="text" id="pguess" placeholder="Type what you remember (optional)" value="${esc(P.guess)}" autocomplete="off">`;
+    if(!P.flip)h+='<div class="row"><button class="btn primary" data-act="pflip">Show answer</button><span class="hint">or press Space</span></div>';
+    else h+=`<div class="lab">Answer</div><div class="a">${esc(k[2])}</div><div class="row"><button class="btn bad" data-act="prate" data-v="miss">Missed it (1)</button><button class="btn warn" data-act="prate" data-v="almost">Almost (2)</button><button class="btn good" data-act="prate" data-v="got">Got it (3)</button></div>`;
+    h+="</div>";
+  }else if(P.ph==="roundend"){
+    const last=P.ch+1>=N;
+    h+=`<div class="panel"><h3>Round ${P.ch+1} done</h3><p>${last?"That was the last round of cards. Two short exercises remain: fill the gaps in the summary, then a brain dump.":"Next you will see "+chunks[P.ch+1].length+" new cards."}</p><div class="row"><button class="btn primary" data-act="pnext">${last?"Fill the gaps":"Start round "+(P.ch+2)}</button></div></div>`;
+  }else if(P.ph==="gaps"){
+    h+='<p class="hint">Say each hidden term aloud before you tap it.</p><div class="row"><button class="btn" data-act="revall">Reveal all</button><button class="btn" data-act="hideall">Hide all</button></div>';
+    st.notes.forEach(ni=>{const n=NOTES[ni];h+=`<div class="panel note"><h3>${esc(n[0])}</h3><p>${blankHtml(n[1])}</p></div>`;});
+    h+='<div class="row"><button class="btn primary" data-act="pdump">Continue to brain dump</button></div>';
+  }else if(P.ph==="dump"){
+    const pts=[];st.dump.forEach(d=>DUMPS[d].p.forEach(p=>pts.push(p)));
+    h+=`<div class="panel"><h3>Brain dump</h3><p class="hint">Close everything and write what you remember about this step. Then compare.</p><textarea id="ptext" placeholder="Write it in your own words...">${esc(P.text)}</textarea>`;
+    if(!P.dchecked)h+='<div class="row"><button class="btn primary" data-act="pcheck">Compare with key points</button></div>';
+    else{const got=pts.filter((_,i)=>P.ticks[i]).length;
+      h+=`<div class="lab">Tick what you included</div><div class="pts">${pts.map((p,i)=>`<label><input type="checkbox" data-act="ptick" data-i="${i}"${P.ticks[i]?" checked":""}><span>${esc(p)}</span></label>`).join("")}</div><div class="row"><b>${got} of ${pts.length} covered</b><button class="btn primary" data-act="pfinish">Finish this step</button></div>`;}
+    h+="</div>";
+  }else{
+    const ids=stepIds(st),m=ids.filter(i=>(store.box[i]||0)>=2).length;
+    h+=`<div class="panel"><h3>Step ${P.step+1} complete</h3><p>${m} of ${ids.length} cards in this step are at Review or Mastered. The rest keep coming back in Recall cards.</p><div class="row">${P.step+1<STEPS.length?`<button class="btn primary" data-act="pnextstep">Next: ${esc(STEPS[P.step+1].t)}</button>`:""}<button class="btn" data-act="pback">All steps</button></div></div>`;
+  }
+  return '<div style="display:flex;flex-direction:column;gap:16px">'+h+"</div>";
+}
+
+/* ============ EVALUATE ============ */
+function countOf(k){return BANK.filter(b=>b.t===k).length;}
+function viewEval(){
+  if(S.ev.view==="setup")return evalSetup();
+  if(S.ev.view==="quiz")return evalQuiz();
+  return evalResult();
+}
+function evalSetup(){
+  let h='<div class="panel"><h2>Build a test</h2><p class="hint">Choose the question types. Written answers (short, long, scenario) are self-marked against the key points, like checking your own paper.</p><div style="display:flex;flex-direction:column;gap:8px">';
+  TYPES.forEach(t=>{h+=`<div class="tcount"><label><input type="checkbox" data-act="etype" data-v="${t.k}"${S.ev.types[t.k]?" checked":""}><span>${esc(t.n)}</span></label><span class="n">${countOf(t.k)} Qs · ${t.m} mark${t.m>1?"s":""} each</span></div>`;});
+  const pool=BANK.filter(b=>S.ev.types[b.t]).length;
+  h+=`</div><div class="row"><label for="en" class="lab">Length</label><select id="en" style="width:auto"><option value="10"${S.ev.n==10?" selected":""}>10 questions</option><option value="20"${S.ev.n==20?" selected":""}>20 questions</option><option value="35"${S.ev.n==35?" selected":""}>35 questions</option><option value="0"${S.ev.n==0?" selected":""}>Everything selected (${pool})</option></select></div><div class="row"><button class="btn primary" data-act="estart"${pool?"":" disabled"}>Start test</button></div></div>`;
+  if(store.hist.length){
+    h+='<div class="panel"><h3>Recent tests</h3>'+store.hist.slice(0,6).map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.d)} · ${x.n} questions</span><b>${x.pct}%</b></div>`).join("")+"</div>";
+  }
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+h+"</div>";
+}
+function startRun(list){
+  const qs=list.map(q=>q.t==="mcq"?Object.assign({},q,{o:shuffle(q.opts.map((t,i)=>({t:t,c:i===q.a})))}):q);
+  S.run={qs:qs,i:0,res:[],stage:[],ticks:[],text:[]};S.ev.view="quiz";render();window.scrollTo(0,0);
+}
+function evalQuiz(){
+  const r=S.run,q=r.qs[r.i],res=r.res[r.i],T=TM[q.t];
+  let h=`<div class="panel"><div class="row" style="justify-content:space-between"><span class="tag">${esc(T.n)}</span><span class="lab">Question ${r.i+1} of ${r.qs.length} · ${T.m} mark${T.m>1?"s":""}</span></div><div class="bar" aria-hidden="true"><i style="width:${Math.round(r.i/r.qs.length*100)}%"></i></div>`;
+  h+=`<h3 style="font-size:1.2rem;line-height:1.35">${esc(q.t==="fill"?q.q.replace("___","_______"):q.q)}</h3>`;
+  if(q.t==="calc"&&q.src)h+='<pre class="codeview">'+esc(q.src)+'</pre>';
+  if(q.t==="mcq"){
+    h+='<div class="opts">'+q.o.map((o,i)=>{let c="opt";if(res){if(o.c)c+=" right";else if(res.pick===i)c+=" wrong";}return `<button class="${c}" data-act="mcq" data-i="${i}"${res?" disabled":""}>${esc(o.t)}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="tf"){
+    h+='<div class="opts">'+[true,false].map(v=>{let c="opt";if(res){if(q.a===v)c+=" right";else if(res.pick===v)c+=" wrong";}return `<button class="${c}" data-act="tf" data-v="${v}"${res?" disabled":""}>${v?"True":"False"}</button>`;}).join("")+"</div>";
+    if(res)h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Not quite."}</b> ${esc(q.e)}</div>`;
+  }else if(q.t==="fill"||q.t==="vsa"||q.t==="calc"){
+    h+=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer" value="${esc(r.text[r.i]||"")}"${res?" disabled":""}>`;
+    if(!res)h+='<div class="row"><button class="btn primary" data-act="check">Check</button></div>';
+    else{
+      h+=`<div class="fb ${res.score?"ok":"no"}"><b>${res.score?"Correct.":"Model answer:"}</b> ${res.score?"":esc(q.model)} ${q.e?esc(q.e):""}</div>`;
+      if(!res.score)h+='<div class="row"><button class="btn" data-act="override">I was right, count it</button></div>';
+    }
+  }else{
+    const st=r.stage[r.i]||0;
+    h+=`<textarea id="wtext" placeholder="Write your answer as you would in the exam..."${st?" disabled":""}>${esc(r.text[r.i]||"")}</textarea>`;
+    if(!st)h+='<div class="row"><button class="btn primary" data-act="reveal">Show model answer</button></div>';
+    else{
+      const tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;
+      h+=`<div class="lab">Model answer</div><div class="a" style="border-left:3px solid var(--accent);padding-left:14px">${esc(q.model)}</div><div class="lab">Tick every marking point your answer made</div><div class="pts">`+q.pts.map((p,i)=>`<label><input type="checkbox" data-act="wtick" data-i="${i}"${tk[i]?" checked":""}${res?" disabled":""}><span>${esc(p)}</span></label>`).join("")+"</div>";
+      if(!res)h+=`<div class="row"><button class="btn primary" data-act="wsave">Save score (${fmt(got/q.pts.length*T.m)} of ${T.m})</button></div>`;
+      else h+=`<div class="fb ${res.score>=T.m?"ok":"no"}">Scored ${fmt(res.score)} of ${T.m}.</div>`;
+    }
+  }
+  if(res){h+=`<div class="row"><button class="btn primary" data-act="next">${r.i+1<r.qs.length?"Next question":"See results"}</button></div>`;}
+  return h+"</div>";
+}
+function fmt(x){return (Math.round(x*2)/2).toString();}
+function setRes(score,extra){const r=S.run,q=r.qs[r.i];r.res[r.i]=Object.assign({score:score,max:TM[q.t].m},extra||{});render();}
+function evalResult(){
+  const r=S.run;let sc=0,mx=0;const by={};
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;const b=by[q.t]||(by[q.t]={s:0,m:0,n:0});b.s+=x.score;b.m+=x.max;b.n++;});
+  const pct=Math.round(sc/mx*100);
+  const msg=pct>=85?"Exam ready on this material.":pct>=65?"Solid. Revisit the misses below.":pct>=40?"Getting there. Use the Learn section on the weak topics.":"Go back to the recall cards, then try again.";
+  let h=`<div class="panel"><div class="lab">Result</div><div class="score">${fmt(sc)} / ${mx} <span style="font-size:1.5rem;color:var(--muted)">${pct}%</span></div><p>${msg}</p><div style="display:flex;flex-direction:column;gap:10px">`;
+  TYPES.forEach(t=>{const b=by[t.k];if(!b)return;const p=Math.round(b.s/b.m*100);h+=`<div><div class="row" style="justify-content:space-between"><span>${esc(t.n)} (${b.n})</span><b>${fmt(b.s)}/${b.m}</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`;});
+  const missed=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m).length;
+  h+=`</div><div class="row">${missed?`<button class="btn primary" data-act="retry">Retry the ${missed} missed</button>`:""}<button class="btn" data-act="newtest">New test</button></div></div>`;
+  h+="<h2>Review</h2>";
+  r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};const ok=x.score>=x.max;
+    let ans=q.t==="mcq"?q.opts[q.a]:q.t==="tf"?(q.a?"True":"False"):q.model;
+    h+=`<div class="rev ${ok?"ok":"bad"}"><div class="lab">${esc(TM[q.t].n)} · ${fmt(x.score)}/${x.max}</div><b>${esc(q.q)}</b>${x.resp?`<div class="r">You: ${esc(x.resp)}</div>`:""}<div class="r">${ok?"":"Answer: "}${esc(ans)}</div></div>`;});
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+h+"</div>";
+}
+function finishRun(){
+  const r=S.run;let sc=0,mx=0;r.qs.forEach((q,i)=>{const x=r.res[i]||{score:0,max:TM[q.t].m};sc+=x.score;mx+=x.max;});
+  if(!r.retry){store.hist.unshift({d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}),pct:Math.round(sc/mx*100),n:r.qs.length});store.hist=store.hist.slice(0,8);save();}
+  S.ev.view="result";
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,v=el.dataset.v;
+  switch(a){
+    case "tab":S.tab=v;render();break;
+    case "lv":S.lv=v;render();break;
+    case "csec":S.cards.sec=+v;buildQueue();render();break;
+    case "flip":S.cards.flip=true;render();break;
+    case "cnext":buildQueue();render();break;
+    case "creset":CARDS.forEach((k,i)=>{if(S.cards.sec<0||k[0]===S.cards.sec)delete store.box[i];});save();buildQueue();render();break;
+    case "rate":{const q=S.cards.queue,id=q.shift();let b=store.box[id]||0;
+      if(v==="miss"){b=1;q.splice(Math.min(3,q.length),0,id);}
+      else if(v==="almost"){b=Math.max(b,1);q.push(id);}
+      else{b=b<2?2:3;S.cards.done++;}
+      store.box[id]=b;save();S.cards.flip=false;S.cards.guess="";render();break;}
+    case "cord":S.cards.ordered=v==="1";buildQueue();render();break;
+    case "pstep":openStep(+v);break;
+    case "pback":S.path.step=null;render();window.scrollTo(0,0);break;
+    case "pnotes":S.path.ph="primer";render();window.scrollTo(0,0);break;
+    case "pstart":S.path.ph="learn";S.path.i=0;render();break;
+    case "plback":if(S.path.i>0)S.path.i--;render();break;
+    case "plnext":{const P=S.path,ids=stepChunks(STEPS[P.step])[P.ch];
+      if(P.i+1<ids.length)P.i++;else{P.ph="recall";P.q=shuffle(ids.slice());P.flip=false;P.guess="";}
+      render();break;}
+    case "pflip":S.path.flip=true;render();break;
+    case "prate":{const P=S.path;applyRate(P.q,v);P.flip=false;P.guess="";
+      if(!P.q.length){store.path.ch[P.step]=P.ch+1;save();P.ph="roundend";}
+      render();break;}
+    case "pnext":{const P=S.path,N=stepChunks(STEPS[P.step]).length;
+      if(P.ch+1<N){P.ch++;P.ph="learn";P.i=0;}else P.ph="gaps";
+      render();window.scrollTo(0,0);break;}
+    case "pdump":S.path.ph="dump";render();window.scrollTo(0,0);break;
+    case "pcheck":{const t=$("#ptext");if(t)S.path.text=t.value;S.path.dchecked=true;render();break;}
+    case "pfinish":store.path.done[S.path.step]=true;save();S.path.ph="done";render();window.scrollTo(0,0);break;
+    case "pnextstep":openStep(S.path.step+1);break;
+    case "blank":el.classList.toggle("on");break;
+    case "revall":document.querySelectorAll(".blank").forEach(b=>b.classList.add("on"));break;
+    case "hideall":document.querySelectorAll(".blank").forEach(b=>b.classList.remove("on"));break;
+    case "mask":if(el.classList.contains("hid")){el.classList.remove("hid");el.removeAttribute("role");}break;
+    case "tmode":S.tmode[el.dataset.t]=v;render();break;
+    case "dtopic":S.dump={i:+v,text:"",checked:false,ticks:{}};render();break;
+    case "dcheck":S.dump.checked=true;render();break;
+    case "dreset":S.dump.checked=false;S.dump.ticks={};S.dump.text="";render();break;
+    case "estart":{const pool=shuffle(BANK.filter(b=>S.ev.types[b.t]));const list=S.ev.n?pool.slice(0,S.ev.n):pool;
+      list.sort((x,y)=>TYPES.findIndex(t=>t.k===x.t)-TYPES.findIndex(t=>t.k===y.t));startRun(list);break;}
+    case "mcq":{const r=S.run,q=r.qs[r.i],i=+el.dataset.i;setRes(q.o[i].c?1:0,{pick:i,resp:q.o[i].t});break;}
+    case "tf":{const r=S.run,q=r.qs[r.i],p=v==="true";setRes(p===q.a?1:0,{pick:p,resp:p?"True":"False"});break;}
+    case "check":doCheck();break;
+    case "override":{const r=S.run;r.res[r.i].score=TM[r.qs[r.i].t].m;render();break;}
+    case "reveal":{const r=S.run;r.text[r.i]=$("#wtext").value;r.stage[r.i]=1;render();break;}
+    case "wsave":{const r=S.run,q=r.qs[r.i],tk=r.ticks[r.i]||{};const got=q.pts.filter((_,i)=>tk[i]).length;setRes(Math.round(got/q.pts.length*TM[q.t].m*2)/2,{resp:r.text[r.i]||""});break;}
+    case "next":{const r=S.run;if(r.i+1<r.qs.length){r.i++;render();window.scrollTo(0,0);}else{finishRun();render();window.scrollTo(0,0);}break;}
+    case "retry":{const r=S.run;const list=r.qs.filter((q,i)=>(r.res[i]||{score:0}).score<TM[q.t].m);startRun(list);S.run.retry=true;break;}
+    case "newtest":S.ev.view="setup";S.run=null;render();break;
+    default:labClick(a,el,v);
+  }
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.lsel){labSelect(el);return;}
+  if(el.dataset.act==="etype"){S.ev.types[el.dataset.v]=el.checked?1:0;render();}
+  else if(el.id==="en"){S.ev.n=+el.value;}
+  else if(el.dataset.act==="ptick"){S.path.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="dtick"){S.dump.ticks[el.dataset.i]=el.checked;render();}
+  else if(el.dataset.act==="wtick"){const r=S.run;r.ticks[r.i]=r.ticks[r.i]||{};r.ticks[r.i][el.dataset.i]=el.checked;render();}
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.cid){CS.src[el.dataset.cid]=el.value;return;}
+  if(el.dataset&&el.dataset.iid){CS.inp[el.dataset.iid]=el.value;return;}
+  if(el.dataset&&(el.dataset.lin||el.dataset.tcell!==undefined)){labInput(el);return;}
+  if(el.id==="guess")S.cards.guess=el.value;
+  else if(el.id==="pguess")S.path.guess=el.value;
+  else if(el.id==="ptext")S.path.text=el.value;
+  else if(el.id==="dtext")S.dump.text=el.value;
+  else if(el.id==="ans"&&S.run)S.run.text[S.run.i]=el.value;
+});
+function doCheck(){
+  const r=S.run,q=r.qs[r.i],v=($("#ans").value||"").trim();if(!v)return;
+  r.text[r.i]=v;setRes((q.t==="calc"?matchCalc(v,q):matches(v,q.acc,q.all))?TM[q.t].m:0,{resp:v});
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target,tag=t.tagName;
+  if(e.key==="Enter"&&t.id==="ans"){e.preventDefault();doCheck();return;}
+  if(t.classList&&t.classList.contains("codearea")){
+    if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const p=t.selectionStart;t.setRangeText("    ",p,t.selectionEnd,"end");CS.src[t.dataset.cid]=t.value;return;}
+    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();const b=t.closest(".cw").parentElement.querySelector('[data-act="crun"],[data-act="fcheck"]');if(b)b.click();return;}
+  }
+  if(e.key==="Enter"&&t.id==="pguess2"){e.preventDefault();const b=document.querySelector('[data-act="pcheck2"]');if(b&&!b.disabled)b.click();return;}
+  if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("hid")){e.preventDefault();t.click();return;}
+  const inPath=S.tab==="learn"&&S.lv==="path"&&S.path.ph==="recall"&&S.path.q.length>0;
+  const inCards=S.tab==="learn"&&S.lv==="cards"&&S.cards.queue.length>0;
+  if(!(inPath||inCards)||tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  const flipped=inPath?S.path.flip:S.cards.flip;
+  if((e.key===" "||e.key==="Enter")&&tag!=="BUTTON"&&!flipped){e.preventDefault();if(inPath)S.path.flip=true;else S.cards.flip=true;render();}
+  else if(flipped&&"123".includes(e.key)&&e.key){const m={"1":"miss","2":"almost","3":"got"};const b=document.querySelector('[data-act$="rate"][data-v="'+m[e.key]+'"]');if(b)b.click();}
+});
+render();
+</script>
+
+</body></html>
